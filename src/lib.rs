@@ -2,7 +2,7 @@ use tonic::transport::Channel;
 use crate::qdrant::collections_client::CollectionsClient;
 use crate::qdrant::points_client::PointsClient;
 
-mod qdrant;
+pub mod qdrant;
 
 pub struct QdrantClient {
     pub collection_api: CollectionsClient<Channel>,

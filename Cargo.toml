@@ -1,12 +1,12 @@
 [package]
 name = "qdrant-client"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["Qdrant Team <team@qdrant.com>"]
 description = "Rust client for Qdrant Vector Search Engine"
-documentation = "https://qdrant.tech/documentation/"
+documentation = "https://docs.rs/qdrant-client"
 homepage = "https://qdrant.tech/"
-license-file = "LICENSE"
+license = "Apache-2.0"
 repository = "https://github.com/qdrant/rust-client"
 readme = "README.md"
 
