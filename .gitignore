@@ -15,5 +15,3 @@ Cargo.lock
 /target
 
 .idea
-
-src/google.protobuf.rs
