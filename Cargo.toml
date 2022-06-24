@@ -5,8 +5,10 @@ edition = "2021"
 authors = ["Qdrant Team <team@qdrant.com>"]
 description = "Rust client for Qdrant Vector Search Engine"
 documentation = "https://qdrant.tech/documentation/"
-
-
+homepage = "https://qdrant.tech/"
+license-file = "LICENSE"
+repository = "https://github.com/qdrant/rust-client"
+readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
