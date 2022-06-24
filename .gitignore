@@ -13,3 +13,7 @@ Cargo.lock
 # Added by cargo
 
 /target
+
+.idea
+
+src/google.protobuf.rs
