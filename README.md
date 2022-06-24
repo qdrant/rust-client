@@ -1,6 +1,14 @@
 # rust-client
-Rust client for Qdrant vector search engine 
 
+Rust client for Qdrant vector search engine.
+
+[![Crates.io][crates-badge]][crates-url]
+[![Apache 2.0 licensed][apache2-badge]][apache2-url]
+
+[crates-badge]: https://img.shields.io/crates/v/qdrant-client.svg
+[crates-url]: https://crates.io/crates/qdrant-client
+[apache2-badge]: https://img.shields.io/badge/license-apache2-blue.svg
+[apache2-url]: https://github.com/qdrant/rust-client/blob/master/LICENSE
 
 ## Installation
 
