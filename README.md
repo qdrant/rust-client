@@ -30,18 +30,26 @@ More info about gRPC in [documentation](https://qdrant.tech/documentation/quick_
 ### Making requests
 
 ```rust
+use std::time::Duration;
 use tonic::transport::Channel;
+use qdrant_client::QdrantClient;
+use qdrant_client::qdrant::ListCollectionsRequest;
 
+#[tokio::main]
+async fn main() {
+    println!("Hello, qdrant!");
 
-let uri = "http://localhost:6334".parse().unwrap();
-let endpoint = Channel::builder(uri)
-    .timeout(Duration::from_secs(5))
-    .connect_timeout(Duration::from_secs(5))
-    .keep_alive_while_idle(true);
+    let uri = "http://localhost:6334".parse().unwrap();
+    let endpoint = Channel::builder(uri)
+        .timeout(Duration::from_secs(5))
+        .connect_timeout(Duration::from_secs(5))
+        .keep_alive_while_idle(true);
 
-// `connect` is using the `Reconnect` network service internally to handle dropped connections
-let channel = endpoint.connect().await.unwrap(); // Unwrap in test only
+    // `connect` is using the `Reconnect` network service internally to handle dropped connections
+    let channel = endpoint.connect().await.unwrap(); // Unwrap in test only
 
-let mut client = QdrantClient::new(channel);
-let collections_list = client.collection_api.list(ListCollectionsRequest {}).await.unwrap();
+    let mut client = QdrantClient::new(channel);
+    let collections_list = client.collection_api.list(ListCollectionsRequest {}).await.unwrap();
+    println!("Collection count {:?}", collections_list.into_inner().collections.len());
+}
 ```
