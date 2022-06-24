@@ -8,6 +8,8 @@ Rust client for Qdrant vector search engine
 cargo add qdrant-client
 ```
 
+Package is available in [crates.io](https://crates.io/crates/qdrant-client)
+
 ## Usage
 
 Run Qdrant with enabled gRPC interface:
