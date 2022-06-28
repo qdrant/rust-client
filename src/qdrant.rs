@@ -238,6 +238,9 @@ pub struct CollectionInfo {
     /// Collection data types
     #[prost(map="string, message", tag="8")]
     pub payload_schema: ::std::collections::HashMap<::prost::alloc::string::String, PayloadSchemaInfo>,
+    /// number of vectors in the collection
+    #[prost(uint64, tag="9")]
+    pub points_count: u64,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ChangeAliases {
@@ -1121,7 +1124,7 @@ pub struct SearchPoints {
     pub filter: ::core::option::Option<Filter>,
     /// Max number of result
     #[prost(uint64, tag="4")]
-    pub top: u64,
+    pub limit: u64,
     /// Return point vector with the result.
     #[prost(bool, optional, tag="5")]
     pub with_vector: ::core::option::Option<bool>,
@@ -1134,6 +1137,9 @@ pub struct SearchPoints {
     /// If provided - cut off results with worse scores
     #[prost(float, optional, tag="8")]
     pub score_threshold: ::core::option::Option<f32>,
+    /// Offset of the result
+    #[prost(uint64, optional, tag="9")]
+    pub offset: ::core::option::Option<u64>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ScrollPoints {
@@ -1171,7 +1177,7 @@ pub struct RecommendPoints {
     pub filter: ::core::option::Option<Filter>,
     /// Max number of result
     #[prost(uint64, tag="5")]
-    pub top: u64,
+    pub limit: u64,
     /// Return point vector with the result.
     #[prost(bool, optional, tag="6")]
     pub with_vector: ::core::option::Option<bool>,
@@ -1184,6 +1190,9 @@ pub struct RecommendPoints {
     /// If provided - cut off results with worse scores
     #[prost(float, optional, tag="9")]
     pub score_threshold: ::core::option::Option<f32>,
+    /// Offset of the result
+    #[prost(uint64, optional, tag="10")]
+    pub offset: ::core::option::Option<u64>,
 }
 // ---------------------------------------------
 // ---------------- RPC Response ---------------
