@@ -1,14 +1,14 @@
-use tonic::transport::Channel;
 use crate::qdrant::collections_client::CollectionsClient;
 use crate::qdrant::points_client::PointsClient;
+use tonic::transport::Channel;
 
+pub mod client;
 pub mod qdrant;
 
 pub struct QdrantClient {
     pub collection_api: CollectionsClient<Channel>,
     pub points_api: PointsClient<Channel>,
 }
-
 
 impl QdrantClient {
     pub fn new(channel: Channel) -> Self {
@@ -23,9 +23,12 @@ impl QdrantClient {
 
 #[cfg(test)]
 mod tests {
-    use std::time::Duration;
-    use crate::qdrant::{CreateCollection, DeleteCollection, Distance, GetCollectionInfoRequest, ListCollectionsRequest};
     use super::*;
+    use crate::qdrant::{
+        CreateCollection, DeleteCollection, Distance, GetCollectionInfoRequest,
+        ListCollectionsRequest,
+    };
+    use std::time::Duration;
 
     #[tokio::test]
     async fn test_qdrant_queries() {
@@ -37,19 +40,36 @@ mod tests {
         // `connect` is using the `Reconnect` network service internally to handle dropped connections
         let channel = endpoint.connect().await.unwrap(); // Do not unwrap, this is a test
         let mut client = QdrantClient::new(channel);
-        let collections_list = client.collection_api.list(ListCollectionsRequest {}).await.unwrap();
+        let collections_list = client
+            .collection_api
+            .list(ListCollectionsRequest {})
+            .await
+            .unwrap();
         println!("{:?}", collections_list.into_inner());
         let collection_name = "test".to_string();
-        client.collection_api.delete(DeleteCollection { collection_name: collection_name.clone(), ..Default::default() }).await.unwrap();
-        client.collection_api.create(CreateCollection {
-            collection_name: collection_name.clone(),
-            vector_size: 10,
-            distance: Distance::Cosine.into(),
-            ..Default::default()
-        }).await.unwrap();
-        let collection_info = client.collection_api.get(GetCollectionInfoRequest{
-            collection_name
-        }).await.unwrap();
+        client
+            .collection_api
+            .delete(DeleteCollection {
+                collection_name: collection_name.clone(),
+                ..Default::default()
+            })
+            .await
+            .unwrap();
+        client
+            .collection_api
+            .create(CreateCollection {
+                collection_name: collection_name.clone(),
+                vector_size: 10,
+                distance: Distance::Cosine.into(),
+                ..Default::default()
+            })
+            .await
+            .unwrap();
+        let collection_info = client
+            .collection_api
+            .get(GetCollectionInfoRequest { collection_name })
+            .await
+            .unwrap();
         println!("{:#?}", collection_info.into_inner());
     }
 }
