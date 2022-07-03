@@ -1,4 +1,5 @@
 pub mod client;
+pub mod prelude;
 pub mod qdrant;
 
 #[cfg(test)]

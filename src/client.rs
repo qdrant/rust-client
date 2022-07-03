@@ -3,7 +3,7 @@ use crate::qdrant::point_id::PointIdOptions;
 use crate::qdrant::points_client::PointsClient;
 use crate::qdrant::value::Kind;
 use crate::qdrant::{
-    CollectionOperationResponse, CreateCollection, GetCollectionInfoRequest,
+    CollectionOperationResponse, CreateCollection, DeleteCollection, GetCollectionInfoRequest,
     GetCollectionInfoResponse, ListValue, PointId, PointStruct, PointsOperationResponse, Struct,
     UpsertPoints, Value,
 };
@@ -56,11 +56,34 @@ impl QdrantClient {
         Ok(client)
     }
 
+    pub async fn has_collection(&mut self, collection_name: impl ToString) -> Result<bool> {
+        let result = self
+            .collection_info(collection_name)
+            .await?
+            .result
+            .is_some();
+        Ok(result)
+    }
+
     pub async fn create_collection(
         &mut self,
         details: CreateCollection,
     ) -> Result<CollectionOperationResponse> {
         let result = self.collection_api.create(details).await?;
+        Ok(result.into_inner())
+    }
+
+    pub async fn delete_collection(
+        &mut self,
+        collection_name: impl ToString,
+    ) -> Result<CollectionOperationResponse> {
+        let result = self
+            .collection_api
+            .delete(DeleteCollection {
+                collection_name: collection_name.to_string(),
+                ..Default::default()
+            })
+            .await?;
         Ok(result.into_inner())
     }
 
@@ -93,6 +116,7 @@ impl QdrantClient {
         self._upsert(collection_name, points, true).await
     }
 
+    #[inline]
     async fn _upsert(
         &mut self,
         collection_name: impl ToString,
