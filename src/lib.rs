@@ -1,45 +1,18 @@
-use crate::qdrant::collections_client::CollectionsClient;
-use crate::qdrant::points_client::PointsClient;
-use tonic::transport::Channel;
-
 pub mod client;
 pub mod qdrant;
 
-pub struct QdrantClient {
-    pub collection_api: CollectionsClient<Channel>,
-    pub points_api: PointsClient<Channel>,
-}
-
-impl QdrantClient {
-    pub fn new(channel: Channel) -> Self {
-        let collection_api = CollectionsClient::new(channel.clone());
-        let points_api = PointsClient::new(channel.clone());
-        Self {
-            collection_api,
-            points_api,
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::client::*;
+
     use crate::qdrant::{
         CreateCollection, DeleteCollection, Distance, GetCollectionInfoRequest,
         ListCollectionsRequest,
     };
-    use std::time::Duration;
 
     #[tokio::test]
-    async fn test_qdrant_queries() {
-        let uri = "http://localhost:6334".parse().unwrap();
-        let endpoint = Channel::builder(uri)
-            .timeout(Duration::from_secs(5))
-            .connect_timeout(Duration::from_secs(5))
-            .keep_alive_while_idle(true);
-        // `connect` is using the `Reconnect` network service internally to handle dropped connections
-        let channel = endpoint.connect().await.unwrap(); // Do not unwrap, this is a test
-        let mut client = QdrantClient::new(channel);
+    async fn test_qdrant_queries() -> anyhow::Result<()> {
+        let mut client = QdrantClient::new(None).await?;
         let collections_list = client
             .collection_api
             .list(ListCollectionsRequest {})
@@ -67,9 +40,28 @@ mod tests {
             .unwrap();
         let collection_info = client
             .collection_api
-            .get(GetCollectionInfoRequest { collection_name })
+            .get(GetCollectionInfoRequest {
+                collection_name: collection_name.clone(),
+            })
             .await
             .unwrap();
         println!("{:#?}", collection_info.into_inner());
+
+        let mut points = Vec::new();
+        let mut payload = Payload::new();
+        payload.insert("foo", "Bar");
+        payload.insert("foo2", 12);
+        let mut sub_payload = Payload::new();
+        sub_payload.insert("foo", "Not bar");
+        payload.insert("sub_payload", sub_payload);
+
+        points.push(Point {
+            id: None,
+            vec: vec![12.; 10],
+            payload,
+        });
+        client.upsert(collection_name, points).await?;
+
+        Ok(())
     }
 }
