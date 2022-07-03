@@ -8,7 +8,6 @@ use crate::qdrant::{
     UpsertPoints, Value,
 };
 use anyhow::Result;
-use core::any::Any;
 use std::collections::HashMap;
 use std::time::Duration;
 use tonic::transport::Channel;
@@ -83,19 +82,7 @@ impl QdrantClient {
         collection_name: impl ToString,
         points: Vec<Point>,
     ) -> Result<PointsOperationResponse> {
-        let mut hm = HashMap::<String, Box<dyn Any>>::new();
-        hm.insert("nice".into(), Box::new(12));
-
-        let result = self
-            .points_api
-            .upsert(UpsertPoints {
-                collection_name: collection_name.to_string(),
-                wait: Some(false),
-                points: points.into_iter().map(|p| p.into()).collect(),
-            })
-            .await?;
-
-        Ok(result.into_inner())
+        self._upsert(collection_name, points, false).await
     }
 
     pub async fn upsert_blocking(
@@ -103,11 +90,20 @@ impl QdrantClient {
         collection_name: impl ToString,
         points: Vec<Point>,
     ) -> Result<PointsOperationResponse> {
+        self._upsert(collection_name, points, true).await
+    }
+
+    async fn _upsert(
+        &mut self,
+        collection_name: impl ToString,
+        points: Vec<Point>,
+        block: bool,
+    ) -> Result<PointsOperationResponse> {
         let result = self
             .points_api
             .upsert(UpsertPoints {
                 collection_name: collection_name.to_string(),
-                wait: Some(true),
+                wait: Some(block),
                 points: points.into_iter().map(|p| p.into()).collect(),
             })
             .await?;
