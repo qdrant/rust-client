@@ -8,7 +8,7 @@ mod tests {
 
     use crate::qdrant::{
         CreateCollection, DeleteCollection, Distance, GetCollectionInfoRequest,
-        ListCollectionsRequest,
+        ListCollectionsRequest, PointStruct,
     };
 
     #[tokio::test]
@@ -56,11 +56,7 @@ mod tests {
         sub_payload.insert("foo", "Not bar");
         payload.insert("sub_payload", sub_payload);
 
-        points.push(Point {
-            id: None,
-            vec: vec![12.; 10],
-            payload,
-        });
+        points.push(PointStruct::new(0, vec![12.; 10], payload));
         client.upsert(collection_name, points).await?;
 
         Ok(())

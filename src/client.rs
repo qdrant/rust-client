@@ -103,7 +103,7 @@ impl QdrantClient {
     pub async fn upsert(
         &mut self,
         collection_name: impl ToString,
-        points: Vec<Point>,
+        points: Vec<PointStruct>,
     ) -> Result<PointsOperationResponse> {
         self._upsert(collection_name, points, false).await
     }
@@ -111,7 +111,7 @@ impl QdrantClient {
     pub async fn upsert_blocking(
         &mut self,
         collection_name: impl ToString,
-        points: Vec<Point>,
+        points: Vec<PointStruct>,
     ) -> Result<PointsOperationResponse> {
         self._upsert(collection_name, points, true).await
     }
@@ -120,7 +120,7 @@ impl QdrantClient {
     async fn _upsert(
         &mut self,
         collection_name: impl ToString,
-        points: Vec<Point>,
+        points: Vec<PointStruct>,
         block: bool,
     ) -> Result<PointsOperationResponse> {
         let result = self
@@ -131,35 +131,33 @@ impl QdrantClient {
                 points: points.into_iter().map(|p| p.into()).collect(),
             })
             .await?;
-
         Ok(result.into_inner())
     }
 }
 
-pub struct Point {
-    pub id: Option<Id>,
-    pub vec: Vec<f32>,
-    pub payload: Payload,
-}
-
-impl From<Point> for PointStruct {
-    fn from(point: Point) -> Self {
+impl PointStruct {
+    pub fn new(id: impl Into<PointId>, vector: Vec<f32>, payload: Payload) -> Self {
         Self {
-            id: point.id.map(|id| PointId {
-                point_id_options: Some(match id {
-                    Id::Num(v) => PointIdOptions::Num(v),
-                    Id::Uuid(v) => PointIdOptions::Uuid(v),
-                }),
-            }),
-            vector: point.vec,
-            payload: point.payload.into(),
+            id: Some(id.into()),
+            vector,
+            payload: payload.into(),
         }
     }
 }
 
-pub enum Id {
-    Num(u64),
-    Uuid(String),
+impl From<String> for PointId {
+    fn from(val: String) -> Self {
+        Self {
+            point_id_options: Some(PointIdOptions::Uuid(val)),
+        }
+    }
+}
+impl From<u64> for PointId {
+    fn from(val: u64) -> Self {
+        Self {
+            point_id_options: Some(PointIdOptions::Num(val)),
+        }
+    }
 }
 
 pub struct Payload(HashMap<String, Value>);
