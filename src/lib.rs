@@ -17,8 +17,8 @@ mod tests {
         let collections_list = client
             .collection_api
             .list(ListCollectionsRequest {})
-            .await
-            .unwrap();
+            .await?;
+
         println!("{:?}", collections_list.into_inner());
         let collection_name = "test".to_string();
         client

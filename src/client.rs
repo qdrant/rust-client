@@ -22,7 +22,7 @@ pub struct QdrantClientConfig {
 impl Default for QdrantClientConfig {
     fn default() -> Self {
         Self {
-            uri: String::from("http://[::1]:6333"),
+            uri: String::from("http://[::1]:6334"),
             timeout: Duration::from_secs(5),
             connect_timeout: Duration::from_secs(5),
             keep_alive_while_idle: true,
