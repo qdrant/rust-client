@@ -4,8 +4,8 @@ use crate::qdrant::points_client::PointsClient;
 use crate::qdrant::value::Kind;
 use crate::qdrant::{
     CollectionOperationResponse, CreateCollection, DeleteCollection, GetCollectionInfoRequest,
-    GetCollectionInfoResponse, ListValue, PointId, PointStruct, PointsOperationResponse, Struct,
-    UpsertPoints, Value,
+    GetCollectionInfoResponse, ListCollectionsRequest, ListCollectionsResponse, ListValue, PointId,
+    PointStruct, PointsOperationResponse, Struct, UpsertPoints, Value,
 };
 use anyhow::Result;
 use std::collections::HashMap;
@@ -56,12 +56,20 @@ impl QdrantClient {
         Ok(client)
     }
 
+    pub async fn list_collections(&mut self) -> Result<ListCollectionsResponse> {
+        let result = self.collection_api.list(ListCollectionsRequest {}).await?;
+        Ok(result.into_inner())
+    }
+
     pub async fn has_collection(&mut self, collection_name: impl ToString) -> Result<bool> {
-        let result = self
-            .collection_info(collection_name)
-            .await?
-            .result
+        let collection_name = collection_name.to_string();
+        let response = self.list_collections().await?;
+        let result = response
+            .collections
+            .into_iter()
+            .find(|c| c.name == collection_name)
             .is_some();
+
         Ok(result)
     }
 
