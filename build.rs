@@ -1,5 +1,5 @@
 fn main() -> std::io::Result<()> {
-    if !std::env::var("DOCS_RS").is_ok() {
+    if std::env::var("DOCS_RS").is_err() {
         return tonic_build::configure()
             .out_dir("src/") // saves generated structures at this location
             .compile(

@@ -53,6 +53,10 @@ pub struct HnswConfigDiff {
     ///Note: 1Kb = 1 vector of size 256
     #[prost(uint64, optional, tag="3")]
     pub full_scan_threshold: ::core::option::Option<u64>,
+    ///
+    ///Number of parallel threads used for background index building. If 0 - auto selection.
+    #[prost(uint64, optional, tag="4")]
+    pub max_indexing_threads: ::core::option::Option<u64>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct WalConfigDiff {
@@ -1194,6 +1198,18 @@ pub struct RecommendPoints {
     #[prost(uint64, optional, tag="10")]
     pub offset: ::core::option::Option<u64>,
 }
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct CountPoints {
+    /// name of the collection
+    #[prost(string, tag="1")]
+    pub collection_name: ::prost::alloc::string::String,
+    /// Filter conditions - return only those points that satisfy the specified conditions
+    #[prost(message, optional, tag="2")]
+    pub filter: ::core::option::Option<Filter>,
+    /// If `true` - return exact count, if `false` - return approximate count
+    #[prost(bool, optional, tag="3")]
+    pub exact: ::core::option::Option<bool>,
+}
 // ---------------------------------------------
 // ---------------- RPC Response ---------------
 // ---------------------------------------------
@@ -1242,6 +1258,14 @@ pub struct SearchResponse {
     pub time: f64,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct CountResponse {
+    #[prost(message, optional, tag="1")]
+    pub result: ::core::option::Option<CountResult>,
+    /// Time spent to process
+    #[prost(double, tag="2")]
+    pub time: f64,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ScrollResponse {
     /// Use this offset for the next query
     #[prost(message, optional, tag="1")]
@@ -1251,6 +1275,11 @@ pub struct ScrollResponse {
     /// Time spent to process
     #[prost(double, tag="3")]
     pub time: f64,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct CountResult {
+    #[prost(uint64, tag="1")]
+    pub count: u64,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RetrievedPoint {
@@ -1744,6 +1773,25 @@ pub mod points_client {
             let path = http::uri::PathAndQuery::from_static("/qdrant.Points/Recommend");
             self.inner.unary(request.into_request(), path, codec).await
         }
+        ///
+        ///Count points in collection with given filtering conditions
+        pub async fn count(
+            &mut self,
+            request: impl tonic::IntoRequest<super::CountPoints>,
+        ) -> Result<tonic::Response<super::CountResponse>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static("/qdrant.Points/Count");
+            self.inner.unary(request.into_request(), path, codec).await
+        }
     }
 }
 /// Generated server implementations.
@@ -1819,6 +1867,12 @@ pub mod points_server {
             &self,
             request: tonic::Request<super::RecommendPoints>,
         ) -> Result<tonic::Response<super::RecommendResponse>, tonic::Status>;
+        ///
+        ///Count points in collection with given filtering conditions
+        async fn count(
+            &self,
+            request: tonic::Request<super::CountPoints>,
+        ) -> Result<tonic::Response<super::CountResponse>, tonic::Status>;
     }
     #[derive(Debug)]
     pub struct PointsServer<T: Points> {
@@ -2279,6 +2333,42 @@ pub mod points_server {
                     };
                     Box::pin(fut)
                 }
+                "/qdrant.Points/Count" => {
+                    #[allow(non_camel_case_types)]
+                    struct CountSvc<T: Points>(pub Arc<T>);
+                    impl<T: Points> tonic::server::UnaryService<super::CountPoints>
+                    for CountSvc<T> {
+                        type Response = super::CountResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::CountPoints>,
+                        ) -> Self::Future {
+                            let inner = self.0.clone();
+                            let fut = async move { (*inner).count(request).await };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = CountSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
                 _ => {
                     Box::pin(async move {
                         Ok(
@@ -2316,6 +2406,332 @@ pub mod points_server {
     }
     impl<T: Points> tonic::transport::NamedService for PointsServer<T> {
         const NAME: &'static str = "qdrant.Points";
+    }
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct CreateSnapshotRequest {
+    /// Name of the collection
+    #[prost(string, tag="1")]
+    pub collection_name: ::prost::alloc::string::String,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct ListSnapshotsRequest {
+    /// Name of the collection
+    #[prost(string, tag="1")]
+    pub collection_name: ::prost::alloc::string::String,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct SnapshotDescription {
+    /// Name of the snapshot
+    #[prost(string, tag="1")]
+    pub name: ::prost::alloc::string::String,
+    /// Creation time of the snapshot
+    #[prost(message, optional, tag="2")]
+    pub creation_time: ::core::option::Option<::prost_types::Timestamp>,
+    /// Size of the snapshot in bytes
+    #[prost(int64, tag="3")]
+    pub size: i64,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct CreateSnapshotResponse {
+    #[prost(message, optional, tag="1")]
+    pub snapshot_description: ::core::option::Option<SnapshotDescription>,
+    /// Time spent to process
+    #[prost(double, tag="2")]
+    pub time: f64,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct ListSnapshotsResponse {
+    #[prost(message, repeated, tag="1")]
+    pub snapshot_descriptions: ::prost::alloc::vec::Vec<SnapshotDescription>,
+    /// Time spent to process
+    #[prost(double, tag="2")]
+    pub time: f64,
+}
+/// Generated client implementations.
+pub mod snapshots_client {
+    #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
+    use tonic::codegen::*;
+    #[derive(Debug, Clone)]
+    pub struct SnapshotsClient<T> {
+        inner: tonic::client::Grpc<T>,
+    }
+    impl SnapshotsClient<tonic::transport::Channel> {
+        /// Attempt to create a new client by connecting to a given endpoint.
+        pub async fn connect<D>(dst: D) -> Result<Self, tonic::transport::Error>
+        where
+            D: std::convert::TryInto<tonic::transport::Endpoint>,
+            D::Error: Into<StdError>,
+        {
+            let conn = tonic::transport::Endpoint::new(dst)?.connect().await?;
+            Ok(Self::new(conn))
+        }
+    }
+    impl<T> SnapshotsClient<T>
+    where
+        T: tonic::client::GrpcService<tonic::body::BoxBody>,
+        T::Error: Into<StdError>,
+        T::ResponseBody: Body<Data = Bytes> + Send + 'static,
+        <T::ResponseBody as Body>::Error: Into<StdError> + Send,
+    {
+        pub fn new(inner: T) -> Self {
+            let inner = tonic::client::Grpc::new(inner);
+            Self { inner }
+        }
+        pub fn with_interceptor<F>(
+            inner: T,
+            interceptor: F,
+        ) -> SnapshotsClient<InterceptedService<T, F>>
+        where
+            F: tonic::service::Interceptor,
+            T::ResponseBody: Default,
+            T: tonic::codegen::Service<
+                http::Request<tonic::body::BoxBody>,
+                Response = http::Response<
+                    <T as tonic::client::GrpcService<tonic::body::BoxBody>>::ResponseBody,
+                >,
+            >,
+            <T as tonic::codegen::Service<
+                http::Request<tonic::body::BoxBody>,
+            >>::Error: Into<StdError> + Send + Sync,
+        {
+            SnapshotsClient::new(InterceptedService::new(inner, interceptor))
+        }
+        /// Compress requests with `gzip`.
+        ///
+        /// This requires the server to support it otherwise it might respond with an
+        /// error.
+        #[must_use]
+        pub fn send_gzip(mut self) -> Self {
+            self.inner = self.inner.send_gzip();
+            self
+        }
+        /// Enable decompressing responses with `gzip`.
+        #[must_use]
+        pub fn accept_gzip(mut self) -> Self {
+            self.inner = self.inner.accept_gzip();
+            self
+        }
+        ///
+        ///Create snapshot
+        pub async fn create(
+            &mut self,
+            request: impl tonic::IntoRequest<super::CreateSnapshotRequest>,
+        ) -> Result<tonic::Response<super::CreateSnapshotResponse>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static("/qdrant.Snapshots/Create");
+            self.inner.unary(request.into_request(), path, codec).await
+        }
+        ///
+        ///List snapshots
+        pub async fn list(
+            &mut self,
+            request: impl tonic::IntoRequest<super::ListSnapshotsRequest>,
+        ) -> Result<tonic::Response<super::ListSnapshotsResponse>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static("/qdrant.Snapshots/List");
+            self.inner.unary(request.into_request(), path, codec).await
+        }
+    }
+}
+/// Generated server implementations.
+pub mod snapshots_server {
+    #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
+    use tonic::codegen::*;
+    ///Generated trait containing gRPC methods that should be implemented for use with SnapshotsServer.
+    #[async_trait]
+    pub trait Snapshots: Send + Sync + 'static {
+        ///
+        ///Create snapshot
+        async fn create(
+            &self,
+            request: tonic::Request<super::CreateSnapshotRequest>,
+        ) -> Result<tonic::Response<super::CreateSnapshotResponse>, tonic::Status>;
+        ///
+        ///List snapshots
+        async fn list(
+            &self,
+            request: tonic::Request<super::ListSnapshotsRequest>,
+        ) -> Result<tonic::Response<super::ListSnapshotsResponse>, tonic::Status>;
+    }
+    #[derive(Debug)]
+    pub struct SnapshotsServer<T: Snapshots> {
+        inner: _Inner<T>,
+        accept_compression_encodings: (),
+        send_compression_encodings: (),
+    }
+    struct _Inner<T>(Arc<T>);
+    impl<T: Snapshots> SnapshotsServer<T> {
+        pub fn new(inner: T) -> Self {
+            Self::from_arc(Arc::new(inner))
+        }
+        pub fn from_arc(inner: Arc<T>) -> Self {
+            let inner = _Inner(inner);
+            Self {
+                inner,
+                accept_compression_encodings: Default::default(),
+                send_compression_encodings: Default::default(),
+            }
+        }
+        pub fn with_interceptor<F>(
+            inner: T,
+            interceptor: F,
+        ) -> InterceptedService<Self, F>
+        where
+            F: tonic::service::Interceptor,
+        {
+            InterceptedService::new(Self::new(inner), interceptor)
+        }
+    }
+    impl<T, B> tonic::codegen::Service<http::Request<B>> for SnapshotsServer<T>
+    where
+        T: Snapshots,
+        B: Body + Send + 'static,
+        B::Error: Into<StdError> + Send + 'static,
+    {
+        type Response = http::Response<tonic::body::BoxBody>;
+        type Error = std::convert::Infallible;
+        type Future = BoxFuture<Self::Response, Self::Error>;
+        fn poll_ready(
+            &mut self,
+            _cx: &mut Context<'_>,
+        ) -> Poll<Result<(), Self::Error>> {
+            Poll::Ready(Ok(()))
+        }
+        fn call(&mut self, req: http::Request<B>) -> Self::Future {
+            let inner = self.inner.clone();
+            match req.uri().path() {
+                "/qdrant.Snapshots/Create" => {
+                    #[allow(non_camel_case_types)]
+                    struct CreateSvc<T: Snapshots>(pub Arc<T>);
+                    impl<
+                        T: Snapshots,
+                    > tonic::server::UnaryService<super::CreateSnapshotRequest>
+                    for CreateSvc<T> {
+                        type Response = super::CreateSnapshotResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::CreateSnapshotRequest>,
+                        ) -> Self::Future {
+                            let inner = self.0.clone();
+                            let fut = async move { (*inner).create(request).await };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = CreateSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/qdrant.Snapshots/List" => {
+                    #[allow(non_camel_case_types)]
+                    struct ListSvc<T: Snapshots>(pub Arc<T>);
+                    impl<
+                        T: Snapshots,
+                    > tonic::server::UnaryService<super::ListSnapshotsRequest>
+                    for ListSvc<T> {
+                        type Response = super::ListSnapshotsResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::ListSnapshotsRequest>,
+                        ) -> Self::Future {
+                            let inner = self.0.clone();
+                            let fut = async move { (*inner).list(request).await };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = ListSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                _ => {
+                    Box::pin(async move {
+                        Ok(
+                            http::Response::builder()
+                                .status(200)
+                                .header("grpc-status", "12")
+                                .header("content-type", "application/grpc")
+                                .body(empty_body())
+                                .unwrap(),
+                        )
+                    })
+                }
+            }
+        }
+    }
+    impl<T: Snapshots> Clone for SnapshotsServer<T> {
+        fn clone(&self) -> Self {
+            let inner = self.inner.clone();
+            Self {
+                inner,
+                accept_compression_encodings: self.accept_compression_encodings,
+                send_compression_encodings: self.send_compression_encodings,
+            }
+        }
+    }
+    impl<T: Snapshots> Clone for _Inner<T> {
+        fn clone(&self) -> Self {
+            Self(self.0.clone())
+        }
+    }
+    impl<T: std::fmt::Debug> std::fmt::Debug for _Inner<T> {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            write!(f, "{:?}", self.0)
+        }
+    }
+    impl<T: Snapshots> tonic::transport::NamedService for SnapshotsServer<T> {
+        const NAME: &'static str = "qdrant.Snapshots";
     }
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
