@@ -1,12 +1,14 @@
 use tonic::transport::Channel;
 use crate::qdrant::collections_client::CollectionsClient;
 use crate::qdrant::points_client::PointsClient;
+use crate::qdrant::snapshots_client::SnapshotsClient;
 
 pub mod qdrant;
 
 pub struct QdrantClient {
     pub collection_api: CollectionsClient<Channel>,
     pub points_api: PointsClient<Channel>,
+    pub snapshots_api: SnapshotsClient<Channel>,
 }
 
 
@@ -14,9 +16,11 @@ impl QdrantClient {
     pub fn new(channel: Channel) -> Self {
         let collection_api = CollectionsClient::new(channel.clone());
         let points_api = PointsClient::new(channel.clone());
+        let snapshots_api = SnapshotsClient::new(channel.clone());
         Self {
             collection_api,
             points_api,
+            snapshots_api,
         }
     }
 }
