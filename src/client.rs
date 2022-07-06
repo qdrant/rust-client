@@ -1,6 +1,7 @@
 use crate::qdrant::collections_client::CollectionsClient;
 use crate::qdrant::point_id::PointIdOptions;
 use crate::qdrant::points_client::PointsClient;
+use crate::qdrant::snapshots_client::SnapshotsClient;
 use crate::qdrant::value::Kind;
 use crate::qdrant::{
     CollectionOperationResponse, CreateCollection, DeleteCollection, GetCollectionInfoRequest,
@@ -34,6 +35,7 @@ impl Default for QdrantClientConfig {
 pub struct QdrantClient {
     pub collection_api: CollectionsClient<Channel>,
     pub points_api: PointsClient<Channel>,
+    pub snapshots_api: SnapshotsClient<Channel>,
 }
 
 impl QdrantClient {
@@ -47,11 +49,13 @@ impl QdrantClient {
         let channel = endpoint.connect().await?;
 
         let collection_api = CollectionsClient::new(channel.clone());
-        let points_api = PointsClient::new(channel);
+        let points_api = PointsClient::new(channel.clone());
+        let snapshots_api = SnapshotsClient::new(channel);
 
         let client = Self {
             collection_api,
             points_api,
+            snapshots_api,
         };
 
         Ok(client)
