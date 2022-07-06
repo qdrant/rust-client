@@ -4,49 +4,28 @@ pub mod qdrant;
 
 #[cfg(test)]
 mod tests {
-    use super::client::*;
-
-    use crate::qdrant::{
-        CreateCollection, DeleteCollection, Distance, GetCollectionInfoRequest,
-        ListCollectionsRequest, PointStruct,
-    };
+    use super::prelude::*;
 
     #[tokio::test]
     async fn test_qdrant_queries() -> anyhow::Result<()> {
         let mut client = QdrantClient::new(None).await?;
-        let collections_list = client
-            .collection_api
-            .list(ListCollectionsRequest {})
-            .await?;
+        let collections_list = client.list_collections().await?;
+        println!("{:?}", collections_list);
 
-        println!("{:?}", collections_list.into_inner());
-        let collection_name = "test".to_string();
+        let collection_name = "test";
+        client.delete_collection(collection_name).await?;
+
         client
-            .collection_api
-            .delete(DeleteCollection {
-                collection_name: collection_name.clone(),
-                ..Default::default()
-            })
-            .await
-            .unwrap();
-        client
-            .collection_api
-            .create(CreateCollection {
-                collection_name: collection_name.clone(),
+            .create_collection(CreateCollection {
+                collection_name: collection_name.into(),
                 vector_size: 10,
                 distance: Distance::Cosine.into(),
                 ..Default::default()
             })
-            .await
-            .unwrap();
-        let collection_info = client
-            .collection_api
-            .get(GetCollectionInfoRequest {
-                collection_name: collection_name.clone(),
-            })
-            .await
-            .unwrap();
-        println!("{:#?}", collection_info.into_inner());
+            .await?;
+
+        let collection_info = client.collection_info(collection_name).await?;
+        println!("{:#?}", collection_info);
 
         let mut points = Vec::new();
         let mut payload = Payload::new();
