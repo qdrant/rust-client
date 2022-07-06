@@ -5,7 +5,8 @@ use crate::qdrant::value::Kind;
 use crate::qdrant::{
     CollectionOperationResponse, CreateCollection, DeleteCollection, GetCollectionInfoRequest,
     GetCollectionInfoResponse, ListCollectionsRequest, ListCollectionsResponse, ListValue, PointId,
-    PointStruct, PointsOperationResponse, Struct, UpsertPoints, Value,
+    PointStruct, PointsOperationResponse, SearchPoints, SearchResponse, Struct, UpsertPoints,
+    Value,
 };
 use anyhow::Result;
 use std::collections::HashMap;
@@ -139,6 +140,11 @@ impl QdrantClient {
                 points: points.into_iter().map(|p| p.into()).collect(),
             })
             .await?;
+        Ok(result.into_inner())
+    }
+
+    pub async fn search(&mut self, points: SearchPoints) -> Result<SearchResponse> {
+        let result = self.points_api.search(points).await?;
         Ok(result.into_inner())
     }
 }
