@@ -4,13 +4,15 @@ use crate::qdrant::points_client::PointsClient;
 use crate::qdrant::snapshots_client::SnapshotsClient;
 use crate::qdrant::value::Kind;
 use crate::qdrant::{
-    CollectionOperationResponse, CreateCollection, DeleteCollection, GetCollectionInfoRequest,
-    GetCollectionInfoResponse, ListCollectionsRequest, ListCollectionsResponse, ListValue, PointId,
+    CollectionOperationResponse, CreateCollection, CreateSnapshotRequest, CreateSnapshotResponse,
+    DeleteCollection, GetCollectionInfoRequest, GetCollectionInfoResponse, ListCollectionsRequest,
+    ListCollectionsResponse, ListSnapshotsRequest, ListSnapshotsResponse, ListValue, PointId,
     PointStruct, PointsOperationResponse, SearchPoints, SearchResponse, Struct, UpsertPoints,
     Value,
 };
-use anyhow::Result;
+use anyhow::{bail, Result};
 use std::collections::HashMap;
+use std::path::PathBuf;
 use std::time::Duration;
 use tonic::transport::Channel;
 
@@ -150,6 +152,76 @@ impl QdrantClient {
     pub async fn search(&mut self, points: SearchPoints) -> Result<SearchResponse> {
         let result = self.points_api.search(points).await?;
         Ok(result.into_inner())
+    }
+
+    pub async fn create_snapshot(
+        &mut self,
+        collection_name: impl ToString,
+    ) -> Result<CreateSnapshotResponse> {
+        let result = self
+            .snapshots_api
+            .create(CreateSnapshotRequest {
+                collection_name: collection_name.to_string(),
+            })
+            .await?;
+
+        Ok(result.into_inner())
+    }
+
+    pub async fn list_snapshots(
+        &mut self,
+        collection_name: impl ToString,
+    ) -> Result<ListSnapshotsResponse> {
+        let result = self
+            .snapshots_api
+            .list(ListSnapshotsRequest {
+                collection_name: collection_name.to_string(),
+            })
+            .await?;
+        Ok(result.into_inner())
+    }
+
+    pub async fn download_snapshot<T>(
+        &mut self,
+        out_path: impl Into<PathBuf>,
+        collection_name: T,
+        snapshot_name: Option<T>,
+        rest_api_uri: Option<T>,
+    ) -> Result<()>
+    where
+        T: ToString + Clone,
+    {
+        let snapshot_name = match snapshot_name {
+            Some(sn) => sn.to_string(),
+            _ => match self
+                .list_snapshots(collection_name.clone())
+                .await?
+                .snapshot_descriptions
+                .first()
+            {
+                Some(sn) => sn.name.clone(),
+                _ => bail!(
+                    "No snapshots found for collection {}",
+                    collection_name.to_string()
+                ),
+            },
+        };
+
+        let file = reqwest::get(format!(
+            "{}/collections/{}/snapshots/{}",
+            rest_api_uri
+                .map(|uri| uri.to_string())
+                .unwrap_or(String::from("http://[::1]:6333")),
+            collection_name.to_string(),
+            snapshot_name
+        ))
+        .await?
+        .bytes()
+        .await?;
+
+        let _ = std::fs::write(out_path.into(), file);
+
+        Ok(())
     }
 }
 

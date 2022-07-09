@@ -38,6 +38,11 @@ mod tests {
         points.push(PointStruct::new(0, vec![12.; 10], payload));
         client.upsert(collection_name, points).await?;
 
+        client.create_snapshot(collection_name).await?;
+        client
+            .download_snapshot("test.tar", collection_name, None, None)
+            .await?;
+
         Ok(())
     }
 }
