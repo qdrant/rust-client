@@ -4,11 +4,12 @@ use crate::qdrant::points_client::PointsClient;
 use crate::qdrant::snapshots_client::SnapshotsClient;
 use crate::qdrant::value::Kind;
 use crate::qdrant::{
-    CollectionOperationResponse, CreateCollection, CreateSnapshotRequest, CreateSnapshotResponse,
-    DeleteCollection, GetCollectionInfoRequest, GetCollectionInfoResponse, ListCollectionsRequest,
-    ListCollectionsResponse, ListSnapshotsRequest, ListSnapshotsResponse, ListValue, PointId,
-    PointStruct, PointsOperationResponse, SearchPoints, SearchResponse, Struct, UpsertPoints,
-    Value,
+    CollectionOperationResponse, CountPoints, CountResponse, CreateCollection,
+    CreateSnapshotRequest, CreateSnapshotResponse, DeleteCollection, GetCollectionInfoRequest,
+    GetCollectionInfoResponse, ListCollectionsRequest, ListCollectionsResponse,
+    ListSnapshotsRequest, ListSnapshotsResponse, ListValue, PointId, PointStruct,
+    PointsOperationResponse, RecommendPoints, RecommendResponse, ScrollPoints, ScrollResponse,
+    SearchPoints, SearchResponse, Struct, UpsertPoints, Value,
 };
 use anyhow::{bail, Result};
 use std::collections::HashMap;
@@ -151,6 +152,21 @@ impl QdrantClient {
 
     pub async fn search(&mut self, points: SearchPoints) -> Result<SearchResponse> {
         let result = self.points_api.search(points).await?;
+        Ok(result.into_inner())
+    }
+
+    pub async fn scroll(&mut self, points: ScrollPoints) -> Result<ScrollResponse> {
+        let result = self.points_api.scroll(points).await?;
+        Ok(result.into_inner())
+    }
+
+    pub async fn recommend(&mut self, points: RecommendPoints) -> Result<RecommendResponse> {
+        let result = self.points_api.recommend(points).await?;
+        Ok(result.into_inner())
+    }
+
+    pub async fn count(&mut self, points: CountPoints) -> Result<CountResponse> {
+        let result = self.points_api.count(points).await?;
         Ok(result.into_inner())
     }
 
