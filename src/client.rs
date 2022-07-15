@@ -7,9 +7,9 @@ use crate::qdrant::{
     CollectionOperationResponse, CountPoints, CountResponse, CreateCollection,
     CreateSnapshotRequest, CreateSnapshotResponse, DeleteCollection, GetCollectionInfoRequest,
     GetCollectionInfoResponse, ListCollectionsRequest, ListCollectionsResponse,
-    ListSnapshotsRequest, ListSnapshotsResponse, ListValue, PointId, PointStruct,
-    PointsOperationResponse, RecommendPoints, RecommendResponse, ScrollPoints, ScrollResponse,
-    SearchPoints, SearchResponse, Struct, UpsertPoints, Value,
+    ListSnapshotsRequest, ListSnapshotsResponse, ListValue, OptimizersConfigDiff, PointId,
+    PointStruct, PointsOperationResponse, RecommendPoints, RecommendResponse, ScrollPoints,
+    ScrollResponse, SearchPoints, SearchResponse, Struct, UpdateCollection, UpsertPoints, Value,
 };
 use anyhow::{bail, Result};
 use std::collections::HashMap;
@@ -86,6 +86,23 @@ impl QdrantClient {
         details: CreateCollection,
     ) -> Result<CollectionOperationResponse> {
         let result = self.collection_api.create(details).await?;
+        Ok(result.into_inner())
+    }
+
+    pub async fn update_collection(
+        &mut self,
+        collection_name: impl ToString,
+        optimizers_config: OptimizersConfigDiff,
+    ) -> Result<CollectionOperationResponse> {
+        let result = self
+            .collection_api
+            .update(UpdateCollection {
+                collection_name: collection_name.to_string(),
+                optimizers_config: Some(optimizers_config),
+                timeout: None,
+            })
+            .await?;
+
         Ok(result.into_inner())
     }
 
@@ -197,6 +214,7 @@ impl QdrantClient {
         Ok(result.into_inner())
     }
 
+    #[cfg(feature = "download_snapshots")]
     pub async fn download_snapshot<T>(
         &mut self,
         out_path: impl Into<PathBuf>,
