@@ -5,11 +5,12 @@ use crate::qdrant::snapshots_client::SnapshotsClient;
 use crate::qdrant::value::Kind;
 use crate::qdrant::{
     CollectionOperationResponse, CountPoints, CountResponse, CreateCollection,
-    CreateSnapshotRequest, CreateSnapshotResponse, DeleteCollection, GetCollectionInfoRequest,
-    GetCollectionInfoResponse, ListCollectionsRequest, ListCollectionsResponse,
-    ListSnapshotsRequest, ListSnapshotsResponse, ListValue, OptimizersConfigDiff, PointId,
-    PointStruct, PointsOperationResponse, RecommendPoints, RecommendResponse, ScrollPoints,
-    ScrollResponse, SearchPoints, SearchResponse, Struct, UpdateCollection, UpsertPoints, Value,
+    CreateSnapshotRequest, CreateSnapshotResponse, DeleteCollection, DeletePoints,
+    GetCollectionInfoRequest, GetCollectionInfoResponse, ListCollectionsRequest,
+    ListCollectionsResponse, ListSnapshotsRequest, ListSnapshotsResponse, ListValue,
+    OptimizersConfigDiff, PointId, PointStruct, PointsOperationResponse, PointsSelector,
+    RecommendPoints, RecommendResponse, ScrollPoints, ScrollResponse, SearchPoints, SearchResponse,
+    Struct, UpdateCollection, UpsertPoints, Value,
 };
 use anyhow::{bail, Result};
 use std::collections::HashMap;
@@ -133,24 +134,24 @@ impl QdrantClient {
         Ok(result.into_inner())
     }
 
-    pub async fn upsert(
+    pub async fn upsert_points(
         &mut self,
         collection_name: impl ToString,
         points: Vec<PointStruct>,
     ) -> Result<PointsOperationResponse> {
-        self._upsert(collection_name, points, false).await
+        self._upsert_points(collection_name, points, false).await
     }
 
-    pub async fn upsert_blocking(
+    pub async fn upsert_points_blocking(
         &mut self,
         collection_name: impl ToString,
         points: Vec<PointStruct>,
     ) -> Result<PointsOperationResponse> {
-        self._upsert(collection_name, points, true).await
+        self._upsert_points(collection_name, points, true).await
     }
 
     #[inline]
-    async fn _upsert(
+    async fn _upsert_points(
         &mut self,
         collection_name: impl ToString,
         points: Vec<PointStruct>,
@@ -167,8 +168,57 @@ impl QdrantClient {
         Ok(result.into_inner())
     }
 
-    pub async fn search(&mut self, points: SearchPoints) -> Result<SearchResponse> {
+    pub async fn search_points(&mut self, points: SearchPoints) -> Result<SearchResponse> {
         let result = self.points_api.search(points).await?;
+        Ok(result.into_inner())
+    }
+
+    pub async fn delete_points(
+        &mut self,
+        collection_name: impl ToString,
+        points: PointsSelector,
+    ) -> Result<PointsOperationResponse> {
+        self._delete_points(collection_name, false, Some(points))
+            .await
+    }
+
+    pub async fn delete_points_blocking(
+        &mut self,
+        collection_name: impl ToString,
+        points: PointsSelector,
+    ) -> Result<PointsOperationResponse> {
+        self._delete_points(collection_name, true, Some(points))
+            .await
+    }
+
+    pub async fn delete_all_points(
+        &mut self,
+        collection_name: impl ToString,
+    ) -> Result<PointsOperationResponse> {
+        self._delete_points(collection_name, false, None).await
+    }
+
+    pub async fn delete_all_points_blocking(
+        &mut self,
+        collection_name: impl ToString,
+    ) -> Result<PointsOperationResponse> {
+        self._delete_points(collection_name, true, None).await
+    }
+
+    async fn _delete_points(
+        &mut self,
+        collection_name: impl ToString,
+        blocking: bool,
+        points: Option<PointsSelector>,
+    ) -> Result<PointsOperationResponse> {
+        let result = self
+            .points_api
+            .delete(DeletePoints {
+                collection_name: collection_name.to_string(),
+                wait: Some(blocking),
+                points,
+            })
+            .await?;
         Ok(result.into_inner())
     }
 
