@@ -36,7 +36,7 @@ mod tests {
         payload.insert("sub_payload", sub_payload);
 
         points.push(PointStruct::new(0, vec![12.; 10], payload));
-        client.upsert(collection_name, points).await?;
+        client.upsert_points(collection_name, points).await?;
 
         client.create_snapshot(collection_name).await?;
         client
