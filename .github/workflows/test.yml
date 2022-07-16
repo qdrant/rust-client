@@ -11,7 +11,7 @@ jobs:
         with:
           profile: minimal
           toolchain: stable
-
+      - uses: actions/checkout@v3
       - name: Run integration tests
         run: |
           ./tests/integration-tests.sh
