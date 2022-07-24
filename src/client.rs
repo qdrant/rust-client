@@ -28,7 +28,7 @@ pub struct QdrantClientConfig {
 impl Default for QdrantClientConfig {
     fn default() -> Self {
         Self {
-            uri: String::from("http://[::1]:6334"),
+            uri: String::from("http://localhost:6334"),
             timeout: Duration::from_secs(5),
             connect_timeout: Duration::from_secs(5),
             keep_alive_while_idle: true,
@@ -168,8 +168,8 @@ impl QdrantClient {
         Ok(result.into_inner())
     }
 
-    pub async fn search_points(&mut self, points: SearchPoints) -> Result<SearchResponse> {
-        let result = self.points_api.search(points).await?;
+    pub async fn search_points(&mut self, request: SearchPoints) -> Result<SearchResponse> {
+        let result = self.points_api.search(request).await?;
         Ok(result.into_inner())
     }
 
@@ -222,18 +222,18 @@ impl QdrantClient {
         Ok(result.into_inner())
     }
 
-    pub async fn scroll(&mut self, points: ScrollPoints) -> Result<ScrollResponse> {
-        let result = self.points_api.scroll(points).await?;
+    pub async fn scroll(&mut self, request: ScrollPoints) -> Result<ScrollResponse> {
+        let result = self.points_api.scroll(request).await?;
         Ok(result.into_inner())
     }
 
-    pub async fn recommend(&mut self, points: RecommendPoints) -> Result<RecommendResponse> {
-        let result = self.points_api.recommend(points).await?;
+    pub async fn recommend(&mut self, request: RecommendPoints) -> Result<RecommendResponse> {
+        let result = self.points_api.recommend(request).await?;
         Ok(result.into_inner())
     }
 
-    pub async fn count(&mut self, points: CountPoints) -> Result<CountResponse> {
-        let result = self.points_api.count(points).await?;
+    pub async fn count(&mut self, request: CountPoints) -> Result<CountResponse> {
+        let result = self.points_api.count(request).await?;
         Ok(result.into_inner())
     }
 
@@ -295,7 +295,7 @@ impl QdrantClient {
             "{}/collections/{}/snapshots/{}",
             rest_api_uri
                 .map(|uri| uri.to_string())
-                .unwrap_or(String::from("http://[::1]:6333")),
+                .unwrap_or(String::from("http://localhost:6333")),
             collection_name.to_string(),
             snapshot_name
         ))

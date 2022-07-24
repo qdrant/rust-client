@@ -38,6 +38,18 @@ mod tests {
         points.push(PointStruct::new(0, vec![12.; 10], payload));
         client.upsert_points(collection_name, points).await?;
 
+        client.search_points(SearchPoints {
+            collection_name: collection_name.into(),
+            vector: vec![11.; 10],
+            filter: None,
+            limit: 10,
+            with_vector: None,
+            with_payload: None,
+            params: None,
+            score_threshold: None,
+            offset: None
+        }).await?;
+
         client.create_snapshot(collection_name).await?;
         client
             .download_snapshot("test.tar", collection_name, None, None)
