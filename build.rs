@@ -4,8 +4,8 @@ fn main() -> std::io::Result<()> {
             .out_dir("src/") // saves generated structures at this location
             .compile(
                 &["proto/qdrant.proto"], // proto entry point
-                &["proto"], // specify the root location to search proto dependencies
-            )
+                &["proto"],              // specify the root location to search proto dependencies
+            );
     }
     Ok(())
 }

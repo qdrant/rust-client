@@ -38,7 +38,7 @@ impl Default for QdrantClientConfig {
 
 pub struct QdrantClient {
     pub channel: Channel,
-    pub cfg: QdrantClientConfig
+    pub cfg: QdrantClientConfig,
 }
 
 impl QdrantClient {
@@ -52,10 +52,7 @@ impl QdrantClient {
 
         let channel = endpoint.connect().await?;
 
-        let client = Self {
-            channel,
-            cfg,
-        };
+        let client = Self { channel, cfg };
 
         Ok(client)
     }
@@ -286,8 +283,8 @@ impl QdrantClient {
         snapshot_name: Option<T>,
         rest_api_uri: Option<T>,
     ) -> Result<()>
-        where
-            T: ToString + Clone,
+    where
+        T: ToString + Clone,
     {
         let snapshot_name = match snapshot_name {
             Some(sn) => sn.to_string(),
@@ -313,9 +310,9 @@ impl QdrantClient {
             collection_name.to_string(),
             snapshot_name
         ))
-            .await?
-            .bytes()
-            .await?;
+        .await?
+        .bytes()
+        .await?;
 
         let _ = std::fs::write(out_path.into(), file);
 
@@ -417,8 +414,8 @@ impl From<Payload> for Value {
 }
 
 impl<T> From<Vec<T>> for Value
-    where
-        T: Into<Value>,
+where
+    T: Into<Value>,
 {
     fn from(val: Vec<T>) -> Self {
         Self {
