@@ -1,59 +1,48 @@
-use tonic::transport::Channel;
-use crate::qdrant::collections_client::CollectionsClient;
-use crate::qdrant::points_client::PointsClient;
-use crate::qdrant::snapshots_client::SnapshotsClient;
-
+pub mod client;
+pub mod prelude;
 pub mod qdrant;
-
-pub struct QdrantClient {
-    pub collection_api: CollectionsClient<Channel>,
-    pub points_api: PointsClient<Channel>,
-    pub snapshots_api: SnapshotsClient<Channel>,
-}
-
-
-impl QdrantClient {
-    pub fn new(channel: Channel) -> Self {
-        let collection_api = CollectionsClient::new(channel.clone());
-        let points_api = PointsClient::new(channel.clone());
-        let snapshots_api = SnapshotsClient::new(channel.clone());
-        Self {
-            collection_api,
-            points_api,
-            snapshots_api,
-        }
-    }
-}
 
 #[cfg(test)]
 mod tests {
-    use std::time::Duration;
-    use crate::qdrant::{CreateCollection, DeleteCollection, Distance, GetCollectionInfoRequest, ListCollectionsRequest};
-    use super::*;
+    use super::prelude::*;
 
     #[tokio::test]
-    async fn test_qdrant_queries() {
-        let uri = "http://localhost:6334".parse().unwrap();
-        let endpoint = Channel::builder(uri)
-            .timeout(Duration::from_secs(5))
-            .connect_timeout(Duration::from_secs(5))
-            .keep_alive_while_idle(true);
-        // `connect` is using the `Reconnect` network service internally to handle dropped connections
-        let channel = endpoint.connect().await.unwrap(); // Do not unwrap, this is a test
-        let mut client = QdrantClient::new(channel);
-        let collections_list = client.collection_api.list(ListCollectionsRequest {}).await.unwrap();
-        println!("{:?}", collections_list.into_inner());
-        let collection_name = "test".to_string();
-        client.collection_api.delete(DeleteCollection { collection_name: collection_name.clone(), ..Default::default() }).await.unwrap();
-        client.collection_api.create(CreateCollection {
-            collection_name: collection_name.clone(),
-            vector_size: 10,
-            distance: Distance::Cosine.into(),
-            ..Default::default()
-        }).await.unwrap();
-        let collection_info = client.collection_api.get(GetCollectionInfoRequest{
-            collection_name
-        }).await.unwrap();
-        println!("{:#?}", collection_info.into_inner());
+    async fn test_qdrant_queries() -> anyhow::Result<()> {
+        let mut client = QdrantClient::new(None).await?;
+        let collections_list = client.list_collections().await?;
+        println!("{:?}", collections_list);
+
+        let collection_name = "test";
+        client.delete_collection(collection_name).await?;
+
+        client
+            .create_collection(CreateCollection {
+                collection_name: collection_name.into(),
+                vector_size: 10,
+                distance: Distance::Cosine.into(),
+                ..Default::default()
+            })
+            .await?;
+
+        let collection_info = client.collection_info(collection_name).await?;
+        println!("{:#?}", collection_info);
+
+        let mut points = Vec::new();
+        let mut payload = Payload::new();
+        payload.insert("foo", "Bar");
+        payload.insert("foo2", 12);
+        let mut sub_payload = Payload::new();
+        sub_payload.insert("foo", "Not bar");
+        payload.insert("sub_payload", sub_payload);
+
+        points.push(PointStruct::new(0, vec![12.; 10], payload));
+        client.upsert_points(collection_name, points).await?;
+
+        client.create_snapshot(collection_name).await?;
+        client
+            .download_snapshot("test.tar", collection_name, None, None)
+            .await?;
+
+        Ok(())
     }
 }

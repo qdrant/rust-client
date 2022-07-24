@@ -16,10 +16,15 @@ readme = "README.md"
 tonic = "0.7.2"
 prost = "0.10.1"
 prost-types = "0.10.1"
+anyhow = "1"
+reqwest = { version = "0.11", optional = true }
 
 [build-dependencies]
 tonic-build = { version = "0.7.2", features = ["prost"] }
 
-
 [dev-dependencies]
 tokio = "1.19.2"
+
+[features]
+default = ["download_snapshots"]
+download_snapshots = ["reqwest"]
