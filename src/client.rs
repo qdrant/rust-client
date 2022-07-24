@@ -37,9 +37,8 @@ impl Default for QdrantClientConfig {
 }
 
 pub struct QdrantClient {
-    pub collection_api: CollectionsClient<Channel>,
-    pub points_api: PointsClient<Channel>,
-    pub snapshots_api: SnapshotsClient<Channel>,
+    pub channel: Channel,
+    pub cfg: QdrantClientConfig
 }
 
 impl QdrantClient {
@@ -50,27 +49,36 @@ impl QdrantClient {
             .timeout(cfg.timeout)
             .connect_timeout(cfg.connect_timeout)
             .keep_alive_while_idle(cfg.keep_alive_while_idle);
+
         let channel = endpoint.connect().await?;
 
-        let collection_api = CollectionsClient::new(channel.clone());
-        let points_api = PointsClient::new(channel.clone());
-        let snapshots_api = SnapshotsClient::new(channel);
-
         let client = Self {
-            collection_api,
-            points_api,
-            snapshots_api,
+            channel,
+            cfg,
         };
 
         Ok(client)
     }
 
-    pub async fn list_collections(&mut self) -> Result<ListCollectionsResponse> {
-        let result = self.collection_api.list(ListCollectionsRequest {}).await?;
+    pub async fn reconnect(&mut self) -> Result<()> {
+        let channel = Channel::builder(self.cfg.uri.parse().unwrap())
+            .timeout(self.cfg.timeout)
+            .connect_timeout(self.cfg.connect_timeout)
+            .keep_alive_while_idle(self.cfg.keep_alive_while_idle);
+
+        let channel = channel.connect().await?;
+        self.channel = channel;
+
+        Ok(())
+    }
+
+    pub async fn list_collections(&self) -> Result<ListCollectionsResponse> {
+        let mut collection_api = CollectionsClient::new(self.channel.clone());
+        let result = collection_api.list(ListCollectionsRequest {}).await?;
         Ok(result.into_inner())
     }
 
-    pub async fn has_collection(&mut self, collection_name: impl ToString) -> Result<bool> {
+    pub async fn has_collection(&self, collection_name: impl ToString) -> Result<bool> {
         let collection_name = collection_name.to_string();
         let response = self.list_collections().await?;
         let result = response
@@ -83,20 +91,21 @@ impl QdrantClient {
     }
 
     pub async fn create_collection(
-        &mut self,
+        &self,
         details: CreateCollection,
     ) -> Result<CollectionOperationResponse> {
-        let result = self.collection_api.create(details).await?;
+        let mut collection_api = CollectionsClient::new(self.channel.clone());
+        let result = collection_api.create(details).await?;
         Ok(result.into_inner())
     }
 
     pub async fn update_collection(
-        &mut self,
+        &self,
         collection_name: impl ToString,
         optimizers_config: OptimizersConfigDiff,
     ) -> Result<CollectionOperationResponse> {
-        let result = self
-            .collection_api
+        let mut collection_api = CollectionsClient::new(self.channel.clone());
+        let result = collection_api
             .update(UpdateCollection {
                 collection_name: collection_name.to_string(),
                 optimizers_config: Some(optimizers_config),
@@ -108,11 +117,11 @@ impl QdrantClient {
     }
 
     pub async fn delete_collection(
-        &mut self,
+        &self,
         collection_name: impl ToString,
     ) -> Result<CollectionOperationResponse> {
-        let result = self
-            .collection_api
+        let mut collection_api = CollectionsClient::new(self.channel.clone());
+        let result = collection_api
             .delete(DeleteCollection {
                 collection_name: collection_name.to_string(),
                 ..Default::default()
@@ -122,11 +131,11 @@ impl QdrantClient {
     }
 
     pub async fn collection_info(
-        &mut self,
+        &self,
         collection_name: impl ToString,
     ) -> Result<GetCollectionInfoResponse> {
-        let result = self
-            .collection_api
+        let mut collection_api = CollectionsClient::new(self.channel.clone());
+        let result = collection_api
             .get(GetCollectionInfoRequest {
                 collection_name: collection_name.to_string(),
             })
@@ -135,7 +144,7 @@ impl QdrantClient {
     }
 
     pub async fn upsert_points(
-        &mut self,
+        &self,
         collection_name: impl ToString,
         points: Vec<PointStruct>,
     ) -> Result<PointsOperationResponse> {
@@ -152,13 +161,14 @@ impl QdrantClient {
 
     #[inline]
     async fn _upsert_points(
-        &mut self,
+        &self,
         collection_name: impl ToString,
         points: Vec<PointStruct>,
         block: bool,
     ) -> Result<PointsOperationResponse> {
-        let result = self
-            .points_api
+        let mut points_api = PointsClient::new(self.channel.clone());
+
+        let result = points_api
             .upsert(UpsertPoints {
                 collection_name: collection_name.to_string(),
                 wait: Some(block),
@@ -168,13 +178,14 @@ impl QdrantClient {
         Ok(result.into_inner())
     }
 
-    pub async fn search_points(&mut self, request: SearchPoints) -> Result<SearchResponse> {
-        let result = self.points_api.search(request).await?;
+    pub async fn search_points(&self, request: SearchPoints) -> Result<SearchResponse> {
+        let mut points_api = PointsClient::new(self.channel.clone());
+        let result = points_api.search(request).await?;
         Ok(result.into_inner())
     }
 
     pub async fn delete_points(
-        &mut self,
+        &self,
         collection_name: impl ToString,
         points: PointsSelector,
     ) -> Result<PointsOperationResponse> {
@@ -183,7 +194,7 @@ impl QdrantClient {
     }
 
     pub async fn delete_points_blocking(
-        &mut self,
+        &self,
         collection_name: impl ToString,
         points: PointsSelector,
     ) -> Result<PointsOperationResponse> {
@@ -206,13 +217,13 @@ impl QdrantClient {
     }
 
     async fn _delete_points(
-        &mut self,
+        &self,
         collection_name: impl ToString,
         blocking: bool,
         points: Option<PointsSelector>,
     ) -> Result<PointsOperationResponse> {
-        let result = self
-            .points_api
+        let mut points_api = PointsClient::new(self.channel.clone());
+        let result = points_api
             .delete(DeletePoints {
                 collection_name: collection_name.to_string(),
                 wait: Some(blocking),
@@ -222,27 +233,30 @@ impl QdrantClient {
         Ok(result.into_inner())
     }
 
-    pub async fn scroll(&mut self, request: ScrollPoints) -> Result<ScrollResponse> {
-        let result = self.points_api.scroll(request).await?;
+    pub async fn scroll(&self, request: ScrollPoints) -> Result<ScrollResponse> {
+        let mut points_api = PointsClient::new(self.channel.clone());
+        let result = points_api.scroll(request).await?;
         Ok(result.into_inner())
     }
 
-    pub async fn recommend(&mut self, request: RecommendPoints) -> Result<RecommendResponse> {
-        let result = self.points_api.recommend(request).await?;
+    pub async fn recommend(&self, request: RecommendPoints) -> Result<RecommendResponse> {
+        let mut points_api = PointsClient::new(self.channel.clone());
+        let result = points_api.recommend(request).await?;
         Ok(result.into_inner())
     }
 
-    pub async fn count(&mut self, request: CountPoints) -> Result<CountResponse> {
-        let result = self.points_api.count(request).await?;
+    pub async fn count(&self, request: CountPoints) -> Result<CountResponse> {
+        let mut points_api = PointsClient::new(self.channel.clone());
+        let result = points_api.count(request).await?;
         Ok(result.into_inner())
     }
 
     pub async fn create_snapshot(
-        &mut self,
+        &self,
         collection_name: impl ToString,
     ) -> Result<CreateSnapshotResponse> {
-        let result = self
-            .snapshots_api
+        let mut snapshots_api = SnapshotsClient::new(self.channel.clone());
+        let result = snapshots_api
             .create(CreateSnapshotRequest {
                 collection_name: collection_name.to_string(),
             })
@@ -252,11 +266,11 @@ impl QdrantClient {
     }
 
     pub async fn list_snapshots(
-        &mut self,
+        &self,
         collection_name: impl ToString,
     ) -> Result<ListSnapshotsResponse> {
-        let result = self
-            .snapshots_api
+        let mut snapshots_api = SnapshotsClient::new(self.channel.clone());
+        let result = snapshots_api
             .list(ListSnapshotsRequest {
                 collection_name: collection_name.to_string(),
             })
@@ -266,14 +280,14 @@ impl QdrantClient {
 
     #[cfg(feature = "download_snapshots")]
     pub async fn download_snapshot<T>(
-        &mut self,
+        &self,
         out_path: impl Into<PathBuf>,
         collection_name: T,
         snapshot_name: Option<T>,
         rest_api_uri: Option<T>,
     ) -> Result<()>
-    where
-        T: ToString + Clone,
+        where
+            T: ToString + Clone,
     {
         let snapshot_name = match snapshot_name {
             Some(sn) => sn.to_string(),
@@ -299,9 +313,9 @@ impl QdrantClient {
             collection_name.to_string(),
             snapshot_name
         ))
-        .await?
-        .bytes()
-        .await?;
+            .await?
+            .bytes()
+            .await?;
 
         let _ = std::fs::write(out_path.into(), file);
 
@@ -326,6 +340,7 @@ impl From<String> for PointId {
         }
     }
 }
+
 impl From<u64> for PointId {
     fn from(val: u64) -> Self {
         Self {
@@ -360,6 +375,7 @@ impl From<f64> for Value {
         }
     }
 }
+
 impl From<i64> for Value {
     fn from(val: i64) -> Self {
         Self {
@@ -367,6 +383,7 @@ impl From<i64> for Value {
         }
     }
 }
+
 impl From<bool> for Value {
     fn from(val: bool) -> Self {
         Self {
@@ -374,6 +391,7 @@ impl From<bool> for Value {
         }
     }
 }
+
 impl From<String> for Value {
     fn from(val: String) -> Self {
         Self {
@@ -381,6 +399,7 @@ impl From<String> for Value {
         }
     }
 }
+
 impl From<&str> for Value {
     fn from(val: &str) -> Self {
         Self {
@@ -388,6 +407,7 @@ impl From<&str> for Value {
         }
     }
 }
+
 impl From<Payload> for Value {
     fn from(val: Payload) -> Self {
         Self {
@@ -395,9 +415,10 @@ impl From<Payload> for Value {
         }
     }
 }
+
 impl<T> From<Vec<T>> for Value
-where
-    T: Into<Value>,
+    where
+        T: Into<Value>,
 {
     fn from(val: Vec<T>) -> Self {
         Self {
