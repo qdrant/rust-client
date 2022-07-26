@@ -3,15 +3,7 @@ use crate::qdrant::point_id::PointIdOptions;
 use crate::qdrant::points_client::PointsClient;
 use crate::qdrant::snapshots_client::SnapshotsClient;
 use crate::qdrant::value::Kind;
-use crate::qdrant::{
-    CollectionOperationResponse, CountPoints, CountResponse, CreateCollection,
-    CreateSnapshotRequest, CreateSnapshotResponse, DeleteCollection, DeletePoints,
-    GetCollectionInfoRequest, GetCollectionInfoResponse, ListCollectionsRequest,
-    ListCollectionsResponse, ListSnapshotsRequest, ListSnapshotsResponse, ListValue,
-    OptimizersConfigDiff, PointId, PointStruct, PointsOperationResponse, PointsSelector,
-    RecommendPoints, RecommendResponse, ScrollPoints, ScrollResponse, SearchPoints, SearchResponse,
-    Struct, UpdateCollection, UpsertPoints, Value,
-};
+use crate::qdrant::{CollectionOperationResponse, CountPoints, CountResponse, CreateCollection, CreateSnapshotRequest, CreateSnapshotResponse, DeleteCollection, DeletePoints, GetCollectionInfoRequest, GetCollectionInfoResponse, ListCollectionsRequest, ListCollectionsResponse, ListSnapshotsRequest, ListSnapshotsResponse, ListValue, OptimizersConfigDiff, PointId, PointStruct, PointsOperationResponse, PointsSelector, RecommendPoints, RecommendResponse, ScrollPoints, ScrollResponse, SearchPoints, SearchResponse, Struct, UpdateCollection, UpsertPoints, Value, CreateFullSnapshotRequest, ListFullSnapshotsRequest};
 use anyhow::{bail, Result};
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -275,6 +267,27 @@ impl QdrantClient {
         Ok(result.into_inner())
     }
 
+    pub async fn create_full_snapshot(
+        &self
+    ) -> Result<CreateSnapshotResponse> {
+        let mut snapshots_api = SnapshotsClient::new(self.channel.clone());
+        let result = snapshots_api
+            .create_full(CreateFullSnapshotRequest {})
+            .await?;
+
+        Ok(result.into_inner())
+    }
+
+    pub async fn list_full_snapshots(
+        &self,
+    ) -> Result<ListSnapshotsResponse> {
+        let mut snapshots_api = SnapshotsClient::new(self.channel.clone());
+        let result = snapshots_api
+            .list_full(ListFullSnapshotsRequest {})
+            .await?;
+        Ok(result.into_inner())
+    }
+
     #[cfg(feature = "download_snapshots")]
     pub async fn download_snapshot<T>(
         &self,
@@ -283,8 +296,8 @@ impl QdrantClient {
         snapshot_name: Option<T>,
         rest_api_uri: Option<T>,
     ) -> Result<()>
-    where
-        T: ToString + Clone,
+        where
+            T: ToString + Clone,
     {
         let snapshot_name = match snapshot_name {
             Some(sn) => sn.to_string(),
@@ -310,9 +323,9 @@ impl QdrantClient {
             collection_name.to_string(),
             snapshot_name
         ))
-        .await?
-        .bytes()
-        .await?;
+            .await?
+            .bytes()
+            .await?;
 
         let _ = std::fs::write(out_path.into(), file);
 
@@ -414,8 +427,8 @@ impl From<Payload> for Value {
 }
 
 impl<T> From<Vec<T>> for Value
-where
-    T: Into<Value>,
+    where
+        T: Into<Value>,
 {
     fn from(val: Vec<T>) -> Self {
         Self {
