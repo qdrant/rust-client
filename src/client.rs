@@ -73,8 +73,7 @@ impl QdrantClient {
         let result = response
             .collections
             .into_iter()
-            .find(|c| c.name == collection_name)
-            .is_some();
+            .any(|c| c.name == collection_name);
 
         Ok(result)
     }
@@ -319,7 +318,7 @@ impl QdrantClient {
             "{}/collections/{}/snapshots/{}",
             rest_api_uri
                 .map(|uri| uri.to_string())
-                .unwrap_or(String::from("http://localhost:6333")),
+                .unwrap_or_else(|| String::from("http://localhost:6333")),
             collection_name.to_string(),
             snapshot_name
         ))

@@ -8,7 +8,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_qdrant_queries() -> anyhow::Result<()> {
-        let mut client = QdrantClient::new(None).await?;
+        let client = QdrantClient::new(None).await?;
         let collections_list = client.list_collections().await?;
         println!("{:?}", collections_list);
 
