@@ -160,7 +160,7 @@ impl QdrantClient {
             .upsert(UpsertPoints {
                 collection_name: collection_name.to_string(),
                 wait: Some(block),
-                points: points.into_iter().map(|p| p.into()).collect(),
+                points,
             })
             .await?;
         Ok(result.into_inner())
