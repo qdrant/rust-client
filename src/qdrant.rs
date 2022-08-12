@@ -39,22 +39,22 @@ pub struct OptimizerStatus {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct HnswConfigDiff {
     ///
-    ///Number of edges per node in the index graph. Larger the value - more accurate the search, more space required.
+    /// Number of edges per node in the index graph. Larger the value - more accurate the search, more space required.
     #[prost(uint64, optional, tag="1")]
     pub m: ::core::option::Option<u64>,
     ///
-    ///Number of neighbours to consider during the index building. Larger the value - more accurate the search, more time required to build index.
+    /// Number of neighbours to consider during the index building. Larger the value - more accurate the search, more time required to build index.
     #[prost(uint64, optional, tag="2")]
     pub ef_construct: ::core::option::Option<u64>,
     ///
-    ///Minimal size (in KiloBytes) of vectors for additional payload-based indexing.
-    ///If payload chunk is smaller than `full_scan_threshold` additional indexing won't be used -
-    ///in this case full-scan search should be preferred by query planner and additional indexing is not required.
-    ///Note: 1Kb = 1 vector of size 256
+    /// Minimal size (in KiloBytes) of vectors for additional payload-based indexing.
+    /// If payload chunk is smaller than `full_scan_threshold` additional indexing won't be used -
+    /// in this case full-scan search should be preferred by query planner and additional indexing is not required.
+    /// Note: 1Kb = 1 vector of size 256
     #[prost(uint64, optional, tag="3")]
     pub full_scan_threshold: ::core::option::Option<u64>,
     ///
-    ///Number of parallel threads used for background index building. If 0 - auto selection.
+    /// Number of parallel threads used for background index building. If 0 - auto selection.
     #[prost(uint64, optional, tag="4")]
     pub max_indexing_threads: ::core::option::Option<u64>,
 }
@@ -70,53 +70,53 @@ pub struct WalConfigDiff {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct OptimizersConfigDiff {
     ///
-    ///The minimal fraction of deleted vectors in a segment, required to perform segment optimization
+    /// The minimal fraction of deleted vectors in a segment, required to perform segment optimization
     #[prost(double, optional, tag="1")]
     pub deleted_threshold: ::core::option::Option<f64>,
     ///
-    ///The minimal number of vectors in a segment, required to perform segment optimization
+    /// The minimal number of vectors in a segment, required to perform segment optimization
     #[prost(uint64, optional, tag="2")]
     pub vacuum_min_vector_number: ::core::option::Option<u64>,
     ///
-    ///Target amount of segments optimizer will try to keep.
-    ///Real amount of segments may vary depending on multiple parameters:
+    /// Target amount of segments optimizer will try to keep.
+    /// Real amount of segments may vary depending on multiple parameters:
     ///
-    ///- Amount of stored points.
-    ///- Current write RPS.
+    /// - Amount of stored points.
+    /// - Current write RPS.
     ///
-    ///It is recommended to select default number of segments as a factor of the number of search threads,
-    ///so that each segment would be handled evenly by one of the threads.
+    /// It is recommended to select default number of segments as a factor of the number of search threads,
+    /// so that each segment would be handled evenly by one of the threads.
     #[prost(uint64, optional, tag="3")]
     pub default_segment_number: ::core::option::Option<u64>,
     ///
-    ///Do not create segments larger this size (in KiloBytes).
-    ///Large segments might require disproportionately long indexation times,
-    ///therefore it makes sense to limit the size of segments.
+    /// Do not create segments larger this size (in KiloBytes).
+    /// Large segments might require disproportionately long indexation times,
+    /// therefore it makes sense to limit the size of segments.
     ///
-    ///If indexation speed have more priority for your - make this parameter lower.
-    ///If search speed is more important - make this parameter higher.
-    ///Note: 1Kb = 1 vector of size 256
+    /// If indexation speed have more priority for your - make this parameter lower.
+    /// If search speed is more important - make this parameter higher.
+    /// Note: 1Kb = 1 vector of size 256
     #[prost(uint64, optional, tag="4")]
     pub max_segment_size: ::core::option::Option<u64>,
     ///
-    ///Maximum size (in KiloBytes) of vectors to store in-memory per segment.
-    ///Segments larger than this threshold will be stored as read-only memmaped file.
-    ///To enable memmap storage, lower the threshold
-    ///Note: 1Kb = 1 vector of size 256
+    /// Maximum size (in KiloBytes) of vectors to store in-memory per segment.
+    /// Segments larger than this threshold will be stored as read-only memmaped file.
+    /// To enable memmap storage, lower the threshold
+    /// Note: 1Kb = 1 vector of size 256
     #[prost(uint64, optional, tag="5")]
     pub memmap_threshold: ::core::option::Option<u64>,
     ///
-    ///Maximum size (in KiloBytes) of vectors allowed for plain index.
-    ///Default value based on <https://github.com/google-research/google-research/blob/master/scann/docs/algorithms.md>
-    ///Note: 1Kb = 1 vector of size 256
+    /// Maximum size (in KiloBytes) of vectors allowed for plain index.
+    /// Default value based on <https://github.com/google-research/google-research/blob/master/scann/docs/algorithms.md>
+    /// Note: 1Kb = 1 vector of size 256
     #[prost(uint64, optional, tag="6")]
     pub indexing_threshold: ::core::option::Option<u64>,
     ///
-    ///Interval between forced flushes.
+    /// Interval between forced flushes.
     #[prost(uint64, optional, tag="7")]
     pub flush_interval_sec: ::core::option::Option<u64>,
     ///
-    ///Max number of threads, which can be used for optimization. If 0 - `NUM_CPU - 1` will be used
+    /// Max number of threads, which can be used for optimization. If 0 - `NUM_CPU - 1` will be used
     #[prost(uint64, optional, tag="8")]
     pub max_optimization_threads: ::core::option::Option<u64>,
 }
@@ -309,6 +309,20 @@ pub enum Distance {
     Euclid = 2,
     Dot = 3,
 }
+impl Distance {
+    /// String value of the enum field names used in the ProtoBuf definition.
+    ///
+    /// The values are not transformed in any way and thus are considered stable
+    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+    pub fn as_str_name(&self) -> &'static str {
+        match self {
+            Distance::UnknownDistance => "UnknownDistance",
+            Distance::Cosine => "Cosine",
+            Distance::Euclid => "Euclid",
+            Distance::Dot => "Dot",
+        }
+    }
+}
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
 pub enum CollectionStatus {
@@ -320,6 +334,20 @@ pub enum CollectionStatus {
     /// Something went wrong
     Red = 3,
 }
+impl CollectionStatus {
+    /// String value of the enum field names used in the ProtoBuf definition.
+    ///
+    /// The values are not transformed in any way and thus are considered stable
+    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+    pub fn as_str_name(&self) -> &'static str {
+        match self {
+            CollectionStatus::UnknownCollectionStatus => "UnknownCollectionStatus",
+            CollectionStatus::Green => "Green",
+            CollectionStatus::Yellow => "Yellow",
+            CollectionStatus::Red => "Red",
+        }
+    }
+}
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
 pub enum PayloadSchemaType {
@@ -329,10 +357,26 @@ pub enum PayloadSchemaType {
     Float = 3,
     Geo = 4,
 }
+impl PayloadSchemaType {
+    /// String value of the enum field names used in the ProtoBuf definition.
+    ///
+    /// The values are not transformed in any way and thus are considered stable
+    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+    pub fn as_str_name(&self) -> &'static str {
+        match self {
+            PayloadSchemaType::UnknownType => "UnknownType",
+            PayloadSchemaType::Keyword => "Keyword",
+            PayloadSchemaType::Integer => "Integer",
+            PayloadSchemaType::Float => "Float",
+            PayloadSchemaType::Geo => "Geo",
+        }
+    }
+}
 /// Generated client implementations.
 pub mod collections_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
     use tonic::codegen::*;
+    use tonic::codegen::http::Uri;
     #[derive(Debug, Clone)]
     pub struct CollectionsClient<T> {
         inner: tonic::client::Grpc<T>,
@@ -359,6 +403,10 @@ pub mod collections_client {
             let inner = tonic::client::Grpc::new(inner);
             Self { inner }
         }
+        pub fn with_origin(inner: T, origin: Uri) -> Self {
+            let inner = tonic::client::Grpc::with_origin(inner, origin);
+            Self { inner }
+        }
         pub fn with_interceptor<F>(
             inner: T,
             interceptor: F,
@@ -378,19 +426,19 @@ pub mod collections_client {
         {
             CollectionsClient::new(InterceptedService::new(inner, interceptor))
         }
-        /// Compress requests with `gzip`.
+        /// Compress requests with the given encoding.
         ///
         /// This requires the server to support it otherwise it might respond with an
         /// error.
         #[must_use]
-        pub fn send_gzip(mut self) -> Self {
-            self.inner = self.inner.send_gzip();
+        pub fn send_compressed(mut self, encoding: CompressionEncoding) -> Self {
+            self.inner = self.inner.send_compressed(encoding);
             self
         }
-        /// Enable decompressing responses with `gzip`.
+        /// Enable decompressing responses.
         #[must_use]
-        pub fn accept_gzip(mut self) -> Self {
-            self.inner = self.inner.accept_gzip();
+        pub fn accept_compressed(mut self, encoding: CompressionEncoding) -> Self {
+            self.inner = self.inner.accept_compressed(encoding);
             self
         }
         ///
@@ -564,8 +612,8 @@ pub mod collections_server {
     #[derive(Debug)]
     pub struct CollectionsServer<T: Collections> {
         inner: _Inner<T>,
-        accept_compression_encodings: (),
-        send_compression_encodings: (),
+        accept_compression_encodings: EnabledCompressionEncodings,
+        send_compression_encodings: EnabledCompressionEncodings,
     }
     struct _Inner<T>(Arc<T>);
     impl<T: Collections> CollectionsServer<T> {
@@ -588,6 +636,18 @@ pub mod collections_server {
             F: tonic::service::Interceptor,
         {
             InterceptedService::new(Self::new(inner), interceptor)
+        }
+        /// Enable decompressing requests with the given encoding.
+        #[must_use]
+        pub fn accept_compressed(mut self, encoding: CompressionEncoding) -> Self {
+            self.accept_compression_encodings.enable(encoding);
+            self
+        }
+        /// Compress responses with the given encoding, if the client supports it.
+        #[must_use]
+        pub fn send_compressed(mut self, encoding: CompressionEncoding) -> Self {
+            self.send_compression_encodings.enable(encoding);
+            self
         }
     }
     impl<T, B> tonic::codegen::Service<http::Request<B>> for CollectionsServer<T>
@@ -873,7 +933,7 @@ pub mod collections_server {
             write!(f, "{:?}", self.0)
         }
     }
-    impl<T: Collections> tonic::transport::NamedService for CollectionsServer<T> {
+    impl<T: Collections> tonic::server::NamedService for CollectionsServer<T> {
         const NAME: &'static str = "qdrant.Collections";
     }
 }
@@ -943,12 +1003,23 @@ pub struct ListValue {
 /// `NullValue` is a singleton enumeration to represent the null value for the
 /// `Value` type union.
 ///
-///  The JSON representation for `NullValue` is JSON `null`.
+///   The JSON representation for `NullValue` is JSON `null`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
 pub enum NullValue {
     /// Null value.
     NullValue = 0,
+}
+impl NullValue {
+    /// String value of the enum field names used in the ProtoBuf definition.
+    ///
+    /// The values are not transformed in any way and thus are considered stable
+    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+    pub fn as_str_name(&self) -> &'static str {
+        match self {
+            NullValue::NullValue => "NULL_VALUE",
+        }
+    }
 }
 // ---------------------------------------------
 // ------------- Point Id Requests -------------
@@ -1115,8 +1186,8 @@ pub mod with_payload_selector {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SearchParams {
     ///
-    ///Params relevant to HNSW index. Size of the beam in a beam-search.
-    ///Larger the value - more accurate the result, more time required for search.
+    /// Params relevant to HNSW index. Size of the beam in a beam-search.
+    /// Larger the value - more accurate the result, more time required for search.
     #[prost(uint64, optional, tag="1")]
     pub hnsw_ef: ::core::option::Option<u64>,
 }
@@ -1488,6 +1559,20 @@ pub enum FieldType {
     Float = 2,
     Geo = 3,
 }
+impl FieldType {
+    /// String value of the enum field names used in the ProtoBuf definition.
+    ///
+    /// The values are not transformed in any way and thus are considered stable
+    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+    pub fn as_str_name(&self) -> &'static str {
+        match self {
+            FieldType::Keyword => "FieldTypeKeyword",
+            FieldType::Integer => "FieldTypeInteger",
+            FieldType::Float => "FieldTypeFloat",
+            FieldType::Geo => "FieldTypeGeo",
+        }
+    }
+}
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
 pub enum UpdateStatus {
@@ -1497,10 +1582,24 @@ pub enum UpdateStatus {
     /// Update is applied and ready for search
     Completed = 2,
 }
+impl UpdateStatus {
+    /// String value of the enum field names used in the ProtoBuf definition.
+    ///
+    /// The values are not transformed in any way and thus are considered stable
+    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+    pub fn as_str_name(&self) -> &'static str {
+        match self {
+            UpdateStatus::UnknownUpdateStatus => "UnknownUpdateStatus",
+            UpdateStatus::Acknowledged => "Acknowledged",
+            UpdateStatus::Completed => "Completed",
+        }
+    }
+}
 /// Generated client implementations.
 pub mod points_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
     use tonic::codegen::*;
+    use tonic::codegen::http::Uri;
     #[derive(Debug, Clone)]
     pub struct PointsClient<T> {
         inner: tonic::client::Grpc<T>,
@@ -1527,6 +1626,10 @@ pub mod points_client {
             let inner = tonic::client::Grpc::new(inner);
             Self { inner }
         }
+        pub fn with_origin(inner: T, origin: Uri) -> Self {
+            let inner = tonic::client::Grpc::with_origin(inner, origin);
+            Self { inner }
+        }
         pub fn with_interceptor<F>(
             inner: T,
             interceptor: F,
@@ -1546,19 +1649,19 @@ pub mod points_client {
         {
             PointsClient::new(InterceptedService::new(inner, interceptor))
         }
-        /// Compress requests with `gzip`.
+        /// Compress requests with the given encoding.
         ///
         /// This requires the server to support it otherwise it might respond with an
         /// error.
         #[must_use]
-        pub fn send_gzip(mut self) -> Self {
-            self.inner = self.inner.send_gzip();
+        pub fn send_compressed(mut self, encoding: CompressionEncoding) -> Self {
+            self.inner = self.inner.send_compressed(encoding);
             self
         }
-        /// Enable decompressing responses with `gzip`.
+        /// Enable decompressing responses.
         #[must_use]
-        pub fn accept_gzip(mut self) -> Self {
-            self.inner = self.inner.accept_gzip();
+        pub fn accept_compressed(mut self, encoding: CompressionEncoding) -> Self {
+            self.inner = self.inner.accept_compressed(encoding);
             self
         }
         ///
@@ -1882,8 +1985,8 @@ pub mod points_server {
     #[derive(Debug)]
     pub struct PointsServer<T: Points> {
         inner: _Inner<T>,
-        accept_compression_encodings: (),
-        send_compression_encodings: (),
+        accept_compression_encodings: EnabledCompressionEncodings,
+        send_compression_encodings: EnabledCompressionEncodings,
     }
     struct _Inner<T>(Arc<T>);
     impl<T: Points> PointsServer<T> {
@@ -1906,6 +2009,18 @@ pub mod points_server {
             F: tonic::service::Interceptor,
         {
             InterceptedService::new(Self::new(inner), interceptor)
+        }
+        /// Enable decompressing requests with the given encoding.
+        #[must_use]
+        pub fn accept_compressed(mut self, encoding: CompressionEncoding) -> Self {
+            self.accept_compression_encodings.enable(encoding);
+            self
+        }
+        /// Compress responses with the given encoding, if the client supports it.
+        #[must_use]
+        pub fn send_compressed(mut self, encoding: CompressionEncoding) -> Self {
+            self.send_compression_encodings.enable(encoding);
+            self
         }
     }
     impl<T, B> tonic::codegen::Service<http::Request<B>> for PointsServer<T>
@@ -2409,7 +2524,7 @@ pub mod points_server {
             write!(f, "{:?}", self.0)
         }
     }
-    impl<T: Points> tonic::transport::NamedService for PointsServer<T> {
+    impl<T: Points> tonic::server::NamedService for PointsServer<T> {
         const NAME: &'static str = "qdrant.Points";
     }
 }
@@ -2463,6 +2578,7 @@ pub struct ListSnapshotsResponse {
 pub mod snapshots_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
     use tonic::codegen::*;
+    use tonic::codegen::http::Uri;
     #[derive(Debug, Clone)]
     pub struct SnapshotsClient<T> {
         inner: tonic::client::Grpc<T>,
@@ -2489,6 +2605,10 @@ pub mod snapshots_client {
             let inner = tonic::client::Grpc::new(inner);
             Self { inner }
         }
+        pub fn with_origin(inner: T, origin: Uri) -> Self {
+            let inner = tonic::client::Grpc::with_origin(inner, origin);
+            Self { inner }
+        }
         pub fn with_interceptor<F>(
             inner: T,
             interceptor: F,
@@ -2508,19 +2628,19 @@ pub mod snapshots_client {
         {
             SnapshotsClient::new(InterceptedService::new(inner, interceptor))
         }
-        /// Compress requests with `gzip`.
+        /// Compress requests with the given encoding.
         ///
         /// This requires the server to support it otherwise it might respond with an
         /// error.
         #[must_use]
-        pub fn send_gzip(mut self) -> Self {
-            self.inner = self.inner.send_gzip();
+        pub fn send_compressed(mut self, encoding: CompressionEncoding) -> Self {
+            self.inner = self.inner.send_compressed(encoding);
             self
         }
-        /// Enable decompressing responses with `gzip`.
+        /// Enable decompressing responses.
         #[must_use]
-        pub fn accept_gzip(mut self) -> Self {
-            self.inner = self.inner.accept_gzip();
+        pub fn accept_compressed(mut self, encoding: CompressionEncoding) -> Self {
+            self.inner = self.inner.accept_compressed(encoding);
             self
         }
         ///
@@ -2640,8 +2760,8 @@ pub mod snapshots_server {
     #[derive(Debug)]
     pub struct SnapshotsServer<T: Snapshots> {
         inner: _Inner<T>,
-        accept_compression_encodings: (),
-        send_compression_encodings: (),
+        accept_compression_encodings: EnabledCompressionEncodings,
+        send_compression_encodings: EnabledCompressionEncodings,
     }
     struct _Inner<T>(Arc<T>);
     impl<T: Snapshots> SnapshotsServer<T> {
@@ -2664,6 +2784,18 @@ pub mod snapshots_server {
             F: tonic::service::Interceptor,
         {
             InterceptedService::new(Self::new(inner), interceptor)
+        }
+        /// Enable decompressing requests with the given encoding.
+        #[must_use]
+        pub fn accept_compressed(mut self, encoding: CompressionEncoding) -> Self {
+            self.accept_compression_encodings.enable(encoding);
+            self
+        }
+        /// Compress responses with the given encoding, if the client supports it.
+        #[must_use]
+        pub fn send_compressed(mut self, encoding: CompressionEncoding) -> Self {
+            self.send_compression_encodings.enable(encoding);
+            self
         }
     }
     impl<T, B> tonic::codegen::Service<http::Request<B>> for SnapshotsServer<T>
@@ -2871,7 +3003,7 @@ pub mod snapshots_server {
             write!(f, "{:?}", self.0)
         }
     }
-    impl<T: Snapshots> tonic::transport::NamedService for SnapshotsServer<T> {
+    impl<T: Snapshots> tonic::server::NamedService for SnapshotsServer<T> {
         const NAME: &'static str = "qdrant.Snapshots";
     }
 }
@@ -2889,6 +3021,7 @@ pub struct HealthCheckReply {
 pub mod qdrant_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
     use tonic::codegen::*;
+    use tonic::codegen::http::Uri;
     #[derive(Debug, Clone)]
     pub struct QdrantClient<T> {
         inner: tonic::client::Grpc<T>,
@@ -2915,6 +3048,10 @@ pub mod qdrant_client {
             let inner = tonic::client::Grpc::new(inner);
             Self { inner }
         }
+        pub fn with_origin(inner: T, origin: Uri) -> Self {
+            let inner = tonic::client::Grpc::with_origin(inner, origin);
+            Self { inner }
+        }
         pub fn with_interceptor<F>(
             inner: T,
             interceptor: F,
@@ -2934,19 +3071,19 @@ pub mod qdrant_client {
         {
             QdrantClient::new(InterceptedService::new(inner, interceptor))
         }
-        /// Compress requests with `gzip`.
+        /// Compress requests with the given encoding.
         ///
         /// This requires the server to support it otherwise it might respond with an
         /// error.
         #[must_use]
-        pub fn send_gzip(mut self) -> Self {
-            self.inner = self.inner.send_gzip();
+        pub fn send_compressed(mut self, encoding: CompressionEncoding) -> Self {
+            self.inner = self.inner.send_compressed(encoding);
             self
         }
-        /// Enable decompressing responses with `gzip`.
+        /// Enable decompressing responses.
         #[must_use]
-        pub fn accept_gzip(mut self) -> Self {
-            self.inner = self.inner.accept_gzip();
+        pub fn accept_compressed(mut self, encoding: CompressionEncoding) -> Self {
+            self.inner = self.inner.accept_compressed(encoding);
             self
         }
         pub async fn health_check(
@@ -2985,8 +3122,8 @@ pub mod qdrant_server {
     #[derive(Debug)]
     pub struct QdrantServer<T: Qdrant> {
         inner: _Inner<T>,
-        accept_compression_encodings: (),
-        send_compression_encodings: (),
+        accept_compression_encodings: EnabledCompressionEncodings,
+        send_compression_encodings: EnabledCompressionEncodings,
     }
     struct _Inner<T>(Arc<T>);
     impl<T: Qdrant> QdrantServer<T> {
@@ -3009,6 +3146,18 @@ pub mod qdrant_server {
             F: tonic::service::Interceptor,
         {
             InterceptedService::new(Self::new(inner), interceptor)
+        }
+        /// Enable decompressing requests with the given encoding.
+        #[must_use]
+        pub fn accept_compressed(mut self, encoding: CompressionEncoding) -> Self {
+            self.accept_compression_encodings.enable(encoding);
+            self
+        }
+        /// Compress responses with the given encoding, if the client supports it.
+        #[must_use]
+        pub fn send_compressed(mut self, encoding: CompressionEncoding) -> Self {
+            self.send_compression_encodings.enable(encoding);
+            self
         }
     }
     impl<T, B> tonic::codegen::Service<http::Request<B>> for QdrantServer<T>
@@ -3104,7 +3253,7 @@ pub mod qdrant_server {
             write!(f, "{:?}", self.0)
         }
     }
-    impl<T: Qdrant> tonic::transport::NamedService for QdrantServer<T> {
+    impl<T: Qdrant> tonic::server::NamedService for QdrantServer<T> {
         const NAME: &'static str = "qdrant.Qdrant";
     }
 }
