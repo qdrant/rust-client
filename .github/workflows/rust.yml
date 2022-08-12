@@ -22,6 +22,9 @@ jobs:
         profile: minimal
         toolchain: stable
     - uses: actions/checkout@v3
+    - name: Install protoc
+      run: .github/scripts/protoc.sh
+      shell: bash
     - name: Login
       run: cargo login ${{ secrets.CRATE_IO_API_TOKEN }}
     - name: Publish
