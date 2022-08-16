@@ -5,7 +5,7 @@ pub mod qdrant;
 #[cfg(test)]
 mod tests {
     use std::collections::HashMap;
-    use crate::qdrant::Value;
+    use crate::qdrant::{CreateFieldIndexCollection, FieldType, Value};
     use super::prelude::*;
 
     #[tokio::test]
@@ -50,7 +50,7 @@ mod tests {
                 filter: None,
                 limit: 10,
                 with_vector: None,
-                with_payload: None,
+                with_payload: Some(true.into()),
                 params: None,
                 score_threshold: None,
                 offset: None,
@@ -58,6 +58,35 @@ mod tests {
             .await?;
 
         eprintln!("search_result = {:#?}", search_result);
+
+        // Override payload of the existing point
+        let new_payload: Payload = vec![
+            ("foo", "BAZ".into()),
+        ].into_iter().collect::<HashMap<_, Value>>().into();
+        client.set_payload(collection_name, vec![0.into()], new_payload).await?;
+
+
+        // Delete some payload fields
+        client.delete_payload(collection_name, vec![0.into()], vec!["sub_payload".to_string()]).await?;
+
+        // retrieve points
+        let points = client.get_points(collection_name, vec![0.into()], Some(true), Some(true)).await?;
+
+        assert_eq!(points.result.len(), 1);
+        let point = points.result[0].clone();
+        assert!(point.payload.contains_key("foo"));
+        assert!(!point.payload.contains_key("sub_payload"));
+
+        client.delete_points(collection_name, vec![0.into()].into()).await?;
+
+        // Access raw point api with client
+        client.points_api().create_field_index(CreateFieldIndexCollection {
+            collection_name: collection_name.to_string(),
+            wait: None,
+            field_name: "foo".to_string(),
+            field_type: Some(FieldType::Keyword as i32),
+        }).await?;
+
 
         client.create_snapshot(collection_name).await?;
         client

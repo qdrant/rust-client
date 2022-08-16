@@ -3,12 +3,14 @@ use crate::qdrant::point_id::PointIdOptions;
 use crate::qdrant::points_client::PointsClient;
 use crate::qdrant::snapshots_client::SnapshotsClient;
 use crate::qdrant::value::Kind;
-use crate::qdrant::{CollectionOperationResponse, CountPoints, CountResponse, CreateCollection, CreateSnapshotRequest, CreateSnapshotResponse, DeleteCollection, DeletePoints, GetCollectionInfoRequest, GetCollectionInfoResponse, ListCollectionsRequest, ListCollectionsResponse, ListSnapshotsRequest, ListSnapshotsResponse, ListValue, OptimizersConfigDiff, PointId, PointStruct, PointsOperationResponse, PointsSelector, RecommendPoints, RecommendResponse, ScrollPoints, ScrollResponse, SearchPoints, SearchResponse, Struct, UpdateCollection, UpsertPoints, Value, CreateFullSnapshotRequest, ListFullSnapshotsRequest};
+use crate::qdrant::{CollectionOperationResponse, CountPoints, CountResponse, CreateCollection, CreateSnapshotRequest, CreateSnapshotResponse, DeleteCollection, DeletePoints, GetCollectionInfoRequest, GetCollectionInfoResponse, ListCollectionsRequest, ListCollectionsResponse, ListSnapshotsRequest, ListSnapshotsResponse, ListValue, OptimizersConfigDiff, PointId, PointStruct, PointsOperationResponse, PointsSelector, RecommendPoints, RecommendResponse, ScrollPoints, ScrollResponse, SearchPoints, SearchResponse, Struct, UpdateCollection, UpsertPoints, Value, CreateFullSnapshotRequest, ListFullSnapshotsRequest, SetPayloadPoints, DeletePayloadPoints, ClearPayloadPoints, WithPayloadSelector, PayloadIncludeSelector, GetPoints, GetResponse, PointsIdsList, Filter};
 use anyhow::{bail, Result};
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::time::Duration;
 use tonic::transport::Channel;
+use crate::qdrant::points_selector::PointsSelectorOneOf;
+use crate::qdrant::with_payload_selector::SelectorOptions;
 
 pub struct QdrantClientConfig {
     pub uri: String,
@@ -22,6 +24,50 @@ impl QdrantClientConfig {
         let mut default = Self::default();
         default.uri = url.to_string();
         default
+    }
+}
+
+impl From<bool> for WithPayloadSelector {
+    fn from(flag: bool) -> Self {
+        WithPayloadSelector {
+            selector_options: Some(SelectorOptions::Enable(flag))
+        }
+    }
+}
+
+impl From<Vec<&str>> for WithPayloadSelector {
+    fn from(fields: Vec<&str>) -> Self {
+        WithPayloadSelector {
+            selector_options: Some(
+                SelectorOptions::Include(
+                    PayloadIncludeSelector {
+                        fields: fields.into_iter().map(|f| f.to_string()).collect()
+                    }
+                )
+            )
+        }
+    }
+}
+
+impl From<Vec<PointId>> for PointsSelector {
+    fn from(point_ids: Vec<PointId>) -> Self {
+        PointsSelector {
+            points_selector_one_of: Some(
+                PointsSelectorOneOf::Points(
+                    PointsIdsList {
+                        ids: point_ids
+                    }
+                )
+            )
+        }
+    }
+}
+
+impl From<Filter> for PointsSelector {
+    fn from(filter: Filter) -> Self {
+        PointsSelector {
+            points_selector_one_of: Some(PointsSelectorOneOf::Filter(filter))
+        }
     }
 }
 
@@ -42,6 +88,17 @@ pub struct QdrantClient {
 }
 
 impl QdrantClient {
+
+    // Access to raw collection API
+    pub fn collection_api(&self) -> CollectionsClient<Channel> {
+        CollectionsClient::new(self.channel.clone())
+    }
+
+    // Access to raw points API
+    pub fn points_api(&self) -> PointsClient<Channel> {
+        PointsClient::new(self.channel.clone())
+    }
+
     pub async fn new(cfg: Option<QdrantClientConfig>) -> Result<Self> {
         let cfg = cfg.unwrap_or_default();
 
@@ -70,7 +127,7 @@ impl QdrantClient {
     }
 
     pub async fn list_collections(&self) -> Result<ListCollectionsResponse> {
-        let mut collection_api = CollectionsClient::new(self.channel.clone());
+        let mut collection_api = self.collection_api();
         let result = collection_api.list(ListCollectionsRequest {}).await?;
         Ok(result.into_inner())
     }
@@ -90,7 +147,7 @@ impl QdrantClient {
         &self,
         details: CreateCollection,
     ) -> Result<CollectionOperationResponse> {
-        let mut collection_api = CollectionsClient::new(self.channel.clone());
+        let mut collection_api = self.collection_api();
         let result = collection_api.create(details).await?;
         Ok(result.into_inner())
     }
@@ -100,7 +157,7 @@ impl QdrantClient {
         collection_name: impl ToString,
         optimizers_config: OptimizersConfigDiff,
     ) -> Result<CollectionOperationResponse> {
-        let mut collection_api = CollectionsClient::new(self.channel.clone());
+        let mut collection_api = self.collection_api();
         let result = collection_api
             .update(UpdateCollection {
                 collection_name: collection_name.to_string(),
@@ -116,7 +173,7 @@ impl QdrantClient {
         &self,
         collection_name: impl ToString,
     ) -> Result<CollectionOperationResponse> {
-        let mut collection_api = CollectionsClient::new(self.channel.clone());
+        let mut collection_api = self.collection_api();
         let result = collection_api
             .delete(DeleteCollection {
                 collection_name: collection_name.to_string(),
@@ -130,7 +187,7 @@ impl QdrantClient {
         &self,
         collection_name: impl ToString,
     ) -> Result<GetCollectionInfoResponse> {
-        let mut collection_api = CollectionsClient::new(self.channel.clone());
+        let mut collection_api = self.collection_api();
         let result = collection_api
             .get(GetCollectionInfoRequest {
                 collection_name: collection_name.to_string(),
@@ -162,7 +219,7 @@ impl QdrantClient {
         points: Vec<PointStruct>,
         block: bool,
     ) -> Result<PointsOperationResponse> {
-        let mut points_api = PointsClient::new(self.channel.clone());
+        let mut points_api = self.points_api();
 
         let result = points_api
             .upsert(UpsertPoints {
@@ -174,8 +231,131 @@ impl QdrantClient {
         Ok(result.into_inner())
     }
 
+    pub async fn set_payload(
+        &self,
+        collection_name: impl ToString,
+        points: Vec<PointId>,
+        payload: Payload,
+    ) -> Result<PointsOperationResponse> {
+        self._set_payload(collection_name, points, payload, false).await
+    }
+
+    pub async fn set_payload_blocking(
+        &self,
+        collection_name: impl ToString,
+        points: Vec<PointId>,
+        payload: Payload,
+    ) -> Result<PointsOperationResponse> {
+        self._set_payload(collection_name, points, payload, true).await
+    }
+
+    #[inline]
+    async fn _set_payload(
+        &self,
+        collection_name: impl ToString,
+        points: Vec<PointId>,
+        payload: Payload,
+        block: bool,
+    ) -> Result<PointsOperationResponse> {
+        let mut points_api = self.points_api();
+        let result = points_api.set_payload(SetPayloadPoints {
+            collection_name: collection_name.to_string(),
+            wait: Some(block),
+            payload: payload.0,
+            points,
+        }).await?;
+        Ok(result.into_inner())
+    }
+
+    pub async fn delete_payload(
+        &self,
+        collection_name: impl ToString,
+        points: Vec<PointId>,
+        keys: Vec<String>,
+    ) -> Result<PointsOperationResponse> {
+        self._delete_payload(collection_name, points, keys, false).await
+    }
+
+    pub async fn delete_payload_blocking(
+        &self,
+        collection_name: impl ToString,
+        points: Vec<PointId>,
+        keys: Vec<String>,
+    ) -> Result<PointsOperationResponse> {
+        self._delete_payload(collection_name, points, keys, true).await
+    }
+
+    #[inline]
+    async fn _delete_payload(
+        &self,
+        collection_name: impl ToString,
+        points: Vec<PointId>,
+        keys: Vec<String>,
+        block: bool,
+    ) -> Result<PointsOperationResponse> {
+        let mut points_api = self.points_api();
+        let result = points_api.delete_payload(DeletePayloadPoints {
+            collection_name: collection_name.to_string(),
+            wait: Some(block),
+            keys,
+            points,
+        }).await?;
+        Ok(result.into_inner())
+    }
+
+    pub async fn clear_payload(
+        &self,
+        collection_name: impl ToString,
+        points_selector: Option<PointsSelector>,
+    ) -> Result<PointsOperationResponse> {
+        self._clear_payload(collection_name, points_selector, false).await
+    }
+
+    pub async fn clear_payload_blocking(
+        &self,
+        collection_name: impl ToString,
+        points_selector: Option<PointsSelector>,
+    ) -> Result<PointsOperationResponse> {
+        self._clear_payload(collection_name, points_selector, true).await
+    }
+
+    #[inline]
+    async fn _clear_payload(
+        &self,
+        collection_name: impl ToString,
+        points_selector: Option<PointsSelector>,
+        block: bool,
+    ) -> Result<PointsOperationResponse> {
+        let mut points_api = self.points_api();
+        let result = points_api.clear_payload(ClearPayloadPoints {
+            collection_name: collection_name.to_string(),
+            wait: Some(block),
+            points: points_selector,
+        }).await?;
+        Ok(result.into_inner())
+    }
+
+    pub async fn get_points(
+        &self,
+        collection_name: impl ToString,
+        points: Vec<PointId>,
+        with_vector: Option<bool>,
+        with_payload: Option<impl Into<WithPayloadSelector>>,
+    ) -> Result<GetResponse> {
+        let mut points_api = self.points_api();
+        let result = points_api.get(GetPoints {
+            collection_name: collection_name.to_string(),
+            ids: points,
+            with_vector,
+            with_payload: with_payload.map(|x| x.into()),
+        }).await?;
+
+        Ok(result.into_inner())
+    }
+
+
     pub async fn search_points(&self, request: SearchPoints) -> Result<SearchResponse> {
-        let mut points_api = PointsClient::new(self.channel.clone());
+        let mut points_api = self.points_api();
         let result = points_api.search(request).await?;
         Ok(result.into_inner())
     }
@@ -218,7 +398,7 @@ impl QdrantClient {
         blocking: bool,
         points: Option<PointsSelector>,
     ) -> Result<PointsOperationResponse> {
-        let mut points_api = PointsClient::new(self.channel.clone());
+        let mut points_api = self.points_api();
         let result = points_api
             .delete(DeletePoints {
                 collection_name: collection_name.to_string(),
@@ -230,19 +410,19 @@ impl QdrantClient {
     }
 
     pub async fn scroll(&self, request: ScrollPoints) -> Result<ScrollResponse> {
-        let mut points_api = PointsClient::new(self.channel.clone());
+        let mut points_api = self.points_api();
         let result = points_api.scroll(request).await?;
         Ok(result.into_inner())
     }
 
     pub async fn recommend(&self, request: RecommendPoints) -> Result<RecommendResponse> {
-        let mut points_api = PointsClient::new(self.channel.clone());
+        let mut points_api = self.points_api();
         let result = points_api.recommend(request).await?;
         Ok(result.into_inner())
     }
 
     pub async fn count(&self, request: CountPoints) -> Result<CountResponse> {
-        let mut points_api = PointsClient::new(self.channel.clone());
+        let mut points_api = self.points_api();
         let result = points_api.count(request).await?;
         Ok(result.into_inner())
     }
