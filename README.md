@@ -47,19 +47,67 @@ use qdrant_client::qdrant::ListCollectionsRequest;
 
 #[tokio::main]
 async fn main() {
-    println!("Hello, qdrant!");
+    // Example of top level client
+    // You may also use tonic-generated client from `src/qdrant.rs`
+    let config = QdrantClientConfig::from_url("http://localhost:6334");
+    let client = QdrantClient::new(Some(config)).await?;
 
-    let uri = "http://localhost:6334".parse().unwrap();
-    let endpoint = Channel::builder(uri)
-        .timeout(Duration::from_secs(5))
-        .connect_timeout(Duration::from_secs(5))
-        .keep_alive_while_idle(true);
+    let collections_list = client.list_collections().await?;
+    // ListCollectionsResponse { collections: [CollectionDescription { name: "test" }], time: 3.27e-6 }
 
-    // `connect` is using the `Reconnect` network service internally to handle dropped connections
-    let channel = endpoint.connect().await.unwrap(); // Unwrap in test only
+    let collection_name = "test";
+    client.delete_collection(collection_name).await?;
 
-    let mut client = QdrantClient::new(channel);
-    let collections_list = client.collection_api.list(ListCollectionsRequest {}).await.unwrap();
-    println!("Collection count {:?}", collections_list.into_inner().collections.len());
+    client
+        .create_collection(CreateCollection {
+            collection_name: collection_name.into(),
+            vector_size: 10,
+            distance: Distance::Cosine.into(),
+            ..Default::default()
+        })
+        .await?;
+
+    let collection_info = client.collection_info(collection_name).await?;
+
+    let payload: Payload = vec![
+        ("foo", "Bar".into()),
+        ("bar", 12.into()),
+    ].into_iter().collect::<HashMap<_, Value>>().into();
+
+    let points = vec![
+        PointStruct::new(0, vec![12.; 10], payload)
+    ];
+    client.upsert_points_blocking(collection_name, points).await?;
+
+    let search_result = client
+        .search_points(SearchPoints {
+            collection_name: collection_name.into(),
+            vector: vec![11.; 10],
+            filter: None,
+            limit: 10,
+            with_vector: None,
+            with_payload: None,
+            params: None,
+            score_threshold: None,
+            offset: None,
+        })
+        .await?;
+    // search_result = SearchResponse {
+    //     result: [
+    //         ScoredPoint {
+    //         id: Some(
+    //             PointId {
+    //                 point_id_options: Some(Num(0)),
+    //             },
+    //         ),
+    //         payload: {},
+    //         score: 1.0000001,
+    //         vector: [],
+    //         version: 0,
+    //     },
+    //     ],
+    //     time: 5.312e-5,
+    // }
+
 }
 ```

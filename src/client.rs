@@ -17,6 +17,14 @@ pub struct QdrantClientConfig {
     pub keep_alive_while_idle: bool,
 }
 
+impl QdrantClientConfig {
+    pub fn from_url(url: &str) -> Self {
+        let mut default = Self::default();
+        default.uri = url.to_string();
+        default
+    }
+}
+
 impl Default for QdrantClientConfig {
     fn default() -> Self {
         Self {
@@ -140,7 +148,7 @@ impl QdrantClient {
     }
 
     pub async fn upsert_points_blocking(
-        &mut self,
+        &self,
         collection_name: impl ToString,
         points: Vec<PointStruct>,
     ) -> Result<PointsOperationResponse> {
@@ -364,6 +372,13 @@ impl From<Payload> for HashMap<String, Value> {
     #[inline]
     fn from(payload: Payload) -> Self {
         payload.0
+    }
+}
+
+impl From<HashMap<&str, Value>> for Payload {
+    #[inline]
+    fn from(payload: HashMap<&str, Value>) -> Self {
+        Self(payload.into_iter().map(|(k, v)| (k.to_string(), v)).collect())
     }
 }
 
