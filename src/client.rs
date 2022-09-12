@@ -483,9 +483,12 @@ impl QdrantClient {
         snapshot_name: Option<T>,
         rest_api_uri: Option<T>,
     ) -> Result<()>
-        where
-            T: ToString + Clone,
+    where
+        T: ToString + Clone,
     {
+        use futures_util::StreamExt;
+        use std::io::Write;
+
         let snapshot_name = match snapshot_name {
             Some(sn) => sn.to_string(),
             _ => match self
@@ -502,7 +505,7 @@ impl QdrantClient {
             },
         };
 
-        let file = reqwest::get(format!(
+        let mut stream = reqwest::get(format!(
             "{}/collections/{}/snapshots/{}",
             rest_api_uri
                 .map(|uri| uri.to_string())
@@ -510,11 +513,19 @@ impl QdrantClient {
             collection_name.to_string(),
             snapshot_name
         ))
-            .await?
-            .bytes()
-            .await?;
+        .await?
+        .bytes_stream();
 
-        let _ = std::fs::write(out_path.into(), file);
+        let out_path = out_path.into();
+        let _ = std::fs::remove_file(&out_path);
+        let mut file = std::fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(out_path)?;
+
+        while let Some(chunk) = stream.next().await {
+            file.write(&chunk?)?;
+        }
 
         Ok(())
     }
