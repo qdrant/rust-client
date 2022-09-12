@@ -22,8 +22,9 @@ mod tests {
         client
             .create_collection(CreateCollection {
                 collection_name: collection_name.into(),
-                vector_size: 10,
-                distance: Distance::Cosine.into(),
+                vector_size: Some(10),
+                distance: Some(Distance::Cosine.into()),
+                vectors_config: None,
                 ..Default::default()
             })
             .await?;
@@ -54,6 +55,8 @@ mod tests {
                 params: None,
                 score_threshold: None,
                 offset: None,
+                vector_name: None,
+                with_vectors: None
             })
             .await?;
 
@@ -85,6 +88,7 @@ mod tests {
             wait: None,
             field_name: "foo".to_string(),
             field_type: Some(FieldType::Keyword as i32),
+            field_index_params: None
         }).await?;
 
 

@@ -1,4 +1,33 @@
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct VectorParams {
+    /// Size of the vectors
+    #[prost(uint64, tag="1")]
+    pub size: u64,
+    /// Distance function used for comparing vectors
+    #[prost(enumeration="Distance", tag="2")]
+    pub distance: i32,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct VectorParamsMap {
+    #[prost(map="string, message", tag="1")]
+    pub map: ::std::collections::HashMap<::prost::alloc::string::String, VectorParams>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct VectorsConfig {
+    #[prost(oneof="vectors_config::Config", tags="1, 2")]
+    pub config: ::core::option::Option<vectors_config::Config>,
+}
+/// Nested message and enum types in `VectorsConfig`.
+pub mod vectors_config {
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
+    pub enum Config {
+        #[prost(message, tag="1")]
+        Params(super::VectorParams),
+        #[prost(message, tag="2")]
+        ParamsMap(super::VectorParamsMap),
+    }
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GetCollectionInfoRequest {
     /// Name of the collection
     #[prost(string, tag="1")]
@@ -126,11 +155,13 @@ pub struct CreateCollection {
     #[prost(string, tag="1")]
     pub collection_name: ::prost::alloc::string::String,
     /// Size of the vectors
-    #[prost(uint64, tag="2")]
-    pub vector_size: u64,
+    #[deprecated]
+    #[prost(uint64, optional, tag="2")]
+    pub vector_size: ::core::option::Option<u64>,
     /// Distance function used for comparing vectors
-    #[prost(enumeration="Distance", tag="3")]
-    pub distance: i32,
+    #[deprecated]
+    #[prost(enumeration="Distance", optional, tag="3")]
+    pub distance: ::core::option::Option<i32>,
     /// Configuration of vector index
     #[prost(message, optional, tag="4")]
     pub hnsw_config: ::core::option::Option<HnswConfigDiff>,
@@ -149,6 +180,9 @@ pub struct CreateCollection {
     /// Wait timeout for operation commit in seconds, if not specified - default value will be supplied
     #[prost(uint64, optional, tag="9")]
     pub timeout: ::core::option::Option<u64>,
+    /// Configuration for vectors
+    #[prost(message, optional, tag="10")]
+    pub vectors_config: ::core::option::Option<VectorsConfig>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpdateCollection {
@@ -183,17 +217,22 @@ pub struct CollectionOperationResponse {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CollectionParams {
     /// Size of the vectors
-    #[prost(uint64, tag="1")]
-    pub vector_size: u64,
+    #[deprecated]
+    #[prost(uint64, optional, tag="1")]
+    pub vector_size: ::core::option::Option<u64>,
     /// Distance function used for comparing vectors
-    #[prost(enumeration="Distance", tag="2")]
-    pub distance: i32,
+    #[deprecated]
+    #[prost(enumeration="Distance", optional, tag="2")]
+    pub distance: ::core::option::Option<i32>,
     /// Number of shards in collection
     #[prost(uint32, tag="3")]
     pub shard_number: u32,
     /// If true - point's payload will not be stored in memory
     #[prost(bool, tag="4")]
     pub on_disk_payload: bool,
+    /// Configuration for vectors
+    #[prost(message, optional, tag="5")]
+    pub vectors_config: ::core::option::Option<VectorsConfig>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CollectionConfig {
@@ -211,10 +250,42 @@ pub struct CollectionConfig {
     pub wal_config: ::core::option::Option<WalConfigDiff>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct TextIndexParams {
+    /// Tokenizer type
+    #[prost(enumeration="TokenizerType", tag="1")]
+    pub tokenizer: i32,
+    /// If true - all tokens will be lowercased
+    #[prost(bool, optional, tag="2")]
+    pub lowercase: ::core::option::Option<bool>,
+    /// Minimal token length
+    #[prost(uint64, optional, tag="3")]
+    pub min_token_len: ::core::option::Option<u64>,
+    /// Maximal token length
+    #[prost(uint64, optional, tag="4")]
+    pub max_token_len: ::core::option::Option<u64>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct PayloadIndexParams {
+    #[prost(oneof="payload_index_params::IndexParams", tags="1")]
+    pub index_params: ::core::option::Option<payload_index_params::IndexParams>,
+}
+/// Nested message and enum types in `PayloadIndexParams`.
+pub mod payload_index_params {
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
+    pub enum IndexParams {
+        /// Parameters for text index
+        #[prost(message, tag="1")]
+        TextIndexParams(super::TextIndexParams),
+    }
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PayloadSchemaInfo {
     /// Field data type
     #[prost(enumeration="PayloadSchemaType", tag="1")]
     pub data_type: i32,
+    /// Field index parameters
+    #[prost(message, optional, tag="2")]
+    pub params: ::core::option::Option<PayloadIndexParams>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CollectionInfo {
@@ -328,6 +399,15 @@ pub enum PayloadSchemaType {
     Integer = 2,
     Float = 3,
     Geo = 4,
+    Text = 5,
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+#[repr(i32)]
+pub enum TokenizerType {
+    Unknown = 0,
+    Prefix = 1,
+    Whitespace = 2,
+    Word = 3,
 }
 /// Generated client implementations.
 pub mod collections_client {
@@ -971,6 +1051,11 @@ pub mod point_id {
         Uuid(::prost::alloc::string::String),
     }
 }
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct Vector {
+    #[prost(float, repeated, tag="1")]
+    pub data: ::prost::alloc::vec::Vec<f32>,
+}
 // ---------------------------------------------
 // ---------------- RPC Requests ---------------
 // ---------------------------------------------
@@ -1007,11 +1092,15 @@ pub struct GetPoints {
     #[prost(message, repeated, tag="2")]
     pub ids: ::prost::alloc::vec::Vec<PointId>,
     /// Return point vector with the result.
+    #[deprecated]
     #[prost(bool, optional, tag="3")]
     pub with_vector: ::core::option::Option<bool>,
     /// Options for specifying which payload to include or not
     #[prost(message, optional, tag="4")]
     pub with_payload: ::core::option::Option<WithPayloadSelector>,
+    /// Options for specifying which vectors to include into response
+    #[prost(message, optional, tag="5")]
+    pub with_vectors: ::core::option::Option<WithVectorsSelector>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SetPayloadPoints {
@@ -1069,6 +1158,9 @@ pub struct CreateFieldIndexCollection {
     /// Field type.
     #[prost(enumeration="FieldType", optional, tag="4")]
     pub field_type: ::core::option::Option<i32>,
+    /// Payload index params.
+    #[prost(message, optional, tag="5")]
+    pub field_index_params: ::core::option::Option<PayloadIndexParams>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeleteFieldIndexCollection {
@@ -1113,6 +1205,49 @@ pub mod with_payload_selector {
     }
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct NamedVectors {
+    #[prost(map="string, message", tag="1")]
+    pub vectors: ::std::collections::HashMap<::prost::alloc::string::String, Vector>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct Vectors {
+    #[prost(oneof="vectors::VectorsOptions", tags="1, 2")]
+    pub vectors_options: ::core::option::Option<vectors::VectorsOptions>,
+}
+/// Nested message and enum types in `Vectors`.
+pub mod vectors {
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
+    pub enum VectorsOptions {
+        #[prost(message, tag="1")]
+        Vector(super::Vector),
+        #[prost(message, tag="2")]
+        Vectors(super::NamedVectors),
+    }
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct VectorsSelector {
+    /// List of vectors to include into result
+    #[prost(string, repeated, tag="1")]
+    pub names: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct WithVectorsSelector {
+    #[prost(oneof="with_vectors_selector::SelectorOptions", tags="1, 2")]
+    pub selector_options: ::core::option::Option<with_vectors_selector::SelectorOptions>,
+}
+/// Nested message and enum types in `WithVectorsSelector`.
+pub mod with_vectors_selector {
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
+    pub enum SelectorOptions {
+        /// If `true` - return all vectors, if `false` - none
+        #[prost(bool, tag="1")]
+        Enable(bool),
+        /// List of payload keys to include into result
+        #[prost(message, tag="2")]
+        Include(super::VectorsSelector),
+    }
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SearchParams {
     ///
     ///Params relevant to HNSW index. Size of the beam in a beam-search.
@@ -1135,6 +1270,7 @@ pub struct SearchPoints {
     #[prost(uint64, tag="4")]
     pub limit: u64,
     /// Return point vector with the result.
+    #[deprecated]
     #[prost(bool, optional, tag="5")]
     pub with_vector: ::core::option::Option<bool>,
     /// Options for specifying which payload to include or not
@@ -1149,6 +1285,20 @@ pub struct SearchPoints {
     /// Offset of the result
     #[prost(uint64, optional, tag="9")]
     pub offset: ::core::option::Option<u64>,
+    /// Which vector to use for search, if not specified - use default vector
+    #[prost(string, optional, tag="10")]
+    pub vector_name: ::core::option::Option<::prost::alloc::string::String>,
+    /// Options for specifying which vectors to include into response
+    #[prost(message, optional, tag="11")]
+    pub with_vectors: ::core::option::Option<WithVectorsSelector>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct SearchBatchPoints {
+    /// Name of the collection
+    #[prost(string, tag="1")]
+    pub collection_name: ::prost::alloc::string::String,
+    #[prost(message, repeated, tag="2")]
+    pub search_points: ::prost::alloc::vec::Vec<SearchPoints>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ScrollPoints {
@@ -1164,11 +1314,15 @@ pub struct ScrollPoints {
     #[prost(uint32, optional, tag="4")]
     pub limit: ::core::option::Option<u32>,
     /// Return point vector with the result.
+    #[deprecated]
     #[prost(bool, optional, tag="5")]
     pub with_vector: ::core::option::Option<bool>,
     /// Options for specifying which payload to include or not
     #[prost(message, optional, tag="6")]
     pub with_payload: ::core::option::Option<WithPayloadSelector>,
+    /// Options for specifying which vectors to include into response
+    #[prost(message, optional, tag="7")]
+    pub with_vectors: ::core::option::Option<WithVectorsSelector>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RecommendPoints {
@@ -1188,6 +1342,7 @@ pub struct RecommendPoints {
     #[prost(uint64, tag="5")]
     pub limit: u64,
     /// Return point vector with the result.
+    #[deprecated]
     #[prost(bool, optional, tag="6")]
     pub with_vector: ::core::option::Option<bool>,
     /// Options for specifying which payload to include or not
@@ -1202,6 +1357,20 @@ pub struct RecommendPoints {
     /// Offset of the result
     #[prost(uint64, optional, tag="10")]
     pub offset: ::core::option::Option<u64>,
+    /// Define which vector to use for recommendation, if not specified - default vector
+    #[prost(string, optional, tag="11")]
+    pub using: ::core::option::Option<::prost::alloc::string::String>,
+    /// Options for specifying which vectors to include into response
+    #[prost(message, optional, tag="12")]
+    pub with_vectors: ::core::option::Option<WithVectorsSelector>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct RecommendBatchPoints {
+    /// Name of the collection
+    #[prost(string, tag="1")]
+    pub collection_name: ::prost::alloc::string::String,
+    #[prost(message, repeated, tag="2")]
+    pub recommend_points: ::prost::alloc::vec::Vec<RecommendPoints>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CountPoints {
@@ -1248,16 +1417,33 @@ pub struct ScoredPoint {
     #[prost(float, tag="3")]
     pub score: f32,
     /// Vector
-    #[prost(float, repeated, tag="4")]
+    #[deprecated]
+    #[prost(float, repeated, packed="false", tag="4")]
     pub vector: ::prost::alloc::vec::Vec<f32>,
     /// Last update operation applied to this point
     #[prost(uint64, tag="5")]
     pub version: u64,
+    /// Vectors to search
+    #[prost(message, optional, tag="6")]
+    pub vectors: ::core::option::Option<Vectors>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SearchResponse {
     #[prost(message, repeated, tag="1")]
     pub result: ::prost::alloc::vec::Vec<ScoredPoint>,
+    /// Time spent to process
+    #[prost(double, tag="2")]
+    pub time: f64,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct BatchResult {
+    #[prost(message, repeated, tag="1")]
+    pub result: ::prost::alloc::vec::Vec<ScoredPoint>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct SearchBatchResponse {
+    #[prost(message, repeated, tag="1")]
+    pub result: ::prost::alloc::vec::Vec<BatchResult>,
     /// Time spent to process
     #[prost(double, tag="2")]
     pub time: f64,
@@ -1292,8 +1478,11 @@ pub struct RetrievedPoint {
     pub id: ::core::option::Option<PointId>,
     #[prost(map="string, message", tag="2")]
     pub payload: ::std::collections::HashMap<::prost::alloc::string::String, Value>,
-    #[prost(float, repeated, tag="3")]
+    #[deprecated]
+    #[prost(float, repeated, packed="false", tag="3")]
     pub vector: ::prost::alloc::vec::Vec<f32>,
+    #[prost(message, optional, tag="4")]
+    pub vectors: ::core::option::Option<Vectors>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GetResponse {
@@ -1307,6 +1496,14 @@ pub struct GetResponse {
 pub struct RecommendResponse {
     #[prost(message, repeated, tag="1")]
     pub result: ::prost::alloc::vec::Vec<ScoredPoint>,
+    /// Time spent to process
+    #[prost(double, tag="2")]
+    pub time: f64,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct RecommendBatchResponse {
+    #[prost(message, repeated, tag="1")]
+    pub result: ::prost::alloc::vec::Vec<BatchResult>,
     /// Time spent to process
     #[prost(double, tag="2")]
     pub time: f64,
@@ -1378,7 +1575,7 @@ pub struct FieldCondition {
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Match {
-    #[prost(oneof="r#match::MatchValue", tags="1, 2, 3")]
+    #[prost(oneof="r#match::MatchValue", tags="1, 2, 3, 4")]
     pub match_value: ::core::option::Option<r#match::MatchValue>,
 }
 /// Nested message and enum types in `Match`.
@@ -1394,6 +1591,9 @@ pub mod r#match {
         /// Match boolean
         #[prost(bool, tag="3")]
         Boolean(bool),
+        /// Match text
+        #[prost(string, tag="4")]
+        Text(::prost::alloc::string::String),
     }
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -1468,10 +1668,13 @@ pub struct PointsIdsList {
 pub struct PointStruct {
     #[prost(message, optional, tag="1")]
     pub id: ::core::option::Option<PointId>,
-    #[prost(float, repeated, tag="2")]
+    #[deprecated]
+    #[prost(float, repeated, packed="false", tag="2")]
     pub vector: ::prost::alloc::vec::Vec<f32>,
     #[prost(map="string, message", tag="3")]
     pub payload: ::std::collections::HashMap<::prost::alloc::string::String, Value>,
+    #[prost(message, optional, tag="4")]
+    pub vectors: ::core::option::Option<Vectors>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GeoPoint {
@@ -1487,6 +1690,7 @@ pub enum FieldType {
     Integer = 1,
     Float = 2,
     Geo = 3,
+    Text = 4,
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
@@ -1741,6 +1945,27 @@ pub mod points_client {
             self.inner.unary(request.into_request(), path, codec).await
         }
         ///
+        ///Retrieve closest points based on vector similarity and given filtering conditions
+        pub async fn search_batch(
+            &mut self,
+            request: impl tonic::IntoRequest<super::SearchBatchPoints>,
+        ) -> Result<tonic::Response<super::SearchBatchResponse>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Points/SearchBatch",
+            );
+            self.inner.unary(request.into_request(), path, codec).await
+        }
+        ///
         ///Iterate over all or filtered points points
         pub async fn scroll(
             &mut self,
@@ -1776,6 +2001,27 @@ pub mod points_client {
                 })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Points/Recommend");
+            self.inner.unary(request.into_request(), path, codec).await
+        }
+        ///
+        ///Look for the points which are closer to stored positive examples and at the same time further to negative examples.
+        pub async fn recommend_batch(
+            &mut self,
+            request: impl tonic::IntoRequest<super::RecommendBatchPoints>,
+        ) -> Result<tonic::Response<super::RecommendBatchResponse>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Points/RecommendBatch",
+            );
             self.inner.unary(request.into_request(), path, codec).await
         }
         ///
@@ -1861,6 +2107,12 @@ pub mod points_server {
             request: tonic::Request<super::SearchPoints>,
         ) -> Result<tonic::Response<super::SearchResponse>, tonic::Status>;
         ///
+        ///Retrieve closest points based on vector similarity and given filtering conditions
+        async fn search_batch(
+            &self,
+            request: tonic::Request<super::SearchBatchPoints>,
+        ) -> Result<tonic::Response<super::SearchBatchResponse>, tonic::Status>;
+        ///
         ///Iterate over all or filtered points points
         async fn scroll(
             &self,
@@ -1872,6 +2124,12 @@ pub mod points_server {
             &self,
             request: tonic::Request<super::RecommendPoints>,
         ) -> Result<tonic::Response<super::RecommendResponse>, tonic::Status>;
+        ///
+        ///Look for the points which are closer to stored positive examples and at the same time further to negative examples.
+        async fn recommend_batch(
+            &self,
+            request: tonic::Request<super::RecommendBatchPoints>,
+        ) -> Result<tonic::Response<super::RecommendBatchResponse>, tonic::Status>;
         ///
         ///Count points in collection with given filtering conditions
         async fn count(
@@ -2266,6 +2524,44 @@ pub mod points_server {
                     };
                     Box::pin(fut)
                 }
+                "/qdrant.Points/SearchBatch" => {
+                    #[allow(non_camel_case_types)]
+                    struct SearchBatchSvc<T: Points>(pub Arc<T>);
+                    impl<T: Points> tonic::server::UnaryService<super::SearchBatchPoints>
+                    for SearchBatchSvc<T> {
+                        type Response = super::SearchBatchResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::SearchBatchPoints>,
+                        ) -> Self::Future {
+                            let inner = self.0.clone();
+                            let fut = async move {
+                                (*inner).search_batch(request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = SearchBatchSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
                 "/qdrant.Points/Scroll" => {
                     #[allow(non_camel_case_types)]
                     struct ScrollSvc<T: Points>(pub Arc<T>);
@@ -2327,6 +2623,46 @@ pub mod points_server {
                     let fut = async move {
                         let inner = inner.0;
                         let method = RecommendSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/qdrant.Points/RecommendBatch" => {
+                    #[allow(non_camel_case_types)]
+                    struct RecommendBatchSvc<T: Points>(pub Arc<T>);
+                    impl<
+                        T: Points,
+                    > tonic::server::UnaryService<super::RecommendBatchPoints>
+                    for RecommendBatchSvc<T> {
+                        type Response = super::RecommendBatchResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::RecommendBatchPoints>,
+                        ) -> Self::Future {
+                            let inner = self.0.clone();
+                            let fut = async move {
+                                (*inner).recommend_batch(request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = RecommendBatchSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
