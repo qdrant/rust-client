@@ -6,18 +6,7 @@ use crate::qdrant::snapshots_client::SnapshotsClient;
 use crate::qdrant::value::Kind;
 use crate::qdrant::vectors::VectorsOptions;
 use crate::qdrant::with_payload_selector::SelectorOptions;
-use crate::qdrant::{
-    ClearPayloadPoints, CollectionOperationResponse, CountPoints, CountResponse, CreateCollection,
-    CreateFullSnapshotRequest, CreateSnapshotRequest, CreateSnapshotResponse, DeleteCollection,
-    DeletePayloadPoints, DeletePoints, Filter, GetCollectionInfoRequest, GetCollectionInfoResponse,
-    GetPoints, GetResponse, ListCollectionsRequest, ListCollectionsResponse,
-    ListFullSnapshotsRequest, ListSnapshotsRequest, ListSnapshotsResponse, ListValue, NamedVectors,
-    OptimizersConfigDiff, PayloadIncludeSelector, PointId, PointStruct, PointsIdsList,
-    PointsOperationResponse, PointsSelector, RecommendBatchPoints, RecommendBatchResponse,
-    RecommendPoints, RecommendResponse, ScrollPoints, ScrollResponse, SearchBatchPoints,
-    SearchBatchResponse, SearchPoints, SearchResponse, SetPayloadPoints, Struct, UpdateCollection,
-    UpsertPoints, Value, Vector, Vectors, WithPayloadSelector,
-};
+use crate::qdrant::{ClearPayloadPoints, CollectionOperationResponse, CountPoints, CountResponse, CreateCollection, CreateFullSnapshotRequest, CreateSnapshotRequest, CreateSnapshotResponse, DeleteCollection, DeletePayloadPoints, DeletePoints, Filter, GetCollectionInfoRequest, GetCollectionInfoResponse, GetPoints, GetResponse, ListCollectionsRequest, ListCollectionsResponse, ListFullSnapshotsRequest, ListSnapshotsRequest, ListSnapshotsResponse, ListValue, NamedVectors, OptimizersConfigDiff, PayloadIncludeSelector, PointId, PointStruct, PointsIdsList, PointsOperationResponse, PointsSelector, RecommendBatchPoints, RecommendBatchResponse, RecommendPoints, RecommendResponse, ScrollPoints, ScrollResponse, SearchBatchPoints, SearchBatchResponse, SearchPoints, SearchResponse, SetPayloadPoints, Struct, UpdateCollection, UpsertPoints, Value, Vector, Vectors, WithPayloadSelector, WithVectorsSelector, with_vectors_selector, VectorsSelector};
 use anyhow::{bail, Result};
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -90,6 +79,24 @@ impl From<HashMap<String, Vec<f32>>> for Vectors {
                     .map(|(k, v)| (k, v.into()))
                     .collect(),
             })),
+        }
+    }
+}
+
+impl From<Vec<&str>> for WithVectorsSelector {
+    fn from(names: Vec<&str>) -> Self {
+        WithVectorsSelector {
+            selector_options: Some(with_vectors_selector::SelectorOptions::Include(VectorsSelector{
+                names: names.into_iter().map(|name| name.to_string()).collect()
+            })),
+        }
+    }
+}
+
+impl From<bool> for WithVectorsSelector {
+    fn from(flag: bool) -> Self {
+        WithVectorsSelector {
+            selector_options: Some(with_vectors_selector::SelectorOptions::Enable(flag)),
         }
     }
 }
@@ -373,7 +380,7 @@ impl QdrantClient {
         &self,
         collection_name: impl ToString,
         points: Vec<PointId>,
-        with_vector: Option<bool>,
+        with_vectors: Option<impl Into<WithVectorsSelector>>,
         with_payload: Option<impl Into<WithPayloadSelector>>,
     ) -> Result<GetResponse> {
         let mut points_api = self.points_api();
@@ -381,9 +388,9 @@ impl QdrantClient {
             .get(GetPoints {
                 collection_name: collection_name.to_string(),
                 ids: points,
-                with_vector,
+                with_vector: None,
                 with_payload: with_payload.map(|x| x.into()),
-                with_vectors: None,
+                with_vectors: with_vectors.map(|x| x.into()),
             })
             .await?;
 
