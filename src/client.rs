@@ -83,6 +83,14 @@ impl From<HashMap<String, Vec<f32>>> for Vectors {
     }
 }
 
+impl From<Vec<f32>> for Vectors {
+    fn from(vector: Vec<f32>) -> Self {
+        Vectors {
+            vectors_options: Some(VectorsOptions::Vector(vector.into())),
+        }
+    }
+}
+
 impl From<Vec<&str>> for WithVectorsSelector {
     fn from(names: Vec<&str>) -> Self {
         WithVectorsSelector {
@@ -587,23 +595,10 @@ impl QdrantClient {
 }
 
 impl PointStruct {
-    pub fn new(id: impl Into<PointId>, vector: Vec<f32>, payload: Payload) -> Self {
+    pub fn new(id: impl Into<PointId>, vectors: impl Into<Vectors>, payload: Payload) -> Self {
         Self {
             id: Some(id.into()),
-            vector,
-            payload: payload.into(),
-            vectors: None,
-        }
-    }
-
-    pub fn with_named_vector(
-        id: impl Into<PointId>,
-        vectors: HashMap<String, Vec<f32>>,
-        payload: Payload,
-    ) -> Self {
-        Self {
-            id: Some(id.into()),
-            vector: vec![],
+            vector: Vec::new(),
             payload: payload.into(),
             vectors: Some(vectors.into()),
         }
