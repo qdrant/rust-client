@@ -1,16 +1,17 @@
 use crate::qdrant::collections_client::CollectionsClient;
 use crate::qdrant::point_id::PointIdOptions;
 use crate::qdrant::points_client::PointsClient;
+use crate::qdrant::points_selector::PointsSelectorOneOf;
 use crate::qdrant::snapshots_client::SnapshotsClient;
 use crate::qdrant::value::Kind;
-use crate::qdrant::{CollectionOperationResponse, CountPoints, CountResponse, CreateCollection, CreateSnapshotRequest, CreateSnapshotResponse, DeleteCollection, DeletePoints, GetCollectionInfoRequest, GetCollectionInfoResponse, ListCollectionsRequest, ListCollectionsResponse, ListSnapshotsRequest, ListSnapshotsResponse, ListValue, OptimizersConfigDiff, PointId, PointStruct, PointsOperationResponse, PointsSelector, RecommendPoints, RecommendResponse, ScrollPoints, ScrollResponse, SearchPoints, SearchResponse, Struct, UpdateCollection, UpsertPoints, Value, CreateFullSnapshotRequest, ListFullSnapshotsRequest, SetPayloadPoints, DeletePayloadPoints, ClearPayloadPoints, WithPayloadSelector, PayloadIncludeSelector, GetPoints, GetResponse, PointsIdsList, Filter};
+use crate::qdrant::vectors::VectorsOptions;
+use crate::qdrant::with_payload_selector::SelectorOptions;
+use crate::qdrant::{ClearPayloadPoints, CollectionOperationResponse, CountPoints, CountResponse, CreateCollection, CreateFullSnapshotRequest, CreateSnapshotRequest, CreateSnapshotResponse, DeleteCollection, DeletePayloadPoints, DeletePoints, Filter, GetCollectionInfoRequest, GetCollectionInfoResponse, GetPoints, GetResponse, ListCollectionsRequest, ListCollectionsResponse, ListFullSnapshotsRequest, ListSnapshotsRequest, ListSnapshotsResponse, ListValue, NamedVectors, OptimizersConfigDiff, PayloadIncludeSelector, PointId, PointStruct, PointsIdsList, PointsOperationResponse, PointsSelector, RecommendBatchPoints, RecommendBatchResponse, RecommendPoints, RecommendResponse, ScrollPoints, ScrollResponse, SearchBatchPoints, SearchBatchResponse, SearchPoints, SearchResponse, SetPayloadPoints, Struct, UpdateCollection, UpsertPoints, Value, Vector, Vectors, WithPayloadSelector, WithVectorsSelector, with_vectors_selector, VectorsSelector};
 use anyhow::{bail, Result};
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::time::Duration;
 use tonic::transport::Channel;
-use crate::qdrant::points_selector::PointsSelectorOneOf;
-use crate::qdrant::with_payload_selector::SelectorOptions;
 
 pub struct QdrantClientConfig {
     pub uri: String,
@@ -30,7 +31,7 @@ impl QdrantClientConfig {
 impl From<bool> for WithPayloadSelector {
     fn from(flag: bool) -> Self {
         WithPayloadSelector {
-            selector_options: Some(SelectorOptions::Enable(flag))
+            selector_options: Some(SelectorOptions::Enable(flag)),
         }
     }
 }
@@ -38,13 +39,9 @@ impl From<bool> for WithPayloadSelector {
 impl From<Vec<&str>> for WithPayloadSelector {
     fn from(fields: Vec<&str>) -> Self {
         WithPayloadSelector {
-            selector_options: Some(
-                SelectorOptions::Include(
-                    PayloadIncludeSelector {
-                        fields: fields.into_iter().map(|f| f.to_string()).collect()
-                    }
-                )
-            )
+            selector_options: Some(SelectorOptions::Include(PayloadIncludeSelector {
+                fields: fields.into_iter().map(|f| f.to_string()).collect(),
+            })),
         }
     }
 }
@@ -52,13 +49,9 @@ impl From<Vec<&str>> for WithPayloadSelector {
 impl From<Vec<PointId>> for PointsSelector {
     fn from(point_ids: Vec<PointId>) -> Self {
         PointsSelector {
-            points_selector_one_of: Some(
-                PointsSelectorOneOf::Points(
-                    PointsIdsList {
-                        ids: point_ids
-                    }
-                )
-            )
+            points_selector_one_of: Some(PointsSelectorOneOf::Points(PointsIdsList {
+                ids: point_ids,
+            })),
         }
     }
 }
@@ -66,7 +59,52 @@ impl From<Vec<PointId>> for PointsSelector {
 impl From<Filter> for PointsSelector {
     fn from(filter: Filter) -> Self {
         PointsSelector {
-            points_selector_one_of: Some(PointsSelectorOneOf::Filter(filter))
+            points_selector_one_of: Some(PointsSelectorOneOf::Filter(filter)),
+        }
+    }
+}
+
+impl From<Vec<f32>> for Vector {
+    fn from(vector: Vec<f32>) -> Self {
+        Vector { data: vector }
+    }
+}
+
+impl From<HashMap<String, Vec<f32>>> for Vectors {
+    fn from(named_vectors: HashMap<String, Vec<f32>>) -> Self {
+        Vectors {
+            vectors_options: Some(VectorsOptions::Vectors(NamedVectors {
+                vectors: named_vectors
+                    .into_iter()
+                    .map(|(k, v)| (k, v.into()))
+                    .collect(),
+            })),
+        }
+    }
+}
+
+impl From<Vec<f32>> for Vectors {
+    fn from(vector: Vec<f32>) -> Self {
+        Vectors {
+            vectors_options: Some(VectorsOptions::Vector(vector.into())),
+        }
+    }
+}
+
+impl From<Vec<&str>> for WithVectorsSelector {
+    fn from(names: Vec<&str>) -> Self {
+        WithVectorsSelector {
+            selector_options: Some(with_vectors_selector::SelectorOptions::Include(VectorsSelector{
+                names: names.into_iter().map(|name| name.to_string()).collect()
+            })),
+        }
+    }
+}
+
+impl From<bool> for WithVectorsSelector {
+    fn from(flag: bool) -> Self {
+        WithVectorsSelector {
+            selector_options: Some(with_vectors_selector::SelectorOptions::Enable(flag)),
         }
     }
 }
@@ -88,7 +126,6 @@ pub struct QdrantClient {
 }
 
 impl QdrantClient {
-
     // Access to raw collection API
     pub fn collection_api(&self) -> CollectionsClient<Channel> {
         CollectionsClient::new(self.channel.clone())
@@ -237,7 +274,8 @@ impl QdrantClient {
         points: Vec<PointId>,
         payload: Payload,
     ) -> Result<PointsOperationResponse> {
-        self._set_payload(collection_name, points, payload, false).await
+        self._set_payload(collection_name, points, payload, false)
+            .await
     }
 
     pub async fn set_payload_blocking(
@@ -246,7 +284,8 @@ impl QdrantClient {
         points: Vec<PointId>,
         payload: Payload,
     ) -> Result<PointsOperationResponse> {
-        self._set_payload(collection_name, points, payload, true).await
+        self._set_payload(collection_name, points, payload, true)
+            .await
     }
 
     #[inline]
@@ -258,12 +297,14 @@ impl QdrantClient {
         block: bool,
     ) -> Result<PointsOperationResponse> {
         let mut points_api = self.points_api();
-        let result = points_api.set_payload(SetPayloadPoints {
-            collection_name: collection_name.to_string(),
-            wait: Some(block),
-            payload: payload.0,
-            points,
-        }).await?;
+        let result = points_api
+            .set_payload(SetPayloadPoints {
+                collection_name: collection_name.to_string(),
+                wait: Some(block),
+                payload: payload.0,
+                points,
+            })
+            .await?;
         Ok(result.into_inner())
     }
 
@@ -273,7 +314,8 @@ impl QdrantClient {
         points: Vec<PointId>,
         keys: Vec<String>,
     ) -> Result<PointsOperationResponse> {
-        self._delete_payload(collection_name, points, keys, false).await
+        self._delete_payload(collection_name, points, keys, false)
+            .await
     }
 
     pub async fn delete_payload_blocking(
@@ -282,7 +324,8 @@ impl QdrantClient {
         points: Vec<PointId>,
         keys: Vec<String>,
     ) -> Result<PointsOperationResponse> {
-        self._delete_payload(collection_name, points, keys, true).await
+        self._delete_payload(collection_name, points, keys, true)
+            .await
     }
 
     #[inline]
@@ -294,12 +337,14 @@ impl QdrantClient {
         block: bool,
     ) -> Result<PointsOperationResponse> {
         let mut points_api = self.points_api();
-        let result = points_api.delete_payload(DeletePayloadPoints {
-            collection_name: collection_name.to_string(),
-            wait: Some(block),
-            keys,
-            points,
-        }).await?;
+        let result = points_api
+            .delete_payload(DeletePayloadPoints {
+                collection_name: collection_name.to_string(),
+                wait: Some(block),
+                keys,
+                points,
+            })
+            .await?;
         Ok(result.into_inner())
     }
 
@@ -308,7 +353,8 @@ impl QdrantClient {
         collection_name: impl ToString,
         points_selector: Option<PointsSelector>,
     ) -> Result<PointsOperationResponse> {
-        self._clear_payload(collection_name, points_selector, false).await
+        self._clear_payload(collection_name, points_selector, false)
+            .await
     }
 
     pub async fn clear_payload_blocking(
@@ -316,7 +362,8 @@ impl QdrantClient {
         collection_name: impl ToString,
         points_selector: Option<PointsSelector>,
     ) -> Result<PointsOperationResponse> {
-        self._clear_payload(collection_name, points_selector, true).await
+        self._clear_payload(collection_name, points_selector, true)
+            .await
     }
 
     #[inline]
@@ -327,11 +374,13 @@ impl QdrantClient {
         block: bool,
     ) -> Result<PointsOperationResponse> {
         let mut points_api = self.points_api();
-        let result = points_api.clear_payload(ClearPayloadPoints {
-            collection_name: collection_name.to_string(),
-            wait: Some(block),
-            points: points_selector,
-        }).await?;
+        let result = points_api
+            .clear_payload(ClearPayloadPoints {
+                collection_name: collection_name.to_string(),
+                wait: Some(block),
+                points: points_selector,
+            })
+            .await?;
         Ok(result.into_inner())
     }
 
@@ -339,24 +388,35 @@ impl QdrantClient {
         &self,
         collection_name: impl ToString,
         points: Vec<PointId>,
-        with_vector: Option<bool>,
+        with_vectors: Option<impl Into<WithVectorsSelector>>,
         with_payload: Option<impl Into<WithPayloadSelector>>,
     ) -> Result<GetResponse> {
         let mut points_api = self.points_api();
-        let result = points_api.get(GetPoints {
-            collection_name: collection_name.to_string(),
-            ids: points,
-            with_vector,
-            with_payload: with_payload.map(|x| x.into()),
-        }).await?;
+        let result = points_api
+            .get(GetPoints {
+                collection_name: collection_name.to_string(),
+                ids: points,
+                with_vector: None,
+                with_payload: with_payload.map(|x| x.into()),
+                with_vectors: with_vectors.map(|x| x.into()),
+            })
+            .await?;
 
         Ok(result.into_inner())
     }
 
-
     pub async fn search_points(&self, request: SearchPoints) -> Result<SearchResponse> {
         let mut points_api = self.points_api();
         let result = points_api.search(request).await?;
+        Ok(result.into_inner())
+    }
+
+    pub async fn search_batch_points(
+        &self,
+        request: SearchBatchPoints,
+    ) -> Result<SearchBatchResponse> {
+        let mut points_api = self.points_api();
+        let result = points_api.search_batch(request).await?;
         Ok(result.into_inner())
     }
 
@@ -421,6 +481,15 @@ impl QdrantClient {
         Ok(result.into_inner())
     }
 
+    pub async fn recommend_batch(
+        &self,
+        request: RecommendBatchPoints,
+    ) -> Result<RecommendBatchResponse> {
+        let mut points_api = self.points_api();
+        let result = points_api.recommend_batch(request).await?;
+        Ok(result.into_inner())
+    }
+
     pub async fn count(&self, request: CountPoints) -> Result<CountResponse> {
         let mut points_api = self.points_api();
         let result = points_api.count(request).await?;
@@ -454,9 +523,7 @@ impl QdrantClient {
         Ok(result.into_inner())
     }
 
-    pub async fn create_full_snapshot(
-        &self
-    ) -> Result<CreateSnapshotResponse> {
+    pub async fn create_full_snapshot(&self) -> Result<CreateSnapshotResponse> {
         let mut snapshots_api = SnapshotsClient::new(self.channel.clone());
         let result = snapshots_api
             .create_full(CreateFullSnapshotRequest {})
@@ -465,13 +532,9 @@ impl QdrantClient {
         Ok(result.into_inner())
     }
 
-    pub async fn list_full_snapshots(
-        &self,
-    ) -> Result<ListSnapshotsResponse> {
+    pub async fn list_full_snapshots(&self) -> Result<ListSnapshotsResponse> {
         let mut snapshots_api = SnapshotsClient::new(self.channel.clone());
-        let result = snapshots_api
-            .list_full(ListFullSnapshotsRequest {})
-            .await?;
+        let result = snapshots_api.list_full(ListFullSnapshotsRequest {}).await?;
         Ok(result.into_inner())
     }
 
@@ -532,11 +595,12 @@ impl QdrantClient {
 }
 
 impl PointStruct {
-    pub fn new(id: impl Into<PointId>, vector: Vec<f32>, payload: Payload) -> Self {
+    pub fn new(id: impl Into<PointId>, vectors: impl Into<Vectors>, payload: Payload) -> Self {
         Self {
             id: Some(id.into()),
-            vector,
+            vector: Vec::new(),
             payload: payload.into(),
+            vectors: Some(vectors.into()),
         }
     }
 }
@@ -569,7 +633,12 @@ impl From<Payload> for HashMap<String, Value> {
 impl From<HashMap<&str, Value>> for Payload {
     #[inline]
     fn from(payload: HashMap<&str, Value>) -> Self {
-        Self(payload.into_iter().map(|(k, v)| (k.to_string(), v)).collect())
+        Self(
+            payload
+                .into_iter()
+                .map(|(k, v)| (k.to_string(), v))
+                .collect(),
+        )
     }
 }
 
@@ -632,8 +701,8 @@ impl From<Payload> for Value {
 }
 
 impl<T> From<Vec<T>> for Value
-    where
-        T: Into<Value>,
+where
+    T: Into<Value>,
 {
     fn from(val: Vec<T>) -> Self {
         Self {
