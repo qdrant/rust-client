@@ -396,7 +396,6 @@ impl QdrantClient {
             .get(GetPoints {
                 collection_name: collection_name.to_string(),
                 ids: points,
-                with_vector: None,
                 with_payload: with_payload.map(|x| x.into()),
                 with_vectors: with_vectors.map(|x| x.into()),
             })
@@ -598,7 +597,6 @@ impl PointStruct {
     pub fn new(id: impl Into<PointId>, vectors: impl Into<Vectors>, payload: Payload) -> Self {
         Self {
             id: Some(id.into()),
-            vector: Vec::new(),
             payload: payload.into(),
             vectors: Some(vectors.into()),
         }

@@ -35,8 +35,6 @@ mod tests {
                         )
                     }
                 ),
-                vector_size: None,
-                distance: None,
                 ..Default::default()
             })
             .await?;
@@ -62,7 +60,6 @@ mod tests {
                 vector: vec![11.; 10],
                 filter: None,
                 limit: 10,
-                with_vector: None,
                 with_payload: Some(true.into()),
                 params: None,
                 score_threshold: None,
