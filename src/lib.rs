@@ -79,7 +79,7 @@ mod tests {
 
 
         // Delete some payload fields
-        client.delete_payload(collection_name, vec![0.into()], vec!["sub_payload".to_string()]).await?;
+        client.delete_payload_blocking(collection_name, vec![0.into()], vec!["sub_payload".to_string()]).await?;
 
         // retrieve points
         let points = client.get_points(collection_name, vec![0.into()], Some(true), Some(true)).await?;
