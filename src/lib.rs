@@ -5,7 +5,8 @@ pub mod qdrant;
 #[cfg(test)]
 mod tests {
     use std::collections::HashMap;
-    use crate::qdrant::{CreateFieldIndexCollection, FieldType, Value};
+    use crate::qdrant::{CreateFieldIndexCollection, FieldType, Value, VectorParams, VectorsConfig};
+    use crate::qdrant::vectors_config::Config;
     use super::prelude::*;
 
     #[tokio::test]
@@ -22,9 +23,20 @@ mod tests {
         client
             .create_collection(CreateCollection {
                 collection_name: collection_name.into(),
-                vector_size: Some(10),
-                distance: Some(Distance::Cosine.into()),
-                vectors_config: None,
+                vectors_config: Some(
+                    VectorsConfig {
+                        config: Some(
+                            Config::Params(
+                                VectorParams {
+                                    size: 10,
+                                    distance: Distance::Cosine.into()
+                                }
+                            )
+                        )
+                    }
+                ),
+                vector_size: None,
+                distance: None,
                 ..Default::default()
             })
             .await?;
