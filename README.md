@@ -61,9 +61,18 @@ async fn main() {
     client
         .create_collection(CreateCollection {
             collection_name: collection_name.into(),
-            vector_size: 10,
-            distance: Distance::Cosine.into(),
-            ..Default::default()
+            vectors_config: Some(
+                VectorsConfig {
+                    config: Some(
+                        Config::Params(
+                            VectorParams {
+                                size: 10,
+                                distance: Distance::Cosine.into()
+                            }
+                        )
+                    )
+                }
+            ),
         })
         .await?;
 
