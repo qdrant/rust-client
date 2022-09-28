@@ -6,8 +6,11 @@ Rust client for Qdrant vector search engine.
 [![Apache 2.0 licensed][apache2-badge]][apache2-url]
 
 [crates-badge]: https://img.shields.io/crates/v/qdrant-client.svg
+
 [crates-url]: https://crates.io/crates/qdrant-client
+
 [apache2-badge]: https://img.shields.io/badge/license-apache2-blue.svg
+
 [apache2-url]: https://github.com/qdrant/rust-client/blob/master/LICENSE
 
 ## Installation
@@ -28,6 +31,7 @@ docker run -p 6333:6333 -p 6334:6334 \
     -e QDRANT__SERVICE__GRPC_PORT="6334" \
     qdrant/qdrant
 ```
+
 Or by updating the configuration file:
 
 ```yaml
@@ -59,7 +63,7 @@ async fn main() {
     client.delete_collection(collection_name).await?;
 
     client
-        .create_collection(CreateCollection {
+        .create_collection(&CreateCollection {
             collection_name: collection_name.into(),
             vectors_config: Some(
                 VectorsConfig {
@@ -89,7 +93,7 @@ async fn main() {
     client.upsert_points_blocking(collection_name, points).await?;
 
     let search_result = client
-        .search_points(SearchPoints {
+        .search_points(&SearchPoints {
             collection_name: collection_name.into(),
             vector: vec![11.; 10],
             filter: None,
@@ -117,6 +121,5 @@ async fn main() {
     //     ],
     //     time: 5.312e-5,
     // }
-
 }
 ```

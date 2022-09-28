@@ -1,6 +1,7 @@
 pub mod client;
 pub mod prelude;
 pub mod qdrant;
+mod channel_pool;
 
 #[cfg(test)]
 mod tests {
@@ -21,7 +22,7 @@ mod tests {
         client.delete_collection(collection_name).await?;
 
         client
-            .create_collection(CreateCollection {
+            .create_collection(&CreateCollection {
                 collection_name: collection_name.into(),
                 vectors_config: Some(
                     VectorsConfig {
@@ -55,7 +56,7 @@ mod tests {
         client.upsert_points_blocking(collection_name, points).await?;
 
         let search_result = client
-            .search_points(SearchPoints {
+            .search_points(&SearchPoints {
                 collection_name: collection_name.into(),
                 vector: vec![11.; 10],
                 filter: None,
@@ -82,22 +83,24 @@ mod tests {
         client.delete_payload_blocking(collection_name, vec![0.into()], vec!["sub_payload".to_string()]).await?;
 
         // retrieve points
-        let points = client.get_points(collection_name, vec![0.into()], Some(true), Some(true)).await?;
+        let points = client.get_points(collection_name, &vec![0.into()], Some(true), Some(true)).await?;
 
         assert_eq!(points.result.len(), 1);
         let point = points.result[0].clone();
         assert!(point.payload.contains_key("foo"));
         assert!(!point.payload.contains_key("sub_payload"));
 
-        client.delete_points(collection_name, vec![0.into()].into()).await?;
+        client.delete_points(collection_name, &vec![0.into()].into()).await?;
 
         // Access raw point api with client
-        client.points_api().create_field_index(CreateFieldIndexCollection {
-            collection_name: collection_name.to_string(),
-            wait: None,
-            field_name: "foo".to_string(),
-            field_type: Some(FieldType::Keyword as i32),
-            field_index_params: None,
+        client.with_points_client(|mut client| async move {
+            client.create_field_index(CreateFieldIndexCollection {
+                collection_name: collection_name.to_string(),
+                wait: None,
+                field_name: "foo".to_string(),
+                field_type: Some(FieldType::Keyword as i32),
+                field_index_params: None,
+            }).await
         }).await?;
 
 
