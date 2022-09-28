@@ -29,7 +29,7 @@ mod tests {
                             Config::Params(
                                 VectorParams {
                                     size: 10,
-                                    distance: Distance::Cosine.into()
+                                    distance: Distance::Cosine.into(),
                                 }
                             )
                         )
@@ -65,7 +65,7 @@ mod tests {
                 score_threshold: None,
                 offset: None,
                 vector_name: None,
-                with_vectors: None
+                with_vectors: None,
             })
             .await?;
 
@@ -97,7 +97,7 @@ mod tests {
             wait: None,
             field_name: "foo".to_string(),
             field_type: Some(FieldType::Keyword as i32),
-            field_index_params: None
+            field_index_params: None,
         }).await?;
 
 

@@ -7,17 +7,21 @@ use crate::qdrant::value::Kind;
 use crate::qdrant::vectors::VectorsOptions;
 use crate::qdrant::with_payload_selector::SelectorOptions;
 use crate::qdrant::{ClearPayloadPoints, CollectionOperationResponse, CountPoints, CountResponse, CreateCollection, CreateFullSnapshotRequest, CreateSnapshotRequest, CreateSnapshotResponse, DeleteCollection, DeletePayloadPoints, DeletePoints, Filter, GetCollectionInfoRequest, GetCollectionInfoResponse, GetPoints, GetResponse, ListCollectionsRequest, ListCollectionsResponse, ListFullSnapshotsRequest, ListSnapshotsRequest, ListSnapshotsResponse, ListValue, NamedVectors, OptimizersConfigDiff, PayloadIncludeSelector, PointId, PointStruct, PointsIdsList, PointsOperationResponse, PointsSelector, RecommendBatchPoints, RecommendBatchResponse, RecommendPoints, RecommendResponse, ScrollPoints, ScrollResponse, SearchBatchPoints, SearchBatchResponse, SearchPoints, SearchResponse, SetPayloadPoints, Struct, UpdateCollection, UpsertPoints, Value, Vector, Vectors, WithPayloadSelector, WithVectorsSelector, with_vectors_selector, VectorsSelector};
-use anyhow::{bail, Result};
+use anyhow::{anyhow, bail, Result};
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::time::Duration;
-use tonic::transport::Channel;
+use tonic::{Request, Status};
+use tonic::codegen::InterceptedService;
+use tonic::service::Interceptor;
+use tonic::transport::{Channel, ClientTlsConfig, Uri};
 
 pub struct QdrantClientConfig {
     pub uri: String,
     pub timeout: Duration,
     pub connect_timeout: Duration,
     pub keep_alive_while_idle: bool,
+    pub api_key: Option<String>,
 }
 
 impl QdrantClientConfig {
@@ -25,6 +29,22 @@ impl QdrantClientConfig {
         let mut default = Self::default();
         default.uri = url.to_string();
         default
+    }
+
+    pub fn set_api_key(&mut self, api_key: &str) {
+        self.api_key = Some(api_key.to_string());
+    }
+
+    pub fn set_timeout(&mut self, timeout: Duration) {
+        self.timeout = timeout;
+    }
+
+    pub fn set_connect_timeout(&mut self, connect_timeout: Duration) {
+        self.connect_timeout = connect_timeout;
+    }
+
+    pub fn set_keep_alive_while_idle(&mut self, keep_alive_while_idle: bool) {
+        self.keep_alive_while_idle = keep_alive_while_idle;
     }
 }
 
@@ -94,7 +114,7 @@ impl From<Vec<f32>> for Vectors {
 impl From<Vec<&str>> for WithVectorsSelector {
     fn from(names: Vec<&str>) -> Self {
         WithVectorsSelector {
-            selector_options: Some(with_vectors_selector::SelectorOptions::Include(VectorsSelector{
+            selector_options: Some(with_vectors_selector::SelectorOptions::Include(VectorsSelector {
                 names: names.into_iter().map(|name| name.to_string()).collect()
             })),
         }
@@ -116,7 +136,30 @@ impl Default for QdrantClientConfig {
             timeout: Duration::from_secs(5),
             connect_timeout: Duration::from_secs(5),
             keep_alive_while_idle: true,
+            api_key: None,
         }
+    }
+}
+
+pub struct TokenInterceptor {
+    api_key: Option<String>,
+}
+
+impl TokenInterceptor {
+    pub fn new(api_key: Option<String>) -> Self {
+        Self { api_key }
+    }
+}
+
+impl Interceptor for TokenInterceptor {
+    fn call(&mut self, mut req: Request<()>) -> Result<Request<()>, Status> {
+        if let Some(api_key) = &self.api_key {
+            req.metadata_mut().insert(
+                "api-key",
+                api_key.parse().map_err(|_| Status::invalid_argument(format!("Malformed API key: {}", api_key)))?,
+            );
+        }
+        Ok(req)
     }
 }
 
@@ -127,24 +170,52 @@ pub struct QdrantClient {
 
 impl QdrantClient {
     // Access to raw collection API
-    pub fn collection_api(&self) -> CollectionsClient<Channel> {
-        CollectionsClient::new(self.channel.clone())
+    pub fn collection_api(&self) -> CollectionsClient<InterceptedService<Channel, TokenInterceptor>> {
+        CollectionsClient::with_interceptor(
+            self.channel.clone(),
+            TokenInterceptor::new(self.cfg.api_key.clone()),
+        )
     }
 
     // Access to raw points API
-    pub fn points_api(&self) -> PointsClient<Channel> {
-        PointsClient::new(self.channel.clone())
+    pub fn points_api(&self) -> PointsClient<InterceptedService<Channel, TokenInterceptor>> {
+        PointsClient::with_interceptor(
+            self.channel.clone(),
+            TokenInterceptor::new(self.cfg.api_key.clone()),
+        )
+    }
+
+    async fn create_channel(cfg: &QdrantClientConfig) -> Result<Channel> {
+        let uri: Uri = cfg.uri.parse()?;
+
+        let tls = match uri.scheme_str() {
+            None => false,
+            Some(schema) => match schema {
+                "http" => false,
+                "https" => true,
+                _ => return Err(anyhow!("Unsupported schema: {}", schema)),
+            }
+        };
+
+        let endpoint = Channel::builder(uri)
+            .timeout(cfg.timeout)
+            .connect_timeout(cfg.connect_timeout)
+            .keep_alive_while_idle(cfg.keep_alive_while_idle)
+            ;
+
+        let endpoint = if tls {
+            endpoint.tls_config(ClientTlsConfig::new())?
+        } else {
+            endpoint
+        };
+
+        Ok(endpoint.connect().await?)
     }
 
     pub async fn new(cfg: Option<QdrantClientConfig>) -> Result<Self> {
         let cfg = cfg.unwrap_or_default();
 
-        let endpoint = Channel::builder(cfg.uri.parse().unwrap())
-            .timeout(cfg.timeout)
-            .connect_timeout(cfg.connect_timeout)
-            .keep_alive_while_idle(cfg.keep_alive_while_idle);
-
-        let channel = endpoint.connect().await?;
+        let channel = Self::create_channel(&cfg).await?;
 
         let client = Self { channel, cfg };
 
@@ -152,13 +223,7 @@ impl QdrantClient {
     }
 
     pub async fn reconnect(&mut self) -> Result<()> {
-        let channel = Channel::builder(self.cfg.uri.parse().unwrap())
-            .timeout(self.cfg.timeout)
-            .connect_timeout(self.cfg.connect_timeout)
-            .keep_alive_while_idle(self.cfg.keep_alive_while_idle);
-
-        let channel = channel.connect().await?;
-        self.channel = channel;
+        self.channel = Self::create_channel(&self.cfg).await?;
 
         Ok(())
     }
@@ -545,8 +610,8 @@ impl QdrantClient {
         snapshot_name: Option<T>,
         rest_api_uri: Option<T>,
     ) -> Result<()>
-    where
-        T: ToString + Clone,
+        where
+            T: ToString + Clone,
     {
         use futures_util::StreamExt;
         use std::io::Write;
@@ -575,8 +640,8 @@ impl QdrantClient {
             collection_name.to_string(),
             snapshot_name
         ))
-        .await?
-        .bytes_stream();
+            .await?
+            .bytes_stream();
 
         let out_path = out_path.into();
         let _ = std::fs::remove_file(&out_path);
@@ -699,8 +764,8 @@ impl From<Payload> for Value {
 }
 
 impl<T> From<Vec<T>> for Value
-where
-    T: Into<Value>,
+    where
+        T: Into<Value>,
 {
     fn from(val: Vec<T>) -> Self {
         Self {
