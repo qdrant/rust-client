@@ -82,7 +82,7 @@ impl ChannelPool {
         match result {
             Ok(res) => Ok(res),
             Err(err) => match err.code() {
-                Code::Internal | Code::Unavailable | Code::Cancelled => {
+                Code::Internal | Code::Unavailable | Code::Cancelled | Code::Unknown => {
                     self.drop_channel().await;
                     let channel = self.get_channel().await?;
                     Ok(f(channel).await?)
