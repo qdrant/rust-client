@@ -55,13 +55,12 @@ impl ChannelPool {
     }
 
     async fn get_channel(&self) -> Result<Channel, Status> {
-        let channel = self.channel.read().unwrap();
-        return if let Some(channel) = &*channel {
-            Ok(channel.clone())
-        } else {
-            drop(channel);
-            Ok(self.make_channel().await?)
-        };
+        if let Some(channel) = &*self.channel.read().unwrap() {
+            return Ok(channel.clone());
+        }
+        
+        let channel = self.make_channel().await?;
+        Ok(channel)
     }
 
     pub async fn drop_channel(&self) {
@@ -91,4 +90,21 @@ impl ChannelPool {
             },
         }
     }
+}
+
+// The future returned by get_channel needs to be Send so that the client can be 
+// used by external async functions.
+#[test]
+fn require_get_channel_fn_to_be_send() {
+    fn require_send<T: Send>(_t: T) {}
+    require_send(async {
+        ChannelPool::new(
+            Uri::from_static(""),
+            Duration::from_millis(0),
+            Duration::from_millis(0),
+            false,
+        )
+        .get_channel()
+        .await.expect("get channel should not error");
+    });
 }
