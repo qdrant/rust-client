@@ -6,7 +6,7 @@ use crate::qdrant::snapshots_client::SnapshotsClient;
 use crate::qdrant::value::Kind;
 use crate::qdrant::vectors::VectorsOptions;
 use crate::qdrant::with_payload_selector::SelectorOptions;
-use crate::qdrant::{ClearPayloadPoints, CollectionOperationResponse, CountPoints, CountResponse, CreateCollection, CreateFullSnapshotRequest, CreateSnapshotRequest, CreateSnapshotResponse, DeleteCollection, DeletePayloadPoints, DeletePoints, Filter, GetCollectionInfoRequest, GetCollectionInfoResponse, GetPoints, GetResponse, ListCollectionsRequest, ListCollectionsResponse, ListFullSnapshotsRequest, ListSnapshotsRequest, ListSnapshotsResponse, ListValue, NamedVectors, OptimizersConfigDiff, PayloadIncludeSelector, PointId, PointStruct, PointsIdsList, PointsOperationResponse, PointsSelector, RecommendBatchPoints, RecommendBatchResponse, RecommendPoints, RecommendResponse, ScrollPoints, ScrollResponse, SearchBatchPoints, SearchBatchResponse, SearchPoints, SearchResponse, SetPayloadPoints, Struct, UpdateCollection, UpsertPoints, Value, Vector, Vectors, WithPayloadSelector, WithVectorsSelector, with_vectors_selector, VectorsSelector};
+use crate::qdrant::{ClearPayloadPoints, CollectionOperationResponse, CountPoints, CountResponse, CreateCollection, CreateFullSnapshotRequest, CreateSnapshotRequest, CreateSnapshotResponse, DeleteCollection, DeletePayloadPoints, DeletePoints, Filter, GetCollectionInfoRequest, GetCollectionInfoResponse, GetPoints, GetResponse, ListCollectionsRequest, ListCollectionsResponse, ListFullSnapshotsRequest, ListSnapshotsRequest, ListSnapshotsResponse, ListValue, NamedVectors, OptimizersConfigDiff, PayloadIncludeSelector, PointId, PointStruct, PointsIdsList, PointsOperationResponse, PointsSelector, RecommendBatchPoints, RecommendBatchResponse, RecommendPoints, RecommendResponse, ScrollPoints, ScrollResponse, SearchBatchPoints, SearchBatchResponse, SearchPoints, SearchResponse, SetPayloadPoints, Struct, UpdateCollection, UpsertPoints, Value, Vector, Vectors, WithPayloadSelector, WithVectorsSelector, with_vectors_selector, VectorsSelector, CreateFieldIndexCollection, FieldType, PayloadIndexParams, DeleteFieldIndexCollection};
 use anyhow::{bail, Result};
 use std::collections::HashMap;
 use std::future::Future;
@@ -586,6 +586,89 @@ impl QdrantClient {
             let result = points_api.count(request.clone()).await?;
             Ok(result.into_inner())
         }).await?)
+    }
+
+    /// Create index for a payload field
+    pub async fn _create_field_index(
+        &self,
+        collection_name: impl ToString,
+        field_name: impl ToString,
+        field_type: FieldType,
+        field_index_params: Option<&PayloadIndexParams>,
+        wait: bool,
+    ) -> Result<PointsOperationResponse> {
+        let collection_name = collection_name.to_string();
+        let collection_name_ref = collection_name.as_str();
+        let field_name = field_name.to_string();
+        let field_name_ref = field_name.as_str();
+        Ok(self.with_points_client(|mut client| async move {
+            let result = client.create_field_index(CreateFieldIndexCollection {
+                collection_name: collection_name_ref.to_string(),
+                wait: Some(wait),
+                field_name: field_name_ref.to_string(),
+                field_type: Some(field_type.into()),
+                field_index_params: field_index_params.cloned(),
+            }).await?;
+            Ok(result.into_inner())
+        }).await?)
+    }
+
+    pub async fn create_field_index(
+        &self,
+        collection_name: impl ToString,
+        field_name: impl ToString,
+        field_type: FieldType,
+        field_index_params: Option<&PayloadIndexParams>,
+    ) -> Result<PointsOperationResponse> {
+        self._create_field_index(collection_name, field_name, field_type, field_index_params, false)
+            .await
+    }
+
+    pub async fn create_field_index_blocking(
+        &self,
+        collection_name: impl ToString,
+        field_name: impl ToString,
+        field_type: FieldType,
+        field_index_params: Option<&PayloadIndexParams>,
+    ) -> Result<PointsOperationResponse> {
+        self._create_field_index(collection_name, field_name, field_type, field_index_params, true)
+            .await
+    }
+
+    pub async fn _delete_field_index(
+        &self,
+        collection_name: impl ToString,
+        field_name: impl ToString,
+        wait: bool,
+    ) -> Result<PointsOperationResponse> {
+        let collection_name = collection_name.to_string();
+        let collection_name_ref = collection_name.as_str();
+        let field_name = field_name.to_string();
+        let field_name_ref = field_name.as_str();
+        Ok(self.with_points_client(|mut client| async move {
+            let result = client.delete_field_index(DeleteFieldIndexCollection {
+                collection_name: collection_name_ref.to_string(),
+                wait: Some(wait),
+                field_name: field_name_ref.to_string(),
+            }).await?;
+            Ok(result.into_inner())
+        }).await?)
+    }
+
+    pub async fn delete_field_index(
+        &self,
+        collection_name: impl ToString,
+        field_name: impl ToString,
+    ) -> Result<PointsOperationResponse> {
+        self._delete_field_index(collection_name, field_name, false).await
+    }
+
+    pub async fn delete_field_index_blocking(
+        &self,
+        collection_name: impl ToString,
+        field_name: impl ToString,
+    ) -> Result<PointsOperationResponse> {
+        self._delete_field_index(collection_name, field_name, true).await
     }
 
     pub async fn create_snapshot(
