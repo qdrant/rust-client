@@ -1,6 +1,6 @@
 [package]
 name = "qdrant-client"
-version = "0.10.6"
+version = "0.10.7"
 edition = "2021"
 authors = ["Qdrant Team <team@qdrant.com>"]
 description = "Rust client for Qdrant Vector Search Engine"

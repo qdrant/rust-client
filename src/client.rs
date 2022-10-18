@@ -6,7 +6,7 @@ use crate::qdrant::snapshots_client::SnapshotsClient;
 use crate::qdrant::value::Kind;
 use crate::qdrant::vectors::VectorsOptions;
 use crate::qdrant::with_payload_selector::SelectorOptions;
-use crate::qdrant::{ClearPayloadPoints, CollectionOperationResponse, CountPoints, CountResponse, CreateCollection, CreateFullSnapshotRequest, CreateSnapshotRequest, CreateSnapshotResponse, DeleteCollection, DeletePayloadPoints, DeletePoints, Filter, GetCollectionInfoRequest, GetCollectionInfoResponse, GetPoints, GetResponse, ListCollectionsRequest, ListCollectionsResponse, ListFullSnapshotsRequest, ListSnapshotsRequest, ListSnapshotsResponse, ListValue, NamedVectors, OptimizersConfigDiff, PayloadIncludeSelector, PointId, PointStruct, PointsIdsList, PointsOperationResponse, PointsSelector, RecommendBatchPoints, RecommendBatchResponse, RecommendPoints, RecommendResponse, ScrollPoints, ScrollResponse, SearchBatchPoints, SearchBatchResponse, SearchPoints, SearchResponse, SetPayloadPoints, Struct, UpdateCollection, UpsertPoints, Value, Vector, Vectors, WithPayloadSelector, WithVectorsSelector, with_vectors_selector, VectorsSelector, CreateFieldIndexCollection, FieldType, PayloadIndexParams, DeleteFieldIndexCollection};
+use crate::qdrant::{ClearPayloadPoints, CollectionOperationResponse, CountPoints, CountResponse, CreateCollection, CreateFullSnapshotRequest, CreateSnapshotRequest, CreateSnapshotResponse, DeleteCollection, DeletePayloadPoints, DeletePoints, Filter, GetCollectionInfoRequest, GetCollectionInfoResponse, GetPoints, GetResponse, ListCollectionsRequest, ListCollectionsResponse, ListFullSnapshotsRequest, ListSnapshotsRequest, ListSnapshotsResponse, ListValue, NamedVectors, OptimizersConfigDiff, PayloadIncludeSelector, PointId, PointStruct, PointsIdsList, PointsOperationResponse, PointsSelector, RecommendBatchPoints, RecommendBatchResponse, RecommendPoints, RecommendResponse, ScrollPoints, ScrollResponse, SearchBatchPoints, SearchBatchResponse, SearchPoints, SearchResponse, SetPayloadPoints, Struct, UpdateCollection, UpsertPoints, Value, Vector, Vectors, WithPayloadSelector, WithVectorsSelector, with_vectors_selector, VectorsSelector, CreateFieldIndexCollection, FieldType, PayloadIndexParams, DeleteFieldIndexCollection, FieldCondition, Condition, IsEmptyCondition, HasIdCondition};
 use anyhow::{bail, Result};
 use std::collections::HashMap;
 use std::future::Future;
@@ -17,6 +17,7 @@ use tonic::codegen::InterceptedService;
 use tonic::service::Interceptor;
 use tonic::transport::{Channel, Uri};
 use crate::channel_pool::ChannelPool;
+use crate::qdrant::condition::ConditionOneOf;
 
 pub struct QdrantClientConfig {
     pub uri: String,
@@ -82,6 +83,30 @@ impl From<Filter> for PointsSelector {
     fn from(filter: Filter) -> Self {
         PointsSelector {
             points_selector_one_of: Some(PointsSelectorOneOf::Filter(filter)),
+        }
+    }
+}
+
+impl From<FieldCondition> for Condition {
+    fn from(field_condition: FieldCondition) -> Self {
+        Condition {
+            condition_one_of: Some(ConditionOneOf::Field(field_condition)),
+        }
+    }
+}
+
+impl From<IsEmptyCondition> for Condition {
+    fn from(is_empty_condition: IsEmptyCondition) -> Self {
+        Condition {
+            condition_one_of: Some(ConditionOneOf::IsEmpty(is_empty_condition)),
+        }
+    }
+}
+
+impl From<HasIdCondition> for Condition {
+    fn from(has_id_condition: HasIdCondition) -> Self {
+        Condition {
+            condition_one_of: Some(ConditionOneOf::HasId(has_id_condition)),
         }
     }
 }
