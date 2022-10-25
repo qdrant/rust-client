@@ -288,6 +288,7 @@ impl QdrantClient {
                     collection_name: collection_name_ref.to_string(),
                     optimizers_config: Some(optimizers_config.clone()),
                     timeout: None,
+                    params: None
                 })
                 .await?;
 
