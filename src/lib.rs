@@ -15,6 +15,9 @@ mod tests {
         let config = QdrantClientConfig::from_url("http://localhost:6334");
         let client = QdrantClient::new(Some(config)).await?;
 
+        let health = client.health_check().await?;
+        println!("{:?}", health);
+
         let collections_list = client.list_collections().await?;
         println!("{:?}", collections_list);
 

@@ -6,7 +6,7 @@ use crate::qdrant::snapshots_client::SnapshotsClient;
 use crate::qdrant::value::Kind;
 use crate::qdrant::vectors::VectorsOptions;
 use crate::qdrant::with_payload_selector::SelectorOptions;
-use crate::qdrant::{ClearPayloadPoints, CollectionOperationResponse, CountPoints, CountResponse, CreateCollection, CreateFullSnapshotRequest, CreateSnapshotRequest, CreateSnapshotResponse, DeleteCollection, DeletePayloadPoints, DeletePoints, Filter, GetCollectionInfoRequest, GetCollectionInfoResponse, GetPoints, GetResponse, ListCollectionsRequest, ListCollectionsResponse, ListFullSnapshotsRequest, ListSnapshotsRequest, ListSnapshotsResponse, ListValue, NamedVectors, OptimizersConfigDiff, PayloadIncludeSelector, PointId, PointStruct, PointsIdsList, PointsOperationResponse, PointsSelector, RecommendBatchPoints, RecommendBatchResponse, RecommendPoints, RecommendResponse, ScrollPoints, ScrollResponse, SearchBatchPoints, SearchBatchResponse, SearchPoints, SearchResponse, SetPayloadPoints, Struct, UpdateCollection, UpsertPoints, Value, Vector, Vectors, WithPayloadSelector, WithVectorsSelector, with_vectors_selector, VectorsSelector, CreateFieldIndexCollection, FieldType, PayloadIndexParams, DeleteFieldIndexCollection, FieldCondition, Condition, IsEmptyCondition, HasIdCondition};
+use crate::qdrant::{ClearPayloadPoints, CollectionOperationResponse, CountPoints, CountResponse, CreateCollection, CreateFullSnapshotRequest, CreateSnapshotRequest, CreateSnapshotResponse, DeleteCollection, DeletePayloadPoints, DeletePoints, Filter, GetCollectionInfoRequest, GetCollectionInfoResponse, GetPoints, GetResponse, ListCollectionsRequest, ListCollectionsResponse, ListFullSnapshotsRequest, ListSnapshotsRequest, ListSnapshotsResponse, ListValue, NamedVectors, OptimizersConfigDiff, PayloadIncludeSelector, PointId, PointStruct, PointsIdsList, PointsOperationResponse, PointsSelector, RecommendBatchPoints, RecommendBatchResponse, RecommendPoints, RecommendResponse, ScrollPoints, ScrollResponse, SearchBatchPoints, SearchBatchResponse, SearchPoints, SearchResponse, SetPayloadPoints, Struct, UpdateCollection, UpsertPoints, Value, Vector, Vectors, WithPayloadSelector, WithVectorsSelector, with_vectors_selector, VectorsSelector, CreateFieldIndexCollection, FieldType, PayloadIndexParams, DeleteFieldIndexCollection, FieldCondition, Condition, IsEmptyCondition, HasIdCondition, qdrant_client, HealthCheckReply, HealthCheckRequest};
 use anyhow::{bail, Result};
 use std::collections::HashMap;
 use std::future::Future;
@@ -231,6 +231,18 @@ impl QdrantClient {
             .await
     }
 
+    // Access to raw root qdrant API
+    pub async fn with_root_qdrant_client<T, O: Future<Output=Result<T, Status>>>(
+        &self,
+        f: impl Fn(qdrant_client::QdrantClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
+    ) -> Result<T, Status> {
+        self.channel
+            .with_channel(|channel| {
+                f(qdrant_client::QdrantClient::with_interceptor(channel, TokenInterceptor::new(self.cfg.api_key.clone())))
+            })
+            .await
+    }
+
     pub async fn new(cfg: Option<QdrantClientConfig>) -> Result<Self> {
         let cfg = cfg.unwrap_or_default();
 
@@ -244,6 +256,13 @@ impl QdrantClient {
         let client = Self { channel, cfg };
 
         Ok(client)
+    }
+
+    pub async fn health_check(&self) -> Result<HealthCheckReply> {
+        Ok(self.with_root_qdrant_client(|mut qdrant_api| async move {
+            let result = qdrant_api.health_check(HealthCheckRequest {}).await?;
+            Ok(result.into_inner())
+        }).await?)
     }
 
     pub async fn list_collections(&self) -> Result<ListCollectionsResponse> {
