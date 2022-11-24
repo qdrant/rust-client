@@ -111,6 +111,14 @@ impl From<HasIdCondition> for Condition {
     }
 }
 
+impl From<Filter> for Condition {
+    fn from(filter: Filter) -> Self {
+        Condition {
+            condition_one_of: Some(ConditionOneOf::Filter(filter)),
+        }
+    }
+}
+
 impl From<Vec<f32>> for Vector {
     fn from(vector: Vec<f32>) -> Self {
         Vector { data: vector }
@@ -248,8 +256,8 @@ impl QdrantClient {
 
         let channel = ChannelPool::new(
             cfg.uri.parse::<Uri>()?,
-            cfg.connect_timeout,
             cfg.timeout,
+            cfg.connect_timeout,
             cfg.keep_alive_while_idle,
         );
 
