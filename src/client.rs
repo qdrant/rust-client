@@ -399,7 +399,7 @@ impl QdrantClient {
     pub async fn set_payload(
         &self,
         collection_name: impl ToString,
-        points: Vec<PointId>,
+        points: &PointsSelector,
         payload: Payload,
     ) -> Result<PointsOperationResponse> {
         self._set_payload(collection_name, &points, &payload, false)
@@ -409,7 +409,7 @@ impl QdrantClient {
     pub async fn set_payload_blocking(
         &self,
         collection_name: impl ToString,
-        points: Vec<PointId>,
+        points: &PointsSelector,
         payload: Payload,
     ) -> Result<PointsOperationResponse> {
         self._set_payload(collection_name, &points, &payload, true)
@@ -420,7 +420,7 @@ impl QdrantClient {
     async fn _set_payload(
         &self,
         collection_name: impl ToString,
-        points: &Vec<PointId>,
+        points: &PointsSelector,
         payload: &Payload,
         block: bool,
     ) -> Result<PointsOperationResponse> {
@@ -434,13 +434,7 @@ impl QdrantClient {
                     wait: Some(block),
                     payload: payload.0.clone(),
                     points: Default::default(),
-                    points_selector: Some(PointsSelector {
-                        points_selector_one_of: Some(PointsSelectorOneOf::Points(
-                            PointsIdsList {
-                                ids: points.clone(),
-                            },
-                        )),
-                    }),
+                    points_selector: Some(points.clone()),
                 })
                 .await?;
             Ok(result.into_inner())
@@ -450,7 +444,7 @@ impl QdrantClient {
     pub async fn delete_payload(
         &self,
         collection_name: impl ToString,
-        points: Vec<PointId>,
+        points: &PointsSelector,
         keys: Vec<String>,
     ) -> Result<PointsOperationResponse> {
         self._delete_payload(collection_name, &points, &keys, false)
@@ -460,7 +454,7 @@ impl QdrantClient {
     pub async fn delete_payload_blocking(
         &self,
         collection_name: impl ToString,
-        points: Vec<PointId>,
+        points: &PointsSelector,
         keys: Vec<String>,
     ) -> Result<PointsOperationResponse> {
         self._delete_payload(collection_name, &points, &keys, true)
@@ -471,7 +465,7 @@ impl QdrantClient {
     async fn _delete_payload(
         &self,
         collection_name: impl ToString,
-        points: &Vec<PointId>,
+        points: &PointsSelector,
         keys: &Vec<String>,
         block: bool,
     ) -> Result<PointsOperationResponse> {
@@ -485,13 +479,7 @@ impl QdrantClient {
                     wait: Some(block),
                     keys: keys.clone(),
                     points: Default::default(),
-                    points_selector: Some(PointsSelector {
-                        points_selector_one_of: Some(PointsSelectorOneOf::Points(
-                            PointsIdsList {
-                                ids: points.clone(),
-                            },
-                        )),
-                    }),
+                    points_selector: Some(points.clone()),
                 })
                 .await?;
             Ok(result.into_inner())
