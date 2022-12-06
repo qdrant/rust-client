@@ -399,7 +399,7 @@ impl QdrantClient {
     pub async fn set_payload(
         &self,
         collection_name: impl ToString,
-        points: Vec<PointId>,
+        points: &PointsSelector,
         payload: Payload,
     ) -> Result<PointsOperationResponse> {
         self._set_payload(collection_name, &points, &payload, false)
@@ -409,7 +409,7 @@ impl QdrantClient {
     pub async fn set_payload_blocking(
         &self,
         collection_name: impl ToString,
-        points: Vec<PointId>,
+        points: &PointsSelector,
         payload: Payload,
     ) -> Result<PointsOperationResponse> {
         self._set_payload(collection_name, &points, &payload, true)
@@ -420,7 +420,7 @@ impl QdrantClient {
     async fn _set_payload(
         &self,
         collection_name: impl ToString,
-        points: &Vec<PointId>,
+        points: &PointsSelector,
         payload: &Payload,
         block: bool,
     ) -> Result<PointsOperationResponse> {
@@ -433,7 +433,53 @@ impl QdrantClient {
                     collection_name: collection_name_ref.to_string(),
                     wait: Some(block),
                     payload: payload.0.clone(),
-                    points: points.clone(),
+                    points: Default::default(),
+                    points_selector: Some(points.clone()),
+                })
+                .await?;
+            Ok(result.into_inner())
+        }).await?)
+    }
+
+    pub async fn overwrite_payload(
+        &self,
+        collection_name: impl ToString,
+        points: &PointsSelector,
+        payload: Payload,
+    ) -> Result<PointsOperationResponse> {
+        self._overwrite_payload(collection_name, &points, &payload, false)
+            .await
+    }
+
+    pub async fn overwrite_payload_blocking(
+        &self,
+        collection_name: impl ToString,
+        points: &PointsSelector,
+        payload: Payload,
+    ) -> Result<PointsOperationResponse> {
+        self._overwrite_payload(collection_name, &points, &payload, true)
+            .await
+    }
+
+    #[inline]
+    async fn _overwrite_payload(
+        &self,
+        collection_name: impl ToString,
+        points: &PointsSelector,
+        payload: &Payload,
+        block: bool,
+    ) -> Result<PointsOperationResponse> {
+        let collection_name = collection_name.to_string();
+        let collection_name_ref = collection_name.as_str();
+
+        Ok(self.with_points_client(|mut points_api| async move {
+            let result = points_api
+                .overwrite_payload(SetPayloadPoints {
+                    collection_name: collection_name_ref.to_string(),
+                    wait: Some(block),
+                    payload: payload.0.clone(),
+                    points: Default::default(),
+                    points_selector: Some(points.clone()),
                 })
                 .await?;
             Ok(result.into_inner())
@@ -443,7 +489,7 @@ impl QdrantClient {
     pub async fn delete_payload(
         &self,
         collection_name: impl ToString,
-        points: Vec<PointId>,
+        points: &PointsSelector,
         keys: Vec<String>,
     ) -> Result<PointsOperationResponse> {
         self._delete_payload(collection_name, &points, &keys, false)
@@ -453,7 +499,7 @@ impl QdrantClient {
     pub async fn delete_payload_blocking(
         &self,
         collection_name: impl ToString,
-        points: Vec<PointId>,
+        points: &PointsSelector,
         keys: Vec<String>,
     ) -> Result<PointsOperationResponse> {
         self._delete_payload(collection_name, &points, &keys, true)
@@ -464,7 +510,7 @@ impl QdrantClient {
     async fn _delete_payload(
         &self,
         collection_name: impl ToString,
-        points: &Vec<PointId>,
+        points: &PointsSelector,
         keys: &Vec<String>,
         block: bool,
     ) -> Result<PointsOperationResponse> {
@@ -477,7 +523,8 @@ impl QdrantClient {
                     collection_name: collection_name_ref.to_string(),
                     wait: Some(block),
                     keys: keys.clone(),
-                    points: points.clone(),
+                    points: Default::default(),
+                    points_selector: Some(points.clone()),
                 })
                 .await?;
             Ok(result.into_inner())
