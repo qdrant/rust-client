@@ -441,6 +441,51 @@ impl QdrantClient {
         }).await?)
     }
 
+    pub async fn overwrite_payload(
+        &self,
+        collection_name: impl ToString,
+        points: &PointsSelector,
+        payload: Payload,
+    ) -> Result<PointsOperationResponse> {
+        self._overwrite_payload(collection_name, &points, &payload, false)
+            .await
+    }
+
+    pub async fn overwrite_payload_blocking(
+        &self,
+        collection_name: impl ToString,
+        points: &PointsSelector,
+        payload: Payload,
+    ) -> Result<PointsOperationResponse> {
+        self._overwrite_payload(collection_name, &points, &payload, true)
+            .await
+    }
+
+    #[inline]
+    async fn _overwrite_payload(
+        &self,
+        collection_name: impl ToString,
+        points: &PointsSelector,
+        payload: &Payload,
+        block: bool,
+    ) -> Result<PointsOperationResponse> {
+        let collection_name = collection_name.to_string();
+        let collection_name_ref = collection_name.as_str();
+
+        Ok(self.with_points_client(|mut points_api| async move {
+            let result = points_api
+                .overwrite_payload(SetPayloadPoints {
+                    collection_name: collection_name_ref.to_string(),
+                    wait: Some(block),
+                    payload: payload.0.clone(),
+                    points: Default::default(),
+                    points_selector: Some(points.clone()),
+                })
+                .await?;
+            Ok(result.into_inner())
+        }).await?)
+    }
+
     pub async fn delete_payload(
         &self,
         collection_name: impl ToString,

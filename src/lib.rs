@@ -81,7 +81,6 @@ mod tests {
         ].into_iter().collect::<HashMap<_, Value>>().into();
         client.set_payload(collection_name, &vec![0.into()].into(), new_payload).await?;
 
-
         // Delete some payload fields
         client.delete_payload_blocking(collection_name, &vec![0.into()].into(), vec!["sub_payload".to_string()]).await?;
 
