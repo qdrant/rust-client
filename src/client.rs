@@ -433,7 +433,14 @@ impl QdrantClient {
                     collection_name: collection_name_ref.to_string(),
                     wait: Some(block),
                     payload: payload.0.clone(),
-                    points: points.clone(),
+                    points: Default::default(),
+                    points_selector: Some(PointsSelector {
+                        points_selector_one_of: Some(PointsSelectorOneOf::Points(
+                            PointsIdsList {
+                                ids: points.clone(),
+                            },
+                        )),
+                    }),
                 })
                 .await?;
             Ok(result.into_inner())
@@ -477,7 +484,14 @@ impl QdrantClient {
                     collection_name: collection_name_ref.to_string(),
                     wait: Some(block),
                     keys: keys.clone(),
-                    points: points.clone(),
+                    points: Default::default(),
+                    points_selector: Some(PointsSelector {
+                        points_selector_one_of: Some(PointsSelectorOneOf::Points(
+                            PointsIdsList {
+                                ids: points.clone(),
+                            },
+                        )),
+                    }),
                 })
                 .await?;
             Ok(result.into_inner())

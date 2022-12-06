@@ -90,6 +90,10 @@ pub struct HnswConfigDiff {
     ///Store HNSW index on disk. If set to false, index will be stored in RAM.
     #[prost(bool, optional, tag="5")]
     pub on_disk: ::core::option::Option<bool>,
+    ///
+    ///Number of additional payload-aware links per node in the index graph. If not set - regular M parameter will be used.
+    #[prost(uint64, optional, tag="6")]
+    pub payload_m: ::core::option::Option<u64>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct WalConfigDiff {
@@ -1116,9 +1120,12 @@ pub struct SetPayloadPoints {
     /// New payload values
     #[prost(map="string, message", tag="3")]
     pub payload: ::std::collections::HashMap<::prost::alloc::string::String, Value>,
-    /// List of point to modify
+    /// List of point to modify, deprecated
     #[prost(message, repeated, tag="4")]
     pub points: ::prost::alloc::vec::Vec<PointId>,
+    /// Affected points
+    #[prost(message, optional, tag="5")]
+    pub points_selector: ::core::option::Option<PointsSelector>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeletePayloadPoints {
@@ -1131,9 +1138,12 @@ pub struct DeletePayloadPoints {
     /// List of keys to delete
     #[prost(string, repeated, tag="3")]
     pub keys: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
-    /// Affected points
+    /// Affected points, deprecated
     #[prost(message, repeated, tag="4")]
     pub points: ::prost::alloc::vec::Vec<PointId>,
+    /// Affected points
+    #[prost(message, optional, tag="5")]
+    pub points_selector: ::core::option::Option<PointsSelector>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ClearPayloadPoints {
@@ -1827,6 +1837,27 @@ pub mod points_client {
             self.inner.unary(request.into_request(), path, codec).await
         }
         ///
+        ///Overwrite payload for points
+        pub async fn overwrite_payload(
+            &mut self,
+            request: impl tonic::IntoRequest<super::SetPayloadPoints>,
+        ) -> Result<tonic::Response<super::PointsOperationResponse>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Points/OverwritePayload",
+            );
+            self.inner.unary(request.into_request(), path, codec).await
+        }
+        ///
         ///Delete specified key payload for points
         pub async fn delete_payload(
             &mut self,
@@ -2058,6 +2089,12 @@ pub mod points_server {
         ///
         ///Set payload for points
         async fn set_payload(
+            &self,
+            request: tonic::Request<super::SetPayloadPoints>,
+        ) -> Result<tonic::Response<super::PointsOperationResponse>, tonic::Status>;
+        ///
+        ///Overwrite payload for points
+        async fn overwrite_payload(
             &self,
             request: tonic::Request<super::SetPayloadPoints>,
         ) -> Result<tonic::Response<super::PointsOperationResponse>, tonic::Status>;
@@ -2302,6 +2339,44 @@ pub mod points_server {
                     let fut = async move {
                         let inner = inner.0;
                         let method = SetPayloadSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/qdrant.Points/OverwritePayload" => {
+                    #[allow(non_camel_case_types)]
+                    struct OverwritePayloadSvc<T: Points>(pub Arc<T>);
+                    impl<T: Points> tonic::server::UnaryService<super::SetPayloadPoints>
+                    for OverwritePayloadSvc<T> {
+                        type Response = super::PointsOperationResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::SetPayloadPoints>,
+                        ) -> Self::Future {
+                            let inner = self.0.clone();
+                            let fut = async move {
+                                (*inner).overwrite_payload(request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = OverwritePayloadSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
