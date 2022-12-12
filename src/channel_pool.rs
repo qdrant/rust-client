@@ -1,8 +1,8 @@
 use std::future::Future;
 use std::sync::RwLock;
 use std::time::Duration;
-use tonic::{Code, Status};
 use tonic::transport::{Channel, ClientTlsConfig, Uri};
+use tonic::{Code, Status};
 
 pub struct ChannelPool {
     channel: RwLock<Option<Channel>>,
@@ -13,7 +13,12 @@ pub struct ChannelPool {
 }
 
 impl ChannelPool {
-    pub fn new(uri: Uri, grpc_timeout: Duration, connection_timeout: Duration, keep_alive_while_idle: bool) -> Self {
+    pub fn new(
+        uri: Uri,
+        grpc_timeout: Duration,
+        connection_timeout: Duration,
+        keep_alive_while_idle: bool,
+    ) -> Self {
         Self {
             channel: RwLock::new(None),
             uri,
@@ -29,24 +34,32 @@ impl ChannelPool {
             Some(schema) => match schema {
                 "http" => false,
                 "https" => true,
-                _ => return Err(Status::invalid_argument(format!("Unsupported schema: {}", schema))),
-            }
+                _ => {
+                    return Err(Status::invalid_argument(format!(
+                        "Unsupported schema: {}",
+                        schema
+                    )))
+                }
+            },
         };
 
         let endpoint = Channel::builder(self.uri.clone())
             .timeout(self.grpc_timeout)
             .connect_timeout(self.connection_timeout)
-            .keep_alive_while_idle(self.keep_alive_while_idle)
-            ;
+            .keep_alive_while_idle(self.keep_alive_while_idle);
 
         let endpoint = if tls {
-            endpoint.tls_config(ClientTlsConfig::new()).map_err(|e| Status::internal(format!("Failed to create TLS config: {}", e)))?
+            endpoint
+                .tls_config(ClientTlsConfig::new())
+                .map_err(|e| Status::internal(format!("Failed to create TLS config: {}", e)))?
         } else {
             endpoint
         };
 
-
-        let channel = endpoint.connect().await.map_err(|e| Status::internal(format!("Failed to connect to {}: {}", self.uri, e)))?;
+        let channel = endpoint
+            .connect()
+            .await
+            .map_err(|e| Status::internal(format!("Failed to connect to {}: {}", self.uri, e)))?;
         let mut self_channel = self.channel.write().unwrap();
 
         *self_channel = Some(channel.clone());
@@ -58,7 +71,7 @@ impl ChannelPool {
         if let Some(channel) = &*self.channel.read().unwrap() {
             return Ok(channel.clone());
         }
-        
+
         let channel = self.make_channel().await?;
         Ok(channel)
     }
@@ -69,9 +82,10 @@ impl ChannelPool {
     }
 
     // Allow to retry request if channel is broken
-    pub async fn with_channel<T, O: Future<Output=Result<T, Status>>>(
+    pub async fn with_channel<T, O: Future<Output = Result<T, Status>>>(
         &self,
         f: impl Fn(Channel) -> O,
+        allow_retry: bool,
     ) -> Result<T, Status> {
         let channel = self.get_channel().await?;
 
@@ -83,8 +97,12 @@ impl ChannelPool {
             Err(err) => match err.code() {
                 Code::Internal | Code::Unavailable | Code::Cancelled | Code::Unknown => {
                     self.drop_channel().await;
-                    let channel = self.get_channel().await?;
-                    Ok(f(channel).await?)
+                    if allow_retry {
+                        let channel = self.get_channel().await?;
+                        Ok(f(channel).await?)
+                    } else {
+                        Err(err)
+                    }
                 }
                 _ => Err(err)?,
             },
@@ -92,7 +110,7 @@ impl ChannelPool {
     }
 }
 
-// The future returned by get_channel needs to be Send so that the client can be 
+// The future returned by get_channel needs to be Send so that the client can be
 // used by external async functions.
 #[test]
 fn require_get_channel_fn_to_be_send() {
@@ -105,6 +123,7 @@ fn require_get_channel_fn_to_be_send() {
             false,
         )
         .get_channel()
-        .await.expect("get channel should not error");
+        .await
+        .expect("get channel should not error");
     });
 }
