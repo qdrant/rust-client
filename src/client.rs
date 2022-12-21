@@ -870,7 +870,7 @@ impl QdrantClient {
             .open(out_path)?;
 
         while let Some(chunk) = stream.next().await {
-            file.write(&chunk?)?;
+            let _written = file.write(&chunk?)?;
         }
 
         Ok(())

@@ -36,8 +36,7 @@ impl ChannelPool {
         let endpoint = Channel::builder(self.uri.clone())
             .timeout(self.grpc_timeout)
             .connect_timeout(self.connection_timeout)
-            .keep_alive_while_idle(self.keep_alive_while_idle)
-            ;
+            .keep_alive_while_idle(self.keep_alive_while_idle);
 
         let endpoint = if tls {
             endpoint.tls_config(ClientTlsConfig::new()).map_err(|e| Status::internal(format!("Failed to create TLS config: {}", e)))?

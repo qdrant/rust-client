@@ -13,18 +13,18 @@ readme = "README.md"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-tonic = { version = "0.7.2", features = ["tls", "tls-roots"] }
-prost = "0.10.1"
-prost-types = "0.10.1"
+tonic = { version = "0.8.3", features = ["tls", "tls-roots"] }
+prost = "0.11.5"
+prost-types = "0.11.5"
 anyhow = "1"
 reqwest = { version = "0.11.13", optional = true, features = ["stream"] }
 futures-util = { version = "0.3.25", optional = true }
 
 [build-dependencies]
-tonic-build = { version = "0.7.2", features = ["prost"] }
+tonic-build = { version = "0.8.4", features = ["prost"] }
 
 [dev-dependencies]
-tokio = "1.22.0"
+tokio = "1.23.0"
 
 [features]
 default = ["download_snapshots"]
