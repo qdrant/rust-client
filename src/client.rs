@@ -1,4 +1,6 @@
+use crate::channel_pool::ChannelPool;
 use crate::qdrant::collections_client::CollectionsClient;
+use crate::qdrant::condition::ConditionOneOf;
 use crate::qdrant::point_id::PointIdOptions;
 use crate::qdrant::points_client::PointsClient;
 use crate::qdrant::points_selector::PointsSelectorOneOf;
@@ -6,18 +8,30 @@ use crate::qdrant::snapshots_client::SnapshotsClient;
 use crate::qdrant::value::Kind;
 use crate::qdrant::vectors::VectorsOptions;
 use crate::qdrant::with_payload_selector::SelectorOptions;
-use crate::qdrant::{ClearPayloadPoints, CollectionOperationResponse, CountPoints, CountResponse, CreateCollection, CreateFullSnapshotRequest, CreateSnapshotRequest, CreateSnapshotResponse, DeleteCollection, DeletePayloadPoints, DeletePoints, Filter, GetCollectionInfoRequest, GetCollectionInfoResponse, GetPoints, GetResponse, ListCollectionsRequest, ListCollectionsResponse, ListFullSnapshotsRequest, ListSnapshotsRequest, ListSnapshotsResponse, ListValue, NamedVectors, OptimizersConfigDiff, PayloadIncludeSelector, PointId, PointStruct, PointsIdsList, PointsOperationResponse, PointsSelector, RecommendBatchPoints, RecommendBatchResponse, RecommendPoints, RecommendResponse, ScrollPoints, ScrollResponse, SearchBatchPoints, SearchBatchResponse, SearchPoints, SearchResponse, SetPayloadPoints, Struct, UpdateCollection, UpsertPoints, Value, Vector, Vectors, WithPayloadSelector, WithVectorsSelector, with_vectors_selector, VectorsSelector, CreateFieldIndexCollection, FieldType, PayloadIndexParams, DeleteFieldIndexCollection, FieldCondition, Condition, IsEmptyCondition, HasIdCondition, qdrant_client, HealthCheckReply, HealthCheckRequest};
+use crate::qdrant::{
+    qdrant_client, with_vectors_selector, ClearPayloadPoints, CollectionOperationResponse,
+    Condition, CountPoints, CountResponse, CreateCollection, CreateFieldIndexCollection,
+    CreateFullSnapshotRequest, CreateSnapshotRequest, CreateSnapshotResponse, DeleteCollection,
+    DeleteFieldIndexCollection, DeletePayloadPoints, DeletePoints, FieldCondition, FieldType,
+    Filter, GetCollectionInfoRequest, GetCollectionInfoResponse, GetPoints, GetResponse,
+    HasIdCondition, HealthCheckReply, HealthCheckRequest, IsEmptyCondition, ListCollectionsRequest,
+    ListCollectionsResponse, ListFullSnapshotsRequest, ListSnapshotsRequest, ListSnapshotsResponse,
+    ListValue, NamedVectors, OptimizersConfigDiff, PayloadIncludeSelector, PayloadIndexParams,
+    PointId, PointStruct, PointsIdsList, PointsOperationResponse, PointsSelector,
+    RecommendBatchPoints, RecommendBatchResponse, RecommendPoints, RecommendResponse, ScrollPoints,
+    ScrollResponse, SearchBatchPoints, SearchBatchResponse, SearchPoints, SearchResponse,
+    SetPayloadPoints, Struct, UpdateCollection, UpsertPoints, Value, Vector, Vectors,
+    VectorsSelector, WithPayloadSelector, WithVectorsSelector,
+};
 use anyhow::{bail, Result};
 use std::collections::HashMap;
 use std::future::Future;
 use std::path::PathBuf;
 use std::time::Duration;
-use tonic::{Request, Status};
 use tonic::codegen::InterceptedService;
 use tonic::service::Interceptor;
 use tonic::transport::{Channel, Uri};
-use crate::channel_pool::ChannelPool;
-use crate::qdrant::condition::ConditionOneOf;
+use tonic::{Request, Status};
 
 pub struct QdrantClientConfig {
     pub uri: String,
@@ -149,9 +163,11 @@ impl From<Vec<f32>> for Vectors {
 impl From<Vec<&str>> for WithVectorsSelector {
     fn from(names: Vec<&str>) -> Self {
         WithVectorsSelector {
-            selector_options: Some(with_vectors_selector::SelectorOptions::Include(VectorsSelector {
-                names: names.into_iter().map(|name| name.to_string()).collect()
-            })),
+            selector_options: Some(with_vectors_selector::SelectorOptions::Include(
+                VectorsSelector {
+                    names: names.into_iter().map(|name| name.to_string()).collect(),
+                },
+            )),
         }
     }
 }
@@ -191,7 +207,9 @@ impl Interceptor for TokenInterceptor {
         if let Some(api_key) = &self.api_key {
             req.metadata_mut().insert(
                 "api-key",
-                api_key.parse().map_err(|_| Status::invalid_argument(format!("Malformed API key: {}", api_key)))?,
+                api_key.parse().map_err(|_| {
+                    Status::invalid_argument(format!("Malformed API key: {}", api_key))
+                })?,
             );
         }
         Ok(req)
@@ -204,50 +222,74 @@ pub struct QdrantClient {
 }
 
 impl QdrantClient {
-    pub async fn with_snapshot_client<T, O: Future<Output=Result<T, Status>>>(
+    pub async fn with_snapshot_client<T, O: Future<Output = Result<T, Status>>>(
         &self,
         f: impl Fn(SnapshotsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
     ) -> Result<T, Status> {
         self.channel
-            .with_channel(|channel| {
-                f(SnapshotsClient::with_interceptor(channel, TokenInterceptor::new(self.cfg.api_key.clone())))
-            })
+            .with_channel(
+                |channel| {
+                    f(SnapshotsClient::with_interceptor(
+                        channel,
+                        TokenInterceptor::new(self.cfg.api_key.clone()),
+                    ))
+                },
+                false,
+            )
             .await
     }
 
     // Access to raw collection API
-    pub async fn with_collections_client<T, O: Future<Output=Result<T, Status>>>(
+    pub async fn with_collections_client<T, O: Future<Output = Result<T, Status>>>(
         &self,
         f: impl Fn(CollectionsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
     ) -> Result<T, Status> {
         self.channel
-            .with_channel(|channel| {
-                f(CollectionsClient::with_interceptor(channel, TokenInterceptor::new(self.cfg.api_key.clone())))
-            })
+            .with_channel(
+                |channel| {
+                    f(CollectionsClient::with_interceptor(
+                        channel,
+                        TokenInterceptor::new(self.cfg.api_key.clone()),
+                    ))
+                },
+                false,
+            )
             .await
     }
 
     // Access to raw points API
-    pub async fn with_points_client<T, O: Future<Output=Result<T, Status>>>(
+    pub async fn with_points_client<T, O: Future<Output = Result<T, Status>>>(
         &self,
         f: impl Fn(PointsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
     ) -> Result<T, Status> {
         self.channel
-            .with_channel(|channel| {
-                f(PointsClient::with_interceptor(channel, TokenInterceptor::new(self.cfg.api_key.clone())))
-            })
+            .with_channel(
+                |channel| {
+                    f(PointsClient::with_interceptor(
+                        channel,
+                        TokenInterceptor::new(self.cfg.api_key.clone()),
+                    ))
+                },
+                true,
+            )
             .await
     }
 
     // Access to raw root qdrant API
-    pub async fn with_root_qdrant_client<T, O: Future<Output=Result<T, Status>>>(
+    pub async fn with_root_qdrant_client<T, O: Future<Output = Result<T, Status>>>(
         &self,
         f: impl Fn(qdrant_client::QdrantClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
     ) -> Result<T, Status> {
         self.channel
-            .with_channel(|channel| {
-                f(qdrant_client::QdrantClient::with_interceptor(channel, TokenInterceptor::new(self.cfg.api_key.clone())))
-            })
+            .with_channel(
+                |channel| {
+                    f(qdrant_client::QdrantClient::with_interceptor(
+                        channel,
+                        TokenInterceptor::new(self.cfg.api_key.clone()),
+                    ))
+                },
+                true,
+            )
             .await
     }
 
@@ -267,17 +309,21 @@ impl QdrantClient {
     }
 
     pub async fn health_check(&self) -> Result<HealthCheckReply> {
-        Ok(self.with_root_qdrant_client(|mut qdrant_api| async move {
-            let result = qdrant_api.health_check(HealthCheckRequest {}).await?;
-            Ok(result.into_inner())
-        }).await?)
+        Ok(self
+            .with_root_qdrant_client(|mut qdrant_api| async move {
+                let result = qdrant_api.health_check(HealthCheckRequest {}).await?;
+                Ok(result.into_inner())
+            })
+            .await?)
     }
 
     pub async fn list_collections(&self) -> Result<ListCollectionsResponse> {
-        Ok(self.with_collections_client(|mut collection_api| async move {
-            let result = collection_api.list(ListCollectionsRequest {}).await?;
-            Ok(result.into_inner())
-        }).await?)
+        Ok(self
+            .with_collections_client(|mut collection_api| async move {
+                let result = collection_api.list(ListCollectionsRequest {}).await?;
+                Ok(result.into_inner())
+            })
+            .await?)
     }
 
     pub async fn has_collection(&self, collection_name: impl ToString) -> Result<bool> {
@@ -295,10 +341,12 @@ impl QdrantClient {
         &self,
         details: &CreateCollection,
     ) -> Result<CollectionOperationResponse> {
-        Ok(self.with_collections_client(|mut collection_api| async move {
-            let result = collection_api.create(details.clone()).await?;
-            Ok(result.into_inner())
-        }).await?)
+        Ok(self
+            .with_collections_client(|mut collection_api| async move {
+                let result = collection_api.create(details.clone()).await?;
+                Ok(result.into_inner())
+            })
+            .await?)
     }
 
     pub async fn update_collection(
@@ -309,18 +357,20 @@ impl QdrantClient {
         let collection_name = collection_name.to_string();
         let collection_name_ref = collection_name.as_str();
 
-        Ok(self.with_collections_client(|mut collection_api| async move {
-            let result = collection_api
-                .update(UpdateCollection {
-                    collection_name: collection_name_ref.to_string(),
-                    optimizers_config: Some(optimizers_config.clone()),
-                    timeout: None,
-                    params: None
-                })
-                .await?;
+        Ok(self
+            .with_collections_client(|mut collection_api| async move {
+                let result = collection_api
+                    .update(UpdateCollection {
+                        collection_name: collection_name_ref.to_string(),
+                        optimizers_config: Some(optimizers_config.clone()),
+                        timeout: None,
+                        params: None,
+                    })
+                    .await?;
 
-            Ok(result.into_inner())
-        }).await?)
+                Ok(result.into_inner())
+            })
+            .await?)
     }
 
     pub async fn delete_collection(
@@ -330,15 +380,17 @@ impl QdrantClient {
         let collection_name = collection_name.to_string();
         let collection_name_ref = collection_name.as_str();
 
-        Ok(self.with_collections_client(|mut collection_api| async move {
-            let result = collection_api
-                .delete(DeleteCollection {
-                    collection_name: collection_name_ref.to_string(),
-                    ..Default::default()
-                })
-                .await?;
-            Ok(result.into_inner())
-        }).await?)
+        Ok(self
+            .with_collections_client(|mut collection_api| async move {
+                let result = collection_api
+                    .delete(DeleteCollection {
+                        collection_name: collection_name_ref.to_string(),
+                        ..Default::default()
+                    })
+                    .await?;
+                Ok(result.into_inner())
+            })
+            .await?)
     }
 
     pub async fn collection_info(
@@ -348,14 +400,16 @@ impl QdrantClient {
         let collection_name = collection_name.to_string();
         let collection_name_ref = collection_name.as_str();
 
-        Ok(self.with_collections_client(|mut collection_api| async move {
-            let result = collection_api
-                .get(GetCollectionInfoRequest {
-                    collection_name: collection_name_ref.to_string(),
-                })
-                .await?;
-            Ok(result.into_inner())
-        }).await?)
+        Ok(self
+            .with_collections_client(|mut collection_api| async move {
+                let result = collection_api
+                    .get(GetCollectionInfoRequest {
+                        collection_name: collection_name_ref.to_string(),
+                    })
+                    .await?;
+                Ok(result.into_inner())
+            })
+            .await?)
     }
 
     pub async fn upsert_points(
@@ -384,16 +438,18 @@ impl QdrantClient {
         let collection_name = collection_name.to_string();
         let collection_name_ref = collection_name.as_str();
 
-        Ok(self.with_points_client(|mut points_api| async move {
-            let result = points_api
-                .upsert(UpsertPoints {
-                    collection_name: collection_name_ref.to_string(),
-                    wait: Some(block),
-                    points: points.clone(),
-                })
-                .await?;
-            Ok(result.into_inner())
-        }).await?)
+        Ok(self
+            .with_points_client(|mut points_api| async move {
+                let result = points_api
+                    .upsert(UpsertPoints {
+                        collection_name: collection_name_ref.to_string(),
+                        wait: Some(block),
+                        points: points.clone(),
+                    })
+                    .await?;
+                Ok(result.into_inner())
+            })
+            .await?)
     }
 
     pub async fn set_payload(
@@ -427,18 +483,20 @@ impl QdrantClient {
         let collection_name = collection_name.to_string();
         let collection_name_ref = collection_name.as_str();
 
-        Ok(self.with_points_client(|mut points_api| async move {
-            let result = points_api
-                .set_payload(SetPayloadPoints {
-                    collection_name: collection_name_ref.to_string(),
-                    wait: Some(block),
-                    payload: payload.0.clone(),
-                    points: Default::default(),
-                    points_selector: Some(points.clone()),
-                })
-                .await?;
-            Ok(result.into_inner())
-        }).await?)
+        Ok(self
+            .with_points_client(|mut points_api| async move {
+                let result = points_api
+                    .set_payload(SetPayloadPoints {
+                        collection_name: collection_name_ref.to_string(),
+                        wait: Some(block),
+                        payload: payload.0.clone(),
+                        points: Default::default(),
+                        points_selector: Some(points.clone()),
+                    })
+                    .await?;
+                Ok(result.into_inner())
+            })
+            .await?)
     }
 
     pub async fn overwrite_payload(
@@ -472,18 +530,20 @@ impl QdrantClient {
         let collection_name = collection_name.to_string();
         let collection_name_ref = collection_name.as_str();
 
-        Ok(self.with_points_client(|mut points_api| async move {
-            let result = points_api
-                .overwrite_payload(SetPayloadPoints {
-                    collection_name: collection_name_ref.to_string(),
-                    wait: Some(block),
-                    payload: payload.0.clone(),
-                    points: Default::default(),
-                    points_selector: Some(points.clone()),
-                })
-                .await?;
-            Ok(result.into_inner())
-        }).await?)
+        Ok(self
+            .with_points_client(|mut points_api| async move {
+                let result = points_api
+                    .overwrite_payload(SetPayloadPoints {
+                        collection_name: collection_name_ref.to_string(),
+                        wait: Some(block),
+                        payload: payload.0.clone(),
+                        points: Default::default(),
+                        points_selector: Some(points.clone()),
+                    })
+                    .await?;
+                Ok(result.into_inner())
+            })
+            .await?)
     }
 
     pub async fn delete_payload(
@@ -517,18 +577,20 @@ impl QdrantClient {
         let collection_name = collection_name.to_string();
         let collection_name_ref = collection_name.as_str();
 
-        Ok(self.with_points_client(|mut points_api| async move {
-            let result = points_api
-                .delete_payload(DeletePayloadPoints {
-                    collection_name: collection_name_ref.to_string(),
-                    wait: Some(block),
-                    keys: keys.clone(),
-                    points: Default::default(),
-                    points_selector: Some(points.clone()),
-                })
-                .await?;
-            Ok(result.into_inner())
-        }).await?)
+        Ok(self
+            .with_points_client(|mut points_api| async move {
+                let result = points_api
+                    .delete_payload(DeletePayloadPoints {
+                        collection_name: collection_name_ref.to_string(),
+                        wait: Some(block),
+                        keys: keys.clone(),
+                        points: Default::default(),
+                        points_selector: Some(points.clone()),
+                    })
+                    .await?;
+                Ok(result.into_inner())
+            })
+            .await?)
     }
 
     pub async fn clear_payload(
@@ -559,16 +621,18 @@ impl QdrantClient {
         let collection_name = collection_name.to_string();
         let collection_name_ref = collection_name.as_str();
 
-        Ok(self.with_points_client(|mut points_api| async move {
-            let result = points_api
-                .clear_payload(ClearPayloadPoints {
-                    collection_name: collection_name_ref.to_string(),
-                    wait: Some(block),
-                    points: points_selector.cloned(),
-                })
-                .await?;
-            Ok(result.into_inner())
-        }).await?)
+        Ok(self
+            .with_points_client(|mut points_api| async move {
+                let result = points_api
+                    .clear_payload(ClearPayloadPoints {
+                        collection_name: collection_name_ref.to_string(),
+                        wait: Some(block),
+                        points: points_selector.cloned(),
+                    })
+                    .await?;
+                Ok(result.into_inner())
+            })
+            .await?)
     }
 
     pub async fn get_points(
@@ -587,35 +651,41 @@ impl QdrantClient {
         let with_vectors_ref = with_vectors.as_ref();
         let with_payload_ref = with_payload.as_ref();
 
-        Ok(self.with_points_client(|mut points_api| async move {
-            let result = points_api
-                .get(GetPoints {
-                    collection_name: collection_name_ref.to_string(),
-                    ids: points.clone(),
-                    with_payload: with_payload_ref.cloned(),
-                    with_vectors: with_vectors_ref.cloned(),
-                })
-                .await?;
+        Ok(self
+            .with_points_client(|mut points_api| async move {
+                let result = points_api
+                    .get(GetPoints {
+                        collection_name: collection_name_ref.to_string(),
+                        ids: points.clone(),
+                        with_payload: with_payload_ref.cloned(),
+                        with_vectors: with_vectors_ref.cloned(),
+                    })
+                    .await?;
 
-            Ok(result.into_inner())
-        }).await?)
+                Ok(result.into_inner())
+            })
+            .await?)
     }
 
     pub async fn search_points(&self, request: &SearchPoints) -> Result<SearchResponse> {
-        Ok(self.with_points_client(|mut points_api| async move {
-            let result = points_api.search(request.clone()).await?;
-            Ok(result.into_inner())
-        }).await?)
+        Ok(self
+            .with_points_client(|mut points_api| async move {
+                let result = points_api.search(request.clone()).await?;
+                Ok(result.into_inner())
+            })
+            .await?)
     }
 
     pub async fn search_batch_points(
         &self,
         request: &SearchBatchPoints,
     ) -> Result<SearchBatchResponse> {
-        Ok(self.with_points_client(|mut points_api| async move {
-            let result = points_api.search_batch(request.clone()).await?;
-            Ok(result.into_inner())
-        }).await?)
+        Ok(self
+            .with_points_client(|mut points_api| async move {
+                let result = points_api.search_batch(request.clone()).await?;
+                Ok(result.into_inner())
+            })
+            .await?)
     }
 
     pub async fn delete_points(
@@ -623,8 +693,7 @@ impl QdrantClient {
         collection_name: impl ToString,
         points: &PointsSelector,
     ) -> Result<PointsOperationResponse> {
-        self._delete_points(collection_name, false, points)
-            .await
+        self._delete_points(collection_name, false, points).await
     }
 
     pub async fn delete_points_blocking(
@@ -632,8 +701,7 @@ impl QdrantClient {
         collection_name: impl ToString,
         points: &PointsSelector,
     ) -> Result<PointsOperationResponse> {
-        self._delete_points(collection_name, true, points)
-            .await
+        self._delete_points(collection_name, true, points).await
     }
 
     async fn _delete_points(
@@ -645,47 +713,57 @@ impl QdrantClient {
         let collection_name = collection_name.to_string();
         let collection_name_ref = collection_name.as_str();
 
-        Ok(self.with_points_client(|mut points_api| async move {
-            let result = points_api
-                .delete(DeletePoints {
-                    collection_name: collection_name_ref.to_string(),
-                    wait: Some(blocking),
-                    points: Some(points.clone()),
-                })
-                .await?;
-            Ok(result.into_inner())
-        }).await?)
+        Ok(self
+            .with_points_client(|mut points_api| async move {
+                let result = points_api
+                    .delete(DeletePoints {
+                        collection_name: collection_name_ref.to_string(),
+                        wait: Some(blocking),
+                        points: Some(points.clone()),
+                    })
+                    .await?;
+                Ok(result.into_inner())
+            })
+            .await?)
     }
 
     pub async fn scroll(&self, request: &ScrollPoints) -> Result<ScrollResponse> {
-        Ok(self.with_points_client(|mut points_api| async move {
-            let result = points_api.scroll(request.clone()).await?;
-            Ok(result.into_inner())
-        }).await?)
+        Ok(self
+            .with_points_client(|mut points_api| async move {
+                let result = points_api.scroll(request.clone()).await?;
+                Ok(result.into_inner())
+            })
+            .await?)
     }
 
     pub async fn recommend(&self, request: &RecommendPoints) -> Result<RecommendResponse> {
-        Ok(self.with_points_client(|mut points_api| async move {
-            let result = points_api.recommend(request.clone()).await?;
-            Ok(result.into_inner())
-        }).await?)
+        Ok(self
+            .with_points_client(|mut points_api| async move {
+                let result = points_api.recommend(request.clone()).await?;
+                Ok(result.into_inner())
+            })
+            .await?)
     }
 
     pub async fn recommend_batch(
         &self,
         request: &RecommendBatchPoints,
     ) -> Result<RecommendBatchResponse> {
-        Ok(self.with_points_client(|mut points_api| async move {
-            let result = points_api.recommend_batch(request.clone()).await?;
-            Ok(result.into_inner())
-        }).await?)
+        Ok(self
+            .with_points_client(|mut points_api| async move {
+                let result = points_api.recommend_batch(request.clone()).await?;
+                Ok(result.into_inner())
+            })
+            .await?)
     }
 
     pub async fn count(&self, request: &CountPoints) -> Result<CountResponse> {
-        Ok(self.with_points_client(|mut points_api| async move {
-            let result = points_api.count(request.clone()).await?;
-            Ok(result.into_inner())
-        }).await?)
+        Ok(self
+            .with_points_client(|mut points_api| async move {
+                let result = points_api.count(request.clone()).await?;
+                Ok(result.into_inner())
+            })
+            .await?)
     }
 
     /// Create index for a payload field
@@ -701,16 +779,20 @@ impl QdrantClient {
         let collection_name_ref = collection_name.as_str();
         let field_name = field_name.to_string();
         let field_name_ref = field_name.as_str();
-        Ok(self.with_points_client(|mut client| async move {
-            let result = client.create_field_index(CreateFieldIndexCollection {
-                collection_name: collection_name_ref.to_string(),
-                wait: Some(wait),
-                field_name: field_name_ref.to_string(),
-                field_type: Some(field_type.into()),
-                field_index_params: field_index_params.cloned(),
-            }).await?;
-            Ok(result.into_inner())
-        }).await?)
+        Ok(self
+            .with_points_client(|mut client| async move {
+                let result = client
+                    .create_field_index(CreateFieldIndexCollection {
+                        collection_name: collection_name_ref.to_string(),
+                        wait: Some(wait),
+                        field_name: field_name_ref.to_string(),
+                        field_type: Some(field_type.into()),
+                        field_index_params: field_index_params.cloned(),
+                    })
+                    .await?;
+                Ok(result.into_inner())
+            })
+            .await?)
     }
 
     pub async fn create_field_index(
@@ -720,8 +802,14 @@ impl QdrantClient {
         field_type: FieldType,
         field_index_params: Option<&PayloadIndexParams>,
     ) -> Result<PointsOperationResponse> {
-        self._create_field_index(collection_name, field_name, field_type, field_index_params, false)
-            .await
+        self._create_field_index(
+            collection_name,
+            field_name,
+            field_type,
+            field_index_params,
+            false,
+        )
+        .await
     }
 
     pub async fn create_field_index_blocking(
@@ -731,8 +819,14 @@ impl QdrantClient {
         field_type: FieldType,
         field_index_params: Option<&PayloadIndexParams>,
     ) -> Result<PointsOperationResponse> {
-        self._create_field_index(collection_name, field_name, field_type, field_index_params, true)
-            .await
+        self._create_field_index(
+            collection_name,
+            field_name,
+            field_type,
+            field_index_params,
+            true,
+        )
+        .await
     }
 
     pub async fn _delete_field_index(
@@ -745,14 +839,18 @@ impl QdrantClient {
         let collection_name_ref = collection_name.as_str();
         let field_name = field_name.to_string();
         let field_name_ref = field_name.as_str();
-        Ok(self.with_points_client(|mut client| async move {
-            let result = client.delete_field_index(DeleteFieldIndexCollection {
-                collection_name: collection_name_ref.to_string(),
-                wait: Some(wait),
-                field_name: field_name_ref.to_string(),
-            }).await?;
-            Ok(result.into_inner())
-        }).await?)
+        Ok(self
+            .with_points_client(|mut client| async move {
+                let result = client
+                    .delete_field_index(DeleteFieldIndexCollection {
+                        collection_name: collection_name_ref.to_string(),
+                        wait: Some(wait),
+                        field_name: field_name_ref.to_string(),
+                    })
+                    .await?;
+                Ok(result.into_inner())
+            })
+            .await?)
     }
 
     pub async fn delete_field_index(
@@ -760,7 +858,8 @@ impl QdrantClient {
         collection_name: impl ToString,
         field_name: impl ToString,
     ) -> Result<PointsOperationResponse> {
-        self._delete_field_index(collection_name, field_name, false).await
+        self._delete_field_index(collection_name, field_name, false)
+            .await
     }
 
     pub async fn delete_field_index_blocking(
@@ -768,7 +867,8 @@ impl QdrantClient {
         collection_name: impl ToString,
         field_name: impl ToString,
     ) -> Result<PointsOperationResponse> {
-        self._delete_field_index(collection_name, field_name, true).await
+        self._delete_field_index(collection_name, field_name, true)
+            .await
     }
 
     pub async fn create_snapshot(
@@ -777,15 +877,17 @@ impl QdrantClient {
     ) -> Result<CreateSnapshotResponse> {
         let collection_name = collection_name.to_string();
         let collection_name_ref = collection_name.as_str();
-        Ok(self.with_snapshot_client(|mut client| async move {
-            let result = client
-                .create(CreateSnapshotRequest {
-                    collection_name: collection_name_ref.to_string(),
-                })
-                .await?;
+        Ok(self
+            .with_snapshot_client(|mut client| async move {
+                let result = client
+                    .create(CreateSnapshotRequest {
+                        collection_name: collection_name_ref.to_string(),
+                    })
+                    .await?;
 
-            Ok(result.into_inner())
-        }).await?)
+                Ok(result.into_inner())
+            })
+            .await?)
     }
 
     pub async fn list_snapshots(
@@ -794,31 +896,35 @@ impl QdrantClient {
     ) -> Result<ListSnapshotsResponse> {
         let collection_name = collection_name.to_string();
         let collection_name_ref = collection_name.as_str();
-        Ok(self.with_snapshot_client(|mut client| async move {
-            let result = client
-                .list(ListSnapshotsRequest {
-                    collection_name: collection_name_ref.to_string(),
-                })
-                .await?;
-            Ok(result.into_inner())
-        }).await?)
+        Ok(self
+            .with_snapshot_client(|mut client| async move {
+                let result = client
+                    .list(ListSnapshotsRequest {
+                        collection_name: collection_name_ref.to_string(),
+                    })
+                    .await?;
+                Ok(result.into_inner())
+            })
+            .await?)
     }
 
     pub async fn create_full_snapshot(&self) -> Result<CreateSnapshotResponse> {
-        Ok(self.with_snapshot_client(|mut client| async move {
-            let result = client
-                .create_full(CreateFullSnapshotRequest {})
-                .await?;
+        Ok(self
+            .with_snapshot_client(|mut client| async move {
+                let result = client.create_full(CreateFullSnapshotRequest {}).await?;
 
-            Ok(result.into_inner())
-        }).await?)
+                Ok(result.into_inner())
+            })
+            .await?)
     }
 
     pub async fn list_full_snapshots(&self) -> Result<ListSnapshotsResponse> {
-        Ok(self.with_snapshot_client(|mut client| async move {
-            let result = client.list_full(ListFullSnapshotsRequest {}).await?;
-            Ok(result.into_inner())
-        }).await?)
+        Ok(self
+            .with_snapshot_client(|mut client| async move {
+                let result = client.list_full(ListFullSnapshotsRequest {}).await?;
+                Ok(result.into_inner())
+            })
+            .await?)
     }
 
     #[cfg(feature = "download_snapshots")]
@@ -829,8 +935,8 @@ impl QdrantClient {
         snapshot_name: Option<T>,
         rest_api_uri: Option<T>,
     ) -> Result<()>
-        where
-            T: ToString + Clone,
+    where
+        T: ToString + Clone,
     {
         use futures_util::StreamExt;
         use std::io::Write;
@@ -859,8 +965,8 @@ impl QdrantClient {
             collection_name.to_string(),
             snapshot_name
         ))
-            .await?
-            .bytes_stream();
+        .await?
+        .bytes_stream();
 
         let out_path = out_path.into();
         let _ = std::fs::remove_file(&out_path);
@@ -984,8 +1090,8 @@ impl From<Payload> for Value {
 }
 
 impl<T> From<Vec<T>> for Value
-    where
-        T: Into<Value>,
+where
+    T: Into<Value>,
 {
     fn from(val: Vec<T>) -> Self {
         Self {
