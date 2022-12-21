@@ -22,6 +22,8 @@ jobs:
         profile: minimal
         toolchain: stable
     - uses: actions/checkout@v3
+    - name: Install dependencies
+      run: sudo apt-get install protobuf-compiler
     - name: Login
       run: cargo login ${{ secrets.CRATE_IO_API_TOKEN }}
     - name: Publish
