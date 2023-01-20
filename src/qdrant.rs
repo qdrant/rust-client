@@ -416,6 +416,35 @@ pub struct DeleteAlias {
     #[prost(string, tag = "1")]
     pub alias_name: ::prost::alloc::string::String,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct ListAliasesRequest {}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct ListCollectionAliasesRequest {
+    /// Name of the collection
+    #[prost(string, tag = "1")]
+    pub collection_name: ::prost::alloc::string::String,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct AliasDescription {
+    /// Name of the alias
+    #[prost(string, tag = "1")]
+    pub alias_name: ::prost::alloc::string::String,
+    /// Name of the collection
+    #[prost(string, tag = "2")]
+    pub collection_name: ::prost::alloc::string::String,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct ListAliasesResponse {
+    #[prost(message, repeated, tag = "1")]
+    pub aliases: ::prost::alloc::vec::Vec<AliasDescription>,
+    /// Time spent to process
+    #[prost(double, tag = "2")]
+    pub time: f64,
+}
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
 pub enum Distance {
@@ -744,6 +773,48 @@ pub mod collections_client {
             );
             self.inner.unary(request.into_request(), path, codec).await
         }
+        ///
+        /// Get list of all aliases for a collection
+        pub async fn list_collection_aliases(
+            &mut self,
+            request: impl tonic::IntoRequest<super::ListCollectionAliasesRequest>,
+        ) -> Result<tonic::Response<super::ListAliasesResponse>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Collections/ListCollectionAliases",
+            );
+            self.inner.unary(request.into_request(), path, codec).await
+        }
+        ///
+        /// Get list of all aliases for all existing collections
+        pub async fn list_aliases(
+            &mut self,
+            request: impl tonic::IntoRequest<super::ListAliasesRequest>,
+        ) -> Result<tonic::Response<super::ListAliasesResponse>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Collections/ListAliases",
+            );
+            self.inner.unary(request.into_request(), path, codec).await
+        }
     }
 }
 /// Generated server implementations.
@@ -789,6 +860,18 @@ pub mod collections_server {
             &self,
             request: tonic::Request<super::ChangeAliases>,
         ) -> Result<tonic::Response<super::CollectionOperationResponse>, tonic::Status>;
+        ///
+        /// Get list of all aliases for a collection
+        async fn list_collection_aliases(
+            &self,
+            request: tonic::Request<super::ListCollectionAliasesRequest>,
+        ) -> Result<tonic::Response<super::ListAliasesResponse>, tonic::Status>;
+        ///
+        /// Get list of all aliases for all existing collections
+        async fn list_aliases(
+            &self,
+            request: tonic::Request<super::ListAliasesRequest>,
+        ) -> Result<tonic::Response<super::ListAliasesResponse>, tonic::Status>;
     }
     #[derive(Debug)]
     pub struct CollectionsServer<T: Collections> {
@@ -1068,6 +1151,86 @@ pub mod collections_server {
                     let fut = async move {
                         let inner = inner.0;
                         let method = UpdateAliasesSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/qdrant.Collections/ListCollectionAliases" => {
+                    #[allow(non_camel_case_types)]
+                    struct ListCollectionAliasesSvc<T: Collections>(pub Arc<T>);
+                    impl<
+                        T: Collections,
+                    > tonic::server::UnaryService<super::ListCollectionAliasesRequest>
+                    for ListCollectionAliasesSvc<T> {
+                        type Response = super::ListAliasesResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::ListCollectionAliasesRequest>,
+                        ) -> Self::Future {
+                            let inner = self.0.clone();
+                            let fut = async move {
+                                (*inner).list_collection_aliases(request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = ListCollectionAliasesSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/qdrant.Collections/ListAliases" => {
+                    #[allow(non_camel_case_types)]
+                    struct ListAliasesSvc<T: Collections>(pub Arc<T>);
+                    impl<
+                        T: Collections,
+                    > tonic::server::UnaryService<super::ListAliasesRequest>
+                    for ListAliasesSvc<T> {
+                        type Response = super::ListAliasesResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::ListAliasesRequest>,
+                        ) -> Self::Future {
+                            let inner = self.0.clone();
+                            let fut = async move {
+                                (*inner).list_aliases(request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = ListAliasesSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
@@ -3102,6 +3265,13 @@ pub struct CreateFullSnapshotRequest {}
 pub struct ListFullSnapshotsRequest {}
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct DeleteFullSnapshotRequest {
+    /// Name of the full snapshot
+    #[prost(string, tag = "1")]
+    pub snapshot_name: ::prost::alloc::string::String,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateSnapshotRequest {
     /// Name of the collection
     #[prost(string, tag = "1")]
@@ -3113,6 +3283,16 @@ pub struct ListSnapshotsRequest {
     /// Name of the collection
     #[prost(string, tag = "1")]
     pub collection_name: ::prost::alloc::string::String,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct DeleteSnapshotRequest {
+    /// Name of the collection
+    #[prost(string, tag = "1")]
+    pub collection_name: ::prost::alloc::string::String,
+    /// Name of the collection snapshot
+    #[prost(string, tag = "2")]
+    pub snapshot_name: ::prost::alloc::string::String,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -3143,6 +3323,13 @@ pub struct ListSnapshotsResponse {
     pub snapshot_descriptions: ::prost::alloc::vec::Vec<SnapshotDescription>,
     /// Time spent to process
     #[prost(double, tag = "2")]
+    pub time: f64,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct DeleteSnapshotResponse {
+    /// Time spent to process
+    #[prost(double, tag = "1")]
     pub time: f64,
 }
 /// Generated client implementations.
@@ -3253,6 +3440,25 @@ pub mod snapshots_client {
             self.inner.unary(request.into_request(), path, codec).await
         }
         ///
+        /// Delete collection snapshots
+        pub async fn delete(
+            &mut self,
+            request: impl tonic::IntoRequest<super::DeleteSnapshotRequest>,
+        ) -> Result<tonic::Response<super::DeleteSnapshotResponse>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static("/qdrant.Snapshots/Delete");
+            self.inner.unary(request.into_request(), path, codec).await
+        }
+        ///
         /// Create full storage snapshot
         pub async fn create_full(
             &mut self,
@@ -3294,6 +3500,27 @@ pub mod snapshots_client {
             );
             self.inner.unary(request.into_request(), path, codec).await
         }
+        ///
+        /// List full storage snapshots
+        pub async fn delete_full(
+            &mut self,
+            request: impl tonic::IntoRequest<super::DeleteFullSnapshotRequest>,
+        ) -> Result<tonic::Response<super::DeleteSnapshotResponse>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Snapshots/DeleteFull",
+            );
+            self.inner.unary(request.into_request(), path, codec).await
+        }
     }
 }
 /// Generated server implementations.
@@ -3316,6 +3543,12 @@ pub mod snapshots_server {
             request: tonic::Request<super::ListSnapshotsRequest>,
         ) -> Result<tonic::Response<super::ListSnapshotsResponse>, tonic::Status>;
         ///
+        /// Delete collection snapshots
+        async fn delete(
+            &self,
+            request: tonic::Request<super::DeleteSnapshotRequest>,
+        ) -> Result<tonic::Response<super::DeleteSnapshotResponse>, tonic::Status>;
+        ///
         /// Create full storage snapshot
         async fn create_full(
             &self,
@@ -3327,6 +3560,12 @@ pub mod snapshots_server {
             &self,
             request: tonic::Request<super::ListFullSnapshotsRequest>,
         ) -> Result<tonic::Response<super::ListSnapshotsResponse>, tonic::Status>;
+        ///
+        /// List full storage snapshots
+        async fn delete_full(
+            &self,
+            request: tonic::Request<super::DeleteFullSnapshotRequest>,
+        ) -> Result<tonic::Response<super::DeleteSnapshotResponse>, tonic::Status>;
     }
     #[derive(Debug)]
     pub struct SnapshotsServer<T: Snapshots> {
@@ -3463,6 +3702,44 @@ pub mod snapshots_server {
                     };
                     Box::pin(fut)
                 }
+                "/qdrant.Snapshots/Delete" => {
+                    #[allow(non_camel_case_types)]
+                    struct DeleteSvc<T: Snapshots>(pub Arc<T>);
+                    impl<
+                        T: Snapshots,
+                    > tonic::server::UnaryService<super::DeleteSnapshotRequest>
+                    for DeleteSvc<T> {
+                        type Response = super::DeleteSnapshotResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::DeleteSnapshotRequest>,
+                        ) -> Self::Future {
+                            let inner = self.0.clone();
+                            let fut = async move { (*inner).delete(request).await };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = DeleteSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
                 "/qdrant.Snapshots/CreateFull" => {
                     #[allow(non_camel_case_types)]
                     struct CreateFullSvc<T: Snapshots>(pub Arc<T>);
@@ -3528,6 +3805,44 @@ pub mod snapshots_server {
                     let fut = async move {
                         let inner = inner.0;
                         let method = ListFullSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/qdrant.Snapshots/DeleteFull" => {
+                    #[allow(non_camel_case_types)]
+                    struct DeleteFullSvc<T: Snapshots>(pub Arc<T>);
+                    impl<
+                        T: Snapshots,
+                    > tonic::server::UnaryService<super::DeleteFullSnapshotRequest>
+                    for DeleteFullSvc<T> {
+                        type Response = super::DeleteSnapshotResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::DeleteFullSnapshotRequest>,
+                        ) -> Self::Future {
+                            let inner = self.0.clone();
+                            let fut = async move { (*inner).delete_full(request).await };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = DeleteFullSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
