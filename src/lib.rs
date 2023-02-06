@@ -56,7 +56,7 @@ mod tests {
 
         let points = vec![PointStruct::new(0, vec![12.; 10], payload)];
         client
-            .upsert_points_blocking(collection_name, points)
+            .upsert_points_blocking(collection_name, points, None)
             .await?;
 
         let search_result = client
@@ -71,6 +71,7 @@ mod tests {
                 offset: None,
                 vector_name: None,
                 with_vectors: None,
+                read_consistency: None,
             })
             .await?;
 
@@ -82,7 +83,7 @@ mod tests {
             .collect::<HashMap<_, Value>>()
             .into();
         client
-            .set_payload(collection_name, &vec![0.into()].into(), new_payload)
+            .set_payload(collection_name, &vec![0.into()].into(), new_payload, None)
             .await?;
 
         // Delete some payload fields
@@ -91,12 +92,13 @@ mod tests {
                 collection_name,
                 &vec![0.into()].into(),
                 vec!["sub_payload".to_string()],
+                None
             )
             .await?;
 
         // retrieve points
         let points = client
-            .get_points(collection_name, &vec![0.into()], Some(true), Some(true))
+            .get_points(collection_name, &vec![0.into()], Some(true), Some(true), None)
             .await?;
 
         assert_eq!(points.result.len(), 1);
@@ -105,7 +107,7 @@ mod tests {
         assert!(!point.payload.contains_key("sub_payload"));
 
         client
-            .delete_points(collection_name, &vec![0.into()].into())
+            .delete_points(collection_name, &vec![0.into()].into(), None)
             .await?;
 
         // Access raw point api with client
@@ -118,6 +120,7 @@ mod tests {
                         field_name: "foo".to_string(),
                         field_type: Some(FieldType::Keyword as i32),
                         field_index_params: None,
+                        ordering: None,
                     })
                     .await
             })

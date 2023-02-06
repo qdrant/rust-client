@@ -202,6 +202,9 @@ pub struct CreateCollection {
     /// How many replicas should apply the operation for us to consider it successful, default = 1
     #[prost(uint32, optional, tag = "12")]
     pub write_consistency_factor: ::core::option::Option<u32>,
+    /// Specify name of the other collection to copy data from
+    #[prost(string, optional, tag = "13")]
+    pub init_from_collection: ::core::option::Option<::prost::alloc::string::String>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -1378,6 +1381,32 @@ impl NullValue {
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct WriteOrdering {
+    /// Write ordering guarantees
+    #[prost(enumeration = "WriteOrderingType", tag = "1")]
+    pub r#type: i32,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct ReadConsistency {
+    #[prost(oneof = "read_consistency::Value", tags = "1, 2")]
+    pub value: ::core::option::Option<read_consistency::Value>,
+}
+/// Nested message and enum types in `ReadConsistency`.
+pub mod read_consistency {
+    #[allow(clippy::derive_partial_eq_without_eq)]
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
+    pub enum Value {
+        /// Common read consistency configurations
+        #[prost(enumeration = "super::ReadConsistencyType", tag = "1")]
+        Type(i32),
+        /// Send request to a specified number of nodes, and return points which are present on all of them
+        #[prost(uint64, tag = "2")]
+        Factor(u64),
+    }
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PointId {
     #[prost(oneof = "point_id::PointIdOptions", tags = "1, 2")]
     pub point_id_options: ::core::option::Option<point_id::PointIdOptions>,
@@ -1412,6 +1441,9 @@ pub struct UpsertPoints {
     pub wait: ::core::option::Option<bool>,
     #[prost(message, repeated, tag = "3")]
     pub points: ::prost::alloc::vec::Vec<PointStruct>,
+    /// Write ordering guarantees
+    #[prost(message, optional, tag = "4")]
+    pub ordering: ::core::option::Option<WriteOrdering>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -1425,6 +1457,9 @@ pub struct DeletePoints {
     /// Affected points
     #[prost(message, optional, tag = "3")]
     pub points: ::core::option::Option<PointsSelector>,
+    /// Write ordering guarantees
+    #[prost(message, optional, tag = "4")]
+    pub ordering: ::core::option::Option<WriteOrdering>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -1441,6 +1476,9 @@ pub struct GetPoints {
     /// Options for specifying which vectors to include into response
     #[prost(message, optional, tag = "5")]
     pub with_vectors: ::core::option::Option<WithVectorsSelector>,
+    /// Options for specifying read consistency guarantees
+    #[prost(message, optional, tag = "6")]
+    pub read_consistency: ::core::option::Option<ReadConsistency>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -1454,12 +1492,12 @@ pub struct SetPayloadPoints {
     /// New payload values
     #[prost(map = "string, message", tag = "3")]
     pub payload: ::std::collections::HashMap<::prost::alloc::string::String, Value>,
-    /// List of point to modify, deprecated
-    #[prost(message, repeated, tag = "4")]
-    pub points: ::prost::alloc::vec::Vec<PointId>,
     /// Affected points
     #[prost(message, optional, tag = "5")]
     pub points_selector: ::core::option::Option<PointsSelector>,
+    /// Write ordering guarantees
+    #[prost(message, optional, tag = "6")]
+    pub ordering: ::core::option::Option<WriteOrdering>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -1473,12 +1511,12 @@ pub struct DeletePayloadPoints {
     /// List of keys to delete
     #[prost(string, repeated, tag = "3")]
     pub keys: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
-    /// Affected points, deprecated
-    #[prost(message, repeated, tag = "4")]
-    pub points: ::prost::alloc::vec::Vec<PointId>,
     /// Affected points
     #[prost(message, optional, tag = "5")]
     pub points_selector: ::core::option::Option<PointsSelector>,
+    /// Write ordering guarantees
+    #[prost(message, optional, tag = "6")]
+    pub ordering: ::core::option::Option<WriteOrdering>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -1492,6 +1530,9 @@ pub struct ClearPayloadPoints {
     /// Affected points
     #[prost(message, optional, tag = "3")]
     pub points: ::core::option::Option<PointsSelector>,
+    /// Write ordering guarantees
+    #[prost(message, optional, tag = "4")]
+    pub ordering: ::core::option::Option<WriteOrdering>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -1511,6 +1552,9 @@ pub struct CreateFieldIndexCollection {
     /// Payload index params.
     #[prost(message, optional, tag = "5")]
     pub field_index_params: ::core::option::Option<PayloadIndexParams>,
+    /// Write ordering guarantees
+    #[prost(message, optional, tag = "6")]
+    pub ordering: ::core::option::Option<WriteOrdering>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -1524,6 +1568,9 @@ pub struct DeleteFieldIndexCollection {
     /// Field name to delete
     #[prost(string, tag = "3")]
     pub field_name: ::prost::alloc::string::String,
+    /// Write ordering guarantees
+    #[prost(message, optional, tag = "4")]
+    pub ordering: ::core::option::Option<WriteOrdering>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -1654,6 +1701,9 @@ pub struct SearchPoints {
     /// Options for specifying which vectors to include into response
     #[prost(message, optional, tag = "11")]
     pub with_vectors: ::core::option::Option<WithVectorsSelector>,
+    /// Options for specifying read consistency guarantees
+    #[prost(message, optional, tag = "12")]
+    pub read_consistency: ::core::option::Option<ReadConsistency>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -1663,6 +1713,9 @@ pub struct SearchBatchPoints {
     pub collection_name: ::prost::alloc::string::String,
     #[prost(message, repeated, tag = "2")]
     pub search_points: ::prost::alloc::vec::Vec<SearchPoints>,
+    /// Options for specifying read consistency guarantees
+    #[prost(message, optional, tag = "3")]
+    pub read_consistency: ::core::option::Option<ReadConsistency>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -1684,6 +1737,9 @@ pub struct ScrollPoints {
     /// Options for specifying which vectors to include into response
     #[prost(message, optional, tag = "7")]
     pub with_vectors: ::core::option::Option<WithVectorsSelector>,
+    /// Options for specifying read consistency guarantees
+    #[prost(message, optional, tag = "8")]
+    pub read_consistency: ::core::option::Option<ReadConsistency>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -1733,6 +1789,9 @@ pub struct RecommendPoints {
     /// Name of the collection to use for points lookup, if not specified - use current collection
     #[prost(message, optional, tag = "13")]
     pub lookup_from: ::core::option::Option<LookupLocation>,
+    /// Options for specifying read consistency guarantees
+    #[prost(message, optional, tag = "14")]
+    pub read_consistency: ::core::option::Option<ReadConsistency>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -1742,6 +1801,9 @@ pub struct RecommendBatchPoints {
     pub collection_name: ::prost::alloc::string::String,
     #[prost(message, repeated, tag = "2")]
     pub recommend_points: ::prost::alloc::vec::Vec<RecommendPoints>,
+    /// Options for specifying read consistency guarantees
+    #[prost(message, optional, tag = "3")]
+    pub read_consistency: ::core::option::Option<ReadConsistency>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -2060,6 +2122,70 @@ pub struct GeoPoint {
     pub lon: f64,
     #[prost(double, tag = "2")]
     pub lat: f64,
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+#[repr(i32)]
+pub enum WriteOrderingType {
+    /// Write operations may be reordered, works faster, default
+    Weak = 0,
+    /// Write operations go through dynamically selected leader, may be inconsistent for a short period of time in case of leader change
+    Medium = 1,
+    /// Write operations go through the permanent leader, consistent, but may be unavailable if leader is down
+    Strong = 2,
+}
+impl WriteOrderingType {
+    /// String value of the enum field names used in the ProtoBuf definition.
+    ///
+    /// The values are not transformed in any way and thus are considered stable
+    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+    pub fn as_str_name(&self) -> &'static str {
+        match self {
+            WriteOrderingType::Weak => "Weak",
+            WriteOrderingType::Medium => "Medium",
+            WriteOrderingType::Strong => "Strong",
+        }
+    }
+    /// Creates an enum from field names used in the ProtoBuf definition.
+    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+        match value {
+            "Weak" => Some(Self::Weak),
+            "Medium" => Some(Self::Medium),
+            "Strong" => Some(Self::Strong),
+            _ => None,
+        }
+    }
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+#[repr(i32)]
+pub enum ReadConsistencyType {
+    /// Send request to all nodes and return points which are present on all of them
+    All = 0,
+    /// Send requests to all nodes and return points which are present on majority of them
+    Majority = 1,
+    /// Send requests to half + 1 nodes, return points which are present on all of them
+    Quorum = 2,
+}
+impl ReadConsistencyType {
+    /// String value of the enum field names used in the ProtoBuf definition.
+    ///
+    /// The values are not transformed in any way and thus are considered stable
+    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+    pub fn as_str_name(&self) -> &'static str {
+        match self {
+            ReadConsistencyType::All => "All",
+            ReadConsistencyType::Majority => "Majority",
+            ReadConsistencyType::Quorum => "Quorum",
+        }
+    }
+    /// Creates an enum from field names used in the ProtoBuf definition.
+    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+        match value {
+            "All" => Some(Self::All),
+            "Majority" => Some(Self::Majority),
+            "Quorum" => Some(Self::Quorum),
+            _ => None,
+        }
+    }
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
