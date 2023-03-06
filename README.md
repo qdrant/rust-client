@@ -43,6 +43,14 @@ More info about gRPC in [documentation](https://qdrant.tech/documentation/quick_
 
 ### Making requests
 
+Add necessary dependencies:
+
+```bash
+cargo add qdrant-client anyhow tonic tokio --features tokio/rt-multi-thread
+```
+
+Add search example from [`examples/search.rs`](./examples/search.rs) to your `src/main.rs`:
+
 ```rust
 use anyhow::Result;
 use qdrant_client::prelude::*;
@@ -58,7 +66,15 @@ async fn main() -> Result<()> {
     let client = QdrantClient::new(Some(config)).await?;
 
     let collections_list = client.list_collections().await?;
-    // ListCollectionsResponse { collections: [CollectionDescription { name: "test" }], time: 3.27e-6 }
+    dbg!(collections_list);
+    // collections_list = ListCollectionsResponse {
+    //     collections: [
+    //         CollectionDescription {
+    //             name: "test",
+    //         },
+    //     ],
+    //     time: 1.78e-6,
+    // }
 
     let collection_name = "test";
     client.delete_collection(collection_name).await?;
@@ -77,6 +93,7 @@ async fn main() -> Result<()> {
         .await?;
 
     let collection_info = client.collection_info(collection_name).await?;
+    dbg!(collection_info);
 
     let payload: Payload = vec![("foo", "Bar".into()), ("bar", 12.into())]
         .into_iter()
@@ -102,23 +119,34 @@ async fn main() -> Result<()> {
             ..Default::default()
         })
         .await?;
+    dbg!(search_result);
     // search_result = SearchResponse {
     //     result: [
     //         ScoredPoint {
-    //         id: Some(
-    //             PointId {
-    //                 point_id_options: Some(Num(0)),
-    //             },
-    //         ),
-    //         payload: {},
-    //         score: 1.0000001,
-    //         vector: [],
-    //         version: 0,
-    //     },
+    //             id: Some(
+    //                 PointId {
+    //                     point_id_options: Some(
+    //                         Num(
+    //                             0,
+    //                         ),
+    //                     ),
+    //                 },
+    //             ),
+    //             payload: {},
+    //             score: 1.0000001,
+    //             version: 0,
+    //             vectors: None,
+    //         },
     //     ],
     //     time: 5.312e-5,
     // }
 
     Ok(())
 }
+```
+
+Or run the example from this project directly:
+
+```bash
+cargo run --example search
 ```
