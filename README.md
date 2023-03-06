@@ -44,13 +44,14 @@ More info about gRPC in [documentation](https://qdrant.tech/documentation/quick_
 ### Making requests
 
 ```rust
-use std::time::Duration;
-use tonic::transport::Channel;
-use qdrant_client::QdrantClient;
-use qdrant_client::qdrant::ListCollectionsRequest;
+use anyhow::Result;
+use qdrant_client::prelude::*;
+use qdrant_client::qdrant::vectors_config::Config;
+use qdrant_client::qdrant::{CreateCollection, SearchPoints, VectorParams, VectorsConfig};
+use std::collections::HashMap;
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<()> {
     // Example of top level client
     // You may also use tonic-generated client from `src/qdrant.rs`
     let config = QdrantClientConfig::from_url("http://localhost:6334");
@@ -65,32 +66,27 @@ async fn main() {
     client
         .create_collection(&CreateCollection {
             collection_name: collection_name.into(),
-            vectors_config: Some(
-                VectorsConfig {
-                    config: Some(
-                        Config::Params(
-                            VectorParams {
-                                size: 10,
-                                distance: Distance::Cosine.into()
-                            }
-                        )
-                    )
-                }
-            ),
+            vectors_config: Some(VectorsConfig {
+                config: Some(Config::Params(VectorParams {
+                    size: 10,
+                    distance: Distance::Cosine.into(),
+                })),
+            }),
+            ..Default::default()
         })
         .await?;
 
     let collection_info = client.collection_info(collection_name).await?;
 
-    let payload: Payload = vec![
-        ("foo", "Bar".into()),
-        ("bar", 12.into()),
-    ].into_iter().collect::<HashMap<_, Value>>().into();
+    let payload: Payload = vec![("foo", "Bar".into()), ("bar", 12.into())]
+        .into_iter()
+        .collect::<HashMap<_, Value>>()
+        .into();
 
-    let points = vec![
-        PointStruct::new(0, vec![12.; 10], payload)
-    ];
-    client.upsert_points_blocking(collection_name, points).await?;
+    let points = vec![PointStruct::new(0, vec![12.; 10], payload)];
+    client
+        .upsert_points_blocking(collection_name, points, None)
+        .await?;
 
     let search_result = client
         .search_points(&SearchPoints {
@@ -98,11 +94,12 @@ async fn main() {
             vector: vec![11.; 10],
             filter: None,
             limit: 10,
-            with_vector: None,
+            with_vectors: None,
             with_payload: None,
             params: None,
             score_threshold: None,
             offset: None,
+            ..Default::default()
         })
         .await?;
     // search_result = SearchResponse {
@@ -121,5 +118,7 @@ async fn main() {
     //     ],
     //     time: 5.312e-5,
     // }
+
+    Ok(())
 }
 ```
