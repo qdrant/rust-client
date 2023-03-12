@@ -4,8 +4,11 @@ use std::time::Duration;
 use tonic::transport::{Channel, ClientTlsConfig, Uri};
 use tonic::{Code, Status};
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ChannelPool {
+    #[cfg_attr(feature = "serde", serde(skip))]
     channel: RwLock<Option<Channel>>,
+    #[cfg_attr(feature = "serde", serde(skip))]
     uri: Uri,
     grpc_timeout: Duration,
     connection_timeout: Duration,
