@@ -16,9 +16,11 @@ readme = "README.md"
 tonic = { version = "0.8.3", features = ["tls", "tls-roots"] }
 prost = "0.11.6"
 prost-types = "0.11.6"
+prost-wkt-types = "0.4.1"
 anyhow = "1"
 reqwest = { version = "0.11.14", optional = true, features = ["stream"] }
 futures-util = { version = "0.3.25", optional = true }
+serde = { version = "1.0.155", features = ["derive"] }
 
 [build-dependencies]
 tonic-build = { version = "0.8.4", features = ["prost"] }
