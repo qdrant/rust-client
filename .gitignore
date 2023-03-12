@@ -16,3 +16,7 @@ Cargo.lock
 
 .idea
 test.tar
+
+# Ignore proto.rs files generated during build
+src/qdrant.rs
+src/google.protobuf.rs
