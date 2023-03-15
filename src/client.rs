@@ -30,9 +30,7 @@ pub struct QdrantClientConfig {
 
 impl QdrantClientConfig {
     pub fn from_url(url: &str) -> Self {
-        let mut default = Self::default();
-        default.uri = url.to_string();
-        default
+        QdrantClientConfig { uri: url.to_string(), ..Self::default() }
     }
 
     pub fn set_api_key(&mut self, api_key: &str) {
@@ -547,7 +545,7 @@ impl QdrantClient {
         payload: Payload,
         ordering: Option<WriteOrdering>,
     ) -> Result<PointsOperationResponse> {
-        self._set_payload(collection_name, &points, &payload, false, ordering)
+        self._set_payload(collection_name, points, &payload, false, ordering)
             .await
     }
 
@@ -558,7 +556,7 @@ impl QdrantClient {
         payload: Payload,
         ordering: Option<WriteOrdering>
     ) -> Result<PointsOperationResponse> {
-        self._set_payload(collection_name, &points, &payload, true, ordering)
+        self._set_payload(collection_name, points, &payload, true, ordering)
             .await
     }
 
@@ -598,7 +596,7 @@ impl QdrantClient {
         payload: Payload,
         ordering: Option<WriteOrdering>
     ) -> Result<PointsOperationResponse> {
-        self._overwrite_payload(collection_name, &points, &payload, false, ordering)
+        self._overwrite_payload(collection_name, points, &payload, false, ordering)
             .await
     }
 
@@ -609,7 +607,7 @@ impl QdrantClient {
         payload: Payload,
         ordering: Option<WriteOrdering>,
     ) -> Result<PointsOperationResponse> {
-        self._overwrite_payload(collection_name, &points, &payload, true, ordering)
+        self._overwrite_payload(collection_name, points, &payload, true, ordering)
             .await
     }
 
@@ -649,7 +647,7 @@ impl QdrantClient {
         keys: Vec<String>,
         ordering: Option<WriteOrdering>,
     ) -> Result<PointsOperationResponse> {
-        self._delete_payload(collection_name, &points, &keys, false, ordering)
+        self._delete_payload(collection_name, points, &keys, false, ordering)
             .await
     }
 
@@ -660,7 +658,7 @@ impl QdrantClient {
         keys: Vec<String>,
         ordering: Option<WriteOrdering>,
     ) -> Result<PointsOperationResponse> {
-        self._delete_payload(collection_name, &points, &keys, true, ordering)
+        self._delete_payload(collection_name, points, &keys, true, ordering)
             .await
     }
 
