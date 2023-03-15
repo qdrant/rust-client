@@ -1,57 +1,3 @@
-# rust-client
-
-Rust client for Qdrant vector search engine.
-
-[![Crates.io][crates-badge]][crates-url]
-[![Apache 2.0 licensed][apache2-badge]][apache2-url]
-
-[crates-badge]: https://img.shields.io/crates/v/qdrant-client.svg
-
-[crates-url]: https://crates.io/crates/qdrant-client
-
-[apache2-badge]: https://img.shields.io/badge/license-apache2-blue.svg
-
-[apache2-url]: https://github.com/qdrant/rust-client/blob/master/LICENSE
-
-## Installation
-
-```bash
-cargo add qdrant-client
-```
-
-Package is available in [crates.io](https://crates.io/crates/qdrant-client)
-
-## Usage
-
-Run Qdrant with enabled gRPC interface:
-
-```bash
-# With env variable
-docker run -p 6333:6333 -p 6334:6334 \
-    -e QDRANT__SERVICE__GRPC_PORT="6334" \
-    qdrant/qdrant
-```
-
-Or by updating the configuration file:
-
-```yaml
-service:
-  grpc_port: 6334
-```
-
-More info about gRPC in [documentation](https://qdrant.tech/documentation/quick_start/#grpc).
-
-### Making requests
-
-Add necessary dependencies:
-
-```bash
-cargo add qdrant-client anyhow tonic tokio --features tokio/rt-multi-thread
-```
-
-Add search example from [`examples/search.rs`](./examples/search.rs) to your `src/main.rs`:
-
-```rust
 use anyhow::Result;
 use qdrant_client::prelude::*;
 use qdrant_client::qdrant::vectors_config::Config;
@@ -143,10 +89,3 @@ async fn main() -> Result<()> {
 
     Ok(())
 }
-```
-
-Or run the example from this project directly:
-
-```bash
-cargo run --example search
-```
