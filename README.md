@@ -158,3 +158,26 @@ Or run the example from this project directly:
 ```bash
 cargo run --example search
 ```
+
+## Qdrant Cloud
+
+[Qdrant Cloud](https://cloud.qdrant.io) is a managed service for Qdrant.
+
+The client needs to be configured properly to access the service.
+
+- make sure to use the correct port (6334)
+- make sure to pass your API KEY
+
+```rust
+async fn make_client() -> Result<QdrantClient> {
+    let config = QdrantClientConfig::from_url("http://xxxxxxxxxx.eu-central.aws.cloud.qdrant.io:6334");
+    // using an env variable for the API KEY for example
+    let api_key = std::env::var("QDRANT_API_KEY").ok();
+
+    if let Some(api_key) = api_key {
+        config.set_api_key(&api_key);
+    }
+    let client = QdrantClient::new(Some(config)).await?;
+    Ok(client)
+}
+```
