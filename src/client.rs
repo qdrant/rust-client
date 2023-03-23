@@ -1196,7 +1196,7 @@ impl QdrantClient {
         let client = reqwest::Client::new();
         client
             .post(format!(
-                "{}/collcections/{}/snapshots/upload",
+                "{}/collections/{}/snapshots/upload",
                 rest_api_uri
                     .map(|uri| uri.to_string())
                     .unwrap_or_else(|| String::from("http://localhost:6333")),
