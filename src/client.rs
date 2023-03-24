@@ -1130,6 +1130,7 @@ impl QdrantClient {
     {
         use futures_util::StreamExt;
         use std::io::Write;
+        use tokio::io::AsyncWriteExt;
 
         let snapshot_name = match snapshot_name {
             Some(sn) => sn.to_string(),
@@ -1159,14 +1160,15 @@ impl QdrantClient {
         .bytes_stream();
 
         let out_path = out_path.into();
-        let _ = std::fs::remove_file(&out_path);
-        let mut file = std::fs::OpenOptions::new()
+        let _ = tokio::fs::remove_file(&out_path).await;
+        let mut file = tokio::fs::OpenOptions::new()
             .write(true)
             .create_new(true)
-            .open(out_path)?;
+            .open(out_path)
+            .await?;
 
         while let Some(chunk) = stream.next().await {
-            let _written = file.write(&chunk?)?;
+            let _written = file.write(&chunk?).await?;
         }
 
         Ok(())
@@ -1186,7 +1188,7 @@ impl QdrantClient {
             .file_name()
             .and_then(|name| name.to_str().map(|name| name.to_string()));
 
-        let snapshot_file = std::fs::read(snapshot_path)?;
+        let snapshot_file = tokio::fs::read(snapshot_path).await?;
 
         let mut part = Part::bytes(snapshot_file);
         if let Some(filename) = filename {

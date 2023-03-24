@@ -19,6 +19,7 @@ prost-types = "0.11.8"
 anyhow = "1"
 reqwest = { version = "0.11.14", optional = true, features = ["stream", "multipart"] }
 futures-util = { version = "0.3.27", optional = true }
+tokio = {version = "1.26.0", features = ["fs"]}
 
 [build-dependencies]
 tonic-build = { version = "0.8.4", features = ["prost"] }
