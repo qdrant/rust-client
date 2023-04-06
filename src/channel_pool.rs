@@ -3,13 +3,13 @@ use std::sync::RwLock;
 use std::time::Duration;
 use tonic::transport::{Channel, ClientTlsConfig, Uri};
 use tonic::{Code, Status};
+use tower::discover::Change;
 
 pub struct ChannelPool {
     channel: RwLock<Option<Channel>>,
-    uri: Uri,
+    uris: Vec<Uri>,
     grpc_timeout: Duration,
     connection_timeout: Duration,
-    keep_alive_while_idle: bool,
 }
 
 impl ChannelPool {
@@ -17,19 +17,25 @@ impl ChannelPool {
         uri: Uri,
         grpc_timeout: Duration,
         connection_timeout: Duration,
-        keep_alive_while_idle: bool,
+    ) -> Self {
+        Self::balance(vec![uri], grpc_timeout, connection_timeout)
+    }
+
+    pub fn balance(
+        uris: Vec<Uri>,
+        grpc_timeout: Duration,
+        connection_timeout: Duration,
     ) -> Self {
         Self {
             channel: RwLock::new(None),
-            uri,
+            uris,
             grpc_timeout,
             connection_timeout,
-            keep_alive_while_idle,
         }
     }
 
     async fn make_channel(&self) -> Result<Channel, Status> {
-        let tls = match self.uri.scheme_str() {
+        let tls = match self.uris.first().unwrap().scheme_str() {
             None => false,
             Some(schema) => match schema {
                 "http" => false,
@@ -43,26 +49,23 @@ impl ChannelPool {
             },
         };
 
-        let endpoint = Channel::builder(self.uri.clone())
-            .timeout(self.grpc_timeout)
-            .connect_timeout(self.connection_timeout)
-            .keep_alive_while_idle(self.keep_alive_while_idle);
+        let (channel, service_discovery) = Channel::balance_channel(16);
 
-        let endpoint = if tls {
-            endpoint
-                .tls_config(ClientTlsConfig::new())
-                .map_err(|e| Status::internal(format!("Failed to create TLS config: {}", e)))?
-        } else {
-            endpoint
-        };
+        for (index, uri) in self.uris.iter().enumerate() {
+            let mut endpoint = Channel::builder(uri.clone())
+                .timeout(self.grpc_timeout)
+                .connect_timeout(self.connection_timeout);
 
-        let channel = endpoint
-            .connect()
-            .await
-            .map_err(|e| Status::internal(format!("Failed to connect to {}: {}", self.uri, e)))?;
-        let mut self_channel = self.channel.write().unwrap();
+            if tls {
+                endpoint = endpoint
+                    .tls_config(ClientTlsConfig::new())
+                    .map_err(|e| Status::internal(format!("Failed to create TLS config: {}", e)))?
+            }
 
-        *self_channel = Some(channel.clone());
+            service_discovery.send(Change::Insert(index, endpoint)).await.unwrap();
+        }
+
+        *self.channel.write().unwrap() = Some(channel.clone());
 
         Ok(channel)
     }

@@ -12,25 +12,32 @@ use crate::qdrant::with_payload_selector::SelectorOptions;
 use crate::qdrant::{qdrant_client, with_vectors_selector, AliasOperations, ChangeAliases, ClearPayloadPoints, CollectionOperationResponse, Condition, CountPoints, CountResponse, CreateAlias, CreateCollection, CreateFieldIndexCollection, CreateFullSnapshotRequest, CreateSnapshotRequest, CreateSnapshotResponse, DeleteAlias, DeleteCollection, DeleteFieldIndexCollection, DeleteFullSnapshotRequest, DeletePayloadPoints, DeletePoints, DeleteSnapshotRequest, DeleteSnapshotResponse, FieldCondition, FieldType, Filter, GetCollectionInfoRequest, GetCollectionInfoResponse, GetPoints, GetResponse, HasIdCondition, HealthCheckReply, HealthCheckRequest, IsEmptyCondition, ListAliasesRequest, ListAliasesResponse, ListCollectionAliasesRequest, ListCollectionsRequest, ListCollectionsResponse, ListFullSnapshotsRequest, ListSnapshotsRequest, ListSnapshotsResponse, ListValue, NamedVectors, OptimizersConfigDiff, PayloadIncludeSelector, PayloadIndexParams, PointId, PointStruct, PointsIdsList, PointsOperationResponse, PointsSelector, RecommendBatchPoints, RecommendBatchResponse, RecommendPoints, RecommendResponse, RenameAlias, ScrollPoints, ScrollResponse, SearchBatchPoints, SearchBatchResponse, SearchPoints, SearchResponse, SetPayloadPoints, Struct, UpdateCollection, UpsertPoints, Value, Vector, Vectors, VectorsSelector, WithPayloadSelector, WithVectorsSelector, WriteOrdering, ReadConsistency};
 use anyhow::{bail, Result};
 use std::collections::HashMap;
+use std::iter;
 use std::future::Future;
 use std::path::PathBuf;
 use std::time::Duration;
 use tonic::codegen::InterceptedService;
 use tonic::service::Interceptor;
-use tonic::transport::{Channel, Uri};
+use tonic::transport::Channel;
 use tonic::{Request, Status};
 
 pub struct QdrantClientConfig {
-    pub uri: String,
+    pub uris: Vec<String>,
     pub timeout: Duration,
     pub connect_timeout: Duration,
-    pub keep_alive_while_idle: bool,
     pub api_key: Option<String>,
 }
 
 impl QdrantClientConfig {
     pub fn from_url(url: &str) -> Self {
-        QdrantClientConfig { uri: url.to_string(), ..Self::default() }
+        Self::from_urls(iter::once(url))
+    }
+
+    pub fn from_urls(urls: impl IntoIterator<Item = impl Into<String>>) -> Self {
+        Self {
+            uris: urls.into_iter().map(Into::into).collect(),
+            ..Self::default()
+        }
     }
 
     pub fn set_api_key(&mut self, api_key: &str) {
@@ -43,10 +50,6 @@ impl QdrantClientConfig {
 
     pub fn set_connect_timeout(&mut self, connect_timeout: Duration) {
         self.connect_timeout = connect_timeout;
-    }
-
-    pub fn set_keep_alive_while_idle(&mut self, keep_alive_while_idle: bool) {
-        self.keep_alive_while_idle = keep_alive_while_idle;
     }
 }
 
@@ -168,10 +171,9 @@ impl From<bool> for WithVectorsSelector {
 impl Default for QdrantClientConfig {
     fn default() -> Self {
         Self {
-            uri: String::from("http://localhost:6334"),
+            uris: vec!["http://localhost:6334".into()],
             timeout: Duration::from_secs(5),
             connect_timeout: Duration::from_secs(5),
-            keep_alive_while_idle: true,
             api_key: None,
         }
     }
@@ -281,11 +283,10 @@ impl QdrantClient {
     pub async fn new(cfg: Option<QdrantClientConfig>) -> Result<Self> {
         let cfg = cfg.unwrap_or_default();
 
-        let channel = ChannelPool::new(
-            cfg.uri.parse::<Uri>()?,
+        let channel = ChannelPool::balance(
+            cfg.uris.iter().map(|uri| uri.parse()).collect::<Result<_, _>>()?,
             cfg.timeout,
             cfg.connect_timeout,
-            cfg.keep_alive_while_idle,
         );
 
         let client = Self { channel, cfg };
