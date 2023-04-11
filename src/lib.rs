@@ -33,6 +33,8 @@ mod tests {
                     config: Some(Config::Params(VectorParams {
                         size: 10,
                         distance: Distance::Cosine.into(),
+                        hnsw_config: None,
+                        quantization_config: None,
                     })),
                 }),
                 ..Default::default()
@@ -92,13 +94,19 @@ mod tests {
                 collection_name,
                 &vec![0.into()].into(),
                 vec!["sub_payload".to_string()],
-                None
+                None,
             )
             .await?;
 
         // retrieve points
         let points = client
-            .get_points(collection_name, &vec![0.into()], Some(true), Some(true), None)
+            .get_points(
+                collection_name,
+                &vec![0.into()],
+                Some(true),
+                Some(true),
+                None,
+            )
             .await?;
 
         assert_eq!(points.result.len(), 1);
