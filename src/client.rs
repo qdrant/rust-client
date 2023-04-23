@@ -10,7 +10,8 @@ use crate::qdrant::value::Kind;
 use crate::qdrant::vectors::VectorsOptions;
 use crate::qdrant::with_payload_selector::SelectorOptions;
 use crate::qdrant::{
-    qdrant_client, with_vectors_selector, AliasOperations, ChangeAliases, ClearPayloadPoints,
+    qdrant_client, update_collection_cluster_setup_request, with_vectors_selector, AliasOperations,
+    ChangeAliases, ClearPayloadPoints, CollectionClusterInfoRequest, CollectionClusterInfoResponse,
     CollectionOperationResponse, Condition, CountPoints, CountResponse, CreateAlias,
     CreateCollection, CreateFieldIndexCollection, CreateFullSnapshotRequest, CreateSnapshotRequest,
     CreateSnapshotResponse, DeleteAlias, DeleteCollection, DeleteFieldIndexCollection,
@@ -24,8 +25,9 @@ use crate::qdrant::{
     PointsIdsList, PointsOperationResponse, PointsSelector, ReadConsistency, RecommendBatchPoints,
     RecommendBatchResponse, RecommendPoints, RecommendResponse, RenameAlias, ScrollPoints,
     ScrollResponse, SearchBatchPoints, SearchBatchResponse, SearchPoints, SearchResponse,
-    SetPayloadPoints, Struct, UpdateCollection, UpsertPoints, Value, Vector, Vectors,
-    VectorsSelector, WithPayloadSelector, WithVectorsSelector, WriteOrdering,
+    SetPayloadPoints, Struct, UpdateCollection, UpdateCollectionClusterSetupRequest,
+    UpdateCollectionClusterSetupResponse, UpsertPoints, Value, Vector, Vectors, VectorsSelector,
+    WithPayloadSelector, WithVectorsSelector, WriteOrdering,
 };
 use anyhow::{bail, Result};
 use std::collections::HashMap;
@@ -1169,6 +1171,46 @@ impl QdrantClient {
         }
 
         Ok(())
+    }
+
+    pub async fn collection_cluster_info(
+        &self,
+        collection_name: impl ToString,
+    ) -> Result<CollectionClusterInfoResponse> {
+        let collection_name = collection_name.to_string();
+        let collection_name_ref = collection_name.as_str();
+        Ok(self
+            .with_collections_client(|mut collection_api| async move {
+                let result = collection_api
+                    .collection_cluster_info(CollectionClusterInfoRequest {
+                        collection_name: collection_name_ref.to_string(),
+                    })
+                    .await?;
+                Ok(result.into_inner())
+            })
+            .await?)
+    }
+
+    pub async fn update_collection_cluster_setup(
+        &self,
+        collection_name: impl ToString,
+        operation: update_collection_cluster_setup_request::Operation,
+    ) -> Result<UpdateCollectionClusterSetupResponse> {
+        let collection_name = collection_name.to_string();
+        let collection_name_ref = collection_name.as_str();
+        let operation_ref = &operation;
+        Ok(self
+            .with_collections_client(|mut collection_api| async move {
+                let result = collection_api
+                    .update_collection_cluster_setup(UpdateCollectionClusterSetupRequest {
+                        collection_name: collection_name_ref.to_string(),
+                        operation: Some(operation_ref.to_owned()),
+                        timeout: None,
+                    })
+                    .await?;
+                Ok(result.into_inner())
+            })
+            .await?)
     }
 }
 
