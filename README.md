@@ -94,6 +94,8 @@ async fn main() -> Result<()> {
                 config: Some(Config::Params(VectorParams {
                     size: 10,
                     distance: Distance::Cosine.into(),
+                    hnsw_config: None,
+                    quantization_config: None,
                 })),
             }),
             ..Default::default()
