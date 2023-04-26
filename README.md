@@ -172,7 +172,7 @@ The client needs to be configured properly to access the service.
 
 ```rust
 async fn make_client() -> Result<QdrantClient> {
-    let config = QdrantClientConfig::from_url("http://xxxxxxxxxx.eu-central.aws.cloud.qdrant.io:6334");
+    let mut config = QdrantClientConfig::from_url("http://xxxxxxxxxx.eu-central.aws.cloud.qdrant.io:6334");
     // using an env variable for the API KEY for example
     let api_key = std::env::var("QDRANT_API_KEY").ok();
 
