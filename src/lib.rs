@@ -2,6 +2,7 @@ mod channel_pool;
 pub mod client;
 pub mod prelude;
 pub mod qdrant;
+pub mod serde;
 
 #[cfg(test)]
 mod tests {

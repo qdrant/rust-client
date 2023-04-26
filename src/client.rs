@@ -28,6 +28,7 @@ use crate::qdrant::{
     VectorsSelector, WithPayloadSelector, WithVectorsSelector, WriteOrdering,
 };
 use anyhow::{bail, Result};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::future::Future;
 use std::path::PathBuf;
@@ -1198,7 +1199,7 @@ impl From<u64> for PointId {
     }
 }
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug, Default, Serialize, Deserialize)]
 pub struct Payload(HashMap<String, Value>);
 
 impl From<Payload> for HashMap<String, Value> {
