@@ -1291,3 +1291,19 @@ where
         }
     }
 }
+
+impl<T> From<Vec<(&str, T)>> for Value
+where
+    T: Into<Value>,
+{
+    fn from(val: Vec<(&str, T)>) -> Self {
+        Self {
+            kind: Some(Kind::StructValue(Struct {
+                fields: val
+                    .into_iter()
+                    .map(|(k, v)| (k.to_string(), v.into()))
+                    .collect(),
+            })),
+        }
+    }
+}

@@ -86,6 +86,7 @@ impl<'de> Deserialize<'de> for Value {
     where
         D: Deserializer<'de>,
     {
+        // rely on serde_json to materialize a JSON value for conversion
         let serde_value = serde_json::Value::deserialize(deserializer)?;
         Ok(serde_value.into())
     }
@@ -104,6 +105,7 @@ mod tests {
             ("some_int", 12.into()),
             ("some_float", 2.3.into()),
             ("some_seq", vec!["elem1", "elem2"].into()),
+            ("some_obj", vec![("key", "value")].into()),
         ]
         .into_iter()
         .collect::<HashMap<_, Value>>()
@@ -126,7 +128,8 @@ mod tests {
             "some_bool": true,
             "some_int": 12,
             "some_float": 2.3,
-            "some_seq": ["elem1", "elem2"]
+            "some_seq": ["elem1", "elem2"],
+            "some_obj": {"key": "value"}
             }"#;
 
         // String -> payload
@@ -138,6 +141,7 @@ mod tests {
             ("some_int", 12.into()),
             ("some_float", 2.3.into()),
             ("some_seq", vec!["elem1", "elem2"].into()),
+            ("some_obj", vec![("key", "value")].into()),
         ]
         .into_iter()
         .collect::<HashMap<_, Value>>()
