@@ -1226,6 +1226,10 @@ impl Payload {
         Self(HashMap::new())
     }
 
+    pub fn new_from_hashmap(payload: HashMap<String, Value>) -> Self {
+        Self(payload)
+    }
+
     pub fn insert(&mut self, key: impl ToString, val: impl Into<Value>) {
         self.0.insert(key.to_string(), val.into());
     }

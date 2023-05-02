@@ -1,8 +1,23 @@
+use crate::client::Payload;
 use crate::qdrant::value::Kind;
 use crate::qdrant::{ListValue, Struct, Value};
 use serde::ser::{SerializeMap, SerializeSeq};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::collections::HashMap;
+use std::fmt::{Display, Formatter};
+
+#[derive(Debug)]
+pub struct PayloadConversionError(serde_json::Value);
+
+impl Display for PayloadConversionError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "Failed to convert json {} to payload: expected object at the top level",
+            self.0
+        )
+    }
+}
 
 impl Serialize for Value {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -57,7 +72,7 @@ impl From<serde_json::Value> for Value {
                     }
                 } else {
                     Self {
-                        kind: Some(Kind::DoubleValue(0.0)),
+                        kind: Some(Kind::DoubleValue(f64::NAN)),
                     }
                 }
             }
@@ -81,6 +96,20 @@ impl From<serde_json::Value> for Value {
     }
 }
 
+impl TryFrom<serde_json::Value> for Payload {
+    type Error = PayloadConversionError;
+
+    fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
+        if let serde_json::Value::Object(obj) = value {
+            Ok(Payload::new_from_hashmap(
+                obj.into_iter().map(|(k, v)| (k, v.into())).collect(),
+            ))
+        } else {
+            Err(PayloadConversionError(value))
+        }
+    }
+}
+
 impl<'de> Deserialize<'de> for Value {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -96,6 +125,7 @@ impl<'de> Deserialize<'de> for Value {
 mod tests {
     use super::*;
     use crate::client::Payload;
+    use serde_json::json;
 
     #[test]
     fn json_payload_round_trip() {
@@ -149,5 +179,21 @@ mod tests {
 
         // assert expected
         assert_eq!(parsed_payload, expected);
+    }
+
+    #[test]
+    fn test_json_macro() {
+        let json_value = json!({
+            "some_string": "Bar",
+            "some_bool": true,
+            "some_int": 12,
+            "some_float": 2.3,
+            "some_seq": ["elem1", "elem2"],
+            "some_obj": {"key": "value"}
+        });
+
+        let payload: Payload = json_value.try_into().unwrap();
+
+        eprintln!("payload = {:#?}", payload);
     }
 }

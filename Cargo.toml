@@ -17,6 +17,8 @@ tonic = { version = "0.8.3", features = ["tls", "tls-roots"] }
 prost = "0.11.8"
 prost-types = "0.11.8"
 anyhow = "1"
+
+# If you don't want to have serde as a dependency, please consider contributing a feature flag
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 reqwest = { version = "0.11.16", optional = true, features = ["stream"] }
