@@ -36,6 +36,7 @@ use tonic::codegen::InterceptedService;
 use tonic::service::Interceptor;
 use tonic::transport::{Channel, Uri};
 use tonic::{Request, Status};
+#[derive(Clone)]
 
 pub struct QdrantClientConfig {
     pub uri: String,
@@ -220,7 +221,7 @@ impl Interceptor for TokenInterceptor {
         Ok(req)
     }
 }
-
+#[derive(Clone)]
 pub struct QdrantClient {
     pub channel: ChannelPool,
     pub cfg: QdrantClientConfig,
@@ -232,15 +233,12 @@ impl QdrantClient {
         f: impl Fn(SnapshotsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
     ) -> Result<T, Status> {
         self.channel
-            .with_channel(
-                |channel| {
-                    f(SnapshotsClient::with_interceptor(
-                        channel,
-                        TokenInterceptor::new(self.cfg.api_key.clone()),
-                    ))
-                },
-                false,
-            )
+            .with_channel(|channel| {
+                f(SnapshotsClient::with_interceptor(
+                    channel,
+                    TokenInterceptor::new(self.cfg.api_key.clone()),
+                ))
+            })
             .await
     }
 
@@ -250,15 +248,12 @@ impl QdrantClient {
         f: impl Fn(CollectionsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
     ) -> Result<T, Status> {
         self.channel
-            .with_channel(
-                |channel| {
-                    f(CollectionsClient::with_interceptor(
-                        channel,
-                        TokenInterceptor::new(self.cfg.api_key.clone()),
-                    ))
-                },
-                false,
-            )
+            .with_channel(|channel| {
+                f(CollectionsClient::with_interceptor(
+                    channel,
+                    TokenInterceptor::new(self.cfg.api_key.clone()),
+                ))
+            })
             .await
     }
 
@@ -268,15 +263,12 @@ impl QdrantClient {
         f: impl Fn(PointsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
     ) -> Result<T, Status> {
         self.channel
-            .with_channel(
-                |channel| {
-                    f(PointsClient::with_interceptor(
-                        channel,
-                        TokenInterceptor::new(self.cfg.api_key.clone()),
-                    ))
-                },
-                true,
-            )
+            .with_channel(|channel| {
+                f(PointsClient::with_interceptor(
+                    channel,
+                    TokenInterceptor::new(self.cfg.api_key.clone()),
+                ))
+            })
             .await
     }
 
@@ -286,15 +278,12 @@ impl QdrantClient {
         f: impl Fn(qdrant_client::QdrantClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
     ) -> Result<T, Status> {
         self.channel
-            .with_channel(
-                |channel| {
-                    f(qdrant_client::QdrantClient::with_interceptor(
-                        channel,
-                        TokenInterceptor::new(self.cfg.api_key.clone()),
-                    ))
-                },
-                true,
-            )
+            .with_channel(|channel| {
+                f(qdrant_client::QdrantClient::with_interceptor(
+                    channel,
+                    TokenInterceptor::new(self.cfg.api_key.clone()),
+                ))
+            })
             .await
     }
 
@@ -306,7 +295,8 @@ impl QdrantClient {
             cfg.timeout,
             cfg.connect_timeout,
             cfg.keep_alive_while_idle,
-        );
+        )
+        .await?;
 
         let client = Self { channel, cfg };
 
@@ -537,7 +527,7 @@ impl QdrantClient {
     async fn _upsert_points(
         &self,
         collection_name: impl ToString,
-        points: &Vec<PointStruct>,
+        points: &[PointStruct],
         block: bool,
         ordering: Option<WriteOrdering>,
     ) -> Result<PointsOperationResponse> {
@@ -551,7 +541,7 @@ impl QdrantClient {
                     .upsert(UpsertPoints {
                         collection_name: collection_name_ref.to_string(),
                         wait: Some(block),
-                        points: points.clone(),
+                        points: points.to_vec(),
                         ordering: ordering_ref.cloned(),
                     })
                     .await?;
@@ -689,7 +679,7 @@ impl QdrantClient {
         &self,
         collection_name: impl ToString,
         points: &PointsSelector,
-        keys: &Vec<String>,
+        keys: &[String],
         block: bool,
         ordering: Option<WriteOrdering>,
     ) -> Result<PointsOperationResponse> {
@@ -703,7 +693,7 @@ impl QdrantClient {
                     .delete_payload(DeletePayloadPoints {
                         collection_name: collection_name_ref.to_string(),
                         wait: Some(block),
-                        keys: keys.clone(),
+                        keys: keys.to_vec(),
                         points_selector: Some(points.clone()),
                         ordering: ordering_ref.cloned(),
                     })
@@ -763,7 +753,7 @@ impl QdrantClient {
     pub async fn get_points(
         &self,
         collection_name: impl ToString,
-        points: &Vec<PointId>,
+        points: &[PointId],
         with_vectors: Option<impl Into<WithVectorsSelector>>,
         with_payload: Option<impl Into<WithPayloadSelector>>,
         read_consistency: Option<ReadConsistency>,
@@ -783,7 +773,7 @@ impl QdrantClient {
                 let result = points_api
                     .get(GetPoints {
                         collection_name: collection_name_ref.to_string(),
-                        ids: points.clone(),
+                        ids: points.to_vec(),
                         with_payload: with_payload_ref.cloned(),
                         with_vectors: with_vectors_ref.cloned(),
                         read_consistency: read_consistency_ref.cloned(),
@@ -1219,7 +1209,11 @@ impl From<HashMap<&str, Value>> for Payload {
         )
     }
 }
-
+impl Default for Payload {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 impl Payload {
     pub fn new() -> Self {
         Self(HashMap::new())
