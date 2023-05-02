@@ -28,6 +28,7 @@ use crate::qdrant::{
     VectorsSelector, WithPayloadSelector, WithVectorsSelector, WriteOrdering,
 };
 use anyhow::{bail, Result};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::future::Future;
 use std::path::PathBuf;
@@ -1198,7 +1199,7 @@ impl From<u64> for PointId {
     }
 }
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug, Default, Serialize, Deserialize)]
 pub struct Payload(HashMap<String, Value>);
 
 impl From<Payload> for HashMap<String, Value> {
@@ -1223,6 +1224,10 @@ impl From<HashMap<&str, Value>> for Payload {
 impl Payload {
     pub fn new() -> Self {
         Self(HashMap::new())
+    }
+
+    pub fn new_from_hashmap(payload: HashMap<String, Value>) -> Self {
+        Self(payload)
     }
 
     pub fn insert(&mut self, key: impl ToString, val: impl Into<Value>) {
@@ -1286,6 +1291,22 @@ where
         Self {
             kind: Some(Kind::ListValue(ListValue {
                 values: val.into_iter().map(|v| v.into()).collect(),
+            })),
+        }
+    }
+}
+
+impl<T> From<Vec<(&str, T)>> for Value
+where
+    T: Into<Value>,
+{
+    fn from(val: Vec<(&str, T)>) -> Self {
+        Self {
+            kind: Some(Kind::StructValue(Struct {
+                fields: val
+                    .into_iter()
+                    .map(|(k, v)| (k.to_string(), v.into()))
+                    .collect(),
             })),
         }
     }

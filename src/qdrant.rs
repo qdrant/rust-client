@@ -392,10 +392,8 @@ pub struct CollectionInfo {
     pub config: ::core::option::Option<CollectionConfig>,
     /// Collection data types
     #[prost(map = "string, message", tag = "8")]
-    pub payload_schema: ::std::collections::HashMap<
-        ::prost::alloc::string::String,
-        PayloadSchemaInfo,
-    >,
+    pub payload_schema:
+        ::std::collections::HashMap<::prost::alloc::string::String, PayloadSchemaInfo>,
     /// number of points in the collection
     #[prost(uint64, tag = "9")]
     pub points_count: u64,
@@ -654,8 +652,8 @@ impl TokenizerType {
 /// Generated client implementations.
 pub mod collections_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
-    use tonic::codegen::*;
     use tonic::codegen::http::Uri;
+    use tonic::codegen::*;
     #[derive(Debug, Clone)]
     pub struct CollectionsClient<T> {
         inner: tonic::client::Grpc<T>,
@@ -699,9 +697,8 @@ pub mod collections_client {
                     <T as tonic::client::GrpcService<tonic::body::BoxBody>>::ResponseBody,
                 >,
             >,
-            <T as tonic::codegen::Service<
-                http::Request<tonic::body::BoxBody>,
-            >>::Error: Into<StdError> + Send + Sync,
+            <T as tonic::codegen::Service<http::Request<tonic::body::BoxBody>>>::Error:
+                Into<StdError> + Send + Sync,
         {
             CollectionsClient::new(InterceptedService::new(inner, interceptor))
         }
@@ -726,15 +723,12 @@ pub mod collections_client {
             &mut self,
             request: impl tonic::IntoRequest<super::GetCollectionInfoRequest>,
         ) -> Result<tonic::Response<super::GetCollectionInfoResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Collections/Get");
             self.inner.unary(request.into_request(), path, codec).await
@@ -745,15 +739,12 @@ pub mod collections_client {
             &mut self,
             request: impl tonic::IntoRequest<super::ListCollectionsRequest>,
         ) -> Result<tonic::Response<super::ListCollectionsResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Collections/List");
             self.inner.unary(request.into_request(), path, codec).await
@@ -764,19 +755,14 @@ pub mod collections_client {
             &mut self,
             request: impl tonic::IntoRequest<super::CreateCollection>,
         ) -> Result<tonic::Response<super::CollectionOperationResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/qdrant.Collections/Create",
-            );
+            let path = http::uri::PathAndQuery::from_static("/qdrant.Collections/Create");
             self.inner.unary(request.into_request(), path, codec).await
         }
         ///
@@ -785,19 +771,14 @@ pub mod collections_client {
             &mut self,
             request: impl tonic::IntoRequest<super::UpdateCollection>,
         ) -> Result<tonic::Response<super::CollectionOperationResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/qdrant.Collections/Update",
-            );
+            let path = http::uri::PathAndQuery::from_static("/qdrant.Collections/Update");
             self.inner.unary(request.into_request(), path, codec).await
         }
         ///
@@ -806,19 +787,14 @@ pub mod collections_client {
             &mut self,
             request: impl tonic::IntoRequest<super::DeleteCollection>,
         ) -> Result<tonic::Response<super::CollectionOperationResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/qdrant.Collections/Delete",
-            );
+            let path = http::uri::PathAndQuery::from_static("/qdrant.Collections/Delete");
             self.inner.unary(request.into_request(), path, codec).await
         }
         ///
@@ -827,19 +803,14 @@ pub mod collections_client {
             &mut self,
             request: impl tonic::IntoRequest<super::ChangeAliases>,
         ) -> Result<tonic::Response<super::CollectionOperationResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/qdrant.Collections/UpdateAliases",
-            );
+            let path = http::uri::PathAndQuery::from_static("/qdrant.Collections/UpdateAliases");
             self.inner.unary(request.into_request(), path, codec).await
         }
         ///
@@ -848,19 +819,15 @@ pub mod collections_client {
             &mut self,
             request: impl tonic::IntoRequest<super::ListCollectionAliasesRequest>,
         ) -> Result<tonic::Response<super::ListAliasesResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/qdrant.Collections/ListCollectionAliases",
-            );
+            let path =
+                http::uri::PathAndQuery::from_static("/qdrant.Collections/ListCollectionAliases");
             self.inner.unary(request.into_request(), path, codec).await
         }
         ///
@@ -869,19 +836,14 @@ pub mod collections_client {
             &mut self,
             request: impl tonic::IntoRequest<super::ListAliasesRequest>,
         ) -> Result<tonic::Response<super::ListAliasesResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/qdrant.Collections/ListAliases",
-            );
+            let path = http::uri::PathAndQuery::from_static("/qdrant.Collections/ListAliases");
             self.inner.unary(request.into_request(), path, codec).await
         }
     }
@@ -961,10 +923,7 @@ pub mod collections_server {
                 send_compression_encodings: Default::default(),
             }
         }
-        pub fn with_interceptor<F>(
-            inner: T,
-            interceptor: F,
-        ) -> InterceptedService<Self, F>
+        pub fn with_interceptor<F>(inner: T, interceptor: F) -> InterceptedService<Self, F>
         where
             F: tonic::service::Interceptor,
         {
@@ -992,10 +951,7 @@ pub mod collections_server {
         type Response = http::Response<tonic::body::BoxBody>;
         type Error = std::convert::Infallible;
         type Future = BoxFuture<Self::Response, Self::Error>;
-        fn poll_ready(
-            &mut self,
-            _cx: &mut Context<'_>,
-        ) -> Poll<Result<(), Self::Error>> {
+        fn poll_ready(&mut self, _cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
             Poll::Ready(Ok(()))
         }
         fn call(&mut self, req: http::Request<B>) -> Self::Future {
@@ -1004,15 +960,11 @@ pub mod collections_server {
                 "/qdrant.Collections/Get" => {
                     #[allow(non_camel_case_types)]
                     struct GetSvc<T: Collections>(pub Arc<T>);
-                    impl<
-                        T: Collections,
-                    > tonic::server::UnaryService<super::GetCollectionInfoRequest>
-                    for GetSvc<T> {
+                    impl<T: Collections>
+                        tonic::server::UnaryService<super::GetCollectionInfoRequest> for GetSvc<T>
+                    {
                         type Response = super::GetCollectionInfoResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::GetCollectionInfoRequest>,
@@ -1029,11 +981,10 @@ pub mod collections_server {
                         let inner = inner.0;
                         let method = GetSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -1042,15 +993,9 @@ pub mod collections_server {
                 "/qdrant.Collections/List" => {
                     #[allow(non_camel_case_types)]
                     struct ListSvc<T: Collections>(pub Arc<T>);
-                    impl<
-                        T: Collections,
-                    > tonic::server::UnaryService<super::ListCollectionsRequest>
-                    for ListSvc<T> {
+                    impl<T: Collections> tonic::server::UnaryService<super::ListCollectionsRequest> for ListSvc<T> {
                         type Response = super::ListCollectionsResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::ListCollectionsRequest>,
@@ -1067,11 +1012,10 @@ pub mod collections_server {
                         let inner = inner.0;
                         let method = ListSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -1080,15 +1024,9 @@ pub mod collections_server {
                 "/qdrant.Collections/Create" => {
                     #[allow(non_camel_case_types)]
                     struct CreateSvc<T: Collections>(pub Arc<T>);
-                    impl<
-                        T: Collections,
-                    > tonic::server::UnaryService<super::CreateCollection>
-                    for CreateSvc<T> {
+                    impl<T: Collections> tonic::server::UnaryService<super::CreateCollection> for CreateSvc<T> {
                         type Response = super::CollectionOperationResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::CreateCollection>,
@@ -1105,11 +1043,10 @@ pub mod collections_server {
                         let inner = inner.0;
                         let method = CreateSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -1118,15 +1055,9 @@ pub mod collections_server {
                 "/qdrant.Collections/Update" => {
                     #[allow(non_camel_case_types)]
                     struct UpdateSvc<T: Collections>(pub Arc<T>);
-                    impl<
-                        T: Collections,
-                    > tonic::server::UnaryService<super::UpdateCollection>
-                    for UpdateSvc<T> {
+                    impl<T: Collections> tonic::server::UnaryService<super::UpdateCollection> for UpdateSvc<T> {
                         type Response = super::CollectionOperationResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::UpdateCollection>,
@@ -1143,11 +1074,10 @@ pub mod collections_server {
                         let inner = inner.0;
                         let method = UpdateSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -1156,15 +1086,9 @@ pub mod collections_server {
                 "/qdrant.Collections/Delete" => {
                     #[allow(non_camel_case_types)]
                     struct DeleteSvc<T: Collections>(pub Arc<T>);
-                    impl<
-                        T: Collections,
-                    > tonic::server::UnaryService<super::DeleteCollection>
-                    for DeleteSvc<T> {
+                    impl<T: Collections> tonic::server::UnaryService<super::DeleteCollection> for DeleteSvc<T> {
                         type Response = super::CollectionOperationResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::DeleteCollection>,
@@ -1181,11 +1105,10 @@ pub mod collections_server {
                         let inner = inner.0;
                         let method = DeleteSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -1194,23 +1117,15 @@ pub mod collections_server {
                 "/qdrant.Collections/UpdateAliases" => {
                     #[allow(non_camel_case_types)]
                     struct UpdateAliasesSvc<T: Collections>(pub Arc<T>);
-                    impl<
-                        T: Collections,
-                    > tonic::server::UnaryService<super::ChangeAliases>
-                    for UpdateAliasesSvc<T> {
+                    impl<T: Collections> tonic::server::UnaryService<super::ChangeAliases> for UpdateAliasesSvc<T> {
                         type Response = super::CollectionOperationResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::ChangeAliases>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move {
-                                (*inner).update_aliases(request).await
-                            };
+                            let fut = async move { (*inner).update_aliases(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -1221,11 +1136,10 @@ pub mod collections_server {
                         let inner = inner.0;
                         let method = UpdateAliasesSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -1234,23 +1148,19 @@ pub mod collections_server {
                 "/qdrant.Collections/ListCollectionAliases" => {
                     #[allow(non_camel_case_types)]
                     struct ListCollectionAliasesSvc<T: Collections>(pub Arc<T>);
-                    impl<
-                        T: Collections,
-                    > tonic::server::UnaryService<super::ListCollectionAliasesRequest>
-                    for ListCollectionAliasesSvc<T> {
+                    impl<T: Collections>
+                        tonic::server::UnaryService<super::ListCollectionAliasesRequest>
+                        for ListCollectionAliasesSvc<T>
+                    {
                         type Response = super::ListAliasesResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::ListCollectionAliasesRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move {
-                                (*inner).list_collection_aliases(request).await
-                            };
+                            let fut =
+                                async move { (*inner).list_collection_aliases(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -1261,11 +1171,10 @@ pub mod collections_server {
                         let inner = inner.0;
                         let method = ListCollectionAliasesSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -1274,23 +1183,15 @@ pub mod collections_server {
                 "/qdrant.Collections/ListAliases" => {
                     #[allow(non_camel_case_types)]
                     struct ListAliasesSvc<T: Collections>(pub Arc<T>);
-                    impl<
-                        T: Collections,
-                    > tonic::server::UnaryService<super::ListAliasesRequest>
-                    for ListAliasesSvc<T> {
+                    impl<T: Collections> tonic::server::UnaryService<super::ListAliasesRequest> for ListAliasesSvc<T> {
                         type Response = super::ListAliasesResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::ListAliasesRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move {
-                                (*inner).list_aliases(request).await
-                            };
+                            let fut = async move { (*inner).list_aliases(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -1301,28 +1202,23 @@ pub mod collections_server {
                         let inner = inner.0;
                         let method = ListAliasesSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
                     Box::pin(fut)
                 }
-                _ => {
-                    Box::pin(async move {
-                        Ok(
-                            http::Response::builder()
-                                .status(200)
-                                .header("grpc-status", "12")
-                                .header("content-type", "application/grpc")
-                                .body(empty_body())
-                                .unwrap(),
-                        )
-                    })
-                }
+                _ => Box::pin(async move {
+                    Ok(http::Response::builder()
+                        .status(200)
+                        .header("grpc-status", "12")
+                        .header("content-type", "application/grpc")
+                        .body(empty_body())
+                        .unwrap())
+                }),
             }
         }
     }
@@ -2192,9 +2088,7 @@ pub struct ValuesCount {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PointsSelector {
     #[prost(oneof = "points_selector::PointsSelectorOneOf", tags = "1, 2")]
-    pub points_selector_one_of: ::core::option::Option<
-        points_selector::PointsSelectorOneOf,
-    >,
+    pub points_selector_one_of: ::core::option::Option<points_selector::PointsSelectorOneOf>,
 }
 /// Nested message and enum types in `PointsSelector`.
 pub mod points_selector {
@@ -2364,8 +2258,8 @@ impl UpdateStatus {
 /// Generated client implementations.
 pub mod points_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
-    use tonic::codegen::*;
     use tonic::codegen::http::Uri;
+    use tonic::codegen::*;
     #[derive(Debug, Clone)]
     pub struct PointsClient<T> {
         inner: tonic::client::Grpc<T>,
@@ -2409,9 +2303,8 @@ pub mod points_client {
                     <T as tonic::client::GrpcService<tonic::body::BoxBody>>::ResponseBody,
                 >,
             >,
-            <T as tonic::codegen::Service<
-                http::Request<tonic::body::BoxBody>,
-            >>::Error: Into<StdError> + Send + Sync,
+            <T as tonic::codegen::Service<http::Request<tonic::body::BoxBody>>>::Error:
+                Into<StdError> + Send + Sync,
         {
             PointsClient::new(InterceptedService::new(inner, interceptor))
         }
@@ -2436,15 +2329,12 @@ pub mod points_client {
             &mut self,
             request: impl tonic::IntoRequest<super::UpsertPoints>,
         ) -> Result<tonic::Response<super::PointsOperationResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Points/Upsert");
             self.inner.unary(request.into_request(), path, codec).await
@@ -2455,15 +2345,12 @@ pub mod points_client {
             &mut self,
             request: impl tonic::IntoRequest<super::DeletePoints>,
         ) -> Result<tonic::Response<super::PointsOperationResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Points/Delete");
             self.inner.unary(request.into_request(), path, codec).await
@@ -2474,15 +2361,12 @@ pub mod points_client {
             &mut self,
             request: impl tonic::IntoRequest<super::GetPoints>,
         ) -> Result<tonic::Response<super::GetResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Points/Get");
             self.inner.unary(request.into_request(), path, codec).await
@@ -2493,15 +2377,12 @@ pub mod points_client {
             &mut self,
             request: impl tonic::IntoRequest<super::SetPayloadPoints>,
         ) -> Result<tonic::Response<super::PointsOperationResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Points/SetPayload");
             self.inner.unary(request.into_request(), path, codec).await
@@ -2512,19 +2393,14 @@ pub mod points_client {
             &mut self,
             request: impl tonic::IntoRequest<super::SetPayloadPoints>,
         ) -> Result<tonic::Response<super::PointsOperationResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/qdrant.Points/OverwritePayload",
-            );
+            let path = http::uri::PathAndQuery::from_static("/qdrant.Points/OverwritePayload");
             self.inner.unary(request.into_request(), path, codec).await
         }
         ///
@@ -2533,19 +2409,14 @@ pub mod points_client {
             &mut self,
             request: impl tonic::IntoRequest<super::DeletePayloadPoints>,
         ) -> Result<tonic::Response<super::PointsOperationResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/qdrant.Points/DeletePayload",
-            );
+            let path = http::uri::PathAndQuery::from_static("/qdrant.Points/DeletePayload");
             self.inner.unary(request.into_request(), path, codec).await
         }
         ///
@@ -2554,19 +2425,14 @@ pub mod points_client {
             &mut self,
             request: impl tonic::IntoRequest<super::ClearPayloadPoints>,
         ) -> Result<tonic::Response<super::PointsOperationResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/qdrant.Points/ClearPayload",
-            );
+            let path = http::uri::PathAndQuery::from_static("/qdrant.Points/ClearPayload");
             self.inner.unary(request.into_request(), path, codec).await
         }
         ///
@@ -2575,19 +2441,14 @@ pub mod points_client {
             &mut self,
             request: impl tonic::IntoRequest<super::CreateFieldIndexCollection>,
         ) -> Result<tonic::Response<super::PointsOperationResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/qdrant.Points/CreateFieldIndex",
-            );
+            let path = http::uri::PathAndQuery::from_static("/qdrant.Points/CreateFieldIndex");
             self.inner.unary(request.into_request(), path, codec).await
         }
         ///
@@ -2596,19 +2457,14 @@ pub mod points_client {
             &mut self,
             request: impl tonic::IntoRequest<super::DeleteFieldIndexCollection>,
         ) -> Result<tonic::Response<super::PointsOperationResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/qdrant.Points/DeleteFieldIndex",
-            );
+            let path = http::uri::PathAndQuery::from_static("/qdrant.Points/DeleteFieldIndex");
             self.inner.unary(request.into_request(), path, codec).await
         }
         ///
@@ -2617,15 +2473,12 @@ pub mod points_client {
             &mut self,
             request: impl tonic::IntoRequest<super::SearchPoints>,
         ) -> Result<tonic::Response<super::SearchResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Points/Search");
             self.inner.unary(request.into_request(), path, codec).await
@@ -2636,19 +2489,14 @@ pub mod points_client {
             &mut self,
             request: impl tonic::IntoRequest<super::SearchBatchPoints>,
         ) -> Result<tonic::Response<super::SearchBatchResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/qdrant.Points/SearchBatch",
-            );
+            let path = http::uri::PathAndQuery::from_static("/qdrant.Points/SearchBatch");
             self.inner.unary(request.into_request(), path, codec).await
         }
         ///
@@ -2657,15 +2505,12 @@ pub mod points_client {
             &mut self,
             request: impl tonic::IntoRequest<super::ScrollPoints>,
         ) -> Result<tonic::Response<super::ScrollResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Points/Scroll");
             self.inner.unary(request.into_request(), path, codec).await
@@ -2676,15 +2521,12 @@ pub mod points_client {
             &mut self,
             request: impl tonic::IntoRequest<super::RecommendPoints>,
         ) -> Result<tonic::Response<super::RecommendResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Points/Recommend");
             self.inner.unary(request.into_request(), path, codec).await
@@ -2695,19 +2537,14 @@ pub mod points_client {
             &mut self,
             request: impl tonic::IntoRequest<super::RecommendBatchPoints>,
         ) -> Result<tonic::Response<super::RecommendBatchResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/qdrant.Points/RecommendBatch",
-            );
+            let path = http::uri::PathAndQuery::from_static("/qdrant.Points/RecommendBatch");
             self.inner.unary(request.into_request(), path, codec).await
         }
         ///
@@ -2716,15 +2553,12 @@ pub mod points_client {
             &mut self,
             request: impl tonic::IntoRequest<super::CountPoints>,
         ) -> Result<tonic::Response<super::CountResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Points/Count");
             self.inner.unary(request.into_request(), path, codec).await
@@ -2848,10 +2682,7 @@ pub mod points_server {
                 send_compression_encodings: Default::default(),
             }
         }
-        pub fn with_interceptor<F>(
-            inner: T,
-            interceptor: F,
-        ) -> InterceptedService<Self, F>
+        pub fn with_interceptor<F>(inner: T, interceptor: F) -> InterceptedService<Self, F>
         where
             F: tonic::service::Interceptor,
         {
@@ -2879,10 +2710,7 @@ pub mod points_server {
         type Response = http::Response<tonic::body::BoxBody>;
         type Error = std::convert::Infallible;
         type Future = BoxFuture<Self::Response, Self::Error>;
-        fn poll_ready(
-            &mut self,
-            _cx: &mut Context<'_>,
-        ) -> Poll<Result<(), Self::Error>> {
+        fn poll_ready(&mut self, _cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
             Poll::Ready(Ok(()))
         }
         fn call(&mut self, req: http::Request<B>) -> Self::Future {
@@ -2891,13 +2719,9 @@ pub mod points_server {
                 "/qdrant.Points/Upsert" => {
                     #[allow(non_camel_case_types)]
                     struct UpsertSvc<T: Points>(pub Arc<T>);
-                    impl<T: Points> tonic::server::UnaryService<super::UpsertPoints>
-                    for UpsertSvc<T> {
+                    impl<T: Points> tonic::server::UnaryService<super::UpsertPoints> for UpsertSvc<T> {
                         type Response = super::PointsOperationResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::UpsertPoints>,
@@ -2914,11 +2738,10 @@ pub mod points_server {
                         let inner = inner.0;
                         let method = UpsertSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -2927,13 +2750,9 @@ pub mod points_server {
                 "/qdrant.Points/Delete" => {
                     #[allow(non_camel_case_types)]
                     struct DeleteSvc<T: Points>(pub Arc<T>);
-                    impl<T: Points> tonic::server::UnaryService<super::DeletePoints>
-                    for DeleteSvc<T> {
+                    impl<T: Points> tonic::server::UnaryService<super::DeletePoints> for DeleteSvc<T> {
                         type Response = super::PointsOperationResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::DeletePoints>,
@@ -2950,11 +2769,10 @@ pub mod points_server {
                         let inner = inner.0;
                         let method = DeleteSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -2963,13 +2781,9 @@ pub mod points_server {
                 "/qdrant.Points/Get" => {
                     #[allow(non_camel_case_types)]
                     struct GetSvc<T: Points>(pub Arc<T>);
-                    impl<T: Points> tonic::server::UnaryService<super::GetPoints>
-                    for GetSvc<T> {
+                    impl<T: Points> tonic::server::UnaryService<super::GetPoints> for GetSvc<T> {
                         type Response = super::GetResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::GetPoints>,
@@ -2986,11 +2800,10 @@ pub mod points_server {
                         let inner = inner.0;
                         let method = GetSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -2999,13 +2812,9 @@ pub mod points_server {
                 "/qdrant.Points/SetPayload" => {
                     #[allow(non_camel_case_types)]
                     struct SetPayloadSvc<T: Points>(pub Arc<T>);
-                    impl<T: Points> tonic::server::UnaryService<super::SetPayloadPoints>
-                    for SetPayloadSvc<T> {
+                    impl<T: Points> tonic::server::UnaryService<super::SetPayloadPoints> for SetPayloadSvc<T> {
                         type Response = super::PointsOperationResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::SetPayloadPoints>,
@@ -3022,11 +2831,10 @@ pub mod points_server {
                         let inner = inner.0;
                         let method = SetPayloadSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -3035,21 +2843,15 @@ pub mod points_server {
                 "/qdrant.Points/OverwritePayload" => {
                     #[allow(non_camel_case_types)]
                     struct OverwritePayloadSvc<T: Points>(pub Arc<T>);
-                    impl<T: Points> tonic::server::UnaryService<super::SetPayloadPoints>
-                    for OverwritePayloadSvc<T> {
+                    impl<T: Points> tonic::server::UnaryService<super::SetPayloadPoints> for OverwritePayloadSvc<T> {
                         type Response = super::PointsOperationResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::SetPayloadPoints>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move {
-                                (*inner).overwrite_payload(request).await
-                            };
+                            let fut = async move { (*inner).overwrite_payload(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -3060,11 +2862,10 @@ pub mod points_server {
                         let inner = inner.0;
                         let method = OverwritePayloadSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -3073,23 +2874,15 @@ pub mod points_server {
                 "/qdrant.Points/DeletePayload" => {
                     #[allow(non_camel_case_types)]
                     struct DeletePayloadSvc<T: Points>(pub Arc<T>);
-                    impl<
-                        T: Points,
-                    > tonic::server::UnaryService<super::DeletePayloadPoints>
-                    for DeletePayloadSvc<T> {
+                    impl<T: Points> tonic::server::UnaryService<super::DeletePayloadPoints> for DeletePayloadSvc<T> {
                         type Response = super::PointsOperationResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::DeletePayloadPoints>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move {
-                                (*inner).delete_payload(request).await
-                            };
+                            let fut = async move { (*inner).delete_payload(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -3100,11 +2893,10 @@ pub mod points_server {
                         let inner = inner.0;
                         let method = DeletePayloadSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -3113,23 +2905,15 @@ pub mod points_server {
                 "/qdrant.Points/ClearPayload" => {
                     #[allow(non_camel_case_types)]
                     struct ClearPayloadSvc<T: Points>(pub Arc<T>);
-                    impl<
-                        T: Points,
-                    > tonic::server::UnaryService<super::ClearPayloadPoints>
-                    for ClearPayloadSvc<T> {
+                    impl<T: Points> tonic::server::UnaryService<super::ClearPayloadPoints> for ClearPayloadSvc<T> {
                         type Response = super::PointsOperationResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::ClearPayloadPoints>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move {
-                                (*inner).clear_payload(request).await
-                            };
+                            let fut = async move { (*inner).clear_payload(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -3140,11 +2924,10 @@ pub mod points_server {
                         let inner = inner.0;
                         let method = ClearPayloadSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -3153,23 +2936,17 @@ pub mod points_server {
                 "/qdrant.Points/CreateFieldIndex" => {
                     #[allow(non_camel_case_types)]
                     struct CreateFieldIndexSvc<T: Points>(pub Arc<T>);
-                    impl<
-                        T: Points,
-                    > tonic::server::UnaryService<super::CreateFieldIndexCollection>
-                    for CreateFieldIndexSvc<T> {
+                    impl<T: Points> tonic::server::UnaryService<super::CreateFieldIndexCollection>
+                        for CreateFieldIndexSvc<T>
+                    {
                         type Response = super::PointsOperationResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::CreateFieldIndexCollection>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move {
-                                (*inner).create_field_index(request).await
-                            };
+                            let fut = async move { (*inner).create_field_index(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -3180,11 +2957,10 @@ pub mod points_server {
                         let inner = inner.0;
                         let method = CreateFieldIndexSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -3193,23 +2969,17 @@ pub mod points_server {
                 "/qdrant.Points/DeleteFieldIndex" => {
                     #[allow(non_camel_case_types)]
                     struct DeleteFieldIndexSvc<T: Points>(pub Arc<T>);
-                    impl<
-                        T: Points,
-                    > tonic::server::UnaryService<super::DeleteFieldIndexCollection>
-                    for DeleteFieldIndexSvc<T> {
+                    impl<T: Points> tonic::server::UnaryService<super::DeleteFieldIndexCollection>
+                        for DeleteFieldIndexSvc<T>
+                    {
                         type Response = super::PointsOperationResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::DeleteFieldIndexCollection>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move {
-                                (*inner).delete_field_index(request).await
-                            };
+                            let fut = async move { (*inner).delete_field_index(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -3220,11 +2990,10 @@ pub mod points_server {
                         let inner = inner.0;
                         let method = DeleteFieldIndexSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -3233,13 +3002,9 @@ pub mod points_server {
                 "/qdrant.Points/Search" => {
                     #[allow(non_camel_case_types)]
                     struct SearchSvc<T: Points>(pub Arc<T>);
-                    impl<T: Points> tonic::server::UnaryService<super::SearchPoints>
-                    for SearchSvc<T> {
+                    impl<T: Points> tonic::server::UnaryService<super::SearchPoints> for SearchSvc<T> {
                         type Response = super::SearchResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::SearchPoints>,
@@ -3256,11 +3021,10 @@ pub mod points_server {
                         let inner = inner.0;
                         let method = SearchSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -3269,21 +3033,15 @@ pub mod points_server {
                 "/qdrant.Points/SearchBatch" => {
                     #[allow(non_camel_case_types)]
                     struct SearchBatchSvc<T: Points>(pub Arc<T>);
-                    impl<T: Points> tonic::server::UnaryService<super::SearchBatchPoints>
-                    for SearchBatchSvc<T> {
+                    impl<T: Points> tonic::server::UnaryService<super::SearchBatchPoints> for SearchBatchSvc<T> {
                         type Response = super::SearchBatchResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::SearchBatchPoints>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move {
-                                (*inner).search_batch(request).await
-                            };
+                            let fut = async move { (*inner).search_batch(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -3294,11 +3052,10 @@ pub mod points_server {
                         let inner = inner.0;
                         let method = SearchBatchSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -3307,13 +3064,9 @@ pub mod points_server {
                 "/qdrant.Points/Scroll" => {
                     #[allow(non_camel_case_types)]
                     struct ScrollSvc<T: Points>(pub Arc<T>);
-                    impl<T: Points> tonic::server::UnaryService<super::ScrollPoints>
-                    for ScrollSvc<T> {
+                    impl<T: Points> tonic::server::UnaryService<super::ScrollPoints> for ScrollSvc<T> {
                         type Response = super::ScrollResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::ScrollPoints>,
@@ -3330,11 +3083,10 @@ pub mod points_server {
                         let inner = inner.0;
                         let method = ScrollSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -3343,13 +3095,9 @@ pub mod points_server {
                 "/qdrant.Points/Recommend" => {
                     #[allow(non_camel_case_types)]
                     struct RecommendSvc<T: Points>(pub Arc<T>);
-                    impl<T: Points> tonic::server::UnaryService<super::RecommendPoints>
-                    for RecommendSvc<T> {
+                    impl<T: Points> tonic::server::UnaryService<super::RecommendPoints> for RecommendSvc<T> {
                         type Response = super::RecommendResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::RecommendPoints>,
@@ -3366,11 +3114,10 @@ pub mod points_server {
                         let inner = inner.0;
                         let method = RecommendSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -3379,23 +3126,15 @@ pub mod points_server {
                 "/qdrant.Points/RecommendBatch" => {
                     #[allow(non_camel_case_types)]
                     struct RecommendBatchSvc<T: Points>(pub Arc<T>);
-                    impl<
-                        T: Points,
-                    > tonic::server::UnaryService<super::RecommendBatchPoints>
-                    for RecommendBatchSvc<T> {
+                    impl<T: Points> tonic::server::UnaryService<super::RecommendBatchPoints> for RecommendBatchSvc<T> {
                         type Response = super::RecommendBatchResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::RecommendBatchPoints>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move {
-                                (*inner).recommend_batch(request).await
-                            };
+                            let fut = async move { (*inner).recommend_batch(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -3406,11 +3145,10 @@ pub mod points_server {
                         let inner = inner.0;
                         let method = RecommendBatchSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -3419,13 +3157,9 @@ pub mod points_server {
                 "/qdrant.Points/Count" => {
                     #[allow(non_camel_case_types)]
                     struct CountSvc<T: Points>(pub Arc<T>);
-                    impl<T: Points> tonic::server::UnaryService<super::CountPoints>
-                    for CountSvc<T> {
+                    impl<T: Points> tonic::server::UnaryService<super::CountPoints> for CountSvc<T> {
                         type Response = super::CountResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::CountPoints>,
@@ -3442,28 +3176,23 @@ pub mod points_server {
                         let inner = inner.0;
                         let method = CountSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
                     Box::pin(fut)
                 }
-                _ => {
-                    Box::pin(async move {
-                        Ok(
-                            http::Response::builder()
-                                .status(200)
-                                .header("grpc-status", "12")
-                                .header("content-type", "application/grpc")
-                                .body(empty_body())
-                                .unwrap(),
-                        )
-                    })
-                }
+                _ => Box::pin(async move {
+                    Ok(http::Response::builder()
+                        .status(200)
+                        .header("grpc-status", "12")
+                        .header("content-type", "application/grpc")
+                        .body(empty_body())
+                        .unwrap())
+                }),
             }
         }
     }
@@ -3569,8 +3298,8 @@ pub struct DeleteSnapshotResponse {
 /// Generated client implementations.
 pub mod snapshots_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
-    use tonic::codegen::*;
     use tonic::codegen::http::Uri;
+    use tonic::codegen::*;
     #[derive(Debug, Clone)]
     pub struct SnapshotsClient<T> {
         inner: tonic::client::Grpc<T>,
@@ -3614,9 +3343,8 @@ pub mod snapshots_client {
                     <T as tonic::client::GrpcService<tonic::body::BoxBody>>::ResponseBody,
                 >,
             >,
-            <T as tonic::codegen::Service<
-                http::Request<tonic::body::BoxBody>,
-            >>::Error: Into<StdError> + Send + Sync,
+            <T as tonic::codegen::Service<http::Request<tonic::body::BoxBody>>>::Error:
+                Into<StdError> + Send + Sync,
         {
             SnapshotsClient::new(InterceptedService::new(inner, interceptor))
         }
@@ -3641,15 +3369,12 @@ pub mod snapshots_client {
             &mut self,
             request: impl tonic::IntoRequest<super::CreateSnapshotRequest>,
         ) -> Result<tonic::Response<super::CreateSnapshotResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Snapshots/Create");
             self.inner.unary(request.into_request(), path, codec).await
@@ -3660,15 +3385,12 @@ pub mod snapshots_client {
             &mut self,
             request: impl tonic::IntoRequest<super::ListSnapshotsRequest>,
         ) -> Result<tonic::Response<super::ListSnapshotsResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Snapshots/List");
             self.inner.unary(request.into_request(), path, codec).await
@@ -3679,15 +3401,12 @@ pub mod snapshots_client {
             &mut self,
             request: impl tonic::IntoRequest<super::DeleteSnapshotRequest>,
         ) -> Result<tonic::Response<super::DeleteSnapshotResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Snapshots/Delete");
             self.inner.unary(request.into_request(), path, codec).await
@@ -3698,19 +3417,14 @@ pub mod snapshots_client {
             &mut self,
             request: impl tonic::IntoRequest<super::CreateFullSnapshotRequest>,
         ) -> Result<tonic::Response<super::CreateSnapshotResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/qdrant.Snapshots/CreateFull",
-            );
+            let path = http::uri::PathAndQuery::from_static("/qdrant.Snapshots/CreateFull");
             self.inner.unary(request.into_request(), path, codec).await
         }
         ///
@@ -3719,19 +3433,14 @@ pub mod snapshots_client {
             &mut self,
             request: impl tonic::IntoRequest<super::ListFullSnapshotsRequest>,
         ) -> Result<tonic::Response<super::ListSnapshotsResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/qdrant.Snapshots/ListFull",
-            );
+            let path = http::uri::PathAndQuery::from_static("/qdrant.Snapshots/ListFull");
             self.inner.unary(request.into_request(), path, codec).await
         }
         ///
@@ -3740,19 +3449,14 @@ pub mod snapshots_client {
             &mut self,
             request: impl tonic::IntoRequest<super::DeleteFullSnapshotRequest>,
         ) -> Result<tonic::Response<super::DeleteSnapshotResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/qdrant.Snapshots/DeleteFull",
-            );
+            let path = http::uri::PathAndQuery::from_static("/qdrant.Snapshots/DeleteFull");
             self.inner.unary(request.into_request(), path, codec).await
         }
     }
@@ -3820,10 +3524,7 @@ pub mod snapshots_server {
                 send_compression_encodings: Default::default(),
             }
         }
-        pub fn with_interceptor<F>(
-            inner: T,
-            interceptor: F,
-        ) -> InterceptedService<Self, F>
+        pub fn with_interceptor<F>(inner: T, interceptor: F) -> InterceptedService<Self, F>
         where
             F: tonic::service::Interceptor,
         {
@@ -3851,10 +3552,7 @@ pub mod snapshots_server {
         type Response = http::Response<tonic::body::BoxBody>;
         type Error = std::convert::Infallible;
         type Future = BoxFuture<Self::Response, Self::Error>;
-        fn poll_ready(
-            &mut self,
-            _cx: &mut Context<'_>,
-        ) -> Poll<Result<(), Self::Error>> {
+        fn poll_ready(&mut self, _cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
             Poll::Ready(Ok(()))
         }
         fn call(&mut self, req: http::Request<B>) -> Self::Future {
@@ -3863,15 +3561,9 @@ pub mod snapshots_server {
                 "/qdrant.Snapshots/Create" => {
                     #[allow(non_camel_case_types)]
                     struct CreateSvc<T: Snapshots>(pub Arc<T>);
-                    impl<
-                        T: Snapshots,
-                    > tonic::server::UnaryService<super::CreateSnapshotRequest>
-                    for CreateSvc<T> {
+                    impl<T: Snapshots> tonic::server::UnaryService<super::CreateSnapshotRequest> for CreateSvc<T> {
                         type Response = super::CreateSnapshotResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::CreateSnapshotRequest>,
@@ -3888,11 +3580,10 @@ pub mod snapshots_server {
                         let inner = inner.0;
                         let method = CreateSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -3901,15 +3592,9 @@ pub mod snapshots_server {
                 "/qdrant.Snapshots/List" => {
                     #[allow(non_camel_case_types)]
                     struct ListSvc<T: Snapshots>(pub Arc<T>);
-                    impl<
-                        T: Snapshots,
-                    > tonic::server::UnaryService<super::ListSnapshotsRequest>
-                    for ListSvc<T> {
+                    impl<T: Snapshots> tonic::server::UnaryService<super::ListSnapshotsRequest> for ListSvc<T> {
                         type Response = super::ListSnapshotsResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::ListSnapshotsRequest>,
@@ -3926,11 +3611,10 @@ pub mod snapshots_server {
                         let inner = inner.0;
                         let method = ListSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -3939,15 +3623,9 @@ pub mod snapshots_server {
                 "/qdrant.Snapshots/Delete" => {
                     #[allow(non_camel_case_types)]
                     struct DeleteSvc<T: Snapshots>(pub Arc<T>);
-                    impl<
-                        T: Snapshots,
-                    > tonic::server::UnaryService<super::DeleteSnapshotRequest>
-                    for DeleteSvc<T> {
+                    impl<T: Snapshots> tonic::server::UnaryService<super::DeleteSnapshotRequest> for DeleteSvc<T> {
                         type Response = super::DeleteSnapshotResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::DeleteSnapshotRequest>,
@@ -3964,11 +3642,10 @@ pub mod snapshots_server {
                         let inner = inner.0;
                         let method = DeleteSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -3977,15 +3654,11 @@ pub mod snapshots_server {
                 "/qdrant.Snapshots/CreateFull" => {
                     #[allow(non_camel_case_types)]
                     struct CreateFullSvc<T: Snapshots>(pub Arc<T>);
-                    impl<
-                        T: Snapshots,
-                    > tonic::server::UnaryService<super::CreateFullSnapshotRequest>
-                    for CreateFullSvc<T> {
+                    impl<T: Snapshots> tonic::server::UnaryService<super::CreateFullSnapshotRequest>
+                        for CreateFullSvc<T>
+                    {
                         type Response = super::CreateSnapshotResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::CreateFullSnapshotRequest>,
@@ -4002,11 +3675,10 @@ pub mod snapshots_server {
                         let inner = inner.0;
                         let method = CreateFullSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -4015,15 +3687,9 @@ pub mod snapshots_server {
                 "/qdrant.Snapshots/ListFull" => {
                     #[allow(non_camel_case_types)]
                     struct ListFullSvc<T: Snapshots>(pub Arc<T>);
-                    impl<
-                        T: Snapshots,
-                    > tonic::server::UnaryService<super::ListFullSnapshotsRequest>
-                    for ListFullSvc<T> {
+                    impl<T: Snapshots> tonic::server::UnaryService<super::ListFullSnapshotsRequest> for ListFullSvc<T> {
                         type Response = super::ListSnapshotsResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::ListFullSnapshotsRequest>,
@@ -4040,11 +3706,10 @@ pub mod snapshots_server {
                         let inner = inner.0;
                         let method = ListFullSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -4053,15 +3718,11 @@ pub mod snapshots_server {
                 "/qdrant.Snapshots/DeleteFull" => {
                     #[allow(non_camel_case_types)]
                     struct DeleteFullSvc<T: Snapshots>(pub Arc<T>);
-                    impl<
-                        T: Snapshots,
-                    > tonic::server::UnaryService<super::DeleteFullSnapshotRequest>
-                    for DeleteFullSvc<T> {
+                    impl<T: Snapshots> tonic::server::UnaryService<super::DeleteFullSnapshotRequest>
+                        for DeleteFullSvc<T>
+                    {
                         type Response = super::DeleteSnapshotResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::DeleteFullSnapshotRequest>,
@@ -4078,28 +3739,23 @@ pub mod snapshots_server {
                         let inner = inner.0;
                         let method = DeleteFullSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
                     Box::pin(fut)
                 }
-                _ => {
-                    Box::pin(async move {
-                        Ok(
-                            http::Response::builder()
-                                .status(200)
-                                .header("grpc-status", "12")
-                                .header("content-type", "application/grpc")
-                                .body(empty_body())
-                                .unwrap(),
-                        )
-                    })
-                }
+                _ => Box::pin(async move {
+                    Ok(http::Response::builder()
+                        .status(200)
+                        .header("grpc-status", "12")
+                        .header("content-type", "application/grpc")
+                        .body(empty_body())
+                        .unwrap())
+                }),
             }
         }
     }
@@ -4141,8 +3797,8 @@ pub struct HealthCheckReply {
 /// Generated client implementations.
 pub mod qdrant_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
-    use tonic::codegen::*;
     use tonic::codegen::http::Uri;
+    use tonic::codegen::*;
     #[derive(Debug, Clone)]
     pub struct QdrantClient<T> {
         inner: tonic::client::Grpc<T>,
@@ -4186,9 +3842,8 @@ pub mod qdrant_client {
                     <T as tonic::client::GrpcService<tonic::body::BoxBody>>::ResponseBody,
                 >,
             >,
-            <T as tonic::codegen::Service<
-                http::Request<tonic::body::BoxBody>,
-            >>::Error: Into<StdError> + Send + Sync,
+            <T as tonic::codegen::Service<http::Request<tonic::body::BoxBody>>>::Error:
+                Into<StdError> + Send + Sync,
         {
             QdrantClient::new(InterceptedService::new(inner, interceptor))
         }
@@ -4211,19 +3866,14 @@ pub mod qdrant_client {
             &mut self,
             request: impl tonic::IntoRequest<super::HealthCheckRequest>,
         ) -> Result<tonic::Response<super::HealthCheckReply>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/qdrant.Qdrant/HealthCheck",
-            );
+            let path = http::uri::PathAndQuery::from_static("/qdrant.Qdrant/HealthCheck");
             self.inner.unary(request.into_request(), path, codec).await
         }
     }
@@ -4259,10 +3909,7 @@ pub mod qdrant_server {
                 send_compression_encodings: Default::default(),
             }
         }
-        pub fn with_interceptor<F>(
-            inner: T,
-            interceptor: F,
-        ) -> InterceptedService<Self, F>
+        pub fn with_interceptor<F>(inner: T, interceptor: F) -> InterceptedService<Self, F>
         where
             F: tonic::service::Interceptor,
         {
@@ -4290,10 +3937,7 @@ pub mod qdrant_server {
         type Response = http::Response<tonic::body::BoxBody>;
         type Error = std::convert::Infallible;
         type Future = BoxFuture<Self::Response, Self::Error>;
-        fn poll_ready(
-            &mut self,
-            _cx: &mut Context<'_>,
-        ) -> Poll<Result<(), Self::Error>> {
+        fn poll_ready(&mut self, _cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
             Poll::Ready(Ok(()))
         }
         fn call(&mut self, req: http::Request<B>) -> Self::Future {
@@ -4302,23 +3946,15 @@ pub mod qdrant_server {
                 "/qdrant.Qdrant/HealthCheck" => {
                     #[allow(non_camel_case_types)]
                     struct HealthCheckSvc<T: Qdrant>(pub Arc<T>);
-                    impl<
-                        T: Qdrant,
-                    > tonic::server::UnaryService<super::HealthCheckRequest>
-                    for HealthCheckSvc<T> {
+                    impl<T: Qdrant> tonic::server::UnaryService<super::HealthCheckRequest> for HealthCheckSvc<T> {
                         type Response = super::HealthCheckReply;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::HealthCheckRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move {
-                                (*inner).health_check(request).await
-                            };
+                            let fut = async move { (*inner).health_check(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -4329,28 +3965,23 @@ pub mod qdrant_server {
                         let inner = inner.0;
                         let method = HealthCheckSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
                     Box::pin(fut)
                 }
-                _ => {
-                    Box::pin(async move {
-                        Ok(
-                            http::Response::builder()
-                                .status(200)
-                                .header("grpc-status", "12")
-                                .header("content-type", "application/grpc")
-                                .body(empty_body())
-                                .unwrap(),
-                        )
-                    })
-                }
+                _ => Box::pin(async move {
+                    Ok(http::Response::builder()
+                        .status(200)
+                        .header("grpc-status", "12")
+                        .header("content-type", "application/grpc")
+                        .body(empty_body())
+                        .unwrap())
+                }),
             }
         }
     }
