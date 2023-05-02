@@ -20,10 +20,8 @@ anyhow = "1"
 reqwest = { version = "0.11.16", optional = true, features = ["stream"] }
 futures-util = { version = "0.3.28", optional = true }
 
-[build-dependencies]
-tonic-build = { version = "0.8.4", features = ["prost"] }
-
 [dev-dependencies]
+tonic-build = { version = "0.8.4", features = ["prost"] }
 tokio = { version = "1.27.0", features = ["rt-multi-thread"] }
 
 [features]
