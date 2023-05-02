@@ -13,9 +13,9 @@ readme = "README.md"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-tonic = { version = "0.8.3", features = ["tls", "tls-roots"] }
-prost = "0.11.8"
-prost-types = "0.11.8"
+tonic = { version = "0.9.2", features = ["tls", "tls-roots"] }
+prost = "0.11.9"
+prost-types = "0.11.9"
 anyhow = "1"
 
 # If you don't want to have serde as a dependency, please consider contributing a feature flag
@@ -25,7 +25,7 @@ reqwest = { version = "0.11.16", optional = true, features = ["stream"] }
 futures-util = { version = "0.3.28", optional = true }
 
 [dev-dependencies]
-tonic-build = { version = "0.8.4", features = ["prost"] }
+tonic-build = { version = "0.9.2", features = ["prost"] }
 tokio = { version = "1.27.0", features = ["rt-multi-thread"] }
 
 [features]
