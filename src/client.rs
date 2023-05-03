@@ -544,7 +544,7 @@ impl QdrantClient {
     async fn _upsert_points(
         &self,
         collection_name: impl ToString,
-        points: &Vec<PointStruct>,
+        points: &[PointStruct],
         block: bool,
         ordering: Option<WriteOrdering>,
     ) -> Result<PointsOperationResponse> {
@@ -558,7 +558,7 @@ impl QdrantClient {
                     .upsert(UpsertPoints {
                         collection_name: collection_name_ref.to_string(),
                         wait: Some(block),
-                        points: points.clone(),
+                        points: points.to_owned(),
                         ordering: ordering_ref.cloned(),
                     })
                     .await?;
@@ -696,7 +696,7 @@ impl QdrantClient {
         &self,
         collection_name: impl ToString,
         points: &PointsSelector,
-        keys: &Vec<String>,
+        keys: &[String],
         block: bool,
         ordering: Option<WriteOrdering>,
     ) -> Result<PointsOperationResponse> {
@@ -710,7 +710,7 @@ impl QdrantClient {
                     .delete_payload(DeletePayloadPoints {
                         collection_name: collection_name_ref.to_string(),
                         wait: Some(block),
-                        keys: keys.clone(),
+                        keys: keys.to_owned(),
                         points_selector: Some(points.clone()),
                         ordering: ordering_ref.cloned(),
                     })
@@ -770,7 +770,7 @@ impl QdrantClient {
     pub async fn get_points(
         &self,
         collection_name: impl ToString,
-        points: &Vec<PointId>,
+        points: &[PointId],
         with_vectors: Option<impl Into<WithVectorsSelector>>,
         with_payload: Option<impl Into<WithPayloadSelector>>,
         read_consistency: Option<ReadConsistency>,
@@ -790,7 +790,7 @@ impl QdrantClient {
                 let result = points_api
                     .get(GetPoints {
                         collection_name: collection_name_ref.to_string(),
-                        ids: points.clone(),
+                        ids: points.to_owned(),
                         with_payload: with_payload_ref.cloned(),
                         with_vectors: with_vectors_ref.cloned(),
                         read_consistency: read_consistency_ref.cloned(),
