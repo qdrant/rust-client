@@ -25,7 +25,7 @@ Package is available in [crates.io](https://crates.io/crates/qdrant-client)
 
 The client uses gRPC via the [Tonic](https://github.com/hyperium/tonic) library.
 
-In order to build `tonic` >= 0.8.0, you need the `protoc` Protocol Buffers compiler, along with Protocol Buffers resource files.
+To change anything in the protocol buffer definitions, you need the `protoc` Protocol Buffers compiler, along with Protocol Buffers resource files.
 
 Refer to the [Tonic installation guide](https://github.com/hyperium/tonic#dependencies) for more details.
 
