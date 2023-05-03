@@ -6,7 +6,7 @@ fn timestamp(f: impl AsRef<std::path::Path>) -> std::time::SystemTime {
 fn protos() {
     let out_time = timestamp("src/qdrant.rs");
     let mut protos = std::fs::read_dir("proto").unwrap();
-    if protos.any(|d| timestamp(&d.unwrap().path()) > out_time) {
+    if protos.any(|d| timestamp(d.unwrap().path()) > out_time) {
         tonic_build::configure()
             .out_dir("src/") // saves generated structures at this location
             .compile(
