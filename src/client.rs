@@ -228,6 +228,12 @@ pub struct QdrantClient {
 }
 
 impl QdrantClient {
+    /// Wraps a channel with a token interceptor
+    fn with_api_key(&self, channel: Channel) -> InterceptedService<Channel, TokenInterceptor> {
+        let interceptor = TokenInterceptor::new(self.cfg.api_key.clone());
+        InterceptedService::new(channel, interceptor)
+    }
+
     pub async fn with_snapshot_client<T, O: Future<Output = Result<T, Status>>>(
         &self,
         f: impl Fn(SnapshotsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
@@ -235,10 +241,10 @@ impl QdrantClient {
         self.channel
             .with_channel(
                 |channel| {
-                    f(SnapshotsClient::with_interceptor(
-                        channel,
-                        TokenInterceptor::new(self.cfg.api_key.clone()),
-                    ))
+                    let service = self.with_api_key(channel);
+                    let client = SnapshotsClient::new(service);
+                    let client = client.max_decoding_message_size(usize::MAX);
+                    f(client)
                 },
                 false,
             )
@@ -253,10 +259,10 @@ impl QdrantClient {
         self.channel
             .with_channel(
                 |channel| {
-                    f(CollectionsClient::with_interceptor(
-                        channel,
-                        TokenInterceptor::new(self.cfg.api_key.clone()),
-                    ))
+                    let service = self.with_api_key(channel);
+                    let client = CollectionsClient::new(service);
+                    let client = client.max_decoding_message_size(usize::MAX);
+                    f(client)
                 },
                 false,
             )
@@ -271,10 +277,10 @@ impl QdrantClient {
         self.channel
             .with_channel(
                 |channel| {
-                    f(PointsClient::with_interceptor(
-                        channel,
-                        TokenInterceptor::new(self.cfg.api_key.clone()),
-                    ))
+                    let service = self.with_api_key(channel);
+                    let client = PointsClient::new(service);
+                    let client = client.max_decoding_message_size(usize::MAX);
+                    f(client)
                 },
                 true,
             )
@@ -289,10 +295,10 @@ impl QdrantClient {
         self.channel
             .with_channel(
                 |channel| {
-                    f(qdrant_client::QdrantClient::with_interceptor(
-                        channel,
-                        TokenInterceptor::new(self.cfg.api_key.clone()),
-                    ))
+                    let service = self.with_api_key(channel);
+                    let client = qdrant_client::QdrantClient::new(service);
+                    let client = client.max_decoding_message_size(usize::MAX);
+                    f(client)
                 },
                 true,
             )
