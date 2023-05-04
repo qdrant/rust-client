@@ -28,6 +28,7 @@ use crate::qdrant::{
     VectorsSelector, WithPayloadSelector, WithVectorsSelector, WriteOrdering,
 };
 use anyhow::{bail, Result};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::future::Future;
 use std::path::PathBuf;
@@ -228,16 +229,22 @@ pub struct QdrantClient {
 }
 
 impl QdrantClient {
+    /// Wraps a channel with a token interceptor
+    fn with_api_key(&self, channel: Channel) -> InterceptedService<Channel, TokenInterceptor> {
+        let interceptor = TokenInterceptor::new(self.cfg.api_key.clone());
+        InterceptedService::new(channel, interceptor)
+    }
+
     pub async fn with_snapshot_client<T, O: Future<Output = Result<T, Status>>>(
         &self,
         f: impl Fn(SnapshotsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
     ) -> Result<T, Status> {
         self.channel
             .with_channel(|channel| {
-                f(SnapshotsClient::with_interceptor(
-                    channel,
-                    TokenInterceptor::new(self.cfg.api_key.clone()),
-                ))
+                let service = self.with_api_key(channel);
+                let client = SnapshotsClient::new(service);
+                let client = client.max_decoding_message_size(usize::MAX);
+                f(client)
             })
             .await
     }
@@ -249,10 +256,10 @@ impl QdrantClient {
     ) -> Result<T, Status> {
         self.channel
             .with_channel(|channel| {
-                f(CollectionsClient::with_interceptor(
-                    channel,
-                    TokenInterceptor::new(self.cfg.api_key.clone()),
-                ))
+                let service = self.with_api_key(channel);
+                let client = CollectionsClient::new(service);
+                let client = client.max_decoding_message_size(usize::MAX);
+                f(client)
             })
             .await
     }
@@ -264,10 +271,10 @@ impl QdrantClient {
     ) -> Result<T, Status> {
         self.channel
             .with_channel(|channel| {
-                f(PointsClient::with_interceptor(
-                    channel,
-                    TokenInterceptor::new(self.cfg.api_key.clone()),
-                ))
+                let service = self.with_api_key(channel);
+                let client = PointsClient::new(service);
+                let client = client.max_decoding_message_size(usize::MAX);
+                f(client)
             })
             .await
     }
@@ -279,10 +286,10 @@ impl QdrantClient {
     ) -> Result<T, Status> {
         self.channel
             .with_channel(|channel| {
-                f(qdrant_client::QdrantClient::with_interceptor(
-                    channel,
-                    TokenInterceptor::new(self.cfg.api_key.clone()),
-                ))
+                let service = self.with_api_key(channel);
+                let client = qdrant_client::QdrantClient::new(service);
+                let client = client.max_decoding_message_size(usize::MAX);
+                f(client)
             })
             .await
     }
@@ -527,7 +534,7 @@ impl QdrantClient {
     async fn _upsert_points(
         &self,
         collection_name: impl ToString,
-        points: &[PointStruct],
+        points: &Vec<PointStruct>,
         block: bool,
         ordering: Option<WriteOrdering>,
     ) -> Result<PointsOperationResponse> {
@@ -541,7 +548,7 @@ impl QdrantClient {
                     .upsert(UpsertPoints {
                         collection_name: collection_name_ref.to_string(),
                         wait: Some(block),
-                        points: points.to_vec(),
+                        points: points.to_owned(),
                         ordering: ordering_ref.cloned(),
                     })
                     .await?;
@@ -679,7 +686,7 @@ impl QdrantClient {
         &self,
         collection_name: impl ToString,
         points: &PointsSelector,
-        keys: &[String],
+        keys: &Vec<String>,
         block: bool,
         ordering: Option<WriteOrdering>,
     ) -> Result<PointsOperationResponse> {
@@ -693,7 +700,7 @@ impl QdrantClient {
                     .delete_payload(DeletePayloadPoints {
                         collection_name: collection_name_ref.to_string(),
                         wait: Some(block),
-                        keys: keys.to_vec(),
+                        keys: keys.to_owned(),
                         points_selector: Some(points.clone()),
                         ordering: ordering_ref.cloned(),
                     })
@@ -753,7 +760,7 @@ impl QdrantClient {
     pub async fn get_points(
         &self,
         collection_name: impl ToString,
-        points: &[PointId],
+        points: &Vec<PointId>,
         with_vectors: Option<impl Into<WithVectorsSelector>>,
         with_payload: Option<impl Into<WithPayloadSelector>>,
         read_consistency: Option<ReadConsistency>,
@@ -773,7 +780,7 @@ impl QdrantClient {
                 let result = points_api
                     .get(GetPoints {
                         collection_name: collection_name_ref.to_string(),
-                        ids: points.to_vec(),
+                        ids: points.to_owned(),
                         with_payload: with_payload_ref.cloned(),
                         with_vectors: with_vectors_ref.cloned(),
                         read_consistency: read_consistency_ref.cloned(),
@@ -1188,7 +1195,7 @@ impl From<u64> for PointId {
     }
 }
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug, Default, Serialize, Deserialize)]
 pub struct Payload(HashMap<String, Value>);
 
 impl From<Payload> for HashMap<String, Value> {
@@ -1209,14 +1216,13 @@ impl From<HashMap<&str, Value>> for Payload {
         )
     }
 }
-impl Default for Payload {
-    fn default() -> Self {
-        Self::new()
-    }
-}
 impl Payload {
     pub fn new() -> Self {
         Self(HashMap::new())
+    }
+
+    pub fn new_from_hashmap(payload: HashMap<String, Value>) -> Self {
+        Self(payload)
     }
 
     pub fn insert(&mut self, key: impl ToString, val: impl Into<Value>) {
@@ -1280,6 +1286,22 @@ where
         Self {
             kind: Some(Kind::ListValue(ListValue {
                 values: val.into_iter().map(|v| v.into()).collect(),
+            })),
+        }
+    }
+}
+
+impl<T> From<Vec<(&str, T)>> for Value
+where
+    T: Into<Value>,
+{
+    fn from(val: Vec<(&str, T)>) -> Self {
+        Self {
+            kind: Some(Kind::StructValue(Struct {
+                fields: val
+                    .into_iter()
+                    .map(|(k, v)| (k.to_string(), v.into()))
+                    .collect(),
             })),
         }
     }

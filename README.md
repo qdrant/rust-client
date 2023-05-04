@@ -25,7 +25,7 @@ Package is available in [crates.io](https://crates.io/crates/qdrant-client)
 
 The client uses gRPC via the [Tonic](https://github.com/hyperium/tonic) library.
 
-In order to build `tonic` >= 0.8.0, you need the `protoc` Protocol Buffers compiler, along with Protocol Buffers resource files.
+To change anything in the protocol buffer definitions, you need the `protoc` Protocol Buffers compiler, along with Protocol Buffers resource files.
 
 Refer to the [Tonic installation guide](https://github.com/hyperium/tonic#dependencies) for more details.
 
@@ -64,7 +64,7 @@ use anyhow::Result;
 use qdrant_client::prelude::*;
 use qdrant_client::qdrant::vectors_config::Config;
 use qdrant_client::qdrant::{CreateCollection, SearchPoints, VectorParams, VectorsConfig};
-use std::collections::HashMap;
+use serde_json::json;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -105,10 +105,12 @@ async fn main() -> Result<()> {
     let collection_info = client.collection_info(collection_name).await?;
     dbg!(collection_info);
 
-    let payload: Payload = vec![("foo", "Bar".into()), ("bar", 12.into())]
-        .into_iter()
-        .collect::<HashMap<_, Value>>()
-        .into();
+    let payload: Payload = json!(
+        {
+            "foo": "Bar",
+            "bar": 12,
+        }
+    ).try_into().unwrap();
 
     let points = vec![PointStruct::new(0, vec![12.; 10], payload)];
     client
