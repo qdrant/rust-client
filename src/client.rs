@@ -33,6 +33,7 @@ use std::collections::HashMap;
 use std::future::Future;
 use std::path::PathBuf;
 use std::time::Duration;
+use tokio::runtime::{Builder, Runtime};
 use tonic::codegen::InterceptedService;
 use tonic::service::Interceptor;
 use tonic::transport::{Channel, Uri};
@@ -1176,6 +1177,500 @@ impl QdrantClient {
         }
 
         Ok(())
+    }
+}
+
+// A synchronous wrapper for QdrantClient
+pub struct QdrantClientSync {
+    client: QdrantClient,
+    rt: Runtime,
+}
+
+impl QdrantClientSync {
+    pub fn new(cfg: Option<QdrantClientConfig>) -> Result<Self> {
+        let cfg = cfg.unwrap_or_default();
+
+        let rt = Builder::new_current_thread().enable_all().build().unwrap();
+
+        let channel = ChannelPool::new(
+            cfg.uri.parse::<Uri>()?,
+            cfg.timeout,
+            cfg.connect_timeout,
+            cfg.keep_alive_while_idle,
+        );
+
+        let client = QdrantClient { channel, cfg };
+
+        Ok(Self { client, rt })
+    }
+
+    // Blocking duplicates of all pub methods on QdrantClient
+
+    pub fn health_check(&self) -> Result<HealthCheckReply> {
+        self.rt.block_on(self.client.health_check())
+    }
+
+    pub fn with_snapshot_client<T, O: Future<Output = Result<T, Status>>>(
+        &self,
+        f: impl Fn(SnapshotsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
+    ) -> Result<T, Status> {
+        self.rt.block_on(self.client.with_snapshot_client(f))
+    }
+
+    pub fn with_collections_client<T, O: Future<Output = Result<T, Status>>>(
+        &self,
+        f: impl Fn(CollectionsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
+    ) -> Result<T, Status> {
+        self.rt.block_on(self.client.with_collections_client(f))
+    }
+
+    // Access to raw points API
+    pub fn with_points_client<T, O: Future<Output = Result<T, Status>>>(
+        &self,
+        f: impl Fn(PointsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
+    ) -> Result<T, Status> {
+        self.rt.block_on(self.client.with_points_client(f))
+    }
+
+    // Access to raw root qdrant API
+    pub fn with_root_qdrant_client<T, O: Future<Output = Result<T, Status>>>(
+        &self,
+        f: impl Fn(qdrant_client::QdrantClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
+    ) -> Result<T, Status> {
+        self.rt.block_on(self.client.with_root_qdrant_client(f))
+    }
+
+    pub fn list_collections(&self) -> Result<ListCollectionsResponse> {
+        self.rt.block_on(self.client.list_collections())
+    }
+
+    pub fn has_collection(&self, collection_name: impl ToString) -> Result<bool> {
+        self.rt
+            .block_on(self.client.has_collection(collection_name))
+    }
+
+    pub fn create_collection(
+        &self,
+        details: &CreateCollection,
+    ) -> Result<CollectionOperationResponse> {
+        self.rt.block_on(self.client.create_collection(details))
+    }
+
+    pub fn update_collection(
+        &self,
+        collection_name: impl ToString,
+        optimizers_config: &OptimizersConfigDiff,
+    ) -> Result<CollectionOperationResponse> {
+        self.rt.block_on(
+            self.client
+                .update_collection(collection_name, optimizers_config),
+        )
+    }
+
+    pub fn delete_collection(
+        &self,
+        collection_name: impl ToString,
+    ) -> Result<CollectionOperationResponse> {
+        self.rt
+            .block_on(self.client.delete_collection(collection_name))
+    }
+
+    pub fn collection_info(
+        &self,
+        collection_name: impl ToString,
+    ) -> Result<GetCollectionInfoResponse> {
+        self.rt
+            .block_on(self.client.collection_info(collection_name))
+    }
+
+    pub fn create_alias(
+        &self,
+        collection_name: impl ToString,
+        alias_name: impl ToString,
+    ) -> Result<CollectionOperationResponse> {
+        self.rt
+            .block_on(self.client.create_alias(collection_name, alias_name))
+    }
+
+    pub fn delete_alias(&self, alias_name: impl ToString) -> Result<CollectionOperationResponse> {
+        self.rt.block_on(self.client.delete_alias(alias_name))
+    }
+
+    pub fn rename_alias(
+        &self,
+        old_alias_name: impl ToString,
+        new_alias_name: impl ToString,
+    ) -> Result<CollectionOperationResponse> {
+        self.rt
+            .block_on(self.client.rename_alias(old_alias_name, new_alias_name))
+    }
+
+    // lower level API
+    pub fn update_aliases(
+        &self,
+        change_aliases: ChangeAliases,
+    ) -> Result<CollectionOperationResponse> {
+        self.rt.block_on(self.client.update_aliases(change_aliases))
+    }
+
+    pub fn list_collection_aliases(
+        &self,
+        collection_name: impl ToString,
+    ) -> Result<ListAliasesResponse> {
+        self.rt
+            .block_on(self.client.list_collection_aliases(collection_name))
+    }
+
+    pub fn list_aliases(&self) -> Result<ListAliasesResponse> {
+        self.rt.block_on(self.client.list_aliases())
+    }
+
+    pub fn upsert_points(
+        &self,
+        collection_name: impl ToString,
+        points: Vec<PointStruct>,
+        ordering: Option<WriteOrdering>,
+    ) -> Result<PointsOperationResponse> {
+        self.rt
+            .block_on(self.client.upsert_points(collection_name, points, ordering))
+    }
+
+    pub fn upsert_points_blocking(
+        &self,
+        collection_name: impl ToString,
+        points: Vec<PointStruct>,
+        ordering: Option<WriteOrdering>,
+    ) -> Result<PointsOperationResponse> {
+        self.rt.block_on(
+            self.client
+                .upsert_points_blocking(collection_name, points, ordering),
+        )
+    }
+
+    pub fn set_payload(
+        &self,
+        collection_name: impl ToString,
+        points: &PointsSelector,
+        payload: Payload,
+        ordering: Option<WriteOrdering>,
+    ) -> Result<PointsOperationResponse> {
+        self.rt.block_on(
+            self.client
+                .set_payload(collection_name, points, payload, ordering),
+        )
+    }
+
+    pub fn set_payload_blocking(
+        &self,
+        collection_name: impl ToString,
+        points: &PointsSelector,
+        payload: Payload,
+        ordering: Option<WriteOrdering>,
+    ) -> Result<PointsOperationResponse> {
+        self.rt.block_on(self.client.set_payload_blocking(
+            collection_name,
+            points,
+            payload,
+            ordering,
+        ))
+    }
+
+    pub fn overwrite_payload(
+        &self,
+        collection_name: impl ToString,
+        points: &PointsSelector,
+        payload: Payload,
+        ordering: Option<WriteOrdering>,
+    ) -> Result<PointsOperationResponse> {
+        self.rt.block_on(
+            self.client
+                .overwrite_payload(collection_name, points, payload, ordering),
+        )
+    }
+
+    pub fn overwrite_payload_blocking(
+        &self,
+        collection_name: impl ToString,
+        points: &PointsSelector,
+        payload: Payload,
+        ordering: Option<WriteOrdering>,
+    ) -> Result<PointsOperationResponse> {
+        self.rt.block_on(self.client.overwrite_payload_blocking(
+            collection_name,
+            points,
+            payload,
+            ordering,
+        ))
+    }
+
+    pub fn delete_payload(
+        &self,
+        collection_name: impl ToString,
+        points: &PointsSelector,
+        keys: Vec<String>,
+        ordering: Option<WriteOrdering>,
+    ) -> Result<PointsOperationResponse> {
+        self.rt.block_on(
+            self.client
+                .delete_payload(collection_name, points, keys, ordering),
+        )
+    }
+
+    pub fn delete_payload_blocking(
+        &self,
+        collection_name: impl ToString,
+        points: &PointsSelector,
+        keys: Vec<String>,
+        ordering: Option<WriteOrdering>,
+    ) -> Result<PointsOperationResponse> {
+        self.rt.block_on(self.client.delete_payload_blocking(
+            collection_name,
+            points,
+            keys,
+            ordering,
+        ))
+    }
+
+    pub fn clear_payload(
+        &self,
+        collection_name: impl ToString,
+        points_selector: Option<PointsSelector>,
+        ordering: Option<WriteOrdering>,
+    ) -> Result<PointsOperationResponse> {
+        self.rt.block_on(
+            self.client
+                .clear_payload(collection_name, points_selector, ordering),
+        )
+    }
+
+    pub fn clear_payload_blocking(
+        &self,
+        collection_name: impl ToString,
+        points_selector: Option<PointsSelector>,
+        ordering: Option<WriteOrdering>,
+    ) -> Result<PointsOperationResponse> {
+        self.rt.block_on(self.client.clear_payload_blocking(
+            collection_name,
+            points_selector,
+            ordering,
+        ))
+    }
+
+    pub fn get_points(
+        &self,
+        collection_name: impl ToString,
+        points: &[PointId],
+        with_vectors: Option<impl Into<WithVectorsSelector>>,
+        with_payload: Option<impl Into<WithPayloadSelector>>,
+        read_consistency: Option<ReadConsistency>,
+    ) -> Result<GetResponse> {
+        self.rt.block_on(self.client.get_points(
+            collection_name,
+            points,
+            with_vectors,
+            with_payload,
+            read_consistency,
+        ))
+    }
+
+    pub fn search_points(&self, request: &SearchPoints) -> Result<SearchResponse> {
+        self.rt.block_on(self.client.search_points(request))
+    }
+
+    pub fn search_batch_points(&self, request: &SearchBatchPoints) -> Result<SearchBatchResponse> {
+        self.rt.block_on(self.client.search_batch_points(request))
+    }
+
+    pub fn delete_points(
+        &self,
+        collection_name: impl ToString,
+        points: &PointsSelector,
+        ordering: Option<WriteOrdering>,
+    ) -> Result<PointsOperationResponse> {
+        self.rt
+            .block_on(self.client.delete_points(collection_name, points, ordering))
+    }
+
+    pub fn delete_points_blocking(
+        &self,
+        collection_name: impl ToString,
+        points: &PointsSelector,
+        ordering: Option<WriteOrdering>,
+    ) -> Result<PointsOperationResponse> {
+        self.rt.block_on(
+            self.client
+                .delete_points_blocking(collection_name, points, ordering),
+        )
+    }
+
+    pub fn scroll(&self, request: &ScrollPoints) -> Result<ScrollResponse> {
+        self.rt.block_on(self.client.scroll(request))
+    }
+
+    pub fn recommend(&self, request: &RecommendPoints) -> Result<RecommendResponse> {
+        self.rt.block_on(self.client.recommend(request))
+    }
+
+    pub fn recommend_batch(
+        &self,
+        request: &RecommendBatchPoints,
+    ) -> Result<RecommendBatchResponse> {
+        self.rt.block_on(self.client.recommend_batch(request))
+    }
+
+    pub fn count(&self, request: &CountPoints) -> Result<CountResponse> {
+        self.rt.block_on(self.client.count(request))
+    }
+
+    /// Create index for a payload field
+    pub fn _create_field_index(
+        &self,
+        collection_name: impl ToString,
+        field_name: impl ToString,
+        field_type: FieldType,
+        field_index_params: Option<&PayloadIndexParams>,
+        wait: bool,
+        ordering: Option<WriteOrdering>,
+    ) -> Result<PointsOperationResponse> {
+        self.rt.block_on(self.client._create_field_index(
+            collection_name,
+            field_name,
+            field_type,
+            field_index_params,
+            wait,
+            ordering,
+        ))
+    }
+
+    pub fn create_field_index(
+        &self,
+        collection_name: impl ToString,
+        field_name: impl ToString,
+        field_type: FieldType,
+        field_index_params: Option<&PayloadIndexParams>,
+        ordering: Option<WriteOrdering>,
+    ) -> Result<PointsOperationResponse> {
+        self.rt.block_on(self.client.create_field_index(
+            collection_name,
+            field_name,
+            field_type,
+            field_index_params,
+            ordering,
+        ))
+    }
+
+    pub fn create_field_index_blocking(
+        &self,
+        collection_name: impl ToString,
+        field_name: impl ToString,
+        field_type: FieldType,
+        field_index_params: Option<&PayloadIndexParams>,
+        ordering: Option<WriteOrdering>,
+    ) -> Result<PointsOperationResponse> {
+        self.rt.block_on(self.client.create_field_index_blocking(
+            collection_name,
+            field_name,
+            field_type,
+            field_index_params,
+            ordering,
+        ))
+    }
+
+    pub fn _delete_field_index(
+        &self,
+        collection_name: impl ToString,
+        field_name: impl ToString,
+        wait: bool,
+        ordering: Option<WriteOrdering>,
+    ) -> Result<PointsOperationResponse> {
+        self.rt.block_on(self.client._delete_field_index(
+            collection_name,
+            field_name,
+            wait,
+            ordering,
+        ))
+    }
+
+    pub fn delete_field_index(
+        &self,
+        collection_name: impl ToString,
+        field_name: impl ToString,
+        ordering: Option<WriteOrdering>,
+    ) -> Result<PointsOperationResponse> {
+        self.rt.block_on(
+            self.client
+                .delete_field_index(collection_name, field_name, ordering),
+        )
+    }
+
+    pub fn delete_field_index_blocking(
+        &self,
+        collection_name: impl ToString,
+        field_name: impl ToString,
+        ordering: Option<WriteOrdering>,
+    ) -> Result<PointsOperationResponse> {
+        self.rt.block_on(self.client.delete_field_index_blocking(
+            collection_name,
+            field_name,
+            ordering,
+        ))
+    }
+
+    pub fn create_snapshot(
+        &self,
+        collection_name: impl ToString,
+    ) -> Result<CreateSnapshotResponse> {
+        self.rt
+            .block_on(self.client.create_snapshot(collection_name))
+    }
+
+    pub fn list_snapshots(&self, collection_name: impl ToString) -> Result<ListSnapshotsResponse> {
+        self.rt
+            .block_on(self.client.list_snapshots(collection_name))
+    }
+
+    pub fn delete_snapshot(
+        &self,
+        collection_name: impl ToString,
+        snapshot_name: impl ToString,
+    ) -> Result<DeleteSnapshotResponse> {
+        self.rt
+            .block_on(self.client.delete_snapshot(collection_name, snapshot_name))
+    }
+
+    pub fn create_full_snapshot(&self) -> Result<CreateSnapshotResponse> {
+        self.rt.block_on(self.client.create_full_snapshot())
+    }
+
+    pub fn list_full_snapshots(&self) -> Result<ListSnapshotsResponse> {
+        self.rt.block_on(self.client.list_full_snapshots())
+    }
+
+    pub fn delete_full_snapshot(
+        &self,
+        snapshot_name: impl ToString,
+    ) -> Result<DeleteSnapshotResponse> {
+        self.rt
+            .block_on(self.client.delete_full_snapshot(snapshot_name))
+    }
+
+    #[cfg(feature = "download_snapshots")]
+    pub fn download_snapshot<T>(
+        &self,
+        out_path: impl Into<PathBuf>,
+        collection_name: T,
+        snapshot_name: Option<T>,
+        rest_api_uri: Option<T>,
+    ) -> Result<()>
+    where
+        T: ToString + Clone,
+    {
+        self.rt.block_on(self.client.download_snapshot(
+            out_path,
+            collection_name,
+            snapshot_name,
+            rest_api_uri,
+        ))
     }
 }
 
