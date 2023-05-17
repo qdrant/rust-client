@@ -2114,7 +2114,7 @@ pub struct PointVectors {
     pub id: ::core::option::Option<PointId>,
     /// Named vectors to update, leave others intact
     #[prost(message, optional, tag = "2")]
-    pub vectors: ::core::option::Option<NamedVectors>,
+    pub vectors: ::core::option::Option<Vectors>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
