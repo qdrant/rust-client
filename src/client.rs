@@ -16,19 +16,20 @@ use crate::qdrant::{
     Condition, CountPoints, CountResponse, CreateAlias, CreateCollection,
     CreateFieldIndexCollection, CreateFullSnapshotRequest, CreateSnapshotRequest,
     CreateSnapshotResponse, DeleteAlias, DeleteCollection, DeleteFieldIndexCollection,
-    DeleteFullSnapshotRequest, DeletePayloadPoints, DeletePoints, DeleteSnapshotRequest,
-    DeleteSnapshotResponse, FieldCondition, FieldType, Filter, GetCollectionInfoRequest,
-    GetCollectionInfoResponse, GetPoints, GetResponse, HasIdCondition, HealthCheckReply,
-    HealthCheckRequest, IsEmptyCondition, ListAliasesRequest, ListAliasesResponse,
-    ListCollectionAliasesRequest, ListCollectionsRequest, ListCollectionsResponse,
-    ListFullSnapshotsRequest, ListSnapshotsRequest, ListSnapshotsResponse, ListValue, NamedVectors,
-    OptimizersConfigDiff, PayloadIncludeSelector, PayloadIndexParams, PointId, PointStruct,
-    PointsIdsList, PointsOperationResponse, PointsSelector, ReadConsistency, RecommendBatchPoints,
-    RecommendBatchResponse, RecommendPoints, RecommendResponse, RenameAlias, ScrollPoints,
-    ScrollResponse, SearchBatchPoints, SearchBatchResponse, SearchPoints, SearchResponse,
-    SetPayloadPoints, Struct, UpdateCollection, UpdateCollectionClusterSetupRequest,
-    UpdateCollectionClusterSetupResponse, UpsertPoints, Value, Vector, Vectors, VectorsSelector,
-    WithPayloadSelector, WithVectorsSelector, WriteOrdering,
+    DeleteFullSnapshotRequest, DeletePayloadPoints, DeletePointVectors, DeletePoints,
+    DeleteSnapshotRequest, DeleteSnapshotResponse, FieldCondition, FieldType, Filter,
+    GetCollectionInfoRequest, GetCollectionInfoResponse, GetPoints, GetResponse, HasIdCondition,
+    HealthCheckReply, HealthCheckRequest, IsEmptyCondition, ListAliasesRequest,
+    ListAliasesResponse, ListCollectionAliasesRequest, ListCollectionsRequest,
+    ListCollectionsResponse, ListFullSnapshotsRequest, ListSnapshotsRequest, ListSnapshotsResponse,
+    ListValue, NamedVectors, OptimizersConfigDiff, PayloadIncludeSelector, PayloadIndexParams,
+    PointId, PointStruct, PointVectors, PointsIdsList, PointsOperationResponse, PointsSelector,
+    ReadConsistency, RecommendBatchPoints, RecommendBatchResponse, RecommendPoints,
+    RecommendResponse, RenameAlias, ScrollPoints, ScrollResponse, SearchBatchPoints,
+    SearchBatchResponse, SearchPoints, SearchResponse, SetPayloadPoints, Struct, UpdateCollection,
+    UpdateCollectionClusterSetupRequest, UpdateCollectionClusterSetupResponse, UpdatePointVectors,
+    UpsertPoints, Value, Vector, Vectors, VectorsSelector, WithPayloadSelector,
+    WithVectorsSelector, WriteOrdering,
 };
 use anyhow::{bail, Result};
 use serde::{Deserialize, Serialize};
@@ -905,6 +906,114 @@ impl QdrantClient {
                         collection_name: collection_name_ref.to_string(),
                         wait: Some(blocking),
                         points: Some(points.clone()),
+                        ordering: ordering_ref.cloned(),
+                    })
+                    .await?;
+                Ok(result.into_inner())
+            })
+            .await?)
+    }
+
+    pub async fn delete_vectors(
+        &self,
+        collection_name: impl ToString,
+        points_selector: &PointsSelector,
+        vector_selector: &VectorsSelector,
+        ordering: Option<WriteOrdering>,
+    ) -> Result<PointsOperationResponse> {
+        self._delete_vectors(
+            collection_name,
+            false,
+            points_selector,
+            vector_selector,
+            ordering,
+        )
+        .await
+    }
+
+    pub async fn delete_vectors_blocking(
+        &self,
+        collection_name: impl ToString,
+        points_selector: &PointsSelector,
+        vector_selector: &VectorsSelector,
+        ordering: Option<WriteOrdering>,
+    ) -> Result<PointsOperationResponse> {
+        self._delete_vectors(
+            collection_name,
+            true,
+            points_selector,
+            vector_selector,
+            ordering,
+        )
+        .await
+    }
+
+    async fn _delete_vectors(
+        &self,
+        collection_name: impl ToString,
+        blocking: bool,
+        points_selector: &PointsSelector,
+        vector_selector: &VectorsSelector,
+        ordering: Option<WriteOrdering>,
+    ) -> Result<PointsOperationResponse> {
+        let collection_name = collection_name.to_string();
+        let collection_name_ref = collection_name.as_str();
+        let ordering_ref = ordering.as_ref();
+
+        Ok(self
+            .with_points_client(|mut points_api| async move {
+                let result = points_api
+                    .delete_vectors(DeletePointVectors {
+                        collection_name: collection_name_ref.to_string(),
+                        wait: Some(blocking),
+                        points_selector: Some(points_selector.clone()),
+                        vectors: Some(vector_selector.clone()),
+                        ordering: ordering_ref.cloned(),
+                    })
+                    .await?;
+                Ok(result.into_inner())
+            })
+            .await?)
+    }
+
+    pub async fn update_vectors(
+        &self,
+        collection_name: impl ToString,
+        points: &[PointVectors],
+        ordering: Option<WriteOrdering>,
+    ) -> Result<PointsOperationResponse> {
+        self._update_vectors(collection_name, false, points, ordering)
+            .await
+    }
+
+    pub async fn update_vectors_blocking(
+        &self,
+        collection_name: impl ToString,
+        points: &[PointVectors],
+        ordering: Option<WriteOrdering>,
+    ) -> Result<PointsOperationResponse> {
+        self._update_vectors(collection_name, true, points, ordering)
+            .await
+    }
+
+    async fn _update_vectors(
+        &self,
+        collection_name: impl ToString,
+        blocking: bool,
+        points: &[PointVectors],
+        ordering: Option<WriteOrdering>,
+    ) -> Result<PointsOperationResponse> {
+        let collection_name = collection_name.to_string();
+        let collection_name_ref = collection_name.as_str();
+        let ordering_ref = ordering.as_ref();
+
+        Ok(self
+            .with_points_client(|mut points_api| async move {
+                let result = points_api
+                    .update_vectors(UpdatePointVectors {
+                        collection_name: collection_name_ref.to_string(),
+                        wait: Some(blocking),
+                        points: points.to_owned(),
                         ordering: ordering_ref.cloned(),
                     })
                     .await?;
