@@ -13,6 +13,9 @@ pub struct VectorParams {
     /// Configuration of vector quantization config. If omitted - the collection configuration will be used
     #[prost(message, optional, tag = "4")]
     pub quantization_config: ::core::option::Option<QuantizationConfig>,
+    /// If true - serve vectors from disk. If set to false, the vectors will be loaded in RAM.
+    #[prost(bool, optional, tag = "5")]
+    pub on_disk: ::core::option::Option<bool>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -144,26 +147,35 @@ pub struct OptimizersConfigDiff {
     #[prost(uint64, optional, tag = "3")]
     pub default_segment_number: ::core::option::Option<u64>,
     ///
-    /// Do not create segments larger this size (in KiloBytes).
+    /// Do not create segments larger this size (in kilobytes).
     /// Large segments might require disproportionately long indexation times,
     /// therefore it makes sense to limit the size of segments.
     ///
-    /// If indexation speed has more priority for you - make this parameter lower.
+    /// If indexing speed is more important - make this parameter lower.
     /// If search speed is more important - make this parameter higher.
     /// Note: 1Kb = 1 vector of size 256
+    /// If not set, will be automatically selected considering the number of available CPUs.
     #[prost(uint64, optional, tag = "4")]
     pub max_segment_size: ::core::option::Option<u64>,
     ///
-    /// Maximum size (in KiloBytes) of vectors to store in-memory per segment.
-    /// Segments larger than this threshold will be stored as a read-only memmaped file.
-    /// To enable memmap storage, lower the threshold
+    /// Maximum size (in kilobytes) of vectors to store in-memory per segment.
+    /// Segments larger than this threshold will be stored as read-only memmaped file.
+    ///
+    /// Memmap storage is disabled by default, to enable it, set this threshold to a reasonable value.
+    ///
+    /// To disable memmap storage, set this to `0`.
+    ///
     /// Note: 1Kb = 1 vector of size 256
     #[prost(uint64, optional, tag = "5")]
     pub memmap_threshold: ::core::option::Option<u64>,
     ///
-    /// Maximum size (in KiloBytes) of vectors allowed for plain index.
-    /// Default value based on <https://github.com/google-research/google-research/blob/master/scann/docs/algorithms.md>
-    /// Note: 1Kb = 1 vector of size 256
+    /// Maximum size (in kilobytes) of vectors allowed for plain index, exceeding this threshold will enable vector indexing
+    ///
+    /// Default value is 20,000, based on <<https://github.com/google-research/google-research/blob/master/scann/docs/algorithms.md>.>
+    ///
+    /// To disable vector indexing, set to `0`.
+    ///
+    /// Note: 1kB = 1 vector of size 256.
     #[prost(uint64, optional, tag = "6")]
     pub indexing_threshold: ::core::option::Option<u64>,
     ///
@@ -190,8 +202,18 @@ pub struct ScalarQuantization {
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct ProductQuantization {
+    /// Compression ratio
+    #[prost(enumeration = "CompressionRatio", tag = "1")]
+    pub compression: i32,
+    /// If true - quantized vectors always will be stored in RAM, ignoring the config of main storage
+    #[prost(bool, optional, tag = "2")]
+    pub always_ram: ::core::option::Option<bool>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct QuantizationConfig {
-    #[prost(oneof = "quantization_config::Quantization", tags = "1")]
+    #[prost(oneof = "quantization_config::Quantization", tags = "1, 2")]
     pub quantization: ::core::option::Option<quantization_config::Quantization>,
 }
 /// Nested message and enum types in `QuantizationConfig`.
@@ -201,6 +223,8 @@ pub mod quantization_config {
     pub enum Quantization {
         #[prost(message, tag = "1")]
         Scalar(super::ScalarQuantization),
+        #[prost(message, tag = "2")]
+        Product(super::ProductQuantization),
     }
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -488,6 +512,129 @@ pub struct ListAliasesResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct CollectionClusterInfoRequest {
+    /// Name of the collection
+    #[prost(string, tag = "1")]
+    pub collection_name: ::prost::alloc::string::String,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct LocalShardInfo {
+    /// Local shard id
+    #[prost(uint32, tag = "1")]
+    pub shard_id: u32,
+    /// Number of points in the shard
+    #[prost(uint64, tag = "2")]
+    pub points_count: u64,
+    /// Is replica active
+    #[prost(enumeration = "ReplicaState", tag = "3")]
+    pub state: i32,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct RemoteShardInfo {
+    /// Local shard id
+    #[prost(uint32, tag = "1")]
+    pub shard_id: u32,
+    /// Remote peer id
+    #[prost(uint64, tag = "2")]
+    pub peer_id: u64,
+    /// Is replica active
+    #[prost(enumeration = "ReplicaState", tag = "3")]
+    pub state: i32,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct ShardTransferInfo {
+    /// Local shard id
+    #[prost(uint32, tag = "1")]
+    pub shard_id: u32,
+    #[prost(uint64, tag = "2")]
+    pub from: u64,
+    #[prost(uint64, tag = "3")]
+    pub to: u64,
+    /// If `true` transfer is a synchronization of a replicas; If `false` transfer is a moving of a shard from one peer to another
+    #[prost(bool, tag = "4")]
+    pub sync: bool,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct CollectionClusterInfoResponse {
+    /// ID of this peer
+    #[prost(uint64, tag = "1")]
+    pub peer_id: u64,
+    /// Total number of shards
+    #[prost(uint64, tag = "2")]
+    pub shard_count: u64,
+    /// Local shards
+    #[prost(message, repeated, tag = "3")]
+    pub local_shards: ::prost::alloc::vec::Vec<LocalShardInfo>,
+    /// Remote shards
+    #[prost(message, repeated, tag = "4")]
+    pub remote_shards: ::prost::alloc::vec::Vec<RemoteShardInfo>,
+    /// Shard transfers
+    #[prost(message, repeated, tag = "5")]
+    pub shard_transfers: ::prost::alloc::vec::Vec<ShardTransferInfo>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct MoveShard {
+    /// Local shard id
+    #[prost(uint32, tag = "1")]
+    pub shard_id: u32,
+    #[prost(uint64, tag = "2")]
+    pub from_peer_id: u64,
+    #[prost(uint64, tag = "3")]
+    pub to_peer_id: u64,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct Replica {
+    #[prost(uint32, tag = "1")]
+    pub shard_id: u32,
+    #[prost(uint64, tag = "2")]
+    pub peer_id: u64,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct UpdateCollectionClusterSetupRequest {
+    /// Name of the collection
+    #[prost(string, tag = "1")]
+    pub collection_name: ::prost::alloc::string::String,
+    /// Wait timeout for operation commit in seconds, if not specified - default value will be supplied
+    #[prost(uint64, optional, tag = "6")]
+    pub timeout: ::core::option::Option<u64>,
+    #[prost(
+        oneof = "update_collection_cluster_setup_request::Operation",
+        tags = "2, 3, 4, 5"
+    )]
+    pub operation: ::core::option::Option<
+        update_collection_cluster_setup_request::Operation,
+    >,
+}
+/// Nested message and enum types in `UpdateCollectionClusterSetupRequest`.
+pub mod update_collection_cluster_setup_request {
+    #[allow(clippy::derive_partial_eq_without_eq)]
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
+    pub enum Operation {
+        #[prost(message, tag = "2")]
+        MoveShard(super::MoveShard),
+        #[prost(message, tag = "3")]
+        ReplicateShard(super::MoveShard),
+        #[prost(message, tag = "4")]
+        AbortTransfer(super::MoveShard),
+        #[prost(message, tag = "5")]
+        DropReplica(super::Replica),
+    }
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct UpdateCollectionClusterSetupResponse {
+    #[prost(bool, tag = "1")]
+    pub result: bool,
+}
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
 pub enum Distance {
@@ -621,6 +768,41 @@ impl QuantizationType {
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
+pub enum CompressionRatio {
+    X4 = 0,
+    X8 = 1,
+    X16 = 2,
+    X32 = 3,
+    X64 = 4,
+}
+impl CompressionRatio {
+    /// String value of the enum field names used in the ProtoBuf definition.
+    ///
+    /// The values are not transformed in any way and thus are considered stable
+    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+    pub fn as_str_name(&self) -> &'static str {
+        match self {
+            CompressionRatio::X4 => "x4",
+            CompressionRatio::X8 => "x8",
+            CompressionRatio::X16 => "x16",
+            CompressionRatio::X32 => "x32",
+            CompressionRatio::X64 => "x64",
+        }
+    }
+    /// Creates an enum from field names used in the ProtoBuf definition.
+    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+        match value {
+            "x4" => Some(Self::X4),
+            "x8" => Some(Self::X8),
+            "x16" => Some(Self::X16),
+            "x32" => Some(Self::X32),
+            "x64" => Some(Self::X64),
+            _ => None,
+        }
+    }
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+#[repr(i32)]
 pub enum TokenizerType {
     Unknown = 0,
     Prefix = 1,
@@ -647,6 +829,46 @@ impl TokenizerType {
             "Prefix" => Some(Self::Prefix),
             "Whitespace" => Some(Self::Whitespace),
             "Word" => Some(Self::Word),
+            _ => None,
+        }
+    }
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+#[repr(i32)]
+pub enum ReplicaState {
+    /// Active and sound
+    Active = 0,
+    /// Failed for some reason
+    Dead = 1,
+    /// The shard is partially loaded and is currently receiving data from other shards
+    Partial = 2,
+    /// Collection is being created
+    Initializing = 3,
+    /// A shard which receives data, but is not used for search; Useful for backup shards
+    Listener = 4,
+}
+impl ReplicaState {
+    /// String value of the enum field names used in the ProtoBuf definition.
+    ///
+    /// The values are not transformed in any way and thus are considered stable
+    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+    pub fn as_str_name(&self) -> &'static str {
+        match self {
+            ReplicaState::Active => "Active",
+            ReplicaState::Dead => "Dead",
+            ReplicaState::Partial => "Partial",
+            ReplicaState::Initializing => "Initializing",
+            ReplicaState::Listener => "Listener",
+        }
+    }
+    /// Creates an enum from field names used in the ProtoBuf definition.
+    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+        match value {
+            "Active" => Some(Self::Active),
+            "Dead" => Some(Self::Dead),
+            "Partial" => Some(Self::Partial),
+            "Initializing" => Some(Self::Initializing),
+            "Listener" => Some(Self::Listener),
             _ => None,
         }
     }
@@ -943,6 +1165,62 @@ pub mod collections_client {
                 .insert(GrpcMethod::new("qdrant.Collections", "ListAliases"));
             self.inner.unary(req, path, codec).await
         }
+        ///
+        /// Get cluster information for a collection
+        pub async fn collection_cluster_info(
+            &mut self,
+            request: impl tonic::IntoRequest<super::CollectionClusterInfoRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::CollectionClusterInfoResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Collections/CollectionClusterInfo",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("qdrant.Collections", "CollectionClusterInfo"));
+            self.inner.unary(req, path, codec).await
+        }
+        ///
+        /// Update cluster setup for a collection
+        pub async fn update_collection_cluster_setup(
+            &mut self,
+            request: impl tonic::IntoRequest<super::UpdateCollectionClusterSetupRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::UpdateCollectionClusterSetupResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Collections/UpdateCollectionClusterSetup",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new("qdrant.Collections", "UpdateCollectionClusterSetup"),
+                );
+            self.inner.unary(req, path, codec).await
+        }
     }
 }
 /// Generated server implementations.
@@ -1022,6 +1300,24 @@ pub mod collections_server {
             request: tonic::Request<super::ListAliasesRequest>,
         ) -> std::result::Result<
             tonic::Response<super::ListAliasesResponse>,
+            tonic::Status,
+        >;
+        ///
+        /// Get cluster information for a collection
+        async fn collection_cluster_info(
+            &self,
+            request: tonic::Request<super::CollectionClusterInfoRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::CollectionClusterInfoResponse>,
+            tonic::Status,
+        >;
+        ///
+        /// Update cluster setup for a collection
+        async fn update_collection_cluster_setup(
+            &self,
+            request: tonic::Request<super::UpdateCollectionClusterSetupRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::UpdateCollectionClusterSetupResponse>,
             tonic::Status,
         >;
     }
@@ -1462,6 +1758,101 @@ pub mod collections_server {
                     };
                     Box::pin(fut)
                 }
+                "/qdrant.Collections/CollectionClusterInfo" => {
+                    #[allow(non_camel_case_types)]
+                    struct CollectionClusterInfoSvc<T: Collections>(pub Arc<T>);
+                    impl<
+                        T: Collections,
+                    > tonic::server::UnaryService<super::CollectionClusterInfoRequest>
+                    for CollectionClusterInfoSvc<T> {
+                        type Response = super::CollectionClusterInfoResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::CollectionClusterInfoRequest>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                (*inner).collection_cluster_info(request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = CollectionClusterInfoSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/qdrant.Collections/UpdateCollectionClusterSetup" => {
+                    #[allow(non_camel_case_types)]
+                    struct UpdateCollectionClusterSetupSvc<T: Collections>(pub Arc<T>);
+                    impl<
+                        T: Collections,
+                    > tonic::server::UnaryService<
+                        super::UpdateCollectionClusterSetupRequest,
+                    > for UpdateCollectionClusterSetupSvc<T> {
+                        type Response = super::UpdateCollectionClusterSetupResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<
+                                super::UpdateCollectionClusterSetupRequest,
+                            >,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                (*inner).update_collection_cluster_setup(request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = UpdateCollectionClusterSetupSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
                 _ => {
                     Box::pin(async move {
                         Ok(
@@ -1698,6 +2089,51 @@ pub struct GetPoints {
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "6")]
     pub read_consistency: ::core::option::Option<ReadConsistency>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct UpdatePointVectors {
+    /// name of the collection
+    #[prost(string, tag = "1")]
+    pub collection_name: ::prost::alloc::string::String,
+    /// Wait until the changes have been applied?
+    #[prost(bool, optional, tag = "2")]
+    pub wait: ::core::option::Option<bool>,
+    /// List of points and vectors to update
+    #[prost(message, repeated, tag = "3")]
+    pub points: ::prost::alloc::vec::Vec<PointVectors>,
+    /// Write ordering guarantees
+    #[prost(message, optional, tag = "4")]
+    pub ordering: ::core::option::Option<WriteOrdering>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct PointVectors {
+    /// ID to update vectors for
+    #[prost(message, optional, tag = "1")]
+    pub id: ::core::option::Option<PointId>,
+    /// Named vectors to update, leave others intact
+    #[prost(message, optional, tag = "2")]
+    pub vectors: ::core::option::Option<NamedVectors>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct DeletePointVectors {
+    /// name of the collection
+    #[prost(string, tag = "1")]
+    pub collection_name: ::prost::alloc::string::String,
+    /// Wait until the changes have been applied?
+    #[prost(bool, optional, tag = "2")]
+    pub wait: ::core::option::Option<bool>,
+    /// Affected points
+    #[prost(message, optional, tag = "3")]
+    pub points_selector: ::core::option::Option<PointsSelector>,
+    /// List of vector names to delete
+    #[prost(message, optional, tag = "4")]
+    pub vectors: ::core::option::Option<VectorsSelector>,
+    /// Write ordering guarantees
+    #[prost(message, optional, tag = "5")]
+    pub ordering: ::core::option::Option<WriteOrdering>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -1954,6 +2390,46 @@ pub struct SearchBatchPoints {
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct SearchPointGroups {
+    /// Name of the collection
+    #[prost(string, tag = "1")]
+    pub collection_name: ::prost::alloc::string::String,
+    /// Vector to compare against
+    #[prost(float, repeated, tag = "2")]
+    pub vector: ::prost::alloc::vec::Vec<f32>,
+    /// Filter conditions - return only those points that satisfy the specified conditions
+    #[prost(message, optional, tag = "3")]
+    pub filter: ::core::option::Option<Filter>,
+    /// Max number of result
+    #[prost(uint32, tag = "4")]
+    pub limit: u32,
+    /// Options for specifying which payload to include or not
+    #[prost(message, optional, tag = "5")]
+    pub with_payload: ::core::option::Option<WithPayloadSelector>,
+    /// Search config
+    #[prost(message, optional, tag = "6")]
+    pub params: ::core::option::Option<SearchParams>,
+    /// If provided - cut off results with worse scores
+    #[prost(float, optional, tag = "7")]
+    pub score_threshold: ::core::option::Option<f32>,
+    /// Which vector to use for search, if not specified - use default vector
+    #[prost(string, optional, tag = "8")]
+    pub vector_name: ::core::option::Option<::prost::alloc::string::String>,
+    /// Options for specifying which vectors to include into response
+    #[prost(message, optional, tag = "9")]
+    pub with_vectors: ::core::option::Option<WithVectorsSelector>,
+    /// Payload field to group by, must be a string or number field. If there are multiple values for the field, all of them will be used. One point can be in multiple groups.
+    #[prost(string, tag = "10")]
+    pub group_by: ::prost::alloc::string::String,
+    /// Maximum amount of points to return per group
+    #[prost(uint32, tag = "11")]
+    pub group_size: u32,
+    /// Options for specifying read consistency guarantees
+    #[prost(message, optional, tag = "12")]
+    pub read_consistency: ::core::option::Option<ReadConsistency>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ScrollPoints {
     #[prost(string, tag = "1")]
     pub collection_name: ::prost::alloc::string::String,
@@ -2042,6 +2518,52 @@ pub struct RecommendBatchPoints {
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct RecommendPointGroups {
+    /// Name of the collection
+    #[prost(string, tag = "1")]
+    pub collection_name: ::prost::alloc::string::String,
+    /// Look for vectors closest to those
+    #[prost(message, repeated, tag = "2")]
+    pub positive: ::prost::alloc::vec::Vec<PointId>,
+    /// Try to avoid vectors like this
+    #[prost(message, repeated, tag = "3")]
+    pub negative: ::prost::alloc::vec::Vec<PointId>,
+    /// Filter conditions - return only those points that satisfy the specified conditions
+    #[prost(message, optional, tag = "4")]
+    pub filter: ::core::option::Option<Filter>,
+    /// Max number of groups in result
+    #[prost(uint32, tag = "5")]
+    pub limit: u32,
+    /// Options for specifying which payload to include or not
+    #[prost(message, optional, tag = "6")]
+    pub with_payload: ::core::option::Option<WithPayloadSelector>,
+    /// Search config
+    #[prost(message, optional, tag = "7")]
+    pub params: ::core::option::Option<SearchParams>,
+    /// If provided - cut off results with worse scores
+    #[prost(float, optional, tag = "8")]
+    pub score_threshold: ::core::option::Option<f32>,
+    /// Define which vector to use for recommendation, if not specified - default vector
+    #[prost(string, optional, tag = "9")]
+    pub using: ::core::option::Option<::prost::alloc::string::String>,
+    /// Options for specifying which vectors to include into response
+    #[prost(message, optional, tag = "10")]
+    pub with_vectors: ::core::option::Option<WithVectorsSelector>,
+    /// Name of the collection to use for points lookup, if not specified - use current collection
+    #[prost(message, optional, tag = "11")]
+    pub lookup_from: ::core::option::Option<LookupLocation>,
+    /// Payload field to group by, must be a string or number field. If there are multiple values for the field, all of them will be used. One point can be in multiple groups.
+    #[prost(string, tag = "12")]
+    pub group_by: ::prost::alloc::string::String,
+    /// Maximum amount of points to return per group
+    #[prost(uint32, tag = "13")]
+    pub group_size: u32,
+    /// Options for specifying read consistency guarantees
+    #[prost(message, optional, tag = "14")]
+    pub read_consistency: ::core::option::Option<ReadConsistency>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CountPoints {
     /// name of the collection
     #[prost(string, tag = "1")]
@@ -2093,6 +2615,45 @@ pub struct ScoredPoint {
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct GroupId {
+    #[prost(oneof = "group_id::Kind", tags = "1, 2, 3")]
+    pub kind: ::core::option::Option<group_id::Kind>,
+}
+/// Nested message and enum types in `GroupId`.
+pub mod group_id {
+    #[allow(clippy::derive_partial_eq_without_eq)]
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
+    pub enum Kind {
+        /// Represents a double value.
+        #[prost(uint64, tag = "1")]
+        UnsignedValue(u64),
+        /// Represents an integer value
+        #[prost(int64, tag = "2")]
+        IntegerValue(i64),
+        /// Represents a string value.
+        #[prost(string, tag = "3")]
+        StringValue(::prost::alloc::string::String),
+    }
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct PointGroup {
+    /// Group id
+    #[prost(message, optional, tag = "1")]
+    pub id: ::core::option::Option<GroupId>,
+    /// Points in the group
+    #[prost(message, repeated, tag = "2")]
+    pub hits: ::prost::alloc::vec::Vec<ScoredPoint>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct GroupsResult {
+    /// Groups
+    #[prost(message, repeated, tag = "1")]
+    pub groups: ::prost::alloc::vec::Vec<PointGroup>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SearchResponse {
     #[prost(message, repeated, tag = "1")]
     pub result: ::prost::alloc::vec::Vec<ScoredPoint>,
@@ -2111,6 +2672,15 @@ pub struct BatchResult {
 pub struct SearchBatchResponse {
     #[prost(message, repeated, tag = "1")]
     pub result: ::prost::alloc::vec::Vec<BatchResult>,
+    /// Time spent to process
+    #[prost(double, tag = "2")]
+    pub time: f64,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct SearchGroupsResponse {
+    #[prost(message, optional, tag = "1")]
+    pub result: ::core::option::Option<GroupsResult>,
     /// Time spent to process
     #[prost(double, tag = "2")]
     pub time: f64,
@@ -2181,6 +2751,15 @@ pub struct RecommendBatchResponse {
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct RecommendGroupsResponse {
+    #[prost(message, optional, tag = "1")]
+    pub result: ::core::option::Option<GroupsResult>,
+    /// Time spent to process
+    #[prost(double, tag = "2")]
+    pub time: f64,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Filter {
     /// At least one of those conditions should match
     #[prost(message, repeated, tag = "1")]
@@ -2195,7 +2774,7 @@ pub struct Filter {
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Condition {
-    #[prost(oneof = "condition::ConditionOneOf", tags = "1, 2, 3, 4, 5")]
+    #[prost(oneof = "condition::ConditionOneOf", tags = "1, 2, 3, 4, 5, 6")]
     pub condition_one_of: ::core::option::Option<condition::ConditionOneOf>,
 }
 /// Nested message and enum types in `Condition`.
@@ -2213,6 +2792,8 @@ pub mod condition {
         Filter(super::Filter),
         #[prost(message, tag = "5")]
         IsNull(super::IsNullCondition),
+        #[prost(message, tag = "6")]
+        Nested(super::NestedCondition),
     }
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -2232,6 +2813,16 @@ pub struct IsNullCondition {
 pub struct HasIdCondition {
     #[prost(message, repeated, tag = "1")]
     pub has_id: ::prost::alloc::vec::Vec<PointId>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct NestedCondition {
+    /// Path to nested object
+    #[prost(string, tag = "1")]
+    pub key: ::prost::alloc::string::String,
+    /// Filter condition
+    #[prost(message, optional, tag = "2")]
+    pub filter: ::core::option::Option<Filter>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -2669,6 +3260,60 @@ pub mod points_client {
             self.inner.unary(req, path, codec).await
         }
         ///
+        /// Update named vectors for point
+        pub async fn update_vectors(
+            &mut self,
+            request: impl tonic::IntoRequest<super::UpdatePointVectors>,
+        ) -> std::result::Result<
+            tonic::Response<super::PointsOperationResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Points/UpdateVectors",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("qdrant.Points", "UpdateVectors"));
+            self.inner.unary(req, path, codec).await
+        }
+        ///
+        /// Delete named vectors for points
+        pub async fn delete_vectors(
+            &mut self,
+            request: impl tonic::IntoRequest<super::DeletePointVectors>,
+        ) -> std::result::Result<
+            tonic::Response<super::PointsOperationResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Points/DeleteVectors",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("qdrant.Points", "DeleteVectors"));
+            self.inner.unary(req, path, codec).await
+        }
+        ///
         /// Set payload for points
         pub async fn set_payload(
             &mut self,
@@ -2875,6 +3520,33 @@ pub mod points_client {
             self.inner.unary(req, path, codec).await
         }
         ///
+        /// Retrieve closest points based on vector similarity and given filtering conditions, grouped by a given field
+        pub async fn search_groups(
+            &mut self,
+            request: impl tonic::IntoRequest<super::SearchPointGroups>,
+        ) -> std::result::Result<
+            tonic::Response<super::SearchGroupsResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Points/SearchGroups",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("qdrant.Points", "SearchGroups"));
+            self.inner.unary(req, path, codec).await
+        }
+        ///
         /// Iterate over all or filtered points points
         pub async fn scroll(
             &mut self,
@@ -2947,6 +3619,33 @@ pub mod points_client {
             self.inner.unary(req, path, codec).await
         }
         ///
+        /// Look for the points which are closer to stored positive examples and at the same time further to negative examples, grouped by a given field
+        pub async fn recommend_groups(
+            &mut self,
+            request: impl tonic::IntoRequest<super::RecommendPointGroups>,
+        ) -> std::result::Result<
+            tonic::Response<super::RecommendGroupsResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Points/RecommendGroups",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("qdrant.Points", "RecommendGroups"));
+            self.inner.unary(req, path, codec).await
+        }
+        ///
         /// Count points in collection with given filtering conditions
         pub async fn count(
             &mut self,
@@ -3000,6 +3699,24 @@ pub mod points_server {
             &self,
             request: tonic::Request<super::GetPoints>,
         ) -> std::result::Result<tonic::Response<super::GetResponse>, tonic::Status>;
+        ///
+        /// Update named vectors for point
+        async fn update_vectors(
+            &self,
+            request: tonic::Request<super::UpdatePointVectors>,
+        ) -> std::result::Result<
+            tonic::Response<super::PointsOperationResponse>,
+            tonic::Status,
+        >;
+        ///
+        /// Delete named vectors for points
+        async fn delete_vectors(
+            &self,
+            request: tonic::Request<super::DeletePointVectors>,
+        ) -> std::result::Result<
+            tonic::Response<super::PointsOperationResponse>,
+            tonic::Status,
+        >;
         ///
         /// Set payload for points
         async fn set_payload(
@@ -3070,6 +3787,15 @@ pub mod points_server {
             tonic::Status,
         >;
         ///
+        /// Retrieve closest points based on vector similarity and given filtering conditions, grouped by a given field
+        async fn search_groups(
+            &self,
+            request: tonic::Request<super::SearchPointGroups>,
+        ) -> std::result::Result<
+            tonic::Response<super::SearchGroupsResponse>,
+            tonic::Status,
+        >;
+        ///
         /// Iterate over all or filtered points points
         async fn scroll(
             &self,
@@ -3091,6 +3817,15 @@ pub mod points_server {
             request: tonic::Request<super::RecommendBatchPoints>,
         ) -> std::result::Result<
             tonic::Response<super::RecommendBatchResponse>,
+            tonic::Status,
+        >;
+        ///
+        /// Look for the points which are closer to stored positive examples and at the same time further to negative examples, grouped by a given field
+        async fn recommend_groups(
+            &self,
+            request: tonic::Request<super::RecommendPointGroups>,
+        ) -> std::result::Result<
+            tonic::Response<super::RecommendGroupsResponse>,
             tonic::Status,
         >;
         ///
@@ -3290,6 +4025,98 @@ pub mod points_server {
                     let fut = async move {
                         let inner = inner.0;
                         let method = GetSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/qdrant.Points/UpdateVectors" => {
+                    #[allow(non_camel_case_types)]
+                    struct UpdateVectorsSvc<T: Points>(pub Arc<T>);
+                    impl<
+                        T: Points,
+                    > tonic::server::UnaryService<super::UpdatePointVectors>
+                    for UpdateVectorsSvc<T> {
+                        type Response = super::PointsOperationResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::UpdatePointVectors>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                (*inner).update_vectors(request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = UpdateVectorsSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/qdrant.Points/DeleteVectors" => {
+                    #[allow(non_camel_case_types)]
+                    struct DeleteVectorsSvc<T: Points>(pub Arc<T>);
+                    impl<
+                        T: Points,
+                    > tonic::server::UnaryService<super::DeletePointVectors>
+                    for DeleteVectorsSvc<T> {
+                        type Response = super::PointsOperationResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::DeletePointVectors>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                (*inner).delete_vectors(request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = DeleteVectorsSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
@@ -3661,6 +4488,50 @@ pub mod points_server {
                     };
                     Box::pin(fut)
                 }
+                "/qdrant.Points/SearchGroups" => {
+                    #[allow(non_camel_case_types)]
+                    struct SearchGroupsSvc<T: Points>(pub Arc<T>);
+                    impl<T: Points> tonic::server::UnaryService<super::SearchPointGroups>
+                    for SearchGroupsSvc<T> {
+                        type Response = super::SearchGroupsResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::SearchPointGroups>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                (*inner).search_groups(request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = SearchGroupsSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
                 "/qdrant.Points/Scroll" => {
                     #[allow(non_camel_case_types)]
                     struct ScrollSvc<T: Points>(pub Arc<T>);
@@ -3776,6 +4647,52 @@ pub mod points_server {
                     let fut = async move {
                         let inner = inner.0;
                         let method = RecommendBatchSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/qdrant.Points/RecommendGroups" => {
+                    #[allow(non_camel_case_types)]
+                    struct RecommendGroupsSvc<T: Points>(pub Arc<T>);
+                    impl<
+                        T: Points,
+                    > tonic::server::UnaryService<super::RecommendPointGroups>
+                    for RecommendGroupsSvc<T> {
+                        type Response = super::RecommendGroupsResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::RecommendPointGroups>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                (*inner).recommend_groups(request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = RecommendGroupsSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
