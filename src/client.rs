@@ -24,9 +24,10 @@ use crate::qdrant::{
     ListCollectionsResponse, ListFullSnapshotsRequest, ListSnapshotsRequest, ListSnapshotsResponse,
     ListValue, NamedVectors, OptimizersConfigDiff, PayloadIncludeSelector, PayloadIndexParams,
     PointId, PointStruct, PointVectors, PointsIdsList, PointsOperationResponse, PointsSelector,
-    ReadConsistency, RecommendBatchPoints, RecommendBatchResponse, RecommendPoints,
-    RecommendResponse, RenameAlias, ScrollPoints, ScrollResponse, SearchBatchPoints,
-    SearchBatchResponse, SearchPoints, SearchResponse, SetPayloadPoints, Struct, UpdateCollection,
+    ReadConsistency, RecommendBatchPoints, RecommendBatchResponse, RecommendGroupsResponse,
+    RecommendPointGroups, RecommendPoints, RecommendResponse, RenameAlias, ScrollPoints,
+    ScrollResponse, SearchBatchPoints, SearchBatchResponse, SearchGroupsResponse,
+    SearchPointGroups, SearchPoints, SearchResponse, SetPayloadPoints, Struct, UpdateCollection,
     UpdateCollectionClusterSetupRequest, UpdateCollectionClusterSetupResponse, UpdatePointVectors,
     UpsertPoints, Value, Vector, Vectors, VectorsSelector, WithPayloadSelector,
     WithVectorsSelector, WriteOrdering,
@@ -868,6 +869,15 @@ impl QdrantClient {
             .await?)
     }
 
+    pub async fn search_groups(&self, request: &SearchPointGroups) -> Result<SearchGroupsResponse> {
+        Ok(self
+            .with_points_client(|mut points_api| async move {
+                let result = points_api.search_groups(request.clone()).await?;
+                Ok(result.into_inner())
+            })
+            .await?)
+    }
+
     pub async fn delete_points(
         &self,
         collection_name: impl ToString,
@@ -1047,6 +1057,18 @@ impl QdrantClient {
         Ok(self
             .with_points_client(|mut points_api| async move {
                 let result = points_api.recommend_batch(request.clone()).await?;
+                Ok(result.into_inner())
+            })
+            .await?)
+    }
+
+    pub async fn recommend_groups(
+        &self,
+        request: &RecommendPointGroups,
+    ) -> Result<RecommendGroupsResponse> {
+        Ok(self
+            .with_points_client(|mut points_api| async move {
+                let result = points_api.recommend_groups(request.clone()).await?;
                 Ok(result.into_inner())
             })
             .await?)
