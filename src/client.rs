@@ -6,13 +6,15 @@ use crate::qdrant::point_id::PointIdOptions;
 use crate::qdrant::points_client::PointsClient;
 use crate::qdrant::points_selector::PointsSelectorOneOf;
 use crate::qdrant::snapshots_client::SnapshotsClient;
+use crate::qdrant::update_collection_cluster_setup_request::Operation;
 use crate::qdrant::value::Kind;
 use crate::qdrant::vectors::VectorsOptions;
 use crate::qdrant::with_payload_selector::SelectorOptions;
 use crate::qdrant::{
     qdrant_client, with_vectors_selector, AliasOperations, ChangeAliases, ClearPayloadPoints,
-    CollectionOperationResponse, Condition, CountPoints, CountResponse, CreateAlias,
-    CreateCollection, CreateFieldIndexCollection, CreateFullSnapshotRequest, CreateSnapshotRequest,
+    CollectionClusterInfoRequest, CollectionClusterInfoResponse, CollectionOperationResponse,
+    Condition, CountPoints, CountResponse, CreateAlias, CreateCollection,
+    CreateFieldIndexCollection, CreateFullSnapshotRequest, CreateSnapshotRequest,
     CreateSnapshotResponse, DeleteAlias, DeleteCollection, DeleteFieldIndexCollection,
     DeleteFullSnapshotRequest, DeletePayloadPoints, DeletePoints, DeleteSnapshotRequest,
     DeleteSnapshotResponse, FieldCondition, FieldType, Filter, GetCollectionInfoRequest,
@@ -24,8 +26,9 @@ use crate::qdrant::{
     PointsIdsList, PointsOperationResponse, PointsSelector, ReadConsistency, RecommendBatchPoints,
     RecommendBatchResponse, RecommendPoints, RecommendResponse, RenameAlias, ScrollPoints,
     ScrollResponse, SearchBatchPoints, SearchBatchResponse, SearchPoints, SearchResponse,
-    SetPayloadPoints, Struct, UpdateCollection, UpsertPoints, Value, Vector, Vectors,
-    VectorsSelector, WithPayloadSelector, WithVectorsSelector, WriteOrdering,
+    SetPayloadPoints, Struct, UpdateCollection, UpdateCollectionClusterSetupRequest,
+    UpdateCollectionClusterSetupResponse, UpsertPoints, Value, Vector, Vectors, VectorsSelector,
+    WithPayloadSelector, WithVectorsSelector, WriteOrdering,
 };
 use anyhow::{bail, Result};
 use serde::{Deserialize, Serialize};
@@ -515,6 +518,47 @@ impl QdrantClient {
         Ok(self
             .with_collections_client(|mut collection_api| async move {
                 let result = collection_api.list_aliases(ListAliasesRequest {}).await?;
+                Ok(result.into_inner())
+            })
+            .await?)
+    }
+
+    pub async fn collection_cluster_info(
+        &self,
+        collection_name: impl ToString,
+    ) -> Result<CollectionClusterInfoResponse> {
+        let collection_name = collection_name.to_string();
+        let collection_name_ref = collection_name.as_str();
+
+        Ok(self
+            .with_collections_client(|mut collection_api| async move {
+                let request = CollectionClusterInfoRequest {
+                    collection_name: collection_name_ref.to_string(),
+                };
+                let result = collection_api.collection_cluster_info(request).await?;
+                Ok(result.into_inner())
+            })
+            .await?)
+    }
+
+    pub async fn update_collection_cluster_setup(
+        &self,
+        collection_name: impl ToString,
+        operation: Operation,
+    ) -> Result<UpdateCollectionClusterSetupResponse> {
+        let collection_name = collection_name.to_string();
+        let collection_name_ref = collection_name.as_str();
+        let operation_ref = &operation;
+        Ok(self
+            .with_collections_client(|mut collection_api| async move {
+                let request = UpdateCollectionClusterSetupRequest {
+                    collection_name: collection_name_ref.to_string(),
+                    timeout: None,
+                    operation: Some(operation_ref.clone()),
+                };
+                let result = collection_api
+                    .update_collection_cluster_setup(request)
+                    .await?;
                 Ok(result.into_inner())
             })
             .await?)
