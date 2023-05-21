@@ -31,3 +31,7 @@ tokio = { version = "1.28.1", features = ["rt-multi-thread"] }
 default = ["download_snapshots", "serde"]
 download_snapshots = ["reqwest", "futures-util"]
 serde = ["dep:serde", "dep:serde_json"]
+
+[[example]]
+name = "search"
+required-features = ["serde"]
