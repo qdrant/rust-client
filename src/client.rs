@@ -27,10 +27,11 @@ use crate::qdrant::{
     SetPayloadPoints, Struct, UpdateCollection, UpsertPoints, Value, Vector, Vectors,
     VectorsSelector, WithPayloadSelector, WithVectorsSelector, WriteOrdering,
 };
-use anyhow::{bail, Result};
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::future::Future;
+#[cfg(feature = "download_snapshots")]
 use std::path::PathBuf;
 use std::time::Duration;
 use tonic::codegen::InterceptedService;
@@ -1146,7 +1147,7 @@ impl QdrantClient {
                 .first()
             {
                 Some(sn) => sn.name.clone(),
-                _ => bail!(
+                _ => anyhow::bail!(
                     "No snapshots found for collection {}",
                     collection_name.to_string()
                 ),
