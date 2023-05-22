@@ -133,6 +133,7 @@ mod tests {
             .await?;
 
         client.create_snapshot(collection_name).await?;
+        #[cfg(feature = "download_snapshots")]
         client
             .download_snapshot("test.tar", collection_name, None, None)
             .await?;
