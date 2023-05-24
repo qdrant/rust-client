@@ -5,6 +5,7 @@ pub mod prelude;
 #[allow(clippy::all)]
 #[rustfmt::skip]
 pub mod qdrant;
+#[cfg(feature = "serde")]
 pub mod serde;
 
 #[cfg(test)]

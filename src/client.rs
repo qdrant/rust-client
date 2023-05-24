@@ -33,6 +33,7 @@ use crate::qdrant::{
     WithVectorsSelector, WriteOrdering,
 };
 use anyhow::Result;
+#[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::future::Future;
@@ -1381,7 +1382,8 @@ impl From<u64> for PointId {
     }
 }
 
-#[derive(Clone, PartialEq, Debug, Default, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Debug, Default)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Payload(HashMap<String, Value>);
 
 impl From<Payload> for HashMap<String, Value> {
