@@ -19,7 +19,7 @@ mod tests {
     #[tokio::test]
     async fn test_qdrant_queries() -> anyhow::Result<()> {
         let config = QdrantClientConfig::from_url("http://localhost:6334");
-        let client = QdrantClient::new(Some(config)).await?;
+        let client = QdrantClient::new(Some(config))?;
 
         let health = client.health_check().await?;
         println!("{:?}", health);

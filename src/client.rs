@@ -306,7 +306,7 @@ impl QdrantClient {
             .await
     }
 
-    pub async fn new(cfg: Option<QdrantClientConfig>) -> Result<Self> {
+    pub fn new(cfg: Option<QdrantClientConfig>) -> Result<Self> {
         let cfg = cfg.unwrap_or_default();
 
         let channel = ChannelPool::new(
