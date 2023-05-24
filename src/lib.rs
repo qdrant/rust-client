@@ -20,7 +20,7 @@ mod tests {
     #[tokio::test]
     async fn test_qdrant_queries() -> anyhow::Result<()> {
         let config = QdrantClientConfig::from_url("http://localhost:6334");
-        let client = QdrantClient::new(Some(config)).await?;
+        let client = QdrantClient::new(Some(config))?;
 
         let health = client.health_check().await?;
         println!("{:?}", health);
@@ -40,6 +40,7 @@ mod tests {
                         distance: Distance::Cosine.into(),
                         hnsw_config: None,
                         quantization_config: None,
+                        on_disk: None,
                     })),
                 }),
                 ..Default::default()
@@ -134,6 +135,7 @@ mod tests {
             .await?;
 
         client.create_snapshot(collection_name).await?;
+        #[cfg(feature = "download_snapshots")]
         client
             .download_snapshot("test.tar", collection_name, None, None)
             .await?;

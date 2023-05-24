@@ -9,7 +9,7 @@ async fn main() -> Result<()> {
     // Example of top level client
     // You may also use tonic-generated client from `src/qdrant.rs`
     let config = QdrantClientConfig::from_url("http://localhost:6334");
-    let client = QdrantClient::new(Some(config)).await?;
+    let client = QdrantClient::new(Some(config))?;
 
     let collections_list = client.list_collections().await?;
     dbg!(collections_list);
@@ -34,6 +34,7 @@ async fn main() -> Result<()> {
                     distance: Distance::Cosine.into(),
                     hnsw_config: None,
                     quantization_config: None,
+                    on_disk: None,
                 })),
             }),
             ..Default::default()

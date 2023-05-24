@@ -6,32 +6,38 @@ use crate::qdrant::point_id::PointIdOptions;
 use crate::qdrant::points_client::PointsClient;
 use crate::qdrant::points_selector::PointsSelectorOneOf;
 use crate::qdrant::snapshots_client::SnapshotsClient;
+use crate::qdrant::update_collection_cluster_setup_request::Operation;
 use crate::qdrant::value::Kind;
 use crate::qdrant::vectors::VectorsOptions;
 use crate::qdrant::with_payload_selector::SelectorOptions;
 use crate::qdrant::{
     qdrant_client, with_vectors_selector, AliasOperations, ChangeAliases, ClearPayloadPoints,
-    CollectionOperationResponse, Condition, CountPoints, CountResponse, CreateAlias,
-    CreateCollection, CreateFieldIndexCollection, CreateFullSnapshotRequest, CreateSnapshotRequest,
+    CollectionClusterInfoRequest, CollectionClusterInfoResponse, CollectionOperationResponse,
+    Condition, CountPoints, CountResponse, CreateAlias, CreateCollection,
+    CreateFieldIndexCollection, CreateFullSnapshotRequest, CreateSnapshotRequest,
     CreateSnapshotResponse, DeleteAlias, DeleteCollection, DeleteFieldIndexCollection,
-    DeleteFullSnapshotRequest, DeletePayloadPoints, DeletePoints, DeleteSnapshotRequest,
-    DeleteSnapshotResponse, FieldCondition, FieldType, Filter, GetCollectionInfoRequest,
-    GetCollectionInfoResponse, GetPoints, GetResponse, HasIdCondition, HealthCheckReply,
-    HealthCheckRequest, IsEmptyCondition, ListAliasesRequest, ListAliasesResponse,
-    ListCollectionAliasesRequest, ListCollectionsRequest, ListCollectionsResponse,
-    ListFullSnapshotsRequest, ListSnapshotsRequest, ListSnapshotsResponse, ListValue, NamedVectors,
-    OptimizersConfigDiff, PayloadIncludeSelector, PayloadIndexParams, PointId, PointStruct,
-    PointsIdsList, PointsOperationResponse, PointsSelector, ReadConsistency, RecommendBatchPoints,
-    RecommendBatchResponse, RecommendPoints, RecommendResponse, RenameAlias, ScrollPoints,
-    ScrollResponse, SearchBatchPoints, SearchBatchResponse, SearchPoints, SearchResponse,
-    SetPayloadPoints, Struct, UpdateCollection, UpsertPoints, Value, Vector, Vectors,
-    VectorsSelector, WithPayloadSelector, WithVectorsSelector, WriteOrdering,
+    DeleteFullSnapshotRequest, DeletePayloadPoints, DeletePointVectors, DeletePoints,
+    DeleteSnapshotRequest, DeleteSnapshotResponse, FieldCondition, FieldType, Filter,
+    GetCollectionInfoRequest, GetCollectionInfoResponse, GetPoints, GetResponse, HasIdCondition,
+    HealthCheckReply, HealthCheckRequest, IsEmptyCondition, ListAliasesRequest,
+    ListAliasesResponse, ListCollectionAliasesRequest, ListCollectionsRequest,
+    ListCollectionsResponse, ListFullSnapshotsRequest, ListSnapshotsRequest, ListSnapshotsResponse,
+    ListValue, NamedVectors, OptimizersConfigDiff, PayloadIncludeSelector, PayloadIndexParams,
+    PointId, PointStruct, PointVectors, PointsIdsList, PointsOperationResponse, PointsSelector,
+    ReadConsistency, RecommendBatchPoints, RecommendBatchResponse, RecommendGroupsResponse,
+    RecommendPointGroups, RecommendPoints, RecommendResponse, RenameAlias, ScrollPoints,
+    ScrollResponse, SearchBatchPoints, SearchBatchResponse, SearchGroupsResponse,
+    SearchPointGroups, SearchPoints, SearchResponse, SetPayloadPoints, Struct, UpdateCollection,
+    UpdateCollectionClusterSetupRequest, UpdateCollectionClusterSetupResponse, UpdatePointVectors,
+    UpsertPoints, Value, Vector, Vectors, VectorsSelector, WithPayloadSelector,
+    WithVectorsSelector, WriteOrdering,
 };
-use anyhow::{bail, Result};
+use anyhow::Result;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::future::Future;
+#[cfg(feature = "download_snapshots")]
 use std::path::PathBuf;
 use std::time::Duration;
 use tonic::codegen::InterceptedService;
@@ -306,7 +312,7 @@ impl QdrantClient {
             .await
     }
 
-    pub async fn new(cfg: Option<QdrantClientConfig>) -> Result<Self> {
+    pub fn new(cfg: Option<QdrantClientConfig>) -> Result<Self> {
         let cfg = cfg.unwrap_or_default();
 
         let channel = ChannelPool::new(
@@ -516,6 +522,47 @@ impl QdrantClient {
         Ok(self
             .with_collections_client(|mut collection_api| async move {
                 let result = collection_api.list_aliases(ListAliasesRequest {}).await?;
+                Ok(result.into_inner())
+            })
+            .await?)
+    }
+
+    pub async fn collection_cluster_info(
+        &self,
+        collection_name: impl ToString,
+    ) -> Result<CollectionClusterInfoResponse> {
+        let collection_name = collection_name.to_string();
+        let collection_name_ref = collection_name.as_str();
+
+        Ok(self
+            .with_collections_client(|mut collection_api| async move {
+                let request = CollectionClusterInfoRequest {
+                    collection_name: collection_name_ref.to_string(),
+                };
+                let result = collection_api.collection_cluster_info(request).await?;
+                Ok(result.into_inner())
+            })
+            .await?)
+    }
+
+    pub async fn update_collection_cluster_setup(
+        &self,
+        collection_name: impl ToString,
+        operation: Operation,
+    ) -> Result<UpdateCollectionClusterSetupResponse> {
+        let collection_name = collection_name.to_string();
+        let collection_name_ref = collection_name.as_str();
+        let operation_ref = &operation;
+        Ok(self
+            .with_collections_client(|mut collection_api| async move {
+                let request = UpdateCollectionClusterSetupRequest {
+                    collection_name: collection_name_ref.to_string(),
+                    timeout: None,
+                    operation: Some(operation_ref.clone()),
+                };
+                let result = collection_api
+                    .update_collection_cluster_setup(request)
+                    .await?;
                 Ok(result.into_inner())
             })
             .await?)
@@ -824,6 +871,15 @@ impl QdrantClient {
             .await?)
     }
 
+    pub async fn search_groups(&self, request: &SearchPointGroups) -> Result<SearchGroupsResponse> {
+        Ok(self
+            .with_points_client(|mut points_api| async move {
+                let result = points_api.search_groups(request.clone()).await?;
+                Ok(result.into_inner())
+            })
+            .await?)
+    }
+
     pub async fn delete_points(
         &self,
         collection_name: impl ToString,
@@ -870,6 +926,114 @@ impl QdrantClient {
             .await?)
     }
 
+    pub async fn delete_vectors(
+        &self,
+        collection_name: impl ToString,
+        points_selector: &PointsSelector,
+        vector_selector: &VectorsSelector,
+        ordering: Option<WriteOrdering>,
+    ) -> Result<PointsOperationResponse> {
+        self._delete_vectors(
+            collection_name,
+            false,
+            points_selector,
+            vector_selector,
+            ordering,
+        )
+        .await
+    }
+
+    pub async fn delete_vectors_blocking(
+        &self,
+        collection_name: impl ToString,
+        points_selector: &PointsSelector,
+        vector_selector: &VectorsSelector,
+        ordering: Option<WriteOrdering>,
+    ) -> Result<PointsOperationResponse> {
+        self._delete_vectors(
+            collection_name,
+            true,
+            points_selector,
+            vector_selector,
+            ordering,
+        )
+        .await
+    }
+
+    async fn _delete_vectors(
+        &self,
+        collection_name: impl ToString,
+        blocking: bool,
+        points_selector: &PointsSelector,
+        vector_selector: &VectorsSelector,
+        ordering: Option<WriteOrdering>,
+    ) -> Result<PointsOperationResponse> {
+        let collection_name = collection_name.to_string();
+        let collection_name_ref = collection_name.as_str();
+        let ordering_ref = ordering.as_ref();
+
+        Ok(self
+            .with_points_client(|mut points_api| async move {
+                let result = points_api
+                    .delete_vectors(DeletePointVectors {
+                        collection_name: collection_name_ref.to_string(),
+                        wait: Some(blocking),
+                        points_selector: Some(points_selector.clone()),
+                        vectors: Some(vector_selector.clone()),
+                        ordering: ordering_ref.cloned(),
+                    })
+                    .await?;
+                Ok(result.into_inner())
+            })
+            .await?)
+    }
+
+    pub async fn update_vectors(
+        &self,
+        collection_name: impl ToString,
+        points: &[PointVectors],
+        ordering: Option<WriteOrdering>,
+    ) -> Result<PointsOperationResponse> {
+        self._update_vectors(collection_name, false, points, ordering)
+            .await
+    }
+
+    pub async fn update_vectors_blocking(
+        &self,
+        collection_name: impl ToString,
+        points: &[PointVectors],
+        ordering: Option<WriteOrdering>,
+    ) -> Result<PointsOperationResponse> {
+        self._update_vectors(collection_name, true, points, ordering)
+            .await
+    }
+
+    async fn _update_vectors(
+        &self,
+        collection_name: impl ToString,
+        blocking: bool,
+        points: &[PointVectors],
+        ordering: Option<WriteOrdering>,
+    ) -> Result<PointsOperationResponse> {
+        let collection_name = collection_name.to_string();
+        let collection_name_ref = collection_name.as_str();
+        let ordering_ref = ordering.as_ref();
+
+        Ok(self
+            .with_points_client(|mut points_api| async move {
+                let result = points_api
+                    .update_vectors(UpdatePointVectors {
+                        collection_name: collection_name_ref.to_string(),
+                        wait: Some(blocking),
+                        points: points.to_owned(),
+                        ordering: ordering_ref.cloned(),
+                    })
+                    .await?;
+                Ok(result.into_inner())
+            })
+            .await?)
+    }
+
     pub async fn scroll(&self, request: &ScrollPoints) -> Result<ScrollResponse> {
         Ok(self
             .with_points_client(|mut points_api| async move {
@@ -895,6 +1059,18 @@ impl QdrantClient {
         Ok(self
             .with_points_client(|mut points_api| async move {
                 let result = points_api.recommend_batch(request.clone()).await?;
+                Ok(result.into_inner())
+            })
+            .await?)
+    }
+
+    pub async fn recommend_groups(
+        &self,
+        request: &RecommendPointGroups,
+    ) -> Result<RecommendGroupsResponse> {
+        Ok(self
+            .with_points_client(|mut points_api| async move {
+                let result = points_api.recommend_groups(request.clone()).await?;
                 Ok(result.into_inner())
             })
             .await?)
@@ -1147,7 +1323,7 @@ impl QdrantClient {
                 .first()
             {
                 Some(sn) => sn.name.clone(),
-                _ => bail!(
+                _ => anyhow::bail!(
                     "No snapshots found for collection {}",
                     collection_name.to_string()
                 ),
