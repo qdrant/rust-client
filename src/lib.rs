@@ -8,14 +8,325 @@ pub mod qdrant;
 #[cfg(feature = "serde")]
 pub mod serde;
 
+use qdrant::{value::Kind::*, ListValue, RetrievedPoint, ScoredPoint, Struct, Value};
+
+use std::error::Error;
+use std::fmt::{Debug, Display, Formatter};
+
+static NULL_VALUE: Value = Value {
+    kind: Some(NullValue(0)),
+};
+
+macro_rules! get_payload {
+    ($ty:ty) => {
+        impl $ty {
+            /// get a payload value for the specified key. If the key is not present,
+            /// this will return a null value.
+            ///
+            /// # Examples:
+            /// ```
+            #[doc = concat!("use qdrant_client::qdrant::", stringify!($ty), ";")]
+            #[doc = concat!("let point = ", stringify!($ty), "::default();")]
+            /// assert!(point.get("not_present").is_null());
+            /// ````
+            pub fn get(&self, key: &str) -> &Value {
+                self.payload.get(key).unwrap_or(&NULL_VALUE)
+            }
+        }
+    };
+}
+
+get_payload!(RetrievedPoint);
+get_payload!(ScoredPoint);
+
+macro_rules! extract {
+    ($kind:ident, $check:ident) => {
+        /// check if this value is a
+        #[doc = stringify!($kind)]
+        pub fn $check(&self) -> bool {
+            matches!(self.kind, Some($kind(_)))
+        }
+    };
+    ($kind:ident, $check:ident, $extract:ident, $ty:ty) => {
+        extract!($kind, $check);
+
+        /// extract the contents if this value is a
+        #[doc = stringify!($kind)]
+        pub fn $extract(&self) -> Option<$ty> {
+            if let Some($kind(v)) = self.kind {
+                Some(v)
+            } else {
+                None
+            }
+        }
+    };
+    ($kind:ident, $check:ident, $extract:ident, ref $ty:ty) => {
+        extract!($kind, $check);
+
+        /// extract the contents if this value is a
+        #[doc = stringify!($kind)]
+        pub fn $extract(&self) -> Option<&$ty> {
+            if let Some($kind(v)) = &self.kind {
+                Some(v)
+            } else {
+                None
+            }
+        }
+    };
+}
+
+impl Value {
+    extract!(NullValue, is_null);
+    extract!(BoolValue, is_bool, as_bool, bool);
+    extract!(IntegerValue, is_integer, as_integer, i64);
+    extract!(DoubleValue, is_double, as_double, f64);
+    extract!(StringValue, is_str, as_str, ref String);
+    extract!(ListValue, is_list, as_list, ref [Value]);
+    extract!(StructValue, is_struct, as_struct, ref Struct);
+
+    #[cfg(feature = "serde")]
+    /// convert this into a `serde_json::Value`
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// use serde_json::json;
+    /// use qdrant_client::prelude::*;
+    /// use qdrant_client::qdrant::{value::Kind::*, Struct};
+    /// let value = Value { kind: Some(StructValue(Struct {
+    ///     fields: [
+    ///         ("text".into(), Value { kind: Some(StringValue("Hi Qdrant!".into())) }),
+    ///         ("int".into(), Value { kind: Some(IntegerValue(42))}),
+    ///     ].into()
+    /// }))};
+    /// assert_eq!(value.into_json(), json!({
+    ///    "text": "Hi Qdrant!",
+    ///    "int": 42
+    /// }));
+    /// ```
+    pub fn into_json(self) -> serde_json::Value {
+        use serde_json::Value as JsonValue;
+        match self.kind {
+            Some(BoolValue(b)) => JsonValue::Bool(b),
+            Some(IntegerValue(i)) => JsonValue::from(i),
+            Some(DoubleValue(d)) => JsonValue::from(d),
+            Some(StringValue(s)) => JsonValue::String(s),
+            Some(ListValue(vs)) => vs.into_iter().map(Value::into_json).collect(),
+            Some(StructValue(s)) => s
+                .fields
+                .into_iter()
+                .map(|(k, v)| (k, v.into_json()))
+                .collect(),
+            Some(NullValue(_)) | None => JsonValue::Null,
+        }
+    }
+}
+
+#[cfg(feature = "serde")]
+impl From<Value> for serde_json::Value {
+    fn from(value: Value) -> Self {
+        value.into_json()
+    }
+}
+
+impl Display for Value {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match &self.kind {
+            Some(BoolValue(b)) => write!(f, "{}", b),
+            Some(IntegerValue(i)) => write!(f, "{}", i),
+            Some(DoubleValue(v)) => write!(f, "{}", v),
+            Some(StringValue(s)) => write!(f, "{:?}", s),
+            Some(ListValue(vs)) => {
+                let mut i = vs.values.iter();
+                write!(f, "[")?;
+                if let Some(first) = i.next() {
+                    write!(f, "{}", first)?;
+                    for v in i {
+                        write!(f, ",{}", v)?;
+                    }
+                }
+                write!(f, "]")
+            }
+            Some(StructValue(s)) => {
+                let mut i = s.fields.iter();
+                write!(f, "{{")?;
+                if let Some((key, value)) = i.next() {
+                    write!(f, "{:?}:{}", key, value)?;
+                    for (key, value) in i {
+                        write!(f, ",{:?}:{}", key, value)?;
+                    }
+                }
+                write!(f, "}}")
+            }
+            _ => write!(f, "null"),
+        }
+    }
+}
+
+pub mod error {
+    use std::marker::PhantomData;
+
+    /// An error for failed conversions (e.g. calling `String::try_from(v)`
+    /// on an integer [`Value`](crate::Value))
+    pub struct NotA<T> {
+        marker: PhantomData<T>,
+    }
+
+    impl<T> Default for NotA<T> {
+        fn default() -> Self {
+            NotA {
+                marker: PhantomData,
+            }
+        }
+    }
+}
+
+use error::NotA;
+
+macro_rules! not_a {
+    ($ty:ty) => {
+        impl Error for NotA<$ty> {}
+
+        impl Debug for NotA<$ty> {
+            fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+                write!(f, "{}", self)
+            }
+        }
+
+        impl Display for NotA<$ty> {
+            fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+                f.write_str(concat!("not a ", stringify!($ty)))
+            }
+        }
+    };
+}
+
+macro_rules! impl_try_from {
+    ($ty:ty, $key:ident) => {
+        not_a!($ty);
+
+        impl std::convert::TryFrom<Value> for $ty {
+            type Error = NotA<$ty>;
+
+            fn try_from(v: Value) -> Result<Self, NotA<$ty>> {
+                if let Some($key(t)) = v.kind {
+                    Ok(t)
+                } else {
+                    Err(NotA::default())
+                }
+            }
+        }
+    };
+}
+
+impl_try_from!(bool, BoolValue);
+impl_try_from!(i64, IntegerValue);
+impl_try_from!(f64, DoubleValue);
+impl_try_from!(String, StringValue);
+
+not_a!(ListValue);
+not_a!(Struct);
+
+impl Value {
+    /// try to get an iterator over the items of the contained list value, if any
+    pub fn iter_list(&self) -> Result<impl Iterator<Item = &Value>, NotA<ListValue>> {
+        if let Some(ListValue(values)) = &self.kind {
+            Ok(values.iter())
+        } else {
+            Err(NotA::default())
+        }
+    }
+
+    /// try to get a field from the struct if this value contains one
+    pub fn get_struct(&self, key: &str) -> Result<&Value, NotA<Struct>> {
+        if let Some(StructValue(Struct { fields })) = &self.kind {
+            Ok(fields.get(key).unwrap_or(&NULL_VALUE))
+        } else {
+            Err(NotA::default())
+        }
+    }
+}
+
+impl std::ops::Deref for ListValue {
+    type Target = [Value];
+
+    fn deref(&self) -> &[Value] {
+        &self.values
+    }
+}
+
+impl IntoIterator for ListValue {
+    type Item = Value;
+
+    type IntoIter = std::vec::IntoIter<Value>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.values.into_iter()
+    }
+}
+
+impl ListValue {
+    pub fn iter(&self) -> std::slice::Iter<'_, Value> {
+        self.values.iter()
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use super::prelude::*;
+    use crate::prelude::*;
+    use crate::qdrant::value::Kind::*;
     use crate::qdrant::vectors_config::Config;
     use crate::qdrant::{
-        CreateFieldIndexCollection, FieldType, Value, VectorParams, VectorsConfig,
+        CreateFieldIndexCollection, FieldType, ListValue, Struct, Value, VectorParams,
+        VectorsConfig,
     };
     use std::collections::HashMap;
+
+    #[test]
+    fn display() {
+        let value = Value {
+            kind: Some(StructValue(Struct {
+                fields: [
+                    ("text", StringValue("Hi Qdrant!".into())),
+                    ("int", IntegerValue(42)),
+                    ("float", DoubleValue(1.23)),
+                    (
+                        "list",
+                        ListValue(ListValue {
+                            values: vec![Value {
+                                kind: Some(NullValue(0)),
+                            }],
+                        }),
+                    ),
+                    (
+                        "struct",
+                        StructValue(Struct {
+                            fields: [(
+                                "bool".into(),
+                                Value {
+                                    kind: Some(BoolValue(true)),
+                                },
+                            )]
+                            .into(),
+                        }),
+                    ),
+                ]
+                .into_iter()
+                .map(|(k, v)| (k.into(), Value { kind: Some(v) }))
+                .collect(),
+            })),
+        };
+        let text = format!("{}", value);
+        assert!([
+            "\"float\":1.23",
+            "\"list\":[null]",
+            "\"struct\":{\"bool\":true}",
+            "\"int\":42",
+            "\"text\":\"Hi Qdrant!\""
+        ]
+        .into_iter()
+        .all(|item| text.contains(item)));
+    }
 
     #[tokio::test]
     async fn test_qdrant_queries() -> anyhow::Result<()> {
