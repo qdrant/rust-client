@@ -1,3 +1,107 @@
+//! The Qdrant Vector Database client
+//!
+//! This library uses GRPC to connect to the Qdrant server and allows you to
+//! access most if not all features. If you find a missing feature, please open
+//! an [issue](https://github.com/qdrant/rust-client/issues/new).
+//!
+//! If you use this library, you'll likely want to import the usual types and
+//! functions:
+//! ```
+//!#[allow(unused_import)]
+//! use qdrant_client::prelude::*;
+//! ```
+//!
+//! To work with a Qdrant database, you'll first need to connect by creating a
+//! [`QdrantClient`](crate::client::QdrantClient):
+//! ```
+//!# use qdrant_client::prelude::*;
+//!# fn establish_connection(url: &str) -> anyhow::Result<QdrantClient> {
+//! let mut config = QdrantClientConfig::from_url(url);
+//! config.api_key = std::env::var("QDRANT_API_KEY").ok();
+//! QdrantClient::new(Some(config))
+//!# }
+//! ```
+//!
+//! Qdrant works with *Collections* of *Points*. To add vector data, you first
+//! create a collection:
+//!
+//! ```
+//!# use qdrant_client::prelude::*;
+//! use qdrant_client::qdrant::{VectorParams, VectorsConfig};
+//! use qdrant_client::qdrant::vectors_config::Config;
+//!# async fn create_collection(qdrant_client: &QdrantClient)
+//!# -> Result<(), Box<dyn std::error::Error>> {
+//! let response = qdrant_client
+//!     .create_collection(&CreateCollection {
+//!         collection_name: "my_collection".into(),
+//!         vectors_config: Some(VectorsConfig {
+//!             config: Some(Config::Params(VectorParams {
+//!                 size: 512,
+//!                 distance: Distance::Cosine as i32,
+//!                 ..Default::default()
+//!             })),
+//!         }),
+//!         ..Default::default()
+//!     })
+//!     .await?;
+//!# Ok(())
+//!# }
+//! ```
+//! The most interesting parts are the `collection_name` and the
+//! `vectors_config.size` (the length of vectors to store) and `distance`
+//! (which is the [`Distance`](crate::qdrant::Distance) measure to gauge
+//! similarity for the nearest neighbors search).
+//!
+//! Now we have a collection, we can insert (or rather upsert) points.
+//! Points have an id, one or more vectors and a payload.
+//! We can usually do that in bulk, but for this example, we'll add a
+//! single point:
+//! ```
+//!# use qdrant_client::{prelude::*, qdrant::PointId};
+//!# async fn do_upsert(qdrant_client: &QdrantClient)
+//!# -> Result<(), Box<dyn std::error::Error>> {
+//! let point = PointStruct {
+//!     id: Some(PointId::from(42)), // unique u64 or String
+//!     vectors: Some(vec![0.0_f32; 512].into()),
+//!     payload: std::collections::HashMap::from([
+//!         ("great".into(), Value::from(true)),
+//!         ("level".into(), Value::from(9000)),
+//!         ("text".into(), Value::from("Hi Qdrant!")),
+//!         ("list".into(), Value::from(vec![1.234, 0.815])),
+//!     ]),
+//! };
+//!
+//! let response = qdrant_client
+//!     .upsert_points("my_collection", vec![point], None)
+//!     .await?;
+//!# Ok(())
+//!# }
+//! ```
+//!
+//! Finally, we can retrieve points in various ways, the canonical one being
+//! a plain similarity search:
+//! ```
+//!# use qdrant_client::prelude::*;
+//!# async fn search(qdrant_client: &QdrantClient)
+//!# -> Result<(), Box<dyn std::error::Error>> {
+//! let response = qdrant_client
+//!     .search_points(&SearchPoints {
+//!         collection_name: "my_collection".to_string(),
+//!         vector: vec![0.0_f32; 512],
+//!         limit: 4,
+//!         with_payload: Some(true.into()),
+//!         ..Default::default()
+//!     })
+//!     .await?;
+//!# Ok(())
+//!# }
+//! ```
+//!
+//! You can also add a `filters: Some(filters)` field to the
+//! [`SearchPoints`](crate::qdrant::SearchPoints) argument to filter the
+//! result. See the [`Filter`](crate::qdrant::Filter) documentation for
+//! details.
+
 mod channel_pool;
 pub mod client;
 pub mod prelude;
