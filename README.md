@@ -96,6 +96,7 @@ async fn main() -> Result<()> {
                     distance: Distance::Cosine.into(),
                     hnsw_config: None,
                     quantization_config: None,
+                    on_disk: None,
                 })),
             }),
             ..Default::default()
