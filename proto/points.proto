@@ -420,6 +420,18 @@ message RecommendGroupsResponse {
 // ------------- Filter Conditions -------------
 // ---------------------------------------------
 
+// Filters come in three variants:
+//
+// * `should`: will match if any of the conditions do
+// * `must`: will match if all of the conditions do
+// * `must_not`: will match if *none* of the conditions do
+//
+// # Examples
+// ```
+// use qdrant_client::qdrant::{Condition, Filter};
+//
+// Filter::all(Some(Condition::is_empty("remarks")));
+// ```
 message Filter {
   repeated Condition should = 1; // At least one of those conditions should match
   repeated Condition must = 2; // All conditions must match
