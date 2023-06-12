@@ -2758,6 +2758,18 @@ pub struct RecommendGroupsResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
+/// Filters come in three variants:
+///
+/// * `should`: will match if any of the conditions do
+/// * `must`: will match if all of the conditions do
+/// * `must_not`: will match if *none* of the conditions do
+///
+/// # Examples
+/// ```
+/// use qdrant_client::qdrant::{Condition, Filter};
+///
+/// Filter::all(Some(Condition::is_empty("remarks")));
+/// ```
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Filter {
