@@ -62,9 +62,11 @@ Add search example from [`examples/search.rs`](./examples/search.rs) to your `sr
 ```rust
 use anyhow::Result;
 use qdrant_client::prelude::*;
+use qdrant_client::qdrant::r#match::MatchValue;
 use qdrant_client::qdrant::vectors_config::Config;
 use qdrant_client::qdrant::{
-    Condition, CreateCollection, Filter, SearchPoints, VectorParams, VectorsConfig,
+    condition, Condition, CreateCollection, FieldCondition, Filter, Match, SearchPoints,
+    VectorParams, VectorsConfig,
 };
 use serde_json::json;
 
@@ -96,7 +98,9 @@ async fn main() -> Result<()> {
                 config: Some(Config::Params(VectorParams {
                     size: 10,
                     distance: Distance::Cosine.into(),
-                    ..Default::default()
+                    hnsw_config: None,
+                    quantization_config: None,
+                    on_disk: None,
                 })),
             }),
             ..Default::default()
@@ -111,7 +115,9 @@ async fn main() -> Result<()> {
             "foo": "Bar",
             "bar": 12,
         }
-    ).try_into().unwrap();
+    )
+    .try_into()
+    .unwrap();
 
     let points = vec![PointStruct::new(0, vec![12.; 10], payload)];
     client
@@ -122,11 +128,23 @@ async fn main() -> Result<()> {
         .search_points(&SearchPoints {
             collection_name: collection_name.into(),
             vector: vec![11.; 10],
-            filter: Some(Filter::all([Condition::matches("bar", 12)])),
-            limit: 10,
+            filter: Some(Filter {
+                must: vec![Condition {
+                    condition_one_of: Some(condition::ConditionOneOf::Field(FieldCondition {
+                        key: "bar".to_string(),
+                        r#match: Some(Match {
+                            match_value: Some(MatchValue::Integer(12)),
+                        }),
+                        ..Default::default()
+                    })),
+                }],
+                ..Default::default()
+            }),
+            limit: 1,
             ..Default::default()
         })
         .await?;
+
     dbg!(search_result);
     // search_result = SearchResponse {
     //     result: [

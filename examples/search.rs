@@ -1,8 +1,10 @@
 use anyhow::Result;
 use qdrant_client::prelude::*;
+use qdrant_client::qdrant::r#match::MatchValue;
 use qdrant_client::qdrant::vectors_config::Config;
 use qdrant_client::qdrant::{
-    Condition, CreateCollection, Filter, SearchPoints, VectorParams, VectorsConfig,
+    condition, Condition, CreateCollection, FieldCondition, Filter, Match, SearchPoints,
+    VectorParams, VectorsConfig,
 };
 use serde_json::json;
 
@@ -64,16 +66,23 @@ async fn main() -> Result<()> {
         .search_points(&SearchPoints {
             collection_name: collection_name.into(),
             vector: vec![11.; 10],
-            filter: Some(Filter::all([Condition::matches("bar", 12)])),
-            limit: 10,
-            with_vectors: None,
-            with_payload: None,
-            params: None,
-            score_threshold: None,
-            offset: None,
+            filter: Some(Filter {
+                must: vec![Condition {
+                    condition_one_of: Some(condition::ConditionOneOf::Field(FieldCondition {
+                        key: "bar".to_string(),
+                        r#match: Some(Match {
+                            match_value: Some(MatchValue::Integer(12)),
+                        }),
+                        ..Default::default()
+                    })),
+                }],
+                ..Default::default()
+            }),
+            limit: 1,
             ..Default::default()
         })
         .await?;
+
     dbg!(search_result);
     // search_result = SearchResponse {
     //     result: [
