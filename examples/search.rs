@@ -48,6 +48,9 @@ async fn main() -> Result<()> {
         {
             "foo": "Bar",
             "bar": 12,
+            "baz": {
+                "qux": "quux"
+            }
         }
     )
     .try_into()
@@ -68,7 +71,7 @@ async fn main() -> Result<()> {
             ..Default::default()
         })
         .await?;
-    dbg!(search_result);
+    dbg!(&search_result);
     // search_result = SearchResponse {
     //     result: [
     //         ScoredPoint {
@@ -104,6 +107,12 @@ async fn main() -> Result<()> {
     //     ],
     //     time: 9.5394e-5,
     // }
+
+    let found_point = search_result.result.into_iter().next().unwrap();
+    let mut payload = found_point.payload;
+    let foo = payload.remove("baz").unwrap().into_json();
+    println!("baz: {}", foo.to_string());
+    // baz: {"qux":"quux"}
 
     Ok(())
 }
