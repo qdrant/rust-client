@@ -34,9 +34,7 @@ async fn main() -> Result<()> {
                 config: Some(Config::Params(VectorParams {
                     size: 10,
                     distance: Distance::Cosine.into(),
-                    hnsw_config: None,
-                    quantization_config: None,
-                    on_disk: None,
+                    ..Default::default()
                 })),
             }),
             ..Default::default()
@@ -66,11 +64,7 @@ async fn main() -> Result<()> {
             vector: vec![11.; 10],
             filter: Some(Filter::all([Condition::matches("bar", 12)])),
             limit: 10,
-            with_vectors: None,
-            with_payload: None,
-            params: None,
-            score_threshold: None,
-            offset: None,
+            with_payload: Some(true.into()),
             ..Default::default()
         })
         .await?;
@@ -87,13 +81,28 @@ async fn main() -> Result<()> {
     //                     ),
     //                 },
     //             ),
-    //             payload: {},
+    //             payload: {
+    //                 "bar": Value {
+    //                     kind: Some(
+    //                         IntegerValue(
+    //                     12,
+    //                     ),
+    //                     ),
+    //                 },
+    //                 "foo": Value {
+    //                     kind: Some(
+    //                         StringValue(
+    //                     "Bar",
+    //                     ),
+    //                     ),
+    //                 },
+    //             },
     //             score: 1.0000001,
     //             version: 0,
     //             vectors: None,
     //         },
     //     ],
-    //     time: 5.312e-5,
+    //     time: 9.5394e-5,
     // }
 
     Ok(())

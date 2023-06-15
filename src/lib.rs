@@ -111,10 +111,8 @@ pub mod prelude;
 pub mod qdrant;
 #[cfg(feature = "serde")]
 pub mod serde;
+pub mod filters;
 
-use qdrant::condition::ConditionOneOf;
-use qdrant::r#match::MatchValue;
-use qdrant::PointId;
 use qdrant::{value::Kind::*, ListValue, RetrievedPoint, ScoredPoint, Struct, Value};
 
 use std::error::Error;
@@ -336,7 +334,7 @@ not_a!(Struct);
 
 impl Value {
     /// try to get an iterator over the items of the contained list value, if any
-    pub fn iter_list(&self) -> Result<impl Iterator<Item = &Value>, NotA<ListValue>> {
+    pub fn iter_list(&self) -> Result<impl Iterator<Item=&Value>, NotA<ListValue>> {
         if let Some(ListValue(values)) = &self.kind {
             Ok(values.iter())
         } else {
@@ -378,142 +376,6 @@ impl ListValue {
     }
 }
 
-impl qdrant::Filter {
-    /// create a Filter that matches if any of the conditions match
-    pub fn any(conds: impl IntoIterator<Item = qdrant::Condition>) -> Self {
-        Self {
-            should: conds.into_iter().collect(),
-            ..Default::default()
-        }
-    }
-
-    /// create a Filter that matches if all of the conditions match
-    pub fn all(conds: impl IntoIterator<Item = qdrant::Condition>) -> Self {
-        Self {
-            must: conds.into_iter().collect(),
-            ..Default::default()
-        }
-    }
-
-    /// create a Filter that matches if none of the conditions match
-    pub fn none(conds: impl IntoIterator<Item = qdrant::Condition>) -> Self {
-        Self {
-            must_not: conds.into_iter().collect(),
-            ..Default::default()
-        }
-    }
-}
-
-impl qdrant::Condition {
-    /// create a Condition to check if a field is empty
-    ///
-    /// # Examples:
-    /// ```
-    /// qdrant_client::qdrant::Condition::is_empty("field");
-    /// ```
-    pub fn is_empty(key: impl Into<String>) -> Self {
-        Self::from(qdrant::IsEmptyCondition { key: key.into() })
-    }
-
-    /// create a Condition to check if the point has a null key
-    ///
-    /// # Examples:
-    /// ```
-    /// qdrant_client::qdrant::Condition::is_empty("remark");
-    /// ```
-    pub fn is_null(key: impl Into<String>) -> Self {
-        Self {
-            condition_one_of: Some(ConditionOneOf::IsNull(qdrant::IsNullCondition {
-                key: key.into(),
-            })),
-        }
-    }
-
-    /// create a Condition to check if the point has one of the given ids
-    ///
-    /// # Examples:
-    /// ```
-    /// qdrant_client::qdrant::Condition::has_id([0, 8, 15]);
-    /// ```
-    pub fn has_id(ids: impl IntoIterator<Item = impl Into<PointId>>) -> Self {
-        Self::from(qdrant::HasIdCondition {
-            has_id: ids.into_iter().map(Into::into).collect(),
-        })
-    }
-
-    /// create a Condition that matches a field against a certain value
-    ///
-    /// # Examples:
-    /// ```
-    /// qdrant_client::qdrant::Condition::matches("number", 42);
-    /// qdrant_client::qdrant::Condition::matches("tag", vec!["i".to_string(), "em".into()]);
-    /// ```
-    pub fn matches(field: impl Into<String>, r#match: impl Into<MatchValue>) -> Self {
-        Self {
-            condition_one_of: Some(ConditionOneOf::Field(qdrant::FieldCondition {
-                key: field.into(),
-                r#match: Some(qdrant::Match {
-                    match_value: Some(r#match.into()),
-                }),
-                ..Default::default()
-            })),
-        }
-    }
-}
-
-impl From<bool> for MatchValue {
-    fn from(value: bool) -> Self {
-        Self::Boolean(value)
-    }
-}
-
-impl From<i64> for MatchValue {
-    fn from(value: i64) -> Self {
-        Self::Integer(value)
-    }
-}
-
-impl From<String> for MatchValue {
-    fn from(value: String) -> Self {
-        if value.contains(char::is_whitespace) {
-            Self::Text(value)
-        } else {
-            Self::Keyword(value)
-        }
-    }
-}
-
-impl From<Vec<i64>> for MatchValue {
-    fn from(integers: Vec<i64>) -> Self {
-        Self::Integers(qdrant::RepeatedIntegers { integers })
-    }
-}
-
-impl From<Vec<String>> for MatchValue {
-    fn from(strings: Vec<String>) -> Self {
-        Self::Keywords(qdrant::RepeatedStrings { strings })
-    }
-}
-
-impl std::ops::Not for MatchValue {
-    type Output = Self;
-
-    fn not(self) -> Self::Output {
-        match self {
-            Self::Keyword(s) => Self::ExceptKeywords(qdrant::RepeatedStrings { strings: vec![s] }),
-            Self::Integer(i) => {
-                Self::ExceptIntegers(qdrant::RepeatedIntegers { integers: vec![i] })
-            }
-            Self::Boolean(b) => Self::Boolean(!b),
-            Self::Keywords(ks) => Self::ExceptKeywords(ks),
-            Self::Integers(is) => Self::ExceptIntegers(is),
-            Self::ExceptKeywords(ks) => Self::Keywords(ks),
-            Self::ExceptIntegers(is) => Self::Integers(is),
-            Self::Text(_) => panic!("cannot negate a MatchValue::Text"),
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use crate::prelude::*;
@@ -550,13 +412,13 @@ mod tests {
                                     kind: Some(BoolValue(true)),
                                 },
                             )]
-                            .into(),
+                                .into(),
                         }),
                     ),
                 ]
-                .into_iter()
-                .map(|(k, v)| (k.into(), Value { kind: Some(v) }))
-                .collect(),
+                    .into_iter()
+                    .map(|(k, v)| (k.into(), Value { kind: Some(v) }))
+                    .collect(),
             })),
         };
         let text = format!("{}", value);
@@ -567,8 +429,8 @@ mod tests {
             "\"int\":42",
             "\"text\":\"Hi Qdrant!\""
         ]
-        .into_iter()
-        .all(|item| text.contains(item)));
+            .into_iter()
+            .all(|item| text.contains(item)));
     }
 
     #[tokio::test]
@@ -612,9 +474,9 @@ mod tests {
             ("bar", 12.into()),
             ("sub_payload", sub_payload.into()),
         ]
-        .into_iter()
-        .collect::<HashMap<_, Value>>()
-        .into();
+            .into_iter()
+            .collect::<HashMap<_, Value>>()
+            .into();
 
         let points = vec![PointStruct::new(0, vec![12.; 10], payload)];
         client
