@@ -1,8 +1,11 @@
 use crate::qdrant;
-use crate::qdrant::{Condition, FieldCondition, Filter, GeoBoundingBox, GeoRadius, HasIdCondition, IsEmptyCondition, IsNullCondition, PointId, PointsSelector, Range, ValuesCount};
 use crate::qdrant::condition::ConditionOneOf;
 use crate::qdrant::points_selector::PointsSelectorOneOf;
 use crate::qdrant::r#match::MatchValue;
+use crate::qdrant::{
+    Condition, FieldCondition, Filter, GeoBoundingBox, GeoRadius, HasIdCondition, IsEmptyCondition,
+    IsNullCondition, PointId, PointsSelector, Range, ValuesCount,
+};
 
 impl From<Filter> for PointsSelector {
     fn from(filter: Filter) -> Self {
@@ -52,10 +55,9 @@ impl From<Filter> for Condition {
     }
 }
 
-
 impl qdrant::Filter {
     /// create a Filter where all of the conditions must be satisfied
-    pub fn must(conds: impl IntoIterator<Item=qdrant::Condition>) -> Self {
+    pub fn must(conds: impl IntoIterator<Item = qdrant::Condition>) -> Self {
         Self {
             must: conds.into_iter().collect(),
             ..Default::default()
@@ -63,7 +65,7 @@ impl qdrant::Filter {
     }
 
     /// create a Filter where at least one of the conditions should be satisfied
-    pub fn should(conds: impl IntoIterator<Item=qdrant::Condition>) -> Self {
+    pub fn should(conds: impl IntoIterator<Item = qdrant::Condition>) -> Self {
         Self {
             should: conds.into_iter().collect(),
             ..Default::default()
@@ -71,7 +73,7 @@ impl qdrant::Filter {
     }
 
     /// create a Filter where none of the conditions must be satisfied
-    pub fn must_not(conds: impl IntoIterator<Item=qdrant::Condition>) -> Self {
+    pub fn must_not(conds: impl IntoIterator<Item = qdrant::Condition>) -> Self {
         Self {
             must_not: conds.into_iter().collect(),
             ..Default::default()
@@ -80,19 +82,19 @@ impl qdrant::Filter {
 
     /// Alias for [`should`](Self::should)
     /// create a Filter that matches if any of the conditions match
-    pub fn any(conds: impl IntoIterator<Item=qdrant::Condition>) -> Self {
+    pub fn any(conds: impl IntoIterator<Item = qdrant::Condition>) -> Self {
         Self::should(conds)
     }
 
     /// Alias for [`must`](Self::must)
     /// create a Filter that matches if all of the conditions match
-    pub fn all(conds: impl IntoIterator<Item=qdrant::Condition>) -> Self {
+    pub fn all(conds: impl IntoIterator<Item = qdrant::Condition>) -> Self {
         Self::must(conds)
     }
 
     /// Alias for [`must_not`](Self::must_not)
     /// create a Filter that matches if none of the conditions match
-    pub fn none(conds: impl IntoIterator<Item=qdrant::Condition>) -> Self {
+    pub fn none(conds: impl IntoIterator<Item = qdrant::Condition>) -> Self {
         Self::must_not(conds)
     }
 }
@@ -124,7 +126,7 @@ impl qdrant::Condition {
     /// ```
     /// qdrant_client::qdrant::Condition::has_id([0, 8, 15]);
     /// ```
-    pub fn has_id(ids: impl IntoIterator<Item=impl Into<PointId>>) -> Self {
+    pub fn has_id(ids: impl IntoIterator<Item = impl Into<PointId>>) -> Self {
         Self::from(qdrant::HasIdCondition {
             has_id: ids.into_iter().map(Into::into).collect(),
         })
