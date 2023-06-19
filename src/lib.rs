@@ -522,7 +522,13 @@ mod tests {
 
         // retrieve points
         let points = client
-            .get_points(collection_name, &[0.into()], Some(true), Some(true), None)
+            .get_points(
+                collection_name,
+                &vec![0.into()],
+                Some(true),
+                Some(true),
+                None,
+            )
             .await?;
 
         assert_eq!(points.result.len(), 1);

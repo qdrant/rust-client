@@ -41,6 +41,7 @@ use tonic::codegen::InterceptedService;
 use tonic::service::Interceptor;
 use tonic::transport::{Channel, Uri};
 use tonic::{Request, Status};
+#[derive(Clone)]
 
 pub struct QdrantClientConfig {
     pub uri: String,
@@ -185,7 +186,7 @@ impl Interceptor for TokenInterceptor {
         Ok(req)
     }
 }
-
+#[derive(Clone)]
 pub struct QdrantClient {
     pub channel: ChannelPool,
     pub cfg: QdrantClientConfig,
@@ -203,15 +204,12 @@ impl QdrantClient {
         f: impl Fn(SnapshotsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
     ) -> Result<T, Status> {
         self.channel
-            .with_channel(
-                |channel| {
-                    let service = self.with_api_key(channel);
-                    let client = SnapshotsClient::new(service);
-                    let client = client.max_decoding_message_size(usize::MAX);
-                    f(client)
-                },
-                false,
-            )
+            .with_channel(|channel| {
+                let service = self.with_api_key(channel);
+                let client = SnapshotsClient::new(service);
+                let client = client.max_decoding_message_size(usize::MAX);
+                f(client)
+            })
             .await
     }
 
@@ -221,15 +219,12 @@ impl QdrantClient {
         f: impl Fn(CollectionsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
     ) -> Result<T, Status> {
         self.channel
-            .with_channel(
-                |channel| {
-                    let service = self.with_api_key(channel);
-                    let client = CollectionsClient::new(service);
-                    let client = client.max_decoding_message_size(usize::MAX);
-                    f(client)
-                },
-                false,
-            )
+            .with_channel(|channel| {
+                let service = self.with_api_key(channel);
+                let client = CollectionsClient::new(service);
+                let client = client.max_decoding_message_size(usize::MAX);
+                f(client)
+            })
             .await
     }
 
@@ -239,15 +234,12 @@ impl QdrantClient {
         f: impl Fn(PointsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
     ) -> Result<T, Status> {
         self.channel
-            .with_channel(
-                |channel| {
-                    let service = self.with_api_key(channel);
-                    let client = PointsClient::new(service);
-                    let client = client.max_decoding_message_size(usize::MAX);
-                    f(client)
-                },
-                true,
-            )
+            .with_channel(|channel| {
+                let service = self.with_api_key(channel);
+                let client = PointsClient::new(service);
+                let client = client.max_decoding_message_size(usize::MAX);
+                f(client)
+            })
             .await
     }
 
@@ -257,15 +249,12 @@ impl QdrantClient {
         f: impl Fn(qdrant_client::QdrantClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
     ) -> Result<T, Status> {
         self.channel
-            .with_channel(
-                |channel| {
-                    let service = self.with_api_key(channel);
-                    let client = qdrant_client::QdrantClient::new(service);
-                    let client = client.max_decoding_message_size(usize::MAX);
-                    f(client)
-                },
-                true,
-            )
+            .with_channel(|channel| {
+                let service = self.with_api_key(channel);
+                let client = qdrant_client::QdrantClient::new(service);
+                let client = client.max_decoding_message_size(usize::MAX);
+                f(client)
+            })
             .await
     }
 
@@ -277,7 +266,8 @@ impl QdrantClient {
             cfg.timeout,
             cfg.connect_timeout,
             cfg.keep_alive_while_idle,
-        );
+        )
+        .await?;
 
         let client = Self { channel, cfg };
 
@@ -549,7 +539,7 @@ impl QdrantClient {
     async fn _upsert_points(
         &self,
         collection_name: impl ToString,
-        points: &[PointStruct],
+        points: &Vec<PointStruct>,
         block: bool,
         ordering: Option<WriteOrdering>,
     ) -> Result<PointsOperationResponse> {
@@ -701,7 +691,7 @@ impl QdrantClient {
         &self,
         collection_name: impl ToString,
         points: &PointsSelector,
-        keys: &[String],
+        keys: &Vec<String>,
         block: bool,
         ordering: Option<WriteOrdering>,
     ) -> Result<PointsOperationResponse> {
@@ -775,7 +765,7 @@ impl QdrantClient {
     pub async fn get_points(
         &self,
         collection_name: impl ToString,
-        points: &[PointId],
+        points: &Vec<PointId>,
         with_vectors: Option<impl Into<WithVectorsSelector>>,
         with_payload: Option<impl Into<WithPayloadSelector>>,
         read_consistency: Option<ReadConsistency>,
@@ -1361,7 +1351,6 @@ impl From<HashMap<&str, Value>> for Payload {
         )
     }
 }
-
 impl Payload {
     pub fn new() -> Self {
         Self(HashMap::new())
