@@ -25,7 +25,7 @@ futures-util = { version = "0.3.28", optional = true }
 
 [dev-dependencies]
 tonic-build = { version = "0.9.2", features = ["prost"] }
-tokio = { version = "1.28.1", features = ["rt-multi-thread"] }
+tokio = { version = "1.28.2", features = ["rt-multi-thread"] }
 
 [features]
 default = ["download_snapshots", "serde"]
