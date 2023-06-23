@@ -242,7 +242,7 @@ pub struct CreateCollection {
     /// Configuration of the optimizers
     #[prost(message, optional, tag = "6")]
     pub optimizers_config: ::core::option::Option<OptimizersConfigDiff>,
-    /// Number of shards in the collection, default = 1
+    /// Number of shards in the collection, default is 1 for standalone, otherwise equal to the number of nodes. Minimum is 1
     #[prost(uint32, optional, tag = "7")]
     pub shard_number: ::core::option::Option<u32>,
     /// If true - point's payload will not be stored in memory
@@ -2321,6 +2321,16 @@ pub struct QuantizationSearchParams {
     /// If true, use original vectors to re-score top-k results. Default is true.
     #[prost(bool, optional, tag = "2")]
     pub rescore: ::core::option::Option<bool>,
+    ///
+    /// Oversampling factor for quantization.
+    ///
+    /// Defines how many extra vectors should be pre-selected using quantized index,
+    /// and then re-scored using original vectors.
+    ///
+    /// For example, if `oversampling` is 2.4 and `limit` is 100, then 240 vectors will be pre-selected using quantized index,
+    /// and then top-100 will be returned after re-scoring.
+    #[prost(double, optional, tag = "3")]
+    pub oversampling: ::core::option::Option<f64>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -2390,6 +2400,19 @@ pub struct SearchBatchPoints {
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct WithLookup {
+    /// Name of the collection to use for points lookup
+    #[prost(string, tag = "1")]
+    pub collection: ::prost::alloc::string::String,
+    /// Options for specifying which payload to include (or not)
+    #[prost(message, optional, tag = "2")]
+    pub with_payload: ::core::option::Option<WithPayloadSelector>,
+    /// Options for specifying which vectors to include (or not)
+    #[prost(message, optional, tag = "3")]
+    pub with_vectors: ::core::option::Option<WithVectorsSelector>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SearchPointGroups {
     /// Name of the collection
     #[prost(string, tag = "1")]
@@ -2427,6 +2450,9 @@ pub struct SearchPointGroups {
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "12")]
     pub read_consistency: ::core::option::Option<ReadConsistency>,
+    /// Options for specifying how to use the group id to lookup points in another collection
+    #[prost(message, optional, tag = "13")]
+    pub with_lookup: ::core::option::Option<WithLookup>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -2561,6 +2587,9 @@ pub struct RecommendPointGroups {
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "14")]
     pub read_consistency: ::core::option::Option<ReadConsistency>,
+    /// Options for specifying how to use the group id to lookup points in another collection
+    #[prost(message, optional, tag = "15")]
+    pub with_lookup: ::core::option::Option<WithLookup>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -2644,6 +2673,9 @@ pub struct PointGroup {
     /// Points in the group
     #[prost(message, repeated, tag = "2")]
     pub hits: ::prost::alloc::vec::Vec<ScoredPoint>,
+    /// Point(s) from the lookup collection that matches the group id
+    #[prost(message, optional, tag = "3")]
+    pub lookup: ::core::option::Option<RetrievedPoint>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
