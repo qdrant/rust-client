@@ -1374,6 +1374,13 @@ impl Payload {
     pub fn insert(&mut self, key: impl ToString, val: impl Into<Value>) {
         self.0.insert(key.to_string(), val.into());
     }
+
+    /// Deserialize the payload into type `T` using `serde_json`.
+    #[cfg(feature = "serde")]
+    pub fn deserialize<T: serde::de::DeserializeOwned>(self) -> Result<T, serde_json::Error> {
+        let json = serde_json::to_value(&self.0)?;
+        serde_json::from_value(json)
+    }
 }
 
 impl From<f64> for Value {
