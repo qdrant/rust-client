@@ -76,13 +76,19 @@ impl MaybeApiKey for Option<String> {
     }
 }
 
+impl MaybeApiKey for Option<&String> {
+    fn maybe_key(self) -> Option<String> {
+        self.map(ToOwned::to_owned)
+    }
+}
+
 impl MaybeApiKey for Option<&str> {
     fn maybe_key(self) -> Option<String> {
         self.map(ToOwned::to_owned)
     }
 }
 
-impl MaybeApiKey for Result<String> {
+impl<E: Sized> MaybeApiKey for std::result::Result<String, E> {
     fn maybe_key(self) -> Option<String> {
         self.ok()
     }
@@ -135,16 +141,20 @@ impl QdrantClientConfig {
     ///
     /// A typical use case might be getting the key from an env var:
     /// ```rust, no_run
-    /// use qdrant_client::client::QdrantClientConfig;
+    /// use qdrant_client::prelude::*;
     ///
-    /// QdrantClientConfig::from_url("localhost:6334")
+    /// let client = QdrantClient::from_url("localhost:6334")
     ///     .with_api_key(std::env::var("QDRANT_API_KEY"))
+    ///     .build();
     /// ```
     /// Another possibility might be getting it out of some config
     /// ```rust, no_run
-    ///# let config = HashMap::new::<String, String>();
-    /// QdrantClientConfig::from_url("localhost:6334")
-    ///     .with_api_ckey(config.get("api_key"))
+    /// use qdrant_client::prelude::*;
+    ///# use std::collections::HashMap;
+    ///# let config: HashMap<&str, String> = HashMap::new();
+    /// let client = QdrantClientConfig::from_url("localhost:6334")
+    ///     .with_api_key(config.get("api_key"))
+    ///     .build();
     /// ```
     pub fn with_api_key(mut self, api_key: impl MaybeApiKey) -> Self {
         self.api_key = api_key.maybe_key();
@@ -675,9 +685,7 @@ impl QdrantClient {
                                 wait: Some(block),
                                 points: chunk.to_vec(),
                                 ordering: ordering_ref.cloned(),
-                            })
-                            .await?
-                            .into_inner();
+                            }).await?.into_inner();
                         resp.result = result;
                         resp.time += time;
                     }
