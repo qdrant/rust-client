@@ -50,6 +50,60 @@ pub struct QdrantClientConfig {
     pub api_key: Option<String>,
 }
 
+/// A builder type for `QdrantClient`s
+pub type QdrantClientBuilder = QdrantClientConfig;
+
+/// Helper thread to allow setting an API key from various types
+pub trait MaybeApiKey {
+    fn maybe_key(self) -> Option<String>;
+}
+
+impl MaybeApiKey for &str {
+    fn maybe_key(self) -> Option<String> {
+        Some(self.to_string())
+    }
+}
+
+impl MaybeApiKey for String {
+    fn maybe_key(self) -> Option<String> {
+        Some(self)
+    }
+}
+
+impl MaybeApiKey for Option<String> {
+    fn maybe_key(self) -> Option<String> {
+        self
+    }
+}
+
+impl MaybeApiKey for Option<&str> {
+    fn maybe_key(self) -> Option<String> {
+        self.map(ToOwned::to_owned)
+    }
+}
+
+impl MaybeApiKey for Result<String> {
+    fn maybe_key(self) -> Option<String> {
+        self.ok()
+    }
+}
+
+pub trait AsTimeout {
+    fn timeout(self) -> Duration;
+}
+
+impl AsTimeout for Duration {
+    fn timeout(self) -> Duration {
+        self
+    }
+}
+
+impl AsTimeout for u64 {
+    fn timeout(self) -> Duration {
+        Duration::from_secs(self)
+    }
+}
+
 impl QdrantClientConfig {
     pub fn from_url(url: &str) -> Self {
         QdrantClientConfig {
@@ -72,6 +126,52 @@ impl QdrantClientConfig {
 
     pub fn set_keep_alive_while_idle(&mut self, keep_alive_while_idle: bool) {
         self.keep_alive_while_idle = keep_alive_while_idle;
+    }
+
+    /// set the API key, builder-like. The API key argument can be any of
+    /// `&str`, `String`, `Option<&str>``, `Option<String>` or `Result<String>`.`
+    ///
+    /// # Examples:
+    ///
+    /// A typical use case might be getting the key from an env var:
+    /// ```rust, no_run
+    /// use qdrant_client::client::QdrantClientConfig;
+    ///
+    /// QdrantClientConfig::from_url("localhost:6334")
+    ///     .with_api_key(std::env::var("QDRANT_API_KEY"))
+    /// ```
+    /// Another possibility might be getting it out of some config
+    /// ```rust, no_run
+    ///# let config = HashMap::new::<String, String>();
+    /// QdrantClientConfig::from_url("localhost:6334")
+    ///     .with_api_ckey(config.get("api_key"))
+    /// ```
+    pub fn with_api_key(mut self, api_key: impl MaybeApiKey) -> Self {
+        self.api_key = api_key.maybe_key();
+        self
+    }
+
+    /// Configure the service to keep the connection alive while idle
+    pub fn keep_alive_while_idle(mut self) -> Self {
+        self.keep_alive_while_idle = true;
+        self
+    }
+
+    /// Set the timeout for this client
+    pub fn with_timeout(mut self, timeout: impl AsTimeout) -> Self {
+        self.timeout = timeout.timeout();
+        self
+    }
+
+    /// Set the connect timeout for this client
+    pub fn with_connect_timeout(mut self, timeout: impl AsTimeout) -> Self {
+        self.connect_timeout = timeout.timeout();
+        self
+    }
+
+    /// Build the QdrantClient
+    pub fn build(self) -> Result<QdrantClient> {
+        QdrantClient::new(Some(self))
     }
 }
 
@@ -192,6 +292,11 @@ pub struct QdrantClient {
 }
 
 impl QdrantClient {
+    /// Create a builder to setup the client
+    pub fn from_url(url: &str) -> QdrantClientBuilder {
+        QdrantClientBuilder::from_url(url)
+    }
+
     /// Wraps a channel with a token interceptor
     fn with_api_key(&self, channel: Channel) -> InterceptedService<Channel, TokenInterceptor> {
         let interceptor = TokenInterceptor::new(self.cfg.api_key.clone());
@@ -556,14 +661,30 @@ impl QdrantClient {
         let collection_name = collection_name.to_string();
         let collection_name_ref = collection_name.as_str();
         let ordering_ref = ordering.as_ref();
-
         Ok(self
             .with_points_client(|mut points_api| async move {
+                if points.len() > 1024 {
+                    let mut resp = PointsOperationResponse {
+                        result: None,
+                        time: 0.0,
+                    };
+                    for chunk in points.chunks(1024) {
+                        let PointsOperationResponse { result, time } = points_api
+                            .upsert(UpsertPoints {
+                                collection_name: collection_name_ref.to_string(),
+                                wait: Some(block),
+                                points: chunk.to_vec(),
+                                ordering: ordering_ref.cloned(),
+                            }).await?.into_inner();
+                        resp.result = result;
+                        resp.time += time;
+                    }
+                }
                 let result = points_api
                     .upsert(UpsertPoints {
                         collection_name: collection_name_ref.to_string(),
                         wait: Some(block),
-                        points: points.to_owned(),
+                        points: points.to_vec(),
                         ordering: ordering_ref.cloned(),
                     })
                     .await?;
