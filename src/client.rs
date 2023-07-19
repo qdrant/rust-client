@@ -640,6 +640,12 @@ impl QdrantClient {
             .await?)
     }
 
+    /// Update or insert points into the collection.
+    /// If points with given ID already exist, they will be overwritten.
+    /// This method does *not* wait for completion of the operation, use
+    /// [`upsert_points_blocking`] for that.
+    /// Also this method does not split the points to insert to avoid timeouts,
+    /// look at [`upsert_points_batch`] for that.
     pub async fn upsert_points(
         &self,
         collection_name: impl ToString,
@@ -650,6 +656,10 @@ impl QdrantClient {
             .await
     }
 
+    /// Update or insert points into the collection, wait for completion.
+    /// If points with given ID already exist, they will be overwritten.
+    /// This method does not split the points to insert to avoid timeouts,
+    /// look at [`upsert_points_batch`] for that.
     pub async fn upsert_points_blocking(
         &self,
         collection_name: impl ToString,
@@ -673,32 +683,92 @@ impl QdrantClient {
         let ordering_ref = ordering.as_ref();
         Ok(self
             .with_points_client(|mut points_api| async move {
-                if points.len() > 1024 {
-                    let mut resp = PointsOperationResponse {
-                        result: None,
-                        time: 0.0,
-                    };
-                    for chunk in points.chunks(1024) {
-                        let PointsOperationResponse { result, time } = points_api
-                            .upsert(UpsertPoints {
-                                collection_name: collection_name_ref.to_string(),
-                                wait: Some(block),
-                                points: chunk.to_vec(),
-                                ordering: ordering_ref.cloned(),
-                            }).await?.into_inner();
-                        resp.result = result;
-                        resp.time += time;
-                    }
-                }
-                let result = points_api
+                Ok(points_api
                     .upsert(UpsertPoints {
                         collection_name: collection_name_ref.to_string(),
                         wait: Some(block),
                         points: points.to_vec(),
                         ordering: ordering_ref.cloned(),
                     })
-                    .await?;
-                Ok(result.into_inner())
+                    .await?
+                    .into_inner())
+            })
+            .await?)
+    }
+
+    /// Update or insert points into the collection, splitting in chunks.
+    /// If points with given ID already exist, they will be overwritten.
+    /// This method does *not* wait for completion of the operation, use
+    /// [`upsert_points_batch_blocking`] for that.
+    pub async fn upsert_points_batch(
+        &self,
+        collection_name: impl ToString,
+        points: Vec<PointStruct>,
+        ordering: Option<WriteOrdering>,
+        chunk_size: usize,
+    ) -> Result<PointsOperationResponse> {
+        self._upsert_points_batch(collection_name, &points, false, ordering, chunk_size)
+            .await
+    }
+
+    /// Update or insert points into the collection, splitting in chunks and
+    /// waiting for completion of each.
+    /// If points with given ID already exist, they will be overwritten.
+    pub async fn upsert_points_batch_blocking(
+        &self,
+        collection_name: impl ToString,
+        points: Vec<PointStruct>,
+        ordering: Option<WriteOrdering>,
+        chunk_size: usize,
+    ) -> Result<PointsOperationResponse> {
+        self._upsert_points_batch(collection_name, &points, false, ordering, chunk_size)
+            .await
+    }
+
+    #[inline]
+    async fn _upsert_points_batch(
+        &self,
+        collection_name: impl ToString,
+        points: &[PointStruct],
+        block: bool,
+        ordering: Option<WriteOrdering>,
+        chunk_size: usize,
+    ) -> Result<PointsOperationResponse> {
+        let collection_name = collection_name.to_string();
+        let collection_name_ref = collection_name.as_str();
+        let ordering_ref = ordering.as_ref();
+        Ok(self
+            .with_points_client(|mut points_api| async move {
+                if points.len() > chunk_size {
+                    let mut resp = PointsOperationResponse {
+                        result: None,
+                        time: 0.0,
+                    };
+                    for chunk in points.chunks(chunk_size) {
+                        let PointsOperationResponse { result, time } = points_api
+                            .upsert(UpsertPoints {
+                                collection_name: collection_name_ref.to_string(),
+                                wait: Some(block),
+                                points: chunk.to_vec(),
+                                ordering: ordering_ref.cloned(),
+                            })
+                            .await?
+                            .into_inner();
+                        resp.result = result;
+                        resp.time += time;
+                    }
+                    Ok(resp)
+                } else {
+                    Ok(points_api
+                        .upsert(UpsertPoints {
+                            collection_name: collection_name_ref.to_string(),
+                            wait: Some(block),
+                            points: points.to_vec(),
+                            ordering: ordering_ref.cloned(),
+                        })
+                        .await?
+                        .into_inner())
+                }
             })
             .await?)
     }
