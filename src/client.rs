@@ -675,7 +675,9 @@ impl QdrantClient {
                                 wait: Some(block),
                                 points: chunk.to_vec(),
                                 ordering: ordering_ref.cloned(),
-                            }).await?.into_inner();
+                            })
+                            .await?
+                            .into_inner();
                         resp.result = result;
                         resp.time += time;
                     }
