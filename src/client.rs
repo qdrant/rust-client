@@ -734,41 +734,34 @@ impl QdrantClient {
         ordering: Option<WriteOrdering>,
         chunk_size: usize,
     ) -> Result<PointsOperationResponse> {
+        if points.len() < chunk_size {
+            return self
+                ._upsert_points(collection_name, points, block, ordering)
+                .await;
+        }
         let collection_name = collection_name.to_string();
         let collection_name_ref = collection_name.as_str();
         let ordering_ref = ordering.as_ref();
         Ok(self
             .with_points_client(|mut points_api| async move {
-                if points.len() > chunk_size {
-                    let mut resp = PointsOperationResponse {
-                        result: None,
-                        time: 0.0,
-                    };
-                    for chunk in points.chunks(chunk_size) {
-                        let PointsOperationResponse { result, time } = points_api
-                            .upsert(UpsertPoints {
-                                collection_name: collection_name_ref.to_string(),
-                                wait: Some(block),
-                                points: chunk.to_vec(),
-                                ordering: ordering_ref.cloned(),
-                            })
-                            .await?
-                            .into_inner();
-                        resp.result = result;
-                        resp.time += time;
-                    }
-                    Ok(resp)
-                } else {
-                    Ok(points_api
+                let mut resp = PointsOperationResponse {
+                    result: None,
+                    time: 0.0,
+                };
+                for chunk in points.chunks(chunk_size) {
+                    let PointsOperationResponse { result, time } = points_api
                         .upsert(UpsertPoints {
                             collection_name: collection_name_ref.to_string(),
                             wait: Some(block),
-                            points: points.to_vec(),
+                            points: chunk.to_vec(),
                             ordering: ordering_ref.cloned(),
                         })
                         .await?
-                        .into_inner())
+                        .into_inner();
+                    resp.result = result;
+                    resp.time += time;
                 }
+                Ok(resp)
             })
             .await?)
     }
