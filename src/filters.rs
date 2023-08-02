@@ -216,6 +216,11 @@ impl Range {
         self.intersect(other);
         self
     }
+
+    /// Returns `true` if `val` is contained in the range.
+    pub fn contains(&self, val: f64) -> bool {
+        <Self as RangeBounds<f64>>::contains(self, &val)
+    }
 }
 
 impl RangeBounds<f64> for Range {
@@ -438,6 +443,11 @@ impl ValuesCount {
     pub fn intersection(mut self, other: &Self) -> Self {
         self.intersect(other);
         self
+    }
+
+    /// Returns `true` if `val` is contained in the range.
+    pub fn contains(&self, val: u64) -> bool {
+        <Self as RangeBounds<u64>>::contains(self, &val)
     }
 }
 
@@ -857,7 +867,6 @@ mod tests {
 #[cfg(test)]
 mod range_tests {
     use super::Range;
-    use std::ops::RangeBounds;
 
     #[test]
     fn test_empty() {
@@ -874,44 +883,44 @@ mod range_tests {
         {
             let range = Range::only(f64::NAN);
             assert!(range.is_empty());
-            assert!(test_vals.iter().all(|val| !range.contains(val)));
+            assert!(test_vals.iter().all(|&val| !range.contains(val)));
         }
 
         {
             let range = range!((f64::NAN)..);
             assert!(range.is_empty());
-            assert!(test_vals.iter().all(|val| !range.contains(val)));
+            assert!(test_vals.iter().all(|&val| !range.contains(val)));
         }
 
         {
             let range = range!((f64::INFINITY)..);
             assert!(range.is_empty());
-            assert!(test_vals.iter().all(|val| !range.contains(val)));
+            assert!(test_vals.iter().all(|&val| !range.contains(val)));
         }
 
         {
             let range = range!(..(f64::NEG_INFINITY));
             assert!(range.is_empty());
-            assert!(test_vals.iter().all(|val| !range.contains(val)));
+            assert!(test_vals.iter().all(|&val| !range.contains(val)));
         }
     }
 
     #[test]
     fn test_contains() {
-        assert!(Range::any().contains(&0.0));
+        assert!(Range::any().contains(0.0));
     }
 
     #[test]
     fn test_contains_edge_cases() {
         {
             let range = range!(..(f64::INFINITY));
-            assert!(range.contains(&0.0));
+            assert!(range.contains(0.0));
             assert!(!range.is_empty());
         }
 
         {
             let range = range!((f64::INFINITY)=..);
-            assert!(range.contains(&f64::INFINITY));
+            assert!(range.contains(f64::INFINITY));
             assert!(!range.is_empty());
         }
     }
@@ -981,7 +990,6 @@ mod range_tests {
 #[cfg(test)]
 mod values_count_tests {
     use super::ValuesCount;
-    use std::ops::RangeBounds;
 
     #[test]
     fn test_empty() {
@@ -998,16 +1006,16 @@ mod values_count_tests {
 
     #[test]
     fn test_contains() {
-        assert!(ValuesCount::any().contains(&0));
-        assert!(ValuesCount::only(0).contains(&0));
+        assert!(ValuesCount::any().contains(0));
+        assert!(ValuesCount::only(0).contains(0));
 
-        assert!(values_count!(0..=1).contains(&1));
-        assert!(values_count!(0=..=1).contains(&0));
+        assert!(values_count!(0..=1).contains(1));
+        assert!(values_count!(0=..=1).contains(0));
 
-        assert!(!values_count!(0..0).contains(&0));
-        assert!(!values_count!(1..0).contains(&0));
-        assert!(!values_count!(0..1).contains(&0));
-        assert!(!values_count!(0..1).contains(&1));
+        assert!(!values_count!(0..0).contains(0));
+        assert!(!values_count!(1..0).contains(0));
+        assert!(!values_count!(0..1).contains(0));
+        assert!(!values_count!(0..1).contains(1));
     }
 
     #[test]
