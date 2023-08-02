@@ -94,12 +94,17 @@ macro_rules! impl_common {
 
             /// Normalizes the representation of a given range
             /// by removing redundant constraints.
+            /// 
+            /// Redundant constraints occur when both `gt` and `gte`,
+            /// or both `lt` and `lte` fields are specified. In this case,
+            /// at least one of them will never be satisfied, so it can safely
+            /// be removed, leaving the stricter constraint.
             ///
             /// This is mostly useful for debugging purposes. At the moment,
             /// filters do not require that they are passed collapsed ranges.
             ///
-            /// You don't need to call this function if you constructed
-            /// your range using the `range!` macro or by calling other library functions,
+            /// You don't need to call this function if you construct
+            /// ranges by calling the library functions,
             /// as they never produce ranges with redundant constraints.
             pub fn collapse(&mut self) {
                 *self = Self::from_bounds(self.start_bound(), self.end_bound())
