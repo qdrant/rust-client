@@ -721,7 +721,7 @@ impl QdrantClient {
         ordering: Option<WriteOrdering>,
         chunk_size: usize,
     ) -> Result<PointsOperationResponse> {
-        self._upsert_points_batch(collection_name, &points, false, ordering, chunk_size)
+        self._upsert_points_batch(collection_name, &points, true, ordering, chunk_size)
             .await
     }
 
