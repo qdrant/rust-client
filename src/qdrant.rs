@@ -19,9 +19,31 @@ pub struct VectorParams {
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct VectorParamsDiff {
+    /// Update params for HNSW index. If empty object - it will be unset
+    #[prost(message, optional, tag = "1")]
+    pub hnsw_config: ::core::option::Option<HnswConfigDiff>,
+    /// Update quantization params. If none - it is left unchanged.
+    #[prost(message, optional, tag = "2")]
+    pub quantization_config: ::core::option::Option<QuantizationConfigDiff>,
+    /// If true - serve vectors from disk. If set to false, the vectors will be loaded in RAM.
+    #[prost(bool, optional, tag = "3")]
+    pub on_disk: ::core::option::Option<bool>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct VectorParamsMap {
     #[prost(map = "string, message", tag = "1")]
     pub map: ::std::collections::HashMap<::prost::alloc::string::String, VectorParams>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct VectorParamsDiffMap {
+    #[prost(map = "string, message", tag = "1")]
+    pub map: ::std::collections::HashMap<
+        ::prost::alloc::string::String,
+        VectorParamsDiff,
+    >,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -38,6 +60,23 @@ pub mod vectors_config {
         Params(super::VectorParams),
         #[prost(message, tag = "2")]
         ParamsMap(super::VectorParamsMap),
+    }
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct VectorsConfigDiff {
+    #[prost(oneof = "vectors_config_diff::Config", tags = "1, 2")]
+    pub config: ::core::option::Option<vectors_config_diff::Config>,
+}
+/// Nested message and enum types in `VectorsConfigDiff`.
+pub mod vectors_config_diff {
+    #[allow(clippy::derive_partial_eq_without_eq)]
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
+    pub enum Config {
+        #[prost(message, tag = "1")]
+        Params(super::VectorParamsDiff),
+        #[prost(message, tag = "2")]
+        ParamsMap(super::VectorParamsDiffMap),
     }
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -229,6 +268,28 @@ pub mod quantization_config {
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct Disabled {}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct QuantizationConfigDiff {
+    #[prost(oneof = "quantization_config_diff::Quantization", tags = "1, 2, 3")]
+    pub quantization: ::core::option::Option<quantization_config_diff::Quantization>,
+}
+/// Nested message and enum types in `QuantizationConfigDiff`.
+pub mod quantization_config_diff {
+    #[allow(clippy::derive_partial_eq_without_eq)]
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
+    pub enum Quantization {
+        #[prost(message, tag = "1")]
+        Scalar(super::ScalarQuantization),
+        #[prost(message, tag = "2")]
+        Product(super::ProductQuantization),
+        #[prost(message, tag = "3")]
+        Disabled(super::Disabled),
+    }
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateCollection {
     /// Name of the collection
     #[prost(string, tag = "1")]
@@ -273,15 +334,24 @@ pub struct UpdateCollection {
     /// Name of the collection
     #[prost(string, tag = "1")]
     pub collection_name: ::prost::alloc::string::String,
-    /// New configuration parameters for the collection
+    /// New configuration parameters for the collection. This operation is blocking, it will only proceed once all current optimizations are complete
     #[prost(message, optional, tag = "2")]
     pub optimizers_config: ::core::option::Option<OptimizersConfigDiff>,
-    /// Wait timeout for operation commit in seconds, if not specified - default value will be supplied
+    /// Wait timeout for operation commit in seconds if blocking, if not specified - default value will be supplied
     #[prost(uint64, optional, tag = "3")]
     pub timeout: ::core::option::Option<u64>,
     /// New configuration parameters for the collection
     #[prost(message, optional, tag = "4")]
     pub params: ::core::option::Option<CollectionParamsDiff>,
+    /// New HNSW parameters for the collection index
+    #[prost(message, optional, tag = "5")]
+    pub hnsw_config: ::core::option::Option<HnswConfigDiff>,
+    /// New vector parameters
+    #[prost(message, optional, tag = "6")]
+    pub vectors_config: ::core::option::Option<VectorsConfigDiff>,
+    /// Quantization configuration of vector
+    #[prost(message, optional, tag = "7")]
+    pub quantization_config: ::core::option::Option<QuantizationConfigDiff>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -331,6 +401,9 @@ pub struct CollectionParamsDiff {
     /// How many replicas should apply the operation for us to consider it successful
     #[prost(uint32, optional, tag = "2")]
     pub write_consistency_factor: ::core::option::Option<u32>,
+    /// If true - point's payload will not be stored in memory
+    #[prost(bool, optional, tag = "3")]
+    pub on_disk_payload: ::core::option::Option<bool>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -711,6 +784,7 @@ pub enum PayloadSchemaType {
     Float = 3,
     Geo = 4,
     Text = 5,
+    Bool = 6,
 }
 impl PayloadSchemaType {
     /// String value of the enum field names used in the ProtoBuf definition.
@@ -725,6 +799,7 @@ impl PayloadSchemaType {
             PayloadSchemaType::Float => "Float",
             PayloadSchemaType::Geo => "Geo",
             PayloadSchemaType::Text => "Text",
+            PayloadSchemaType::Bool => "Bool",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -736,6 +811,7 @@ impl PayloadSchemaType {
             "Float" => Some(Self::Float),
             "Geo" => Some(Self::Geo),
             "Text" => Some(Self::Text),
+            "Bool" => Some(Self::Bool),
             _ => None,
         }
     }
@@ -808,6 +884,7 @@ pub enum TokenizerType {
     Prefix = 1,
     Whitespace = 2,
     Word = 3,
+    Multilingual = 4,
 }
 impl TokenizerType {
     /// String value of the enum field names used in the ProtoBuf definition.
@@ -820,6 +897,7 @@ impl TokenizerType {
             TokenizerType::Prefix => "Prefix",
             TokenizerType::Whitespace => "Whitespace",
             TokenizerType::Word => "Word",
+            TokenizerType::Multilingual => "Multilingual",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -829,6 +907,7 @@ impl TokenizerType {
             "Prefix" => Some(Self::Prefix),
             "Whitespace" => Some(Self::Whitespace),
             "Word" => Some(Self::Word),
+            "Multilingual" => Some(Self::Multilingual),
             _ => None,
         }
     }
@@ -2960,6 +3039,15 @@ pub struct GeoRadius {
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct GeoPolygon {
+    /// Ordered list of coordinates representing the vertices of a polygon.
+    /// The minimum size is 4, and the first coordinate and the last coordinate
+    /// should be the same to form a closed polygon.
+    #[prost(message, repeated, tag = "1")]
+    pub points: ::prost::alloc::vec::Vec<GeoPoint>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ValuesCount {
     #[prost(uint64, optional, tag = "1")]
     pub lt: ::core::option::Option<u64>,
@@ -3085,6 +3173,7 @@ pub enum FieldType {
     Float = 2,
     Geo = 3,
     Text = 4,
+    Bool = 5,
 }
 impl FieldType {
     /// String value of the enum field names used in the ProtoBuf definition.
@@ -3098,6 +3187,7 @@ impl FieldType {
             FieldType::Float => "FieldTypeFloat",
             FieldType::Geo => "FieldTypeGeo",
             FieldType::Text => "FieldTypeText",
+            FieldType::Bool => "FieldTypeBool",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -3108,6 +3198,7 @@ impl FieldType {
             "FieldTypeFloat" => Some(Self::Float),
             "FieldTypeGeo" => Some(Self::Geo),
             "FieldTypeText" => Some(Self::Text),
+            "FieldTypeBool" => Some(Self::Bool),
             _ => None,
         }
     }

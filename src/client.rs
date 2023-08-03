@@ -456,6 +456,9 @@ impl QdrantClient {
                         optimizers_config: Some(optimizers_config.clone()),
                         timeout: None,
                         params: None,
+                        hnsw_config: None,
+                        vectors_config: None,
+                        quantization_config: None,
                     })
                     .await?;
 
