@@ -50,6 +50,66 @@ pub struct QdrantClientConfig {
     pub api_key: Option<String>,
 }
 
+/// A builder type for `QdrantClient`s
+pub type QdrantClientBuilder = QdrantClientConfig;
+
+/// Helper thread to allow setting an API key from various types
+pub trait MaybeApiKey {
+    fn maybe_key(self) -> Option<String>;
+}
+
+impl MaybeApiKey for &str {
+    fn maybe_key(self) -> Option<String> {
+        Some(self.to_string())
+    }
+}
+
+impl MaybeApiKey for String {
+    fn maybe_key(self) -> Option<String> {
+        Some(self)
+    }
+}
+
+impl MaybeApiKey for Option<String> {
+    fn maybe_key(self) -> Option<String> {
+        self
+    }
+}
+
+impl MaybeApiKey for Option<&String> {
+    fn maybe_key(self) -> Option<String> {
+        self.map(ToOwned::to_owned)
+    }
+}
+
+impl MaybeApiKey for Option<&str> {
+    fn maybe_key(self) -> Option<String> {
+        self.map(ToOwned::to_owned)
+    }
+}
+
+impl<E: Sized> MaybeApiKey for std::result::Result<String, E> {
+    fn maybe_key(self) -> Option<String> {
+        self.ok()
+    }
+}
+
+pub trait AsTimeout {
+    fn timeout(self) -> Duration;
+}
+
+impl AsTimeout for Duration {
+    fn timeout(self) -> Duration {
+        self
+    }
+}
+
+impl AsTimeout for u64 {
+    fn timeout(self) -> Duration {
+        Duration::from_secs(self)
+    }
+}
+
 impl QdrantClientConfig {
     pub fn from_url(url: &str) -> Self {
         QdrantClientConfig {
@@ -72,6 +132,56 @@ impl QdrantClientConfig {
 
     pub fn set_keep_alive_while_idle(&mut self, keep_alive_while_idle: bool) {
         self.keep_alive_while_idle = keep_alive_while_idle;
+    }
+
+    /// set the API key, builder-like. The API key argument can be any of
+    /// `&str`, `String`, `Option<&str>``, `Option<String>` or `Result<String>`.`
+    ///
+    /// # Examples:
+    ///
+    /// A typical use case might be getting the key from an env var:
+    /// ```rust, no_run
+    /// use qdrant_client::prelude::*;
+    ///
+    /// let client = QdrantClient::from_url("localhost:6334")
+    ///     .with_api_key(std::env::var("QDRANT_API_KEY"))
+    ///     .build();
+    /// ```
+    /// Another possibility might be getting it out of some config
+    /// ```rust, no_run
+    /// use qdrant_client::prelude::*;
+    ///# use std::collections::HashMap;
+    ///# let config: HashMap<&str, String> = HashMap::new();
+    /// let client = QdrantClientConfig::from_url("localhost:6334")
+    ///     .with_api_key(config.get("api_key"))
+    ///     .build();
+    /// ```
+    pub fn with_api_key(mut self, api_key: impl MaybeApiKey) -> Self {
+        self.api_key = api_key.maybe_key();
+        self
+    }
+
+    /// Configure the service to keep the connection alive while idle
+    pub fn keep_alive_while_idle(mut self) -> Self {
+        self.keep_alive_while_idle = true;
+        self
+    }
+
+    /// Set the timeout for this client
+    pub fn with_timeout(mut self, timeout: impl AsTimeout) -> Self {
+        self.timeout = timeout.timeout();
+        self
+    }
+
+    /// Set the connect timeout for this client
+    pub fn with_connect_timeout(mut self, timeout: impl AsTimeout) -> Self {
+        self.connect_timeout = timeout.timeout();
+        self
+    }
+
+    /// Build the QdrantClient
+    pub fn build(self) -> Result<QdrantClient> {
+        QdrantClient::new(Some(self))
     }
 }
 
@@ -192,6 +302,11 @@ pub struct QdrantClient {
 }
 
 impl QdrantClient {
+    /// Create a builder to setup the client
+    pub fn from_url(url: &str) -> QdrantClientBuilder {
+        QdrantClientBuilder::from_url(url)
+    }
+
     /// Wraps a channel with a token interceptor
     fn with_api_key(&self, channel: Channel) -> InterceptedService<Channel, TokenInterceptor> {
         let interceptor = TokenInterceptor::new(self.cfg.api_key.clone());
@@ -525,6 +640,12 @@ impl QdrantClient {
             .await?)
     }
 
+    /// Update or insert points into the collection.
+    /// If points with given ID already exist, they will be overwritten.
+    /// This method does *not* wait for completion of the operation, use
+    /// [`upsert_points_blocking`] for that.
+    /// Also this method does not split the points to insert to avoid timeouts,
+    /// look at [`upsert_points_batch`] for that.
     pub async fn upsert_points(
         &self,
         collection_name: impl ToString,
@@ -535,6 +656,10 @@ impl QdrantClient {
             .await
     }
 
+    /// Update or insert points into the collection, wait for completion.
+    /// If points with given ID already exist, they will be overwritten.
+    /// This method does not split the points to insert to avoid timeouts,
+    /// look at [`upsert_points_batch`] for that.
     pub async fn upsert_points_blocking(
         &self,
         collection_name: impl ToString,
@@ -556,18 +681,87 @@ impl QdrantClient {
         let collection_name = collection_name.to_string();
         let collection_name_ref = collection_name.as_str();
         let ordering_ref = ordering.as_ref();
-
         Ok(self
             .with_points_client(|mut points_api| async move {
-                let result = points_api
+                Ok(points_api
                     .upsert(UpsertPoints {
                         collection_name: collection_name_ref.to_string(),
                         wait: Some(block),
-                        points: points.to_owned(),
+                        points: points.to_vec(),
                         ordering: ordering_ref.cloned(),
                     })
-                    .await?;
-                Ok(result.into_inner())
+                    .await?
+                    .into_inner())
+            })
+            .await?)
+    }
+
+    /// Update or insert points into the collection, splitting in chunks.
+    /// If points with given ID already exist, they will be overwritten.
+    /// This method does *not* wait for completion of the operation, use
+    /// [`upsert_points_batch_blocking`] for that.
+    pub async fn upsert_points_batch(
+        &self,
+        collection_name: impl ToString,
+        points: Vec<PointStruct>,
+        ordering: Option<WriteOrdering>,
+        chunk_size: usize,
+    ) -> Result<PointsOperationResponse> {
+        self._upsert_points_batch(collection_name, &points, false, ordering, chunk_size)
+            .await
+    }
+
+    /// Update or insert points into the collection, splitting in chunks and
+    /// waiting for completion of each.
+    /// If points with given ID already exist, they will be overwritten.
+    pub async fn upsert_points_batch_blocking(
+        &self,
+        collection_name: impl ToString,
+        points: Vec<PointStruct>,
+        ordering: Option<WriteOrdering>,
+        chunk_size: usize,
+    ) -> Result<PointsOperationResponse> {
+        self._upsert_points_batch(collection_name, &points, true, ordering, chunk_size)
+            .await
+    }
+
+    #[inline]
+    async fn _upsert_points_batch(
+        &self,
+        collection_name: impl ToString,
+        points: &[PointStruct],
+        block: bool,
+        ordering: Option<WriteOrdering>,
+        chunk_size: usize,
+    ) -> Result<PointsOperationResponse> {
+        if points.len() < chunk_size {
+            return self
+                ._upsert_points(collection_name, points, block, ordering)
+                .await;
+        }
+        let collection_name = collection_name.to_string();
+        let collection_name_ref = collection_name.as_str();
+        let ordering_ref = ordering.as_ref();
+        Ok(self
+            .with_points_client(|mut points_api| async move {
+                let mut resp = PointsOperationResponse {
+                    result: None,
+                    time: 0.0,
+                };
+                for chunk in points.chunks(chunk_size) {
+                    let PointsOperationResponse { result, time } = points_api
+                        .upsert(UpsertPoints {
+                            collection_name: collection_name_ref.to_string(),
+                            wait: Some(block),
+                            points: chunk.to_vec(),
+                            ordering: ordering_ref.cloned(),
+                        })
+                        .await?
+                        .into_inner();
+                    resp.result = result;
+                    resp.time += time;
+                }
+                Ok(resp)
             })
             .await?)
     }

@@ -72,8 +72,7 @@ use serde_json::json;
 async fn main() -> Result<()> {
     // Example of top level client
     // You may also use tonic-generated client from `src/qdrant.rs`
-    let config = QdrantClientConfig::from_url("http://localhost:6334");
-    let client = QdrantClient::new(Some(config))?;
+    let client = QdrantClient::from_url("http://localhost:6334").build()?;
 
     let collections_list = client.list_collections().await?;
     dbg!(collections_list);
@@ -197,14 +196,10 @@ The client needs to be configured properly to access the service.
 
 ```rust
 async fn make_client() -> Result<QdrantClient> {
-    let mut config = QdrantClientConfig::from_url("http://xxxxxxxxxx.eu-central.aws.cloud.qdrant.io:6334");
-    // using an env variable for the API KEY for example
-    let api_key = std::env::var("QDRANT_API_KEY").ok();
-
-    if let Some(api_key) = api_key {
-        config.set_api_key(&api_key);
-    }
-    let client = QdrantClient::new(Some(config)).await?;
+    let client = QdrantClient::from_url("http://xxxxxxxxxx.eu-central.aws.cloud.qdrant.io:6334")
+        // using an env variable for the API KEY for example
+        .with_api_key(std::env::var("QDRANT_API_KEY"))
+        .build()?;
     Ok(client)
 }
 ```
