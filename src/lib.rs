@@ -383,7 +383,7 @@ impl Hash for qdrant::PointId {
         match &self.point_id_options {
             Some(Num(u)) => state.write_u64(*u),
             Some(Uuid(s)) => s.hash(state),
-            _ => {}
+            None => {}
         }
     }
 }
