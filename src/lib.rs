@@ -383,8 +383,20 @@ impl Hash for qdrant::PointId {
         match &self.point_id_options {
             Some(Num(u)) => state.write_u64(*u),
             Some(Uuid(s)) => s.hash(state),
-            _ => {},
+            _ => {}
         }
+    }
+}
+
+impl Hash for qdrant::ScoredPoint {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.id.hash(state)
+    }
+}
+
+impl Hash for qdrant::RetrievedPoint {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.id.hash(state)
     }
 }
 
