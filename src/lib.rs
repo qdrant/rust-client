@@ -117,6 +117,7 @@ use qdrant::{value::Kind::*, ListValue, RetrievedPoint, ScoredPoint, Struct, Val
 
 use std::error::Error;
 use std::fmt::{Debug, Display, Formatter};
+use std::hash::{Hash, Hasher};
 
 static NULL_VALUE: Value = Value {
     kind: Some(NullValue(0)),
@@ -373,6 +374,17 @@ impl IntoIterator for ListValue {
 impl ListValue {
     pub fn iter(&self) -> std::slice::Iter<'_, Value> {
         self.values.iter()
+    }
+}
+
+impl Hash for qdrant::PointId {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        use qdrant::point_id::PointIdOptions::{Num, Uuid};
+        match &self.point_id_options {
+            Some(Num(u)) => state.write_u64(*u),
+            Some(Uuid(s)) => s.hash(state),
+            _ => {},
+        }
     }
 }
 
