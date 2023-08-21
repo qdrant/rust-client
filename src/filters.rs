@@ -94,7 +94,7 @@ macro_rules! impl_common {
 
             /// Normalizes the representation of a given range
             /// by removing redundant constraints.
-            /// 
+            ///
             /// Redundant constraints occur when both `gt` and `gte`,
             /// or both `lt` and `lte` fields are specified. In this case,
             /// at least one of them will never be satisfied, so it can safely
@@ -627,6 +627,8 @@ impl std::ops::Not for MatchValue {
 
 #[cfg(test)]
 mod tests {
+    use super::Range;
+    use super::ValuesCount;
     use crate::qdrant::{Condition, Filter, NestedCondition};
 
     #[test]
@@ -663,14 +665,9 @@ mod tests {
             Filter::any([Condition::has_id([0])]),
         )]);
     }
-}
-
-#[cfg(test)]
-mod range_tests {
-    use super::Range;
 
     #[test]
-    fn test_empty() {
+    fn test_range_empty() {
         assert!(Range::empty().is_empty());
         assert!(Range::from(0.0..0.0).excluding_lower().is_empty());
         assert!(Range::from(1.0..0.0).excluding_lower().is_empty());
@@ -678,7 +675,7 @@ mod range_tests {
     }
 
     #[test]
-    fn test_empty_edge_cases() {
+    fn test_range_empty_edge_cases() {
         assert!(Range::from(f64::NAN..).is_empty());
         assert!(Range::only(f64::NAN).is_empty());
         assert!(Range::from(..f64::NEG_INFINITY).is_empty());
@@ -690,14 +687,14 @@ mod range_tests {
     }
 
     #[test]
-    fn test_contains() {
+    fn test_range_contains() {
         assert!(Range::any().contains(0.0));
         assert!(Range::only(0.0).contains(0.0));
         assert!(!Range::only(0.0).contains(1.0));
     }
 
     #[test]
-    fn test_contains_edge_cases() {
+    fn test_range_contains_edge_cases() {
         assert!(Range::from(..=f64::INFINITY).contains(f64::INFINITY));
         assert!(Range::from(f64::INFINITY..).contains(f64::INFINITY));
 
@@ -722,7 +719,7 @@ mod range_tests {
     }
 
     #[test]
-    fn test_intersect() {
+    fn test_range_intersection() {
         assert_eq!(
             Range::from(0.0..1.0)
                 .excluding_lower()
@@ -756,7 +753,7 @@ mod range_tests {
     }
 
     #[test]
-    fn test_collapse() {
+    fn test_range_collapse() {
         {
             let mut range = Range {
                 gt: Some(0.0),
@@ -788,14 +785,9 @@ mod range_tests {
             assert_eq!(range, Range::from(0.0..=1.0).excluding_lower());
         }
     }
-}
-
-#[cfg(test)]
-mod values_count_tests {
-    use super::ValuesCount;
 
     #[test]
-    fn test_empty() {
+    fn test_values_count_empty() {
         assert!(ValuesCount::empty().is_empty());
 
         assert!(ValuesCount::from(0..0).excluding_lower().is_empty());
@@ -808,7 +800,7 @@ mod values_count_tests {
     }
 
     #[test]
-    fn test_contains() {
+    fn test_values_count_contains() {
         assert!(ValuesCount::any().contains(0));
         assert!(ValuesCount::only(0).contains(0));
 
@@ -822,7 +814,7 @@ mod values_count_tests {
     }
 
     #[test]
-    fn test_intersection() {
+    fn test_values_count_intersection() {
         assert_eq!(
             ValuesCount::from(0..1)
                 .excluding_lower()
