@@ -4,7 +4,7 @@ use crate::qdrant::points_selector::PointsSelectorOneOf;
 use crate::qdrant::r#match::MatchValue;
 use crate::qdrant::{
     Condition, FieldCondition, Filter, GeoBoundingBox, GeoRadius, HasIdCondition, IsEmptyCondition,
-    IsNullCondition, PointId, PointsSelector, Range, ValuesCount,
+    IsNullCondition, NestedCondition, PointId, PointsSelector, Range, ValuesCount,
 };
 
 impl From<Filter> for PointsSelector {
@@ -55,7 +55,41 @@ impl From<Filter> for Condition {
     }
 }
 
+impl From<NestedCondition> for Condition {
+    fn from(nested_condition: NestedCondition) -> Self {
+        debug_assert!(
+            !&nested_condition
+                .filter
+                .as_ref()
+                .map_or(false, |f| f.check_has_id()),
+            "Filters containing a `has_id` condition are not supported for nested filtering."
+        );
+
+        Condition {
+            condition_one_of: Some(ConditionOneOf::Nested(nested_condition)),
+        }
+    }
+}
+
 impl qdrant::Filter {
+    /// Checks if the filter, or any of its nested conditions containing filters,
+    /// have a `has_id` condition, which is not allowed for nested object filters.
+    fn check_has_id(&self) -> bool {
+        self.should
+            .iter()
+            .chain(self.must.iter())
+            .chain(self.must_not.iter())
+            .any(|cond| match &cond.condition_one_of {
+                Some(ConditionOneOf::HasId(_)) => true,
+                Some(ConditionOneOf::Nested(nested)) => nested
+                    .filter
+                    .as_ref()
+                    .map_or(false, |filter| filter.check_has_id()),
+                Some(ConditionOneOf::Filter(filter)) => filter.check_has_id(),
+                _ => false,
+            })
+    }
+
     /// create a Filter where all of the conditions must be satisfied
     pub fn must(conds: impl IntoIterator<Item = qdrant::Condition>) -> Self {
         Self {
@@ -231,6 +265,34 @@ impl qdrant::Condition {
             })),
         }
     }
+
+    /// create a Condition that applies a per-element filter to a nested array
+    ///
+    /// The `field` parameter should be a key-path to a nested array of objects.
+    /// You may specify it as both `array_field` or `array_field[]`.
+    ///
+    /// For motivation and further examples,
+    /// see [API documentation](https://qdrant.tech/documentation/concepts/filtering/#nested-object-filter).
+    ///
+    /// # Panics:
+    ///
+    /// If debug assertions are enabled, this will panic if the filter, or any its subfilters,
+    /// contain a `HasIdCondition` (equivalently, a condition created with `Self::has_id`),
+    /// as these are unsupported for nested object filters.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// use qdrant_client::qdrant::Filter;
+    /// qdrant_client::qdrant::Condition::nested("array_field[]", Filter::any([
+    ///   qdrant_client::qdrant::Condition::is_null("element_field")
+    /// ]));
+    pub fn nested(field: impl Into<String>, filter: Filter) -> Self {
+        Self::from(NestedCondition {
+            key: field.into(),
+            filter: Some(filter),
+        })
+    }
 }
 
 impl From<bool> for MatchValue {
@@ -283,5 +345,45 @@ impl std::ops::Not for MatchValue {
             Self::ExceptIntegers(is) => Self::Integers(is),
             Self::Text(_) => panic!("cannot negate a MatchValue::Text"),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::qdrant::{Condition, Filter, NestedCondition};
+
+    #[test]
+    fn test_nested_has_id() {
+        assert!(!Filter::any([]).check_has_id());
+        assert!(Filter::any([Condition::has_id([0])]).check_has_id());
+
+        // nested filter
+        assert!(Filter::any([Filter::any([Condition::has_id([0])]).into()]).check_has_id());
+
+        // nested filter where only the innermost has a `has_id`
+        assert!(
+            Filter::any([Filter::any([Filter::any([Condition::has_id([0])]).into()]).into()])
+                .check_has_id()
+        );
+
+        // `has_id` itself nested in a nested condition
+        assert!(Filter::any([Condition {
+            condition_one_of: Some(crate::qdrant::condition::ConditionOneOf::Nested(
+                NestedCondition {
+                    key: "test".to_string(),
+                    filter: Some(Filter::any([Condition::has_id([0])]))
+                }
+            ))
+        }])
+        .check_has_id());
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_nested_condition_validation() {
+        let _ = Filter::any([Condition::nested(
+            "test",
+            Filter::any([Condition::has_id([0])]),
+        )]);
     }
 }
