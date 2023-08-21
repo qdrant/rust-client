@@ -2427,6 +2427,12 @@ pub struct SearchParams {
     /// If set to true, search will ignore quantized vector data
     #[prost(message, optional, tag = "3")]
     pub quantization: ::core::option::Option<QuantizationSearchParams>,
+    ///
+    /// If enabled, the engine will only perform search among indexed or small segments.
+    /// Using this option prevents slow searches in case of delayed index, but does not
+    /// guarantee that all uploaded vectors will be included in search results
+    #[prost(bool, optional, tag = "4")]
+    pub indexed_only: ::core::option::Option<bool>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -2685,6 +2691,97 @@ pub struct CountPoints {
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct PointsUpdateOperation {
+    #[prost(
+        oneof = "points_update_operation::Operation",
+        tags = "1, 2, 3, 4, 5, 6, 7, 8"
+    )]
+    pub operation: ::core::option::Option<points_update_operation::Operation>,
+}
+/// Nested message and enum types in `PointsUpdateOperation`.
+pub mod points_update_operation {
+    #[allow(clippy::derive_partial_eq_without_eq)]
+    #[derive(Clone, PartialEq, ::prost::Message)]
+    pub struct PointStructList {
+        #[prost(message, repeated, tag = "1")]
+        pub points: ::prost::alloc::vec::Vec<super::PointStruct>,
+    }
+    #[allow(clippy::derive_partial_eq_without_eq)]
+    #[derive(Clone, PartialEq, ::prost::Message)]
+    pub struct SetPayload {
+        #[prost(map = "string, message", tag = "1")]
+        pub payload: ::std::collections::HashMap<
+            ::prost::alloc::string::String,
+            super::Value,
+        >,
+        /// Affected points
+        #[prost(message, optional, tag = "2")]
+        pub points_selector: ::core::option::Option<super::PointsSelector>,
+    }
+    #[allow(clippy::derive_partial_eq_without_eq)]
+    #[derive(Clone, PartialEq, ::prost::Message)]
+    pub struct DeletePayload {
+        #[prost(string, repeated, tag = "1")]
+        pub keys: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+        /// Affected points
+        #[prost(message, optional, tag = "2")]
+        pub points_selector: ::core::option::Option<super::PointsSelector>,
+    }
+    #[allow(clippy::derive_partial_eq_without_eq)]
+    #[derive(Clone, PartialEq, ::prost::Message)]
+    pub struct UpdateVectors {
+        /// List of points and vectors to update
+        #[prost(message, repeated, tag = "1")]
+        pub points: ::prost::alloc::vec::Vec<super::PointVectors>,
+    }
+    #[allow(clippy::derive_partial_eq_without_eq)]
+    #[derive(Clone, PartialEq, ::prost::Message)]
+    pub struct DeleteVectors {
+        /// Affected points
+        #[prost(message, optional, tag = "1")]
+        pub points_selector: ::core::option::Option<super::PointsSelector>,
+        /// List of vector names to delete
+        #[prost(message, optional, tag = "2")]
+        pub vectors: ::core::option::Option<super::VectorsSelector>,
+    }
+    #[allow(clippy::derive_partial_eq_without_eq)]
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
+    pub enum Operation {
+        #[prost(message, tag = "1")]
+        Upsert(PointStructList),
+        #[prost(message, tag = "2")]
+        Delete(super::PointsSelector),
+        #[prost(message, tag = "3")]
+        SetPayload(SetPayload),
+        #[prost(message, tag = "4")]
+        OverwritePayload(SetPayload),
+        #[prost(message, tag = "5")]
+        DeletePayload(DeletePayload),
+        #[prost(message, tag = "6")]
+        ClearPayload(super::PointsSelector),
+        #[prost(message, tag = "7")]
+        UpdateVectors(UpdateVectors),
+        #[prost(message, tag = "8")]
+        DeleteVectors(DeleteVectors),
+    }
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct UpdateBatchPoints {
+    /// name of the collection
+    #[prost(string, tag = "1")]
+    pub collection_name: ::prost::alloc::string::String,
+    /// Wait until the changes have been applied?
+    #[prost(bool, optional, tag = "2")]
+    pub wait: ::core::option::Option<bool>,
+    #[prost(message, repeated, tag = "3")]
+    pub operations: ::prost::alloc::vec::Vec<PointsUpdateOperation>,
+    /// Write ordering guarantees
+    #[prost(message, optional, tag = "4")]
+    pub ordering: ::core::option::Option<WriteOrdering>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PointsOperationResponse {
     #[prost(message, optional, tag = "1")]
     pub result: ::core::option::Option<UpdateResult>,
@@ -2865,6 +2962,15 @@ pub struct RecommendBatchResponse {
 pub struct RecommendGroupsResponse {
     #[prost(message, optional, tag = "1")]
     pub result: ::core::option::Option<GroupsResult>,
+    /// Time spent to process
+    #[prost(double, tag = "2")]
+    pub time: f64,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct UpdateBatchResponse {
+    #[prost(message, repeated, tag = "1")]
+    pub result: ::prost::alloc::vec::Vec<UpdateResult>,
     /// Time spent to process
     #[prost(double, tag = "2")]
     pub time: f64,
@@ -3795,6 +3901,32 @@ pub mod points_client {
             req.extensions_mut().insert(GrpcMethod::new("qdrant.Points", "Count"));
             self.inner.unary(req, path, codec).await
         }
+        ///
+        /// Perform multiple update operations in one request
+        pub async fn update_batch(
+            &mut self,
+            request: impl tonic::IntoRequest<super::UpdateBatchPoints>,
+        ) -> std::result::Result<
+            tonic::Response<super::UpdateBatchResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Points/UpdateBatch",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut().insert(GrpcMethod::new("qdrant.Points", "UpdateBatch"));
+            self.inner.unary(req, path, codec).await
+        }
     }
 }
 /// Generated server implementations.
@@ -3963,6 +4095,15 @@ pub mod points_server {
             &self,
             request: tonic::Request<super::CountPoints>,
         ) -> std::result::Result<tonic::Response<super::CountResponse>, tonic::Status>;
+        ///
+        /// Perform multiple update operations in one request
+        async fn update_batch(
+            &self,
+            request: tonic::Request<super::UpdateBatchPoints>,
+        ) -> std::result::Result<
+            tonic::Response<super::UpdateBatchResponse>,
+            tonic::Status,
+        >;
     }
     #[derive(Debug)]
     pub struct PointsServer<T: Points> {
@@ -4864,6 +5005,50 @@ pub mod points_server {
                     let fut = async move {
                         let inner = inner.0;
                         let method = CountSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/qdrant.Points/UpdateBatch" => {
+                    #[allow(non_camel_case_types)]
+                    struct UpdateBatchSvc<T: Points>(pub Arc<T>);
+                    impl<T: Points> tonic::server::UnaryService<super::UpdateBatchPoints>
+                    for UpdateBatchSvc<T> {
+                        type Response = super::UpdateBatchResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::UpdateBatchPoints>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                (*inner).update_batch(request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = UpdateBatchSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
