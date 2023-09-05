@@ -251,8 +251,15 @@ pub struct ProductQuantization {
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct BinaryQuantization {
+    /// If true - quantized vectors always will be stored in RAM, ignoring the config of main storage
+    #[prost(bool, optional, tag = "1")]
+    pub always_ram: ::core::option::Option<bool>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct QuantizationConfig {
-    #[prost(oneof = "quantization_config::Quantization", tags = "1, 2")]
+    #[prost(oneof = "quantization_config::Quantization", tags = "1, 2, 3")]
     pub quantization: ::core::option::Option<quantization_config::Quantization>,
 }
 /// Nested message and enum types in `QuantizationConfig`.
@@ -264,6 +271,8 @@ pub mod quantization_config {
         Scalar(super::ScalarQuantization),
         #[prost(message, tag = "2")]
         Product(super::ProductQuantization),
+        #[prost(message, tag = "3")]
+        Binary(super::BinaryQuantization),
     }
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -272,7 +281,7 @@ pub struct Disabled {}
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct QuantizationConfigDiff {
-    #[prost(oneof = "quantization_config_diff::Quantization", tags = "1, 2, 3")]
+    #[prost(oneof = "quantization_config_diff::Quantization", tags = "1, 2, 3, 4")]
     pub quantization: ::core::option::Option<quantization_config_diff::Quantization>,
 }
 /// Nested message and enum types in `QuantizationConfigDiff`.
@@ -286,6 +295,8 @@ pub mod quantization_config_diff {
         Product(super::ProductQuantization),
         #[prost(message, tag = "3")]
         Disabled(super::Disabled),
+        #[prost(message, tag = "4")]
+        Binary(super::BinaryQuantization),
     }
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
