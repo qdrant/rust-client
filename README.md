@@ -54,7 +54,7 @@ More info about gRPC in [documentation](https://qdrant.tech/documentation/quick_
 Add necessary dependencies:
 
 ```bash
-cargo add qdrant-client anyhow tonic tokio --features tokio/rt-multi-thread
+cargo add qdrant-client anyhow tonic tokio serde-json --features tokio/rt-multi-thread
 ```
 
 Add search example from [`examples/search.rs`](./examples/search.rs) to your `src/main.rs`:
