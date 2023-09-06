@@ -1286,6 +1286,57 @@ impl QdrantClient {
             .await?)
     }
 
+    /// Perform multiple point, vector and payload insert, update and delete operations in one request.
+    /// This method does *not* wait for completion of the operation, use
+    /// [`update_batch_blocking`] for that.
+    pub async fn update_batch_points(
+        &self,
+        collection_name: impl ToString,
+        operations: &[PointsUpdateOperation],
+        ordering: Option<WriteOrdering>,
+    ) -> Result<UpdateBatchResponse> {
+        self._update_batch_points(collection_name, false, operations, ordering)
+            .await
+    }
+
+    /// Perform multiple point, vector and payload insert, update and delete operations in one request.
+    /// This method waits for completion on each operation.
+    pub async fn update_batch_points_blocking(
+        &self,
+        collection_name: impl ToString,
+        operations: &[PointsUpdateOperation],
+        ordering: Option<WriteOrdering>,
+    ) -> Result<UpdateBatchResponse> {
+        self._update_batch_points(collection_name, true, operations, ordering)
+            .await
+    }
+
+    async fn _update_batch_points(
+        &self,
+        collection_name: impl ToString,
+        blocking: bool,
+        operations: &[PointsUpdateOperation],
+        ordering: Option<WriteOrdering>,
+    ) -> Result<UpdateBatchResponse> {
+        let collection_name = collection_name.to_string();
+        let collection_name_ref = collection_name.as_str();
+        let ordering_ref = ordering.as_ref();
+
+        Ok(self
+            .with_points_client(|mut points_api| async move {
+                let result = points_api
+                    .update_batch(UpdateBatchPoints {
+                        collection_name: collection_name_ref.to_string(),
+                        wait: Some(blocking),
+                        operations: operations.to_owned(),
+                        ordering: ordering_ref.cloned(),
+                    })
+                    .await?;
+                Ok(result.into_inner())
+            })
+            .await?)
+    }
+
     /// Create index for a payload field
     pub async fn _create_field_index(
         &self,
