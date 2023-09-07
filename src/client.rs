@@ -9,7 +9,27 @@ use crate::qdrant::update_collection_cluster_setup_request::Operation;
 use crate::qdrant::value::Kind;
 use crate::qdrant::vectors::VectorsOptions;
 use crate::qdrant::with_payload_selector::SelectorOptions;
-use crate::qdrant::{qdrant_client, with_vectors_selector, AliasOperations, ChangeAliases, ClearPayloadPoints, CollectionClusterInfoRequest, CollectionClusterInfoResponse, CollectionOperationResponse, CountPoints, CountResponse, CreateAlias, CreateCollection, CreateFieldIndexCollection, CreateFullSnapshotRequest, CreateSnapshotRequest, CreateSnapshotResponse, DeleteAlias, DeleteCollection, DeleteFieldIndexCollection, DeleteFullSnapshotRequest, DeletePayloadPoints, DeletePointVectors, DeletePoints, DeleteSnapshotRequest, DeleteSnapshotResponse, FieldType, GetCollectionInfoRequest, GetCollectionInfoResponse, GetPoints, GetResponse, HealthCheckReply, HealthCheckRequest, ListAliasesRequest, ListAliasesResponse, ListCollectionAliasesRequest, ListCollectionsRequest, ListCollectionsResponse, ListFullSnapshotsRequest, ListSnapshotsRequest, ListSnapshotsResponse, ListValue, NamedVectors, OptimizersConfigDiff, PayloadIncludeSelector, PayloadIndexParams, PointId, PointStruct, PointVectors, PointsIdsList, PointsOperationResponse, PointsSelector, ReadConsistency, RecommendBatchPoints, RecommendBatchResponse, RecommendGroupsResponse, RecommendPointGroups, RecommendPoints, RecommendResponse, RenameAlias, ScrollPoints, ScrollResponse, SearchBatchPoints, SearchBatchResponse, SearchGroupsResponse, SearchPointGroups, SearchPoints, SearchResponse, SetPayloadPoints, Struct, UpdateCollection, UpdateCollectionClusterSetupRequest, UpdateCollectionClusterSetupResponse, UpdatePointVectors, UpsertPoints, Value, Vector, Vectors, VectorsSelector, WithPayloadSelector, WithVectorsSelector, WriteOrdering, PointsUpdateOperation, UpdateBatchPoints, UpdateBatchResponse};
+use crate::qdrant::{
+    qdrant_client, with_vectors_selector, AliasOperations, ChangeAliases, ClearPayloadPoints,
+    CollectionClusterInfoRequest, CollectionClusterInfoResponse, CollectionOperationResponse,
+    CountPoints, CountResponse, CreateAlias, CreateCollection, CreateFieldIndexCollection,
+    CreateFullSnapshotRequest, CreateSnapshotRequest, CreateSnapshotResponse, DeleteAlias,
+    DeleteCollection, DeleteFieldIndexCollection, DeleteFullSnapshotRequest, DeletePayloadPoints,
+    DeletePointVectors, DeletePoints, DeleteSnapshotRequest, DeleteSnapshotResponse, FieldType,
+    GetCollectionInfoRequest, GetCollectionInfoResponse, GetPoints, GetResponse, HealthCheckReply,
+    HealthCheckRequest, ListAliasesRequest, ListAliasesResponse, ListCollectionAliasesRequest,
+    ListCollectionsRequest, ListCollectionsResponse, ListFullSnapshotsRequest,
+    ListSnapshotsRequest, ListSnapshotsResponse, ListValue, NamedVectors, OptimizersConfigDiff,
+    PayloadIncludeSelector, PayloadIndexParams, PointId, PointStruct, PointVectors, PointsIdsList,
+    PointsOperationResponse, PointsSelector, PointsUpdateOperation, ReadConsistency,
+    RecommendBatchPoints, RecommendBatchResponse, RecommendGroupsResponse, RecommendPointGroups,
+    RecommendPoints, RecommendResponse, RenameAlias, ScrollPoints, ScrollResponse,
+    SearchBatchPoints, SearchBatchResponse, SearchGroupsResponse, SearchPointGroups, SearchPoints,
+    SearchResponse, SetPayloadPoints, Struct, UpdateBatchPoints, UpdateBatchResponse,
+    UpdateCollection, UpdateCollectionClusterSetupRequest, UpdateCollectionClusterSetupResponse,
+    UpdatePointVectors, UpsertPoints, Value, Vector, Vectors, VectorsSelector, WithPayloadSelector,
+    WithVectorsSelector, WriteOrdering,
+};
 use anyhow::Result;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -294,7 +314,7 @@ impl QdrantClient {
         InterceptedService::new(channel, interceptor)
     }
 
-    pub async fn with_snapshot_client<T, O: Future<Output=Result<T, Status>>>(
+    pub async fn with_snapshot_client<T, O: Future<Output = Result<T, Status>>>(
         &self,
         f: impl Fn(SnapshotsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
     ) -> Result<T, Status> {
@@ -312,7 +332,7 @@ impl QdrantClient {
     }
 
     // Access to raw collection API
-    pub async fn with_collections_client<T, O: Future<Output=Result<T, Status>>>(
+    pub async fn with_collections_client<T, O: Future<Output = Result<T, Status>>>(
         &self,
         f: impl Fn(CollectionsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
     ) -> Result<T, Status> {
@@ -330,7 +350,7 @@ impl QdrantClient {
     }
 
     // Access to raw points API
-    pub async fn with_points_client<T, O: Future<Output=Result<T, Status>>>(
+    pub async fn with_points_client<T, O: Future<Output = Result<T, Status>>>(
         &self,
         f: impl Fn(PointsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
     ) -> Result<T, Status> {
@@ -348,7 +368,7 @@ impl QdrantClient {
     }
 
     // Access to raw root qdrant API
-    pub async fn with_root_qdrant_client<T, O: Future<Output=Result<T, Status>>>(
+    pub async fn with_root_qdrant_client<T, O: Future<Output = Result<T, Status>>>(
         &self,
         f: impl Fn(qdrant_client::QdrantClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
     ) -> Result<T, Status> {
@@ -637,13 +657,17 @@ impl QdrantClient {
         let operations = operations.clone();
         Ok(self
             .with_points_client(|mut points_api| async move {
-                Ok(points_api.update_batch(UpdateBatchPoints {
-                    collection_name: collection_name_ref.to_string(),
-                    wait: Some(wait),
-                    operations: operations.to_vec(),
-                    ordering: ordering_ref.cloned(),
-                }).await?.into_inner())
-            }).await?)
+                Ok(points_api
+                    .update_batch(UpdateBatchPoints {
+                        collection_name: collection_name_ref.to_string(),
+                        wait: Some(wait),
+                        operations: operations.to_vec(),
+                        ordering: ordering_ref.cloned(),
+                    })
+                    .await?
+                    .into_inner())
+            })
+            .await?)
     }
 
     pub async fn batch_updates(
@@ -1117,7 +1141,7 @@ impl QdrantClient {
             vector_selector,
             ordering,
         )
-            .await
+        .await
     }
 
     pub async fn delete_vectors_blocking(
@@ -1134,7 +1158,7 @@ impl QdrantClient {
             vector_selector,
             ordering,
         )
-            .await
+        .await
     }
 
     async fn _delete_vectors(
@@ -1262,6 +1286,57 @@ impl QdrantClient {
             .await?)
     }
 
+    /// Perform multiple point, vector and payload insert, update and delete operations in one request.
+    /// This method does *not* wait for completion of the operation, use
+    /// [`update_batch_blocking`] for that.
+    pub async fn update_batch_points(
+        &self,
+        collection_name: impl ToString,
+        operations: &[PointsUpdateOperation],
+        ordering: Option<WriteOrdering>,
+    ) -> Result<UpdateBatchResponse> {
+        self._update_batch_points(collection_name, false, operations, ordering)
+            .await
+    }
+
+    /// Perform multiple point, vector and payload insert, update and delete operations in one request.
+    /// This method waits for completion on each operation.
+    pub async fn update_batch_points_blocking(
+        &self,
+        collection_name: impl ToString,
+        operations: &[PointsUpdateOperation],
+        ordering: Option<WriteOrdering>,
+    ) -> Result<UpdateBatchResponse> {
+        self._update_batch_points(collection_name, true, operations, ordering)
+            .await
+    }
+
+    async fn _update_batch_points(
+        &self,
+        collection_name: impl ToString,
+        blocking: bool,
+        operations: &[PointsUpdateOperation],
+        ordering: Option<WriteOrdering>,
+    ) -> Result<UpdateBatchResponse> {
+        let collection_name = collection_name.to_string();
+        let collection_name_ref = collection_name.as_str();
+        let ordering_ref = ordering.as_ref();
+
+        Ok(self
+            .with_points_client(|mut points_api| async move {
+                let result = points_api
+                    .update_batch(UpdateBatchPoints {
+                        collection_name: collection_name_ref.to_string(),
+                        wait: Some(blocking),
+                        operations: operations.to_owned(),
+                        ordering: ordering_ref.cloned(),
+                    })
+                    .await?;
+                Ok(result.into_inner())
+            })
+            .await?)
+    }
+
     /// Create index for a payload field
     pub async fn _create_field_index(
         &self,
@@ -1311,7 +1386,7 @@ impl QdrantClient {
             false,
             ordering,
         )
-            .await
+        .await
     }
 
     pub async fn create_field_index_blocking(
@@ -1330,7 +1405,7 @@ impl QdrantClient {
             true,
             ordering,
         )
-            .await
+        .await
     }
 
     pub async fn _delete_field_index(
@@ -1485,8 +1560,8 @@ impl QdrantClient {
         snapshot_name: Option<T>,
         rest_api_uri: Option<T>,
     ) -> Result<()>
-        where
-            T: ToString + Clone,
+    where
+        T: ToString + Clone,
     {
         use futures_util::StreamExt;
         use std::io::Write;
@@ -1515,8 +1590,8 @@ impl QdrantClient {
             collection_name.to_string(),
             snapshot_name
         ))
-            .await?
-            .bytes_stream();
+        .await?
+        .bytes_stream();
 
         let out_path = out_path.into();
         let _ = std::fs::remove_file(&out_path);
@@ -1645,8 +1720,8 @@ impl From<Payload> for Value {
 }
 
 impl<T> From<Vec<T>> for Value
-    where
-        T: Into<Value>,
+where
+    T: Into<Value>,
 {
     fn from(val: Vec<T>) -> Self {
         Self {
@@ -1658,8 +1733,8 @@ impl<T> From<Vec<T>> for Value
 }
 
 impl<T> From<Vec<(&str, T)>> for Value
-    where
-        T: Into<Value>,
+where
+    T: Into<Value>,
 {
     fn from(val: Vec<(&str, T)>) -> Self {
         Self {
