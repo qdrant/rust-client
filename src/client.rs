@@ -654,7 +654,6 @@ impl QdrantClient {
         let collection_name = collection_name.to_string();
         let collection_name_ref = collection_name.as_str();
         let ordering_ref = ordering.as_ref();
-        let operations = operations.clone();
         Ok(self
             .with_points_client(|mut points_api| async move {
                 Ok(points_api
