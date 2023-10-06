@@ -3,8 +3,9 @@ use crate::qdrant::condition::ConditionOneOf;
 use crate::qdrant::points_selector::PointsSelectorOneOf;
 use crate::qdrant::r#match::MatchValue;
 use crate::qdrant::{
-    Condition, FieldCondition, Filter, GeoBoundingBox, GeoRadius, HasIdCondition, IsEmptyCondition,
-    IsNullCondition, NestedCondition, PointId, PointsSelector, Range, ValuesCount,
+    Condition, FieldCondition, Filter, GeoBoundingBox, GeoPolygon, GeoRadius, HasIdCondition,
+    IsEmptyCondition, IsNullCondition, NestedCondition, PointId, PointsSelector, Range,
+    ValuesCount,
 };
 
 impl From<Filter> for PointsSelector {
@@ -241,6 +242,29 @@ impl qdrant::Condition {
             condition_one_of: Some(ConditionOneOf::Field(qdrant::FieldCondition {
                 key: field.into(),
                 geo_bounding_box: Some(geo_bounding_box),
+                ..Default::default()
+            })),
+        }
+    }
+
+    /// create a Condition that checks geo fields against a geo polygons
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// use qdrant_client::qdrant::{GeoLineString, GeoPoint, GeoPolygon};
+    /// let polygon = GeoPolygon {
+    ///  exterior: Some(GeoLineString {
+    ///   points: vec![GeoPoint { lon: 42., lat: 42. }],
+    /// }),
+    ///  interiors: vec![],
+    /// };
+    /// qdrant_client::qdrant::Condition::geo_polygon("location", polygon);
+    pub fn geo_polygon(field: impl Into<String>, geo_polygon: GeoPolygon) -> Self {
+        Self {
+            condition_one_of: Some(ConditionOneOf::Field(qdrant::FieldCondition {
+                key: field.into(),
+                geo_polygon: Some(geo_polygon),
                 ..Default::default()
             })),
         }
