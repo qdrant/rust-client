@@ -254,9 +254,7 @@ impl qdrant::Condition {
     /// ```
     /// use qdrant_client::qdrant::{GeoLineString, GeoPoint, GeoPolygon};
     /// let polygon = GeoPolygon {
-    ///  exterior: Some(GeoLineString {
-    ///   points: vec![GeoPoint { lon: 42., lat: 42. }],
-    /// }),
+    ///  exterior: Some(GeoLineString { points: vec![GeoPoint { lon: 42., lat: 42. }]}),
     ///  interiors: vec![],
     /// };
     /// qdrant_client::qdrant::Condition::geo_polygon("location", polygon);
