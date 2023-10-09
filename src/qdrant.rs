@@ -402,6 +402,9 @@ pub struct CollectionParams {
     /// How many replicas should apply the operation for us to consider it successful
     #[prost(uint32, optional, tag = "7")]
     pub write_consistency_factor: ::core::option::Option<u32>,
+    /// Fan-out every read request to these many additional remote nodes (and return first available response)
+    #[prost(uint32, optional, tag = "8")]
+    pub read_fan_out_factor: ::core::option::Option<u32>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -415,6 +418,9 @@ pub struct CollectionParamsDiff {
     /// If true - point's payload will not be stored in memory
     #[prost(bool, optional, tag = "3")]
     pub on_disk_payload: ::core::option::Option<bool>,
+    /// Fan-out every read request to these many additional remote nodes (and return first available response)
+    #[prost(uint32, optional, tag = "4")]
+    pub read_fan_out_factor: ::core::option::Option<u32>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -2408,7 +2414,7 @@ pub struct QuantizationSearchParams {
     #[prost(bool, optional, tag = "1")]
     pub ignore: ::core::option::Option<bool>,
     ///
-    /// If true, use original vectors to re-score top-k results. Default is true.
+    /// If true, use original vectors to re-score top-k results. If ignored, qdrant decides automatically does rescore enabled or not.
     #[prost(bool, optional, tag = "2")]
     pub rescore: ::core::option::Option<bool>,
     ///
@@ -2589,10 +2595,10 @@ pub struct RecommendPoints {
     /// name of the collection
     #[prost(string, tag = "1")]
     pub collection_name: ::prost::alloc::string::String,
-    /// Look for vectors closest to those
+    /// Look for vectors closest to the vectors from these points
     #[prost(message, repeated, tag = "2")]
     pub positive: ::prost::alloc::vec::Vec<PointId>,
-    /// Try to avoid vectors like this
+    /// Try to avoid vectors like the vector from these points
     #[prost(message, repeated, tag = "3")]
     pub negative: ::prost::alloc::vec::Vec<PointId>,
     /// Filter conditions - return only those points that satisfy the specified conditions
@@ -2625,6 +2631,15 @@ pub struct RecommendPoints {
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "14")]
     pub read_consistency: ::core::option::Option<ReadConsistency>,
+    /// How to use the example vectors to find the results
+    #[prost(enumeration = "RecommendStrategy", optional, tag = "16")]
+    pub strategy: ::core::option::Option<i32>,
+    /// Look for vectors closest to those
+    #[prost(message, repeated, tag = "17")]
+    pub positive_vectors: ::prost::alloc::vec::Vec<Vector>,
+    /// Try to avoid vectors like this
+    #[prost(message, repeated, tag = "18")]
+    pub negative_vectors: ::prost::alloc::vec::Vec<Vector>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -2644,10 +2659,10 @@ pub struct RecommendPointGroups {
     /// Name of the collection
     #[prost(string, tag = "1")]
     pub collection_name: ::prost::alloc::string::String,
-    /// Look for vectors closest to those
+    /// Look for vectors closest to the vectors from these points
     #[prost(message, repeated, tag = "2")]
     pub positive: ::prost::alloc::vec::Vec<PointId>,
-    /// Try to avoid vectors like this
+    /// Try to avoid vectors like the vector from these points
     #[prost(message, repeated, tag = "3")]
     pub negative: ::prost::alloc::vec::Vec<PointId>,
     /// Filter conditions - return only those points that satisfy the specified conditions
@@ -2686,6 +2701,15 @@ pub struct RecommendPointGroups {
     /// Options for specifying how to use the group id to lookup points in another collection
     #[prost(message, optional, tag = "15")]
     pub with_lookup: ::core::option::Option<WithLookup>,
+    /// How to use the example vectors to find the results
+    #[prost(enumeration = "RecommendStrategy", optional, tag = "17")]
+    pub strategy: ::core::option::Option<i32>,
+    /// Look for vectors closest to those
+    #[prost(message, repeated, tag = "18")]
+    pub positive_vectors: ::prost::alloc::vec::Vec<Vector>,
+    /// Try to avoid vectors like this
+    #[prost(message, repeated, tag = "19")]
+    pub negative_vectors: ::prost::alloc::vec::Vec<Vector>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -3072,6 +3096,9 @@ pub struct FieldCondition {
     /// Check number of values for a specific field
     #[prost(message, optional, tag = "6")]
     pub values_count: ::core::option::Option<ValuesCount>,
+    /// Check if geo point is within a given polygon
+    #[prost(message, optional, tag = "7")]
+    pub geo_polygon: ::core::option::Option<GeoPolygon>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -3156,12 +3183,22 @@ pub struct GeoRadius {
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct GeoPolygon {
-    /// Ordered list of coordinates representing the vertices of a polygon.
-    /// The minimum size is 4, and the first coordinate and the last coordinate
-    /// should be the same to form a closed polygon.
+pub struct GeoLineString {
+    /// Ordered sequence of GeoPoints representing the line
     #[prost(message, repeated, tag = "1")]
     pub points: ::prost::alloc::vec::Vec<GeoPoint>,
+}
+/// For a valid GeoPolygon, both the exterior and interior GeoLineStrings must consist of a minimum of 4 points.
+/// Additionally, the first and last points of each GeoLineString must be the same.
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct GeoPolygon {
+    /// The exterior line bounds the surface
+    #[prost(message, optional, tag = "1")]
+    pub exterior: ::core::option::Option<GeoLineString>,
+    /// Interior lines (if present) bound holes within the surface
+    #[prost(message, repeated, tag = "2")]
+    pub interiors: ::prost::alloc::vec::Vec<GeoLineString>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -3316,6 +3353,38 @@ impl FieldType {
             "FieldTypeGeo" => Some(Self::Geo),
             "FieldTypeText" => Some(Self::Text),
             "FieldTypeBool" => Some(Self::Bool),
+            _ => None,
+        }
+    }
+}
+/// How to use positive and negative vectors to find the results, default is `AverageVector`:
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+#[repr(i32)]
+pub enum RecommendStrategy {
+    /// Average positive and negative vectors and create a single query with the formula
+    /// `query = avg_pos + avg_pos - avg_neg`. Then performs normal search.
+    AverageVector = 0,
+    /// Uses custom search objective. Each candidate is compared against all
+    /// examples, its score is then chosen from the `max(max_pos_score, max_neg_score)`.
+    /// If the `max_neg_score` is chosen then it is squared and negated.
+    BestScore = 1,
+}
+impl RecommendStrategy {
+    /// String value of the enum field names used in the ProtoBuf definition.
+    ///
+    /// The values are not transformed in any way and thus are considered stable
+    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+    pub fn as_str_name(&self) -> &'static str {
+        match self {
+            RecommendStrategy::AverageVector => "AverageVector",
+            RecommendStrategy::BestScore => "BestScore",
+        }
+    }
+    /// Creates an enum from field names used in the ProtoBuf definition.
+    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+        match value {
+            "AverageVector" => Some(Self::AverageVector),
+            "BestScore" => Some(Self::BestScore),
             _ => None,
         }
     }
@@ -3793,7 +3862,7 @@ pub mod points_client {
             self.inner.unary(req, path, codec).await
         }
         ///
-        /// Iterate over all or filtered points points
+        /// Iterate over all or filtered points
         pub async fn scroll(
             &mut self,
             request: impl tonic::IntoRequest<super::ScrollPoints>,
@@ -4068,7 +4137,7 @@ pub mod points_server {
             tonic::Status,
         >;
         ///
-        /// Iterate over all or filtered points points
+        /// Iterate over all or filtered points
         async fn scroll(
             &self,
             request: tonic::Request<super::ScrollPoints>,
