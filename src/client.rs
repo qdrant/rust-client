@@ -507,46 +507,8 @@ impl QdrantClient {
             .await?)
     }
 
-    pub async fn update_collection(
-        &self,
-        collection_name: impl ToString,
-        optimizers_config: &OptimizersConfigDiff,
-    ) -> Result<CollectionOperationResponse> {
-        let collection_name = collection_name.to_string();
-        let collection_name_ref = collection_name.as_str();
-
-        Ok(self
-            .with_collections_client(|mut collection_api| async move {
-                let result = collection_api
-                    .update(UpdateCollection {
-                        collection_name: collection_name_ref.to_string(),
-                        optimizers_config: Some(optimizers_config.clone()),
-                        timeout: None,
-                        params: None,
-                        hnsw_config: None,
-                        vectors_config: None,
-                        quantization_config: None,
-                        sparse_vectors_config: None,
-                    })
-                    .await?;
-
-                Ok(result.into_inner())
-            })
-            .await?)
-    }
-
-    /// Extended version of `update_collection` with more collection parameters.
-    ///
-    /// # Warning
-    ///
-    /// This method is only intended for use with Qdrant client ~1.6.1. It provides access to
-    /// update additional collection parameters without breaking changes. It was not possible to do
-    /// this before.
-    ///
-    /// In version 1.7.0 `update_collection` will be replaced by this method, after which this
-    /// method will be deprecated.
     #[allow(clippy::too_many_arguments)]
-    pub async fn update_collection_extended(
+    pub async fn update_collection(
         &self,
         collection_name: impl ToString,
         optimizers_config: Option<&OptimizersConfigDiff>,
