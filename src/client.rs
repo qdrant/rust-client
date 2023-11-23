@@ -216,7 +216,7 @@ impl From<Vec<PointId>> for PointsSelector {
 
 impl From<Vec<f32>> for Vector {
     fn from(vector: Vec<f32>) -> Self {
-        Vector { data: vector }
+        Vector { data: vector, indices: None }
     }
 }
 
@@ -738,6 +738,7 @@ impl QdrantClient {
                         wait: Some(block),
                         points: points.to_vec(),
                         ordering: ordering_ref.cloned(),
+                        shard_key_selector: None,
                     })
                     .await?
                     .into_inner())
@@ -804,6 +805,7 @@ impl QdrantClient {
                             wait: Some(block),
                             points: chunk.to_vec(),
                             ordering: ordering_ref.cloned(),
+                            shard_key_selector: None,
                         })
                         .await?
                         .into_inner();
@@ -859,6 +861,7 @@ impl QdrantClient {
                         payload: payload.0.clone(),
                         points_selector: Some(points.clone()),
                         ordering: ordering_ref.cloned(),
+                        shard_key_selector: None,
                     })
                     .await?;
                 Ok(result.into_inner())
@@ -910,6 +913,7 @@ impl QdrantClient {
                         payload: payload.0.clone(),
                         points_selector: Some(points.clone()),
                         ordering: ordering_ref.cloned(),
+                        shard_key_selector: None,
                     })
                     .await?;
                 Ok(result.into_inner())
@@ -961,6 +965,7 @@ impl QdrantClient {
                         keys: keys.to_owned(),
                         points_selector: Some(points.clone()),
                         ordering: ordering_ref.cloned(),
+                        shard_key_selector: None,
                     })
                     .await?;
                 Ok(result.into_inner())
@@ -1008,6 +1013,7 @@ impl QdrantClient {
                         wait: Some(block),
                         points: points_selector.cloned(),
                         ordering: ordering_ref.cloned(),
+                        shard_key_selector: None,
                     })
                     .await?;
                 Ok(result.into_inner())
@@ -1042,6 +1048,7 @@ impl QdrantClient {
                         with_payload: with_payload_ref.cloned(),
                         with_vectors: with_vectors_ref.cloned(),
                         read_consistency: read_consistency_ref.cloned(),
+                        shard_key_selector: None,
                     })
                     .await?;
 
@@ -1119,6 +1126,7 @@ impl QdrantClient {
                         wait: Some(blocking),
                         points: Some(points.clone()),
                         ordering: ordering_ref.cloned(),
+                        shard_key_selector: None,
                     })
                     .await?;
                 Ok(result.into_inner())
@@ -1181,6 +1189,7 @@ impl QdrantClient {
                         points_selector: Some(points_selector.clone()),
                         vectors: Some(vector_selector.clone()),
                         ordering: ordering_ref.cloned(),
+                        shard_key_selector: None,
                     })
                     .await?;
                 Ok(result.into_inner())
@@ -1227,6 +1236,7 @@ impl QdrantClient {
                         wait: Some(blocking),
                         points: points.to_owned(),
                         ordering: ordering_ref.cloned(),
+                        shard_key_selector: None,
                     })
                     .await?;
                 Ok(result.into_inner())

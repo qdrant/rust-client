@@ -520,6 +520,9 @@ mod tests {
                 vector_name: None,
                 with_vectors: None,
                 read_consistency: None,
+                timeout: None,
+                shard_key_selector: None,
+                sparse_indices: None,
             })
             .await?;
 
