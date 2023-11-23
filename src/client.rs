@@ -216,7 +216,10 @@ impl From<Vec<PointId>> for PointsSelector {
 
 impl From<Vec<f32>> for Vector {
     fn from(vector: Vec<f32>) -> Self {
-        Vector { data: vector, indices: None }
+        Vector {
+            data: vector,
+            indices: None,
+        }
     }
 }
 
