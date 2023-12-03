@@ -25,10 +25,10 @@ use crate::qdrant::{
     RecommendBatchPoints, RecommendBatchResponse, RecommendGroupsResponse, RecommendPointGroups,
     RecommendPoints, RecommendResponse, RenameAlias, ScrollPoints, ScrollResponse,
     SearchBatchPoints, SearchBatchResponse, SearchGroupsResponse, SearchPointGroups, SearchPoints,
-    SearchResponse, SetPayloadPoints, Struct, UpdateBatchPoints, UpdateBatchResponse,
-    UpdateCollection, UpdateCollectionClusterSetupRequest, UpdateCollectionClusterSetupResponse,
-    UpdatePointVectors, UpsertPoints, Value, Vector, Vectors, VectorsSelector, WithPayloadSelector,
-    WithVectorsSelector, WriteOrdering,
+    SearchResponse, SetPayloadPoints, SparseIndices, Struct, UpdateBatchPoints,
+    UpdateBatchResponse, UpdateCollection, UpdateCollectionClusterSetupRequest,
+    UpdateCollectionClusterSetupResponse, UpdatePointVectors, UpsertPoints, Value, Vector, Vectors,
+    VectorsSelector, WithPayloadSelector, WithVectorsSelector, WriteOrdering,
 };
 use anyhow::Result;
 #[cfg(feature = "serde")]
@@ -219,6 +219,21 @@ impl From<Vec<f32>> for Vector {
         Vector {
             data: vector,
             indices: None,
+        }
+    }
+}
+
+impl From<Vec<(i32, f64)>> for Vector {
+    fn from(tuples: Vec<(i32, f64)>) -> Self {
+        let mut indices = Vec::with_capacity(tuples.len());
+        let mut values = Vec::with_capacity(tuples.len());
+        for (i, w) in tuples {
+            indices.push(i as u32);
+            values.push(w as f32);
+        }
+        Vector {
+            data: values,
+            indices: Some(SparseIndices { data: indices }),
         }
     }
 }
