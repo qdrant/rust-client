@@ -223,13 +223,13 @@ impl From<Vec<f32>> for Vector {
     }
 }
 
-impl From<Vec<(u32, f64)>> for Vector {
-    fn from(tuples: Vec<(u32, f64)>) -> Self {
+impl From<Vec<(u32, f32)>> for Vector {
+    fn from(tuples: Vec<(u32, f32)>) -> Self {
         let mut indices = Vec::with_capacity(tuples.len());
         let mut values = Vec::with_capacity(tuples.len());
         for (i, w) in tuples {
             indices.push(i);
-            values.push(w as f32);
+            values.push(w);
         }
         Vector {
             data: values,
