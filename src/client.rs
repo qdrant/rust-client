@@ -463,6 +463,7 @@ impl QdrantClient {
                         hnsw_config: None,
                         vectors_config: None,
                         quantization_config: None,
+                        sparse_vectors_config: None,
                     })
                     .await?;
 
