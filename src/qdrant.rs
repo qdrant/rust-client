@@ -81,6 +81,22 @@ pub mod vectors_config_diff {
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct SparseVectorParams {
+    /// Configuration of sparse index
+    #[prost(message, optional, tag = "1")]
+    pub index: ::core::option::Option<SparseIndexConfig>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct SparseVectorConfig {
+    #[prost(map = "string, message", tag = "1")]
+    pub map: ::std::collections::HashMap<
+        ::prost::alloc::string::String,
+        SparseVectorParams,
+    >,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GetCollectionInfoRequest {
     /// Name of the collection
     #[prost(string, tag = "1")]
@@ -152,6 +168,19 @@ pub struct HnswConfigDiff {
     /// Number of additional payload-aware links per node in the index graph. If not set - regular M parameter will be used.
     #[prost(uint64, optional, tag = "6")]
     pub payload_m: ::core::option::Option<u64>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct SparseIndexConfig {
+    ///
+    /// Prefer a full scan search upto (excluding) this number of vectors.
+    /// Note: this is number of vectors, not KiloBytes.
+    #[prost(uint64, optional, tag = "1")]
+    pub full_scan_threshold: ::core::option::Option<u64>,
+    ///
+    /// Store inverted index on disk. If set to false, the index will be stored in RAM.
+    #[prost(bool, optional, tag = "2")]
+    pub on_disk: ::core::option::Option<bool>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -341,6 +370,9 @@ pub struct CreateCollection {
     /// Sharding method
     #[prost(enumeration = "ShardingMethod", optional, tag = "15")]
     pub sharding_method: ::core::option::Option<i32>,
+    /// Configuration for sparse vectors
+    #[prost(message, optional, tag = "16")]
+    pub sparse_vectors_config: ::core::option::Option<SparseVectorConfig>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -366,6 +398,9 @@ pub struct UpdateCollection {
     /// Quantization configuration of vector
     #[prost(message, optional, tag = "7")]
     pub quantization_config: ::core::option::Option<QuantizationConfigDiff>,
+    /// New sparse vector parameters
+    #[prost(message, optional, tag = "8")]
+    pub sparse_vectors_config: ::core::option::Option<SparseVectorConfig>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -411,6 +446,9 @@ pub struct CollectionParams {
     /// Sharding method
     #[prost(enumeration = "ShardingMethod", optional, tag = "9")]
     pub sharding_method: ::core::option::Option<i32>,
+    /// Configuration for sparse vectors
+    #[prost(message, optional, tag = "10")]
+    pub sparse_vectors_config: ::core::option::Option<SparseVectorConfig>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -830,6 +868,7 @@ pub enum Distance {
     Cosine = 1,
     Euclid = 2,
     Dot = 3,
+    Manhattan = 4,
 }
 impl Distance {
     /// String value of the enum field names used in the ProtoBuf definition.
@@ -842,6 +881,7 @@ impl Distance {
             Distance::Cosine => "Cosine",
             Distance::Euclid => "Euclid",
             Distance::Dot => "Dot",
+            Distance::Manhattan => "Manhattan",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -851,6 +891,7 @@ impl Distance {
             "Cosine" => Some(Self::Cosine),
             "Euclid" => Some(Self::Euclid),
             "Dot" => Some(Self::Dot),
+            "Manhattan" => Some(Self::Manhattan),
             _ => None,
         }
     }
