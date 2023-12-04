@@ -10,27 +10,27 @@ use crate::qdrant::value::Kind;
 use crate::qdrant::vectors::VectorsOptions;
 use crate::qdrant::with_payload_selector::SelectorOptions;
 use crate::qdrant::{
-    qdrant_client, with_vectors_selector, AliasOperations, ChangeAliases, ClearPayloadPoints,
-    CollectionClusterInfoRequest, CollectionClusterInfoResponse, CollectionOperationResponse,
-    CountPoints, CountResponse, CreateAlias, CreateCollection, CreateFieldIndexCollection,
-    CreateFullSnapshotRequest, CreateShardKey, CreateShardKeyRequest, CreateShardKeyResponse,
-    CreateSnapshotRequest, CreateSnapshotResponse, DeleteAlias, DeleteCollection,
-    DeleteFieldIndexCollection, DeleteFullSnapshotRequest, DeletePayloadPoints, DeletePointVectors,
-    DeletePoints, DeleteShardKey, DeleteShardKeyRequest, DeleteShardKeyResponse,
-    DeleteSnapshotRequest, DeleteSnapshotResponse, FieldType, GetCollectionInfoRequest,
-    GetCollectionInfoResponse, GetPoints, GetResponse, HealthCheckReply, HealthCheckRequest,
-    ListAliasesRequest, ListAliasesResponse, ListCollectionAliasesRequest, ListCollectionsRequest,
-    ListCollectionsResponse, ListFullSnapshotsRequest, ListSnapshotsRequest, ListSnapshotsResponse,
-    ListValue, NamedVectors, OptimizersConfigDiff, PayloadIncludeSelector, PayloadIndexParams,
-    PointId, PointStruct, PointVectors, PointsIdsList, PointsOperationResponse, PointsSelector,
-    PointsUpdateOperation, ReadConsistency, RecommendBatchPoints, RecommendBatchResponse,
-    RecommendGroupsResponse, RecommendPointGroups, RecommendPoints, RecommendResponse, RenameAlias,
-    ScrollPoints, ScrollResponse, SearchBatchPoints, SearchBatchResponse, SearchGroupsResponse,
-    SearchPointGroups, SearchPoints, SearchResponse, SetPayloadPoints, ShardKey, SparseIndices,
-    Struct, UpdateBatchPoints, UpdateBatchResponse, UpdateCollection,
-    UpdateCollectionClusterSetupRequest, UpdateCollectionClusterSetupResponse, UpdatePointVectors,
-    UpsertPoints, Value, Vector, Vectors, VectorsSelector, WithPayloadSelector,
-    WithVectorsSelector, WriteOrdering,
+    qdrant_client, shard_key, with_vectors_selector, AliasOperations, ChangeAliases,
+    ClearPayloadPoints, CollectionClusterInfoRequest, CollectionClusterInfoResponse,
+    CollectionOperationResponse, CountPoints, CountResponse, CreateAlias, CreateCollection,
+    CreateFieldIndexCollection, CreateFullSnapshotRequest, CreateShardKey, CreateShardKeyRequest,
+    CreateShardKeyResponse, CreateSnapshotRequest, CreateSnapshotResponse, DeleteAlias,
+    DeleteCollection, DeleteFieldIndexCollection, DeleteFullSnapshotRequest, DeletePayloadPoints,
+    DeletePointVectors, DeletePoints, DeleteShardKey, DeleteShardKeyRequest,
+    DeleteShardKeyResponse, DeleteSnapshotRequest, DeleteSnapshotResponse, FieldType,
+    GetCollectionInfoRequest, GetCollectionInfoResponse, GetPoints, GetResponse, HealthCheckReply,
+    HealthCheckRequest, ListAliasesRequest, ListAliasesResponse, ListCollectionAliasesRequest,
+    ListCollectionsRequest, ListCollectionsResponse, ListFullSnapshotsRequest,
+    ListSnapshotsRequest, ListSnapshotsResponse, ListValue, NamedVectors, OptimizersConfigDiff,
+    PayloadIncludeSelector, PayloadIndexParams, PointId, PointStruct, PointVectors, PointsIdsList,
+    PointsOperationResponse, PointsSelector, PointsUpdateOperation, ReadConsistency,
+    RecommendBatchPoints, RecommendBatchResponse, RecommendGroupsResponse, RecommendPointGroups,
+    RecommendPoints, RecommendResponse, RenameAlias, ScrollPoints, ScrollResponse,
+    SearchBatchPoints, SearchBatchResponse, SearchGroupsResponse, SearchPointGroups, SearchPoints,
+    SearchResponse, SetPayloadPoints, ShardKey, SparseIndices, Struct, UpdateBatchPoints,
+    UpdateBatchResponse, UpdateCollection, UpdateCollectionClusterSetupRequest,
+    UpdateCollectionClusterSetupResponse, UpdatePointVectors, UpsertPoints, Value, Vector, Vectors,
+    VectorsSelector, WithPayloadSelector, WithVectorsSelector, WriteOrdering,
 };
 use anyhow::Result;
 #[cfg(feature = "serde")]
@@ -668,7 +668,7 @@ impl QdrantClient {
     pub async fn create_shard_key(
         &self,
         collection_name: impl AsRef<str>,
-        shard_key: &ShardKey,
+        shard_key: &shard_key::Key,
         shards_number: Option<u32>,
         replication_factor: Option<u32>,
         placement: &[u64],
@@ -681,7 +681,9 @@ impl QdrantClient {
                     .create_shard_key(CreateShardKeyRequest {
                         collection_name: collection_name.to_string(),
                         request: Some(CreateShardKey {
-                            shard_key: Some(shard_key.clone()),
+                            shard_key: Some(ShardKey {
+                                key: Some(shard_key.clone()),
+                            }),
                             shards_number,
                             replication_factor,
                             placement: placement.to_vec(),
@@ -697,7 +699,7 @@ impl QdrantClient {
     pub async fn delete_shard_key(
         &self,
         collection_name: impl AsRef<str>,
-        shard_key: &ShardKey,
+        shard_key: &shard_key::Key,
     ) -> Result<DeleteShardKeyResponse> {
         let collection_name = collection_name.as_ref();
 
@@ -707,7 +709,9 @@ impl QdrantClient {
                     .delete_shard_key(DeleteShardKeyRequest {
                         collection_name: collection_name.to_string(),
                         request: Some(DeleteShardKey {
-                            shard_key: Some(shard_key.clone()),
+                            shard_key: Some(ShardKey {
+                                key: Some(shard_key.clone()),
+                            }),
                         }),
                         timeout: None,
                     })
