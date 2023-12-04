@@ -228,11 +228,18 @@ impl From<Vec<f32>> for Vector {
 
 impl From<Vec<(u32, f32)>> for Vector {
     fn from(tuples: Vec<(u32, f32)>) -> Self {
+        Self::from(tuples.as_slice())
+    }
+}
+
+// Since we construct two new Vec's anyway it's fine to source from a reference
+impl From<&[(u32, f32)]> for Vector {
+    fn from(tuples: &[(u32, f32)]) -> Self {
         let mut indices = Vec::with_capacity(tuples.len());
         let mut values = Vec::with_capacity(tuples.len());
         for (i, w) in tuples {
-            indices.push(i);
-            values.push(w);
+            indices.push(*i);
+            values.push(*w);
         }
         Vector {
             data: values,
@@ -266,6 +273,20 @@ impl From<HashMap<String, Vector>> for Vectors {
 
 impl From<HashMap<String, Vec<(u32, f32)>>> for Vectors {
     fn from(named_vectors: HashMap<String, Vec<(u32, f32)>>) -> Self {
+        Vectors {
+            vectors_options: Some(VectorsOptions::Vectors(NamedVectors {
+                vectors: named_vectors
+                    .into_iter()
+                    .map(|(k, v)| (k, v.into()))
+                    .collect(),
+            })),
+        }
+    }
+}
+
+// Since we construct two new Vec's anyway it's fine to source from a reference
+impl From<HashMap<String, &[(u32, f32)]>> for Vectors {
+    fn from(named_vectors: HashMap<String, &[(u32, f32)]>) -> Self {
         Vectors {
             vectors_options: Some(VectorsOptions::Vectors(NamedVectors {
                 vectors: named_vectors
