@@ -58,7 +58,7 @@ async fn main() -> Result<()> {
 
     let points = vec![PointStruct::new(0, vec![12.; 10], payload)];
     client
-        .upsert_points_blocking(collection_name, points, None, None)
+        .upsert_points_blocking(collection_name, None, points, None)
         .await?;
 
     let search_result = client

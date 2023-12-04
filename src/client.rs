@@ -816,16 +816,16 @@ impl QdrantClient {
     pub async fn upsert_points(
         &self,
         collection_name: impl ToString,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
         points: Vec<PointStruct>,
         ordering: Option<WriteOrdering>,
-        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
         self._upsert_points(
             collection_name,
+            shard_key_selector,
             &points,
             false,
             ordering,
-            shard_key_selector,
         )
         .await
     }
@@ -837,11 +837,11 @@ impl QdrantClient {
     pub async fn upsert_points_blocking(
         &self,
         collection_name: impl ToString,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
         points: Vec<PointStruct>,
         ordering: Option<WriteOrdering>,
-        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
-        self._upsert_points(collection_name, &points, true, ordering, shard_key_selector)
+        self._upsert_points(collection_name, shard_key_selector, &points, true, ordering)
             .await
     }
 
@@ -849,10 +849,10 @@ impl QdrantClient {
     async fn _upsert_points(
         &self,
         collection_name: impl ToString,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
         points: &[PointStruct],
         block: bool,
         ordering: Option<WriteOrdering>,
-        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
         let collection_name = collection_name.to_string();
         let collection_name_ref = collection_name.as_str();
@@ -882,18 +882,18 @@ impl QdrantClient {
     pub async fn upsert_points_batch(
         &self,
         collection_name: impl ToString,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
         points: Vec<PointStruct>,
         ordering: Option<WriteOrdering>,
         chunk_size: usize,
-        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
         self._upsert_points_batch(
             collection_name,
+            shard_key_selector,
             &points,
             false,
             ordering,
             chunk_size,
-            shard_key_selector,
         )
         .await
     }
@@ -904,18 +904,18 @@ impl QdrantClient {
     pub async fn upsert_points_batch_blocking(
         &self,
         collection_name: impl ToString,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
         points: Vec<PointStruct>,
         ordering: Option<WriteOrdering>,
         chunk_size: usize,
-        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
         self._upsert_points_batch(
             collection_name,
+            shard_key_selector,
             &points,
             true,
             ordering,
             chunk_size,
-            shard_key_selector,
         )
         .await
     }
@@ -924,15 +924,15 @@ impl QdrantClient {
     async fn _upsert_points_batch(
         &self,
         collection_name: impl ToString,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
         points: &[PointStruct],
         block: bool,
         ordering: Option<WriteOrdering>,
         chunk_size: usize,
-        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
         if points.len() < chunk_size {
             return self
-                ._upsert_points(collection_name, points, block, ordering, shard_key_selector)
+                ._upsert_points(collection_name, shard_key_selector, points, block, ordering)
                 .await;
         }
         let collection_name = collection_name.to_string();
@@ -968,18 +968,18 @@ impl QdrantClient {
     pub async fn set_payload(
         &self,
         collection_name: impl ToString,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
         points: &PointsSelector,
         payload: Payload,
         ordering: Option<WriteOrdering>,
-        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
         self._set_payload(
             collection_name,
+            shard_key_selector,
             points,
             &payload,
             false,
             ordering,
-            shard_key_selector,
         )
         .await
     }
@@ -987,18 +987,18 @@ impl QdrantClient {
     pub async fn set_payload_blocking(
         &self,
         collection_name: impl ToString,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
         points: &PointsSelector,
         payload: Payload,
         ordering: Option<WriteOrdering>,
-        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
         self._set_payload(
             collection_name,
+            shard_key_selector,
             points,
             &payload,
             true,
             ordering,
-            shard_key_selector,
         )
         .await
     }
@@ -1007,11 +1007,11 @@ impl QdrantClient {
     async fn _set_payload(
         &self,
         collection_name: impl ToString,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
         points: &PointsSelector,
         payload: &Payload,
         block: bool,
         ordering: Option<WriteOrdering>,
-        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
         let collection_name = collection_name.to_string();
         let collection_name_ref = collection_name.as_str();
@@ -1039,18 +1039,18 @@ impl QdrantClient {
     pub async fn overwrite_payload(
         &self,
         collection_name: impl ToString,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
         points: &PointsSelector,
         payload: Payload,
         ordering: Option<WriteOrdering>,
-        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
         self._overwrite_payload(
             collection_name,
+            shard_key_selector,
             points,
             &payload,
             false,
             ordering,
-            shard_key_selector,
         )
         .await
     }
@@ -1058,18 +1058,18 @@ impl QdrantClient {
     pub async fn overwrite_payload_blocking(
         &self,
         collection_name: impl ToString,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
         points: &PointsSelector,
         payload: Payload,
         ordering: Option<WriteOrdering>,
-        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
         self._overwrite_payload(
             collection_name,
+            shard_key_selector,
             points,
             &payload,
             true,
             ordering,
-            shard_key_selector,
         )
         .await
     }
@@ -1078,11 +1078,11 @@ impl QdrantClient {
     async fn _overwrite_payload(
         &self,
         collection_name: impl ToString,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
         points: &PointsSelector,
         payload: &Payload,
         block: bool,
         ordering: Option<WriteOrdering>,
-        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
         let collection_name = collection_name.to_string();
         let collection_name_ref = collection_name.as_str();
@@ -1110,18 +1110,18 @@ impl QdrantClient {
     pub async fn delete_payload(
         &self,
         collection_name: impl ToString,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
         points: &PointsSelector,
         keys: Vec<String>,
         ordering: Option<WriteOrdering>,
-        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
         self._delete_payload(
             collection_name,
+            shard_key_selector,
             points,
             &keys,
             false,
             ordering,
-            shard_key_selector,
         )
         .await
     }
@@ -1129,18 +1129,18 @@ impl QdrantClient {
     pub async fn delete_payload_blocking(
         &self,
         collection_name: impl ToString,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
         points: &PointsSelector,
         keys: Vec<String>,
         ordering: Option<WriteOrdering>,
-        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
         self._delete_payload(
             collection_name,
+            shard_key_selector,
             points,
             &keys,
             true,
             ordering,
-            shard_key_selector,
         )
         .await
     }
@@ -1149,11 +1149,11 @@ impl QdrantClient {
     async fn _delete_payload(
         &self,
         collection_name: impl ToString,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
         points: &PointsSelector,
         keys: &[String],
         block: bool,
         ordering: Option<WriteOrdering>,
-        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
         let collection_name = collection_name.to_string();
         let collection_name_ref = collection_name.as_str();
@@ -1181,16 +1181,16 @@ impl QdrantClient {
     pub async fn clear_payload(
         &self,
         collection_name: impl ToString,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
         points_selector: Option<PointsSelector>,
         ordering: Option<WriteOrdering>,
-        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
         self._clear_payload(
             collection_name,
+            shard_key_selector,
             points_selector.as_ref(),
             false,
             ordering,
-            shard_key_selector,
         )
         .await
     }
@@ -1198,16 +1198,16 @@ impl QdrantClient {
     pub async fn clear_payload_blocking(
         &self,
         collection_name: impl ToString,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
         points_selector: Option<PointsSelector>,
         ordering: Option<WriteOrdering>,
-        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
         self._clear_payload(
             collection_name,
+            shard_key_selector,
             points_selector.as_ref(),
             true,
             ordering,
-            shard_key_selector,
         )
         .await
     }
@@ -1216,10 +1216,10 @@ impl QdrantClient {
     async fn _clear_payload(
         &self,
         collection_name: impl ToString,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
         points_selector: Option<&PointsSelector>,
         block: bool,
         ordering: Option<WriteOrdering>,
-        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
         let collection_name = collection_name.to_string();
         let collection_name_ref = collection_name.as_str();
@@ -1246,11 +1246,11 @@ impl QdrantClient {
     pub async fn get_points(
         &self,
         collection_name: impl ToString,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
         points: &[PointId],
         with_vectors: Option<impl Into<WithVectorsSelector>>,
         with_payload: Option<impl Into<WithPayloadSelector>>,
         read_consistency: Option<ReadConsistency>,
-        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<GetResponse> {
         let collection_name = collection_name.to_string();
         let collection_name_ref = collection_name.as_str();
@@ -1316,32 +1316,32 @@ impl QdrantClient {
     pub async fn delete_points(
         &self,
         collection_name: impl ToString,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
         points: &PointsSelector,
         ordering: Option<WriteOrdering>,
-        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
-        self._delete_points(collection_name, false, points, ordering, shard_key_selector)
+        self._delete_points(collection_name, shard_key_selector, false, points, ordering)
             .await
     }
 
     pub async fn delete_points_blocking(
         &self,
         collection_name: impl ToString,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
         points: &PointsSelector,
         ordering: Option<WriteOrdering>,
-        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
-        self._delete_points(collection_name, true, points, ordering, shard_key_selector)
+        self._delete_points(collection_name, shard_key_selector, true, points, ordering)
             .await
     }
 
     async fn _delete_points(
         &self,
         collection_name: impl ToString,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
         blocking: bool,
         points: &PointsSelector,
         ordering: Option<WriteOrdering>,
-        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
         let collection_name = collection_name.to_string();
         let collection_name_ref = collection_name.as_str();
@@ -1368,18 +1368,18 @@ impl QdrantClient {
     pub async fn delete_vectors(
         &self,
         collection_name: impl ToString,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
         points_selector: &PointsSelector,
         vector_selector: &VectorsSelector,
         ordering: Option<WriteOrdering>,
-        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
         self._delete_vectors(
             collection_name,
+            shard_key_selector,
             false,
             points_selector,
             vector_selector,
             ordering,
-            shard_key_selector,
         )
         .await
     }
@@ -1387,18 +1387,18 @@ impl QdrantClient {
     pub async fn delete_vectors_blocking(
         &self,
         collection_name: impl ToString,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
         points_selector: &PointsSelector,
         vector_selector: &VectorsSelector,
         ordering: Option<WriteOrdering>,
-        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
         self._delete_vectors(
             collection_name,
+            shard_key_selector,
             true,
             points_selector,
             vector_selector,
             ordering,
-            shard_key_selector,
         )
         .await
     }
@@ -1406,11 +1406,11 @@ impl QdrantClient {
     async fn _delete_vectors(
         &self,
         collection_name: impl ToString,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
         blocking: bool,
         points_selector: &PointsSelector,
         vector_selector: &VectorsSelector,
         ordering: Option<WriteOrdering>,
-        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
         let collection_name = collection_name.to_string();
         let collection_name_ref = collection_name.as_str();
@@ -1438,32 +1438,32 @@ impl QdrantClient {
     pub async fn update_vectors(
         &self,
         collection_name: impl ToString,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
         points: &[PointVectors],
         ordering: Option<WriteOrdering>,
-        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
-        self._update_vectors(collection_name, false, points, ordering, shard_key_selector)
+        self._update_vectors(collection_name, shard_key_selector, false, points, ordering)
             .await
     }
 
     pub async fn update_vectors_blocking(
         &self,
         collection_name: impl ToString,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
         points: &[PointVectors],
         ordering: Option<WriteOrdering>,
-        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
-        self._update_vectors(collection_name, true, points, ordering, shard_key_selector)
+        self._update_vectors(collection_name, shard_key_selector, true, points, ordering)
             .await
     }
 
     async fn _update_vectors(
         &self,
         collection_name: impl ToString,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
         blocking: bool,
         points: &[PointVectors],
         ordering: Option<WriteOrdering>,
-        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
         let collection_name = collection_name.to_string();
         let collection_name_ref = collection_name.as_str();

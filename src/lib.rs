@@ -504,7 +504,7 @@ mod tests {
 
         let points = vec![PointStruct::new(0, vec![12.; 10], payload)];
         client
-            .upsert_points_blocking(collection_name, points, None, None)
+            .upsert_points_blocking(collection_name, None, points, None)
             .await?;
 
         let search_result = client
@@ -536,9 +536,9 @@ mod tests {
         client
             .set_payload(
                 collection_name,
+                None,
                 &vec![0.into()].into(),
                 new_payload,
-                None,
                 None,
             )
             .await?;
@@ -547,9 +547,9 @@ mod tests {
         client
             .delete_payload_blocking(
                 collection_name,
+                None,
                 &vec![0.into()].into(),
                 vec!["sub_payload".to_string()],
-                None,
                 None,
             )
             .await?;
@@ -558,10 +558,10 @@ mod tests {
         let points = client
             .get_points(
                 collection_name,
+                None,
                 &[0.into()],
                 Some(true),
                 Some(true),
-                None,
                 None,
             )
             .await?;
@@ -572,7 +572,7 @@ mod tests {
         assert!(!point.payload.contains_key("sub_payload"));
 
         client
-            .delete_points(collection_name, &vec![0.into()].into(), None, None)
+            .delete_points(collection_name, None, &vec![0.into()].into(), None)
             .await?;
 
         // Access raw point api with client
