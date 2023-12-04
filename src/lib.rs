@@ -72,7 +72,7 @@
 //! };
 //!
 //! let response = qdrant_client
-//!     .upsert_points("my_collection", vec![point], None)
+//!     .upsert_points("my_collection", None, vec![point], None)
 //!     .await?;
 //!# Ok(())
 //!# }
