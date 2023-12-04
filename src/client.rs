@@ -17,20 +17,21 @@ use crate::qdrant::{
     CreateShardKeyResponse, CreateSnapshotRequest, CreateSnapshotResponse, DeleteAlias,
     DeleteCollection, DeleteFieldIndexCollection, DeleteFullSnapshotRequest, DeletePayloadPoints,
     DeletePointVectors, DeletePoints, DeleteShardKey, DeleteShardKeyRequest,
-    DeleteShardKeyResponse, DeleteSnapshotRequest, DeleteSnapshotResponse, FieldType,
-    GetCollectionInfoRequest, GetCollectionInfoResponse, GetPoints, GetResponse, HealthCheckReply,
-    HealthCheckRequest, ListAliasesRequest, ListAliasesResponse, ListCollectionAliasesRequest,
-    ListCollectionsRequest, ListCollectionsResponse, ListFullSnapshotsRequest,
-    ListSnapshotsRequest, ListSnapshotsResponse, ListValue, NamedVectors, OptimizersConfigDiff,
-    PayloadIncludeSelector, PayloadIndexParams, PointId, PointStruct, PointVectors, PointsIdsList,
-    PointsOperationResponse, PointsSelector, PointsUpdateOperation, ReadConsistency,
-    RecommendBatchPoints, RecommendBatchResponse, RecommendGroupsResponse, RecommendPointGroups,
-    RecommendPoints, RecommendResponse, RenameAlias, ScrollPoints, ScrollResponse,
-    SearchBatchPoints, SearchBatchResponse, SearchGroupsResponse, SearchPointGroups, SearchPoints,
-    SearchResponse, SetPayloadPoints, ShardKey, SparseIndices, Struct, UpdateBatchPoints,
-    UpdateBatchResponse, UpdateCollection, UpdateCollectionClusterSetupRequest,
-    UpdateCollectionClusterSetupResponse, UpdatePointVectors, UpsertPoints, Value, Vector, Vectors,
-    VectorsSelector, WithPayloadSelector, WithVectorsSelector, WriteOrdering,
+    DeleteShardKeyResponse, DeleteSnapshotRequest, DeleteSnapshotResponse, DiscoverBatchPoints,
+    DiscoverBatchResponse, DiscoverPoints, DiscoverResponse, FieldType, GetCollectionInfoRequest,
+    GetCollectionInfoResponse, GetPoints, GetResponse, HealthCheckReply, HealthCheckRequest,
+    ListAliasesRequest, ListAliasesResponse, ListCollectionAliasesRequest, ListCollectionsRequest,
+    ListCollectionsResponse, ListFullSnapshotsRequest, ListSnapshotsRequest, ListSnapshotsResponse,
+    ListValue, NamedVectors, OptimizersConfigDiff, PayloadIncludeSelector, PayloadIndexParams,
+    PointId, PointStruct, PointVectors, PointsIdsList, PointsOperationResponse, PointsSelector,
+    PointsUpdateOperation, ReadConsistency, RecommendBatchPoints, RecommendBatchResponse,
+    RecommendGroupsResponse, RecommendPointGroups, RecommendPoints, RecommendResponse, RenameAlias,
+    ScrollPoints, ScrollResponse, SearchBatchPoints, SearchBatchResponse, SearchGroupsResponse,
+    SearchPointGroups, SearchPoints, SearchResponse, SetPayloadPoints, ShardKey, SparseIndices,
+    Struct, UpdateBatchPoints, UpdateBatchResponse, UpdateCollection,
+    UpdateCollectionClusterSetupRequest, UpdateCollectionClusterSetupResponse, UpdatePointVectors,
+    UpsertPoints, Value, Vector, Vectors, VectorsSelector, WithPayloadSelector,
+    WithVectorsSelector, WriteOrdering,
 };
 use anyhow::Result;
 #[cfg(feature = "serde")]
@@ -1381,6 +1382,27 @@ impl QdrantClient {
         Ok(self
             .with_points_client(|mut points_api| async move {
                 let result = points_api.recommend_groups(request.clone()).await?;
+                Ok(result.into_inner())
+            })
+            .await?)
+    }
+
+    pub async fn discover(&self, request: &DiscoverPoints) -> Result<DiscoverResponse> {
+        Ok(self
+            .with_points_client(|mut points_api| async move {
+                let result = points_api.discover(request.clone()).await?;
+                Ok(result.into_inner())
+            })
+            .await?)
+    }
+
+    pub async fn discover_batch(
+        &self,
+        request: &DiscoverBatchPoints,
+    ) -> Result<DiscoverBatchResponse> {
+        Ok(self
+            .with_points_client(|mut points_api| async move {
+                let result = points_api.discover_batch(request.clone()).await?;
                 Ok(result.into_inner())
             })
             .await?)
