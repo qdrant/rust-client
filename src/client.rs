@@ -13,22 +13,24 @@ use crate::qdrant::{
     qdrant_client, with_vectors_selector, AliasOperations, ChangeAliases, ClearPayloadPoints,
     CollectionClusterInfoRequest, CollectionClusterInfoResponse, CollectionOperationResponse,
     CountPoints, CountResponse, CreateAlias, CreateCollection, CreateFieldIndexCollection,
-    CreateFullSnapshotRequest, CreateSnapshotRequest, CreateSnapshotResponse, DeleteAlias,
-    DeleteCollection, DeleteFieldIndexCollection, DeleteFullSnapshotRequest, DeletePayloadPoints,
-    DeletePointVectors, DeletePoints, DeleteSnapshotRequest, DeleteSnapshotResponse, FieldType,
-    GetCollectionInfoRequest, GetCollectionInfoResponse, GetPoints, GetResponse, HealthCheckReply,
-    HealthCheckRequest, ListAliasesRequest, ListAliasesResponse, ListCollectionAliasesRequest,
-    ListCollectionsRequest, ListCollectionsResponse, ListFullSnapshotsRequest,
-    ListSnapshotsRequest, ListSnapshotsResponse, ListValue, NamedVectors, OptimizersConfigDiff,
-    PayloadIncludeSelector, PayloadIndexParams, PointId, PointStruct, PointVectors, PointsIdsList,
-    PointsOperationResponse, PointsSelector, PointsUpdateOperation, ReadConsistency,
-    RecommendBatchPoints, RecommendBatchResponse, RecommendGroupsResponse, RecommendPointGroups,
-    RecommendPoints, RecommendResponse, RenameAlias, ScrollPoints, ScrollResponse,
-    SearchBatchPoints, SearchBatchResponse, SearchGroupsResponse, SearchPointGroups, SearchPoints,
-    SearchResponse, SetPayloadPoints, SparseIndices, Struct, UpdateBatchPoints,
-    UpdateBatchResponse, UpdateCollection, UpdateCollectionClusterSetupRequest,
-    UpdateCollectionClusterSetupResponse, UpdatePointVectors, UpsertPoints, Value, Vector, Vectors,
-    VectorsSelector, WithPayloadSelector, WithVectorsSelector, WriteOrdering,
+    CreateFullSnapshotRequest, CreateShardKey, CreateShardKeyRequest, CreateShardKeyResponse,
+    CreateSnapshotRequest, CreateSnapshotResponse, DeleteAlias, DeleteCollection,
+    DeleteFieldIndexCollection, DeleteFullSnapshotRequest, DeletePayloadPoints, DeletePointVectors,
+    DeletePoints, DeleteShardKey, DeleteShardKeyRequest, DeleteShardKeyResponse,
+    DeleteSnapshotRequest, DeleteSnapshotResponse, FieldType, GetCollectionInfoRequest,
+    GetCollectionInfoResponse, GetPoints, GetResponse, HealthCheckReply, HealthCheckRequest,
+    ListAliasesRequest, ListAliasesResponse, ListCollectionAliasesRequest, ListCollectionsRequest,
+    ListCollectionsResponse, ListFullSnapshotsRequest, ListSnapshotsRequest, ListSnapshotsResponse,
+    ListValue, NamedVectors, OptimizersConfigDiff, PayloadIncludeSelector, PayloadIndexParams,
+    PointId, PointStruct, PointVectors, PointsIdsList, PointsOperationResponse, PointsSelector,
+    PointsUpdateOperation, ReadConsistency, RecommendBatchPoints, RecommendBatchResponse,
+    RecommendGroupsResponse, RecommendPointGroups, RecommendPoints, RecommendResponse, RenameAlias,
+    ScrollPoints, ScrollResponse, SearchBatchPoints, SearchBatchResponse, SearchGroupsResponse,
+    SearchPointGroups, SearchPoints, SearchResponse, SetPayloadPoints, ShardKey, SparseIndices,
+    Struct, UpdateBatchPoints, UpdateBatchResponse, UpdateCollection,
+    UpdateCollectionClusterSetupRequest, UpdateCollectionClusterSetupResponse, UpdatePointVectors,
+    UpsertPoints, Value, Vector, Vectors, VectorsSelector, WithPayloadSelector,
+    WithVectorsSelector, WriteOrdering,
 };
 use anyhow::Result;
 #[cfg(feature = "serde")]
@@ -658,6 +660,58 @@ impl QdrantClient {
                     collection_name: collection_name_ref.to_string(),
                 };
                 let result = collection_api.collection_cluster_info(request).await?;
+                Ok(result.into_inner())
+            })
+            .await?)
+    }
+
+    pub async fn create_shard_key(
+        &self,
+        collection_name: impl AsRef<str>,
+        shard_key: &ShardKey,
+        shards_number: Option<u32>,
+        replication_factor: Option<u32>,
+        placement: &[u64],
+    ) -> Result<CreateShardKeyResponse> {
+        let collection_name = collection_name.as_ref();
+
+        Ok(self
+            .with_collections_client(|mut collection_api| async move {
+                let result = collection_api
+                    .create_shard_key(CreateShardKeyRequest {
+                        collection_name: collection_name.to_string(),
+                        request: Some(CreateShardKey {
+                            shard_key: Some(shard_key.clone()),
+                            shards_number,
+                            replication_factor,
+                            placement: placement.to_vec(),
+                        }),
+                        timeout: None,
+                    })
+                    .await?;
+                Ok(result.into_inner())
+            })
+            .await?)
+    }
+
+    pub async fn delete_shard_key(
+        &self,
+        collection_name: impl AsRef<str>,
+        shard_key: &ShardKey,
+    ) -> Result<DeleteShardKeyResponse> {
+        let collection_name = collection_name.as_ref();
+
+        Ok(self
+            .with_collections_client(|mut collection_api| async move {
+                let result = collection_api
+                    .delete_shard_key(DeleteShardKeyRequest {
+                        collection_name: collection_name.to_string(),
+                        request: Some(DeleteShardKey {
+                            shard_key: Some(shard_key.clone()),
+                        }),
+                        timeout: None,
+                    })
+                    .await?;
                 Ok(result.into_inner())
             })
             .await?)
