@@ -251,6 +251,19 @@ impl From<HashMap<String, Vec<f32>>> for Vectors {
     }
 }
 
+impl From<HashMap<String, Vector>> for Vectors {
+    fn from(named_vectors: HashMap<String, Vector>) -> Self {
+        Vectors {
+            vectors_options: Some(VectorsOptions::Vectors(NamedVectors {
+                vectors: named_vectors
+                    .into_iter()
+                    .map(|(k, v)| (k, v))
+                    .collect(),
+            })),
+        }
+    }
+}
+
 impl From<HashMap<String, Vec<(u32, f32)>>> for Vectors {
     fn from(named_vectors: HashMap<String, Vec<(u32, f32)>>) -> Self {
         Vectors {
