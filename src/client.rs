@@ -27,8 +27,8 @@ use crate::qdrant::{
     PointsUpdateOperation, ReadConsistency, RecommendBatchPoints, RecommendBatchResponse,
     RecommendGroupsResponse, RecommendPointGroups, RecommendPoints, RecommendResponse, RenameAlias,
     ScrollPoints, ScrollResponse, SearchBatchPoints, SearchBatchResponse, SearchGroupsResponse,
-    SearchPointGroups, SearchPoints, SearchResponse, SetPayloadPoints, ShardKey, SparseIndices,
-    Struct, UpdateBatchPoints, UpdateBatchResponse, UpdateCollection,
+    SearchPointGroups, SearchPoints, SearchResponse, SetPayloadPoints, ShardKey, ShardKeySelector,
+    SparseIndices, Struct, UpdateBatchPoints, UpdateBatchResponse, UpdateCollection,
     UpdateCollectionClusterSetupRequest, UpdateCollectionClusterSetupResponse, UpdatePointVectors,
     UpsertPoints, Value, Vector, Vectors, VectorsSelector, WithPayloadSelector,
     WithVectorsSelector, WriteOrdering,
@@ -703,9 +703,7 @@ impl QdrantClient {
                     .create_shard_key(CreateShardKeyRequest {
                         collection_name: collection_name.to_string(),
                         request: Some(CreateShardKey {
-                            shard_key: Some(ShardKey {
-                                key: Some(shard_key.clone()),
-                            }),
+                            shard_key: Some(ShardKey::from(shard_key.clone())),
                             shards_number,
                             replication_factor,
                             placement: placement.to_vec(),
@@ -731,9 +729,7 @@ impl QdrantClient {
                     .delete_shard_key(DeleteShardKeyRequest {
                         collection_name: collection_name.to_string(),
                         request: Some(DeleteShardKey {
-                            shard_key: Some(ShardKey {
-                                key: Some(shard_key.clone()),
-                            }),
+                            shard_key: Some(ShardKey::from(shard_key.clone())),
                         }),
                         timeout: None,
                     })
@@ -822,9 +818,16 @@ impl QdrantClient {
         collection_name: impl ToString,
         points: Vec<PointStruct>,
         ordering: Option<WriteOrdering>,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
-        self._upsert_points(collection_name, &points, false, ordering)
-            .await
+        self._upsert_points(
+            collection_name,
+            &points,
+            false,
+            ordering,
+            shard_key_selector,
+        )
+        .await
     }
 
     /// Update or insert points into the collection, wait for completion.
@@ -836,8 +839,9 @@ impl QdrantClient {
         collection_name: impl ToString,
         points: Vec<PointStruct>,
         ordering: Option<WriteOrdering>,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
-        self._upsert_points(collection_name, &points, true, ordering)
+        self._upsert_points(collection_name, &points, true, ordering, shard_key_selector)
             .await
     }
 
@@ -848,10 +852,13 @@ impl QdrantClient {
         points: &[PointStruct],
         block: bool,
         ordering: Option<WriteOrdering>,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
         let collection_name = collection_name.to_string();
         let collection_name_ref = collection_name.as_str();
         let ordering_ref = ordering.as_ref();
+        let shard_keys = shard_key_selector.map(ShardKeySelector::from);
+        let shard_keys_ref = &shard_keys;
         Ok(self
             .with_points_client(|mut points_api| async move {
                 Ok(points_api
@@ -860,7 +867,7 @@ impl QdrantClient {
                         wait: Some(block),
                         points: points.to_vec(),
                         ordering: ordering_ref.cloned(),
-                        shard_key_selector: None,
+                        shard_key_selector: shard_keys_ref.clone(),
                     })
                     .await?
                     .into_inner())
@@ -878,9 +885,17 @@ impl QdrantClient {
         points: Vec<PointStruct>,
         ordering: Option<WriteOrdering>,
         chunk_size: usize,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
-        self._upsert_points_batch(collection_name, &points, false, ordering, chunk_size)
-            .await
+        self._upsert_points_batch(
+            collection_name,
+            &points,
+            false,
+            ordering,
+            chunk_size,
+            shard_key_selector,
+        )
+        .await
     }
 
     /// Update or insert points into the collection, splitting in chunks and
@@ -892,9 +907,17 @@ impl QdrantClient {
         points: Vec<PointStruct>,
         ordering: Option<WriteOrdering>,
         chunk_size: usize,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
-        self._upsert_points_batch(collection_name, &points, true, ordering, chunk_size)
-            .await
+        self._upsert_points_batch(
+            collection_name,
+            &points,
+            true,
+            ordering,
+            chunk_size,
+            shard_key_selector,
+        )
+        .await
     }
 
     #[inline]
@@ -905,15 +928,18 @@ impl QdrantClient {
         block: bool,
         ordering: Option<WriteOrdering>,
         chunk_size: usize,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
         if points.len() < chunk_size {
             return self
-                ._upsert_points(collection_name, points, block, ordering)
+                ._upsert_points(collection_name, points, block, ordering, shard_key_selector)
                 .await;
         }
         let collection_name = collection_name.to_string();
         let collection_name_ref = collection_name.as_str();
         let ordering_ref = ordering.as_ref();
+        let shard_keys = shard_key_selector.map(ShardKeySelector::from);
+        let shard_keys_ref = &shard_keys;
         Ok(self
             .with_points_client(|mut points_api| async move {
                 let mut resp = PointsOperationResponse {
@@ -927,7 +953,7 @@ impl QdrantClient {
                             wait: Some(block),
                             points: chunk.to_vec(),
                             ordering: ordering_ref.cloned(),
-                            shard_key_selector: None,
+                            shard_key_selector: shard_keys_ref.clone(),
                         })
                         .await?
                         .into_inner();
@@ -945,9 +971,17 @@ impl QdrantClient {
         points: &PointsSelector,
         payload: Payload,
         ordering: Option<WriteOrdering>,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
-        self._set_payload(collection_name, points, &payload, false, ordering)
-            .await
+        self._set_payload(
+            collection_name,
+            points,
+            &payload,
+            false,
+            ordering,
+            shard_key_selector,
+        )
+        .await
     }
 
     pub async fn set_payload_blocking(
@@ -956,9 +990,17 @@ impl QdrantClient {
         points: &PointsSelector,
         payload: Payload,
         ordering: Option<WriteOrdering>,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
-        self._set_payload(collection_name, points, &payload, true, ordering)
-            .await
+        self._set_payload(
+            collection_name,
+            points,
+            &payload,
+            true,
+            ordering,
+            shard_key_selector,
+        )
+        .await
     }
 
     #[inline]
@@ -969,10 +1011,13 @@ impl QdrantClient {
         payload: &Payload,
         block: bool,
         ordering: Option<WriteOrdering>,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
         let collection_name = collection_name.to_string();
         let collection_name_ref = collection_name.as_str();
         let ordering_ref = ordering.as_ref();
+        let shard_keys = shard_key_selector.map(ShardKeySelector::from);
+        let shard_keys_ref = &shard_keys;
 
         Ok(self
             .with_points_client(|mut points_api| async move {
@@ -983,7 +1028,7 @@ impl QdrantClient {
                         payload: payload.0.clone(),
                         points_selector: Some(points.clone()),
                         ordering: ordering_ref.cloned(),
-                        shard_key_selector: None,
+                        shard_key_selector: shard_keys_ref.clone(),
                     })
                     .await?;
                 Ok(result.into_inner())
@@ -997,9 +1042,17 @@ impl QdrantClient {
         points: &PointsSelector,
         payload: Payload,
         ordering: Option<WriteOrdering>,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
-        self._overwrite_payload(collection_name, points, &payload, false, ordering)
-            .await
+        self._overwrite_payload(
+            collection_name,
+            points,
+            &payload,
+            false,
+            ordering,
+            shard_key_selector,
+        )
+        .await
     }
 
     pub async fn overwrite_payload_blocking(
@@ -1008,9 +1061,17 @@ impl QdrantClient {
         points: &PointsSelector,
         payload: Payload,
         ordering: Option<WriteOrdering>,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
-        self._overwrite_payload(collection_name, points, &payload, true, ordering)
-            .await
+        self._overwrite_payload(
+            collection_name,
+            points,
+            &payload,
+            true,
+            ordering,
+            shard_key_selector,
+        )
+        .await
     }
 
     #[inline]
@@ -1021,10 +1082,13 @@ impl QdrantClient {
         payload: &Payload,
         block: bool,
         ordering: Option<WriteOrdering>,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
         let collection_name = collection_name.to_string();
         let collection_name_ref = collection_name.as_str();
         let ordering_ref = ordering.as_ref();
+        let shard_keys = shard_key_selector.map(ShardKeySelector::from);
+        let shard_keys_ref = &shard_keys;
 
         Ok(self
             .with_points_client(|mut points_api| async move {
@@ -1035,7 +1099,7 @@ impl QdrantClient {
                         payload: payload.0.clone(),
                         points_selector: Some(points.clone()),
                         ordering: ordering_ref.cloned(),
-                        shard_key_selector: None,
+                        shard_key_selector: shard_keys_ref.clone(),
                     })
                     .await?;
                 Ok(result.into_inner())
@@ -1049,9 +1113,17 @@ impl QdrantClient {
         points: &PointsSelector,
         keys: Vec<String>,
         ordering: Option<WriteOrdering>,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
-        self._delete_payload(collection_name, points, &keys, false, ordering)
-            .await
+        self._delete_payload(
+            collection_name,
+            points,
+            &keys,
+            false,
+            ordering,
+            shard_key_selector,
+        )
+        .await
     }
 
     pub async fn delete_payload_blocking(
@@ -1060,9 +1132,17 @@ impl QdrantClient {
         points: &PointsSelector,
         keys: Vec<String>,
         ordering: Option<WriteOrdering>,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
-        self._delete_payload(collection_name, points, &keys, true, ordering)
-            .await
+        self._delete_payload(
+            collection_name,
+            points,
+            &keys,
+            true,
+            ordering,
+            shard_key_selector,
+        )
+        .await
     }
 
     #[inline]
@@ -1073,10 +1153,13 @@ impl QdrantClient {
         keys: &[String],
         block: bool,
         ordering: Option<WriteOrdering>,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
         let collection_name = collection_name.to_string();
         let collection_name_ref = collection_name.as_str();
         let ordering_ref = ordering.as_ref();
+        let shard_keys = shard_key_selector.map(ShardKeySelector::from);
+        let shard_keys_ref = &shard_keys;
 
         Ok(self
             .with_points_client(|mut points_api| async move {
@@ -1087,7 +1170,7 @@ impl QdrantClient {
                         keys: keys.to_owned(),
                         points_selector: Some(points.clone()),
                         ordering: ordering_ref.cloned(),
-                        shard_key_selector: None,
+                        shard_key_selector: shard_keys_ref.clone(),
                     })
                     .await?;
                 Ok(result.into_inner())
@@ -1100,9 +1183,16 @@ impl QdrantClient {
         collection_name: impl ToString,
         points_selector: Option<PointsSelector>,
         ordering: Option<WriteOrdering>,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
-        self._clear_payload(collection_name, points_selector.as_ref(), false, ordering)
-            .await
+        self._clear_payload(
+            collection_name,
+            points_selector.as_ref(),
+            false,
+            ordering,
+            shard_key_selector,
+        )
+        .await
     }
 
     pub async fn clear_payload_blocking(
@@ -1110,9 +1200,16 @@ impl QdrantClient {
         collection_name: impl ToString,
         points_selector: Option<PointsSelector>,
         ordering: Option<WriteOrdering>,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
-        self._clear_payload(collection_name, points_selector.as_ref(), true, ordering)
-            .await
+        self._clear_payload(
+            collection_name,
+            points_selector.as_ref(),
+            true,
+            ordering,
+            shard_key_selector,
+        )
+        .await
     }
 
     #[inline]
@@ -1122,10 +1219,13 @@ impl QdrantClient {
         points_selector: Option<&PointsSelector>,
         block: bool,
         ordering: Option<WriteOrdering>,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
         let collection_name = collection_name.to_string();
         let collection_name_ref = collection_name.as_str();
         let ordering_ref = ordering.as_ref();
+        let shard_keys = shard_key_selector.map(ShardKeySelector::from);
+        let shard_keys_ref = &shard_keys;
 
         Ok(self
             .with_points_client(|mut points_api| async move {
@@ -1135,7 +1235,7 @@ impl QdrantClient {
                         wait: Some(block),
                         points: points_selector.cloned(),
                         ordering: ordering_ref.cloned(),
-                        shard_key_selector: None,
+                        shard_key_selector: shard_keys_ref.clone(),
                     })
                     .await?;
                 Ok(result.into_inner())
@@ -1150,6 +1250,7 @@ impl QdrantClient {
         with_vectors: Option<impl Into<WithVectorsSelector>>,
         with_payload: Option<impl Into<WithPayloadSelector>>,
         read_consistency: Option<ReadConsistency>,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<GetResponse> {
         let collection_name = collection_name.to_string();
         let collection_name_ref = collection_name.as_str();
@@ -1161,6 +1262,9 @@ impl QdrantClient {
         let with_payload_ref = with_payload.as_ref();
         let read_consistency_ref = read_consistency.as_ref();
 
+        let shard_keys = shard_key_selector.map(ShardKeySelector::from);
+        let shard_keys_ref = &shard_keys;
+
         Ok(self
             .with_points_client(|mut points_api| async move {
                 let result = points_api
@@ -1170,7 +1274,7 @@ impl QdrantClient {
                         with_payload: with_payload_ref.cloned(),
                         with_vectors: with_vectors_ref.cloned(),
                         read_consistency: read_consistency_ref.cloned(),
-                        shard_key_selector: None,
+                        shard_key_selector: shard_keys_ref.clone(),
                     })
                     .await?;
 
@@ -1214,8 +1318,9 @@ impl QdrantClient {
         collection_name: impl ToString,
         points: &PointsSelector,
         ordering: Option<WriteOrdering>,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
-        self._delete_points(collection_name, false, points, ordering)
+        self._delete_points(collection_name, false, points, ordering, shard_key_selector)
             .await
     }
 
@@ -1224,8 +1329,9 @@ impl QdrantClient {
         collection_name: impl ToString,
         points: &PointsSelector,
         ordering: Option<WriteOrdering>,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
-        self._delete_points(collection_name, true, points, ordering)
+        self._delete_points(collection_name, true, points, ordering, shard_key_selector)
             .await
     }
 
@@ -1235,10 +1341,13 @@ impl QdrantClient {
         blocking: bool,
         points: &PointsSelector,
         ordering: Option<WriteOrdering>,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
         let collection_name = collection_name.to_string();
         let collection_name_ref = collection_name.as_str();
         let ordering_ref = ordering.as_ref();
+        let shard_keys = shard_key_selector.map(ShardKeySelector::from);
+        let shard_keys_ref = &shard_keys;
 
         Ok(self
             .with_points_client(|mut points_api| async move {
@@ -1248,7 +1357,7 @@ impl QdrantClient {
                         wait: Some(blocking),
                         points: Some(points.clone()),
                         ordering: ordering_ref.cloned(),
-                        shard_key_selector: None,
+                        shard_key_selector: shard_keys_ref.clone(),
                     })
                     .await?;
                 Ok(result.into_inner())
@@ -1262,6 +1371,7 @@ impl QdrantClient {
         points_selector: &PointsSelector,
         vector_selector: &VectorsSelector,
         ordering: Option<WriteOrdering>,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
         self._delete_vectors(
             collection_name,
@@ -1269,6 +1379,7 @@ impl QdrantClient {
             points_selector,
             vector_selector,
             ordering,
+            shard_key_selector,
         )
         .await
     }
@@ -1279,6 +1390,7 @@ impl QdrantClient {
         points_selector: &PointsSelector,
         vector_selector: &VectorsSelector,
         ordering: Option<WriteOrdering>,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
         self._delete_vectors(
             collection_name,
@@ -1286,6 +1398,7 @@ impl QdrantClient {
             points_selector,
             vector_selector,
             ordering,
+            shard_key_selector,
         )
         .await
     }
@@ -1297,10 +1410,13 @@ impl QdrantClient {
         points_selector: &PointsSelector,
         vector_selector: &VectorsSelector,
         ordering: Option<WriteOrdering>,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
         let collection_name = collection_name.to_string();
         let collection_name_ref = collection_name.as_str();
         let ordering_ref = ordering.as_ref();
+        let shard_keys = shard_key_selector.map(ShardKeySelector::from);
+        let shard_keys_ref = &shard_keys;
 
         Ok(self
             .with_points_client(|mut points_api| async move {
@@ -1311,7 +1427,7 @@ impl QdrantClient {
                         points_selector: Some(points_selector.clone()),
                         vectors: Some(vector_selector.clone()),
                         ordering: ordering_ref.cloned(),
-                        shard_key_selector: None,
+                        shard_key_selector: shard_keys_ref.clone(),
                     })
                     .await?;
                 Ok(result.into_inner())
@@ -1324,8 +1440,9 @@ impl QdrantClient {
         collection_name: impl ToString,
         points: &[PointVectors],
         ordering: Option<WriteOrdering>,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
-        self._update_vectors(collection_name, false, points, ordering)
+        self._update_vectors(collection_name, false, points, ordering, shard_key_selector)
             .await
     }
 
@@ -1334,8 +1451,9 @@ impl QdrantClient {
         collection_name: impl ToString,
         points: &[PointVectors],
         ordering: Option<WriteOrdering>,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
-        self._update_vectors(collection_name, true, points, ordering)
+        self._update_vectors(collection_name, true, points, ordering, shard_key_selector)
             .await
     }
 
@@ -1345,10 +1463,13 @@ impl QdrantClient {
         blocking: bool,
         points: &[PointVectors],
         ordering: Option<WriteOrdering>,
+        shard_key_selector: Option<Vec<shard_key::Key>>,
     ) -> Result<PointsOperationResponse> {
         let collection_name = collection_name.to_string();
         let collection_name_ref = collection_name.as_str();
         let ordering_ref = ordering.as_ref();
+        let shard_keys = shard_key_selector.map(ShardKeySelector::from);
+        let shard_keys_ref = &shard_keys;
 
         Ok(self
             .with_points_client(|mut points_api| async move {
@@ -1358,7 +1479,7 @@ impl QdrantClient {
                         wait: Some(blocking),
                         points: points.to_owned(),
                         ordering: ordering_ref.cloned(),
-                        shard_key_selector: None,
+                        shard_key_selector: shard_keys_ref.clone(),
                     })
                     .await?;
                 Ok(result.into_inner())
@@ -1896,6 +2017,20 @@ where
                     .map(|(k, v)| (k.to_string(), v.into()))
                     .collect(),
             })),
+        }
+    }
+}
+
+impl From<shard_key::Key> for ShardKey {
+    fn from(key: shard_key::Key) -> Self {
+        ShardKey { key: Some(key) }
+    }
+}
+
+impl From<Vec<shard_key::Key>> for ShardKeySelector {
+    fn from(shard_keys: Vec<shard_key::Key>) -> Self {
+        ShardKeySelector {
+            shard_keys: shard_keys.into_iter().map(ShardKey::from).collect(),
         }
     }
 }
