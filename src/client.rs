@@ -2034,3 +2034,39 @@ impl From<Vec<shard_key::Key>> for ShardKeySelector {
         }
     }
 }
+
+impl From<String> for shard_key::Key {
+    fn from(keyword: String) -> Self {
+        shard_key::Key::Keyword(keyword)
+    }
+}
+
+impl From<u64> for shard_key::Key {
+    fn from(number: u64) -> Self {
+        shard_key::Key::Number(number)
+    }
+}
+
+impl From<String> for ShardKeySelector {
+    fn from(keyword: String) -> Self {
+        keyword.into()
+    }
+}
+
+impl From<u64> for ShardKeySelector {
+    fn from(number: u64) -> Self {
+        number.into()
+    }
+}
+
+impl From<Vec<String>> for ShardKeySelector {
+    fn from(keywords: Vec<String>) -> Self {
+        keywords.into()
+    }
+}
+
+impl From<Vec<u64>> for ShardKeySelector {
+    fn from(numbers: Vec<u64>) -> Self {
+        numbers.into()
+    }
+}
