@@ -72,7 +72,7 @@
 //! };
 //!
 //! let response = qdrant_client
-//!     .upsert_points("my_collection", vec![point], None)
+//!     .upsert_points("my_collection", None, vec![point], None)
 //!     .await?;
 //!# Ok(())
 //!# }
@@ -504,7 +504,7 @@ mod tests {
 
         let points = vec![PointStruct::new(0, vec![12.; 10], payload)];
         client
-            .upsert_points_blocking(collection_name, points, None)
+            .upsert_points_blocking(collection_name, None, points, None)
             .await?;
 
         let search_result = client
@@ -534,13 +534,20 @@ mod tests {
             .collect::<HashMap<_, Value>>()
             .into();
         client
-            .set_payload(collection_name, &vec![0.into()].into(), new_payload, None)
+            .set_payload(
+                collection_name,
+                None,
+                &vec![0.into()].into(),
+                new_payload,
+                None,
+            )
             .await?;
 
         // Delete some payload fields
         client
             .delete_payload_blocking(
                 collection_name,
+                None,
                 &vec![0.into()].into(),
                 vec!["sub_payload".to_string()],
                 None,
@@ -549,7 +556,14 @@ mod tests {
 
         // retrieve points
         let points = client
-            .get_points(collection_name, &[0.into()], Some(true), Some(true), None)
+            .get_points(
+                collection_name,
+                None,
+                &[0.into()],
+                Some(true),
+                Some(true),
+                None,
+            )
             .await?;
 
         assert_eq!(points.result.len(), 1);
@@ -558,7 +572,7 @@ mod tests {
         assert!(!point.payload.contains_key("sub_payload"));
 
         client
-            .delete_points(collection_name, &vec![0.into()].into(), None)
+            .delete_points(collection_name, None, &vec![0.into()].into(), None)
             .await?;
 
         // Access raw point api with client
