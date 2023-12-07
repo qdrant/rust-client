@@ -12,26 +12,27 @@ use crate::qdrant::with_payload_selector::SelectorOptions;
 use crate::qdrant::{
     qdrant_client, shard_key, with_vectors_selector, AliasOperations, ChangeAliases,
     ClearPayloadPoints, CollectionClusterInfoRequest, CollectionClusterInfoResponse,
-    CollectionOperationResponse, CountPoints, CountResponse, CreateAlias, CreateCollection,
-    CreateFieldIndexCollection, CreateFullSnapshotRequest, CreateShardKey, CreateShardKeyRequest,
-    CreateShardKeyResponse, CreateSnapshotRequest, CreateSnapshotResponse, DeleteAlias,
-    DeleteCollection, DeleteFieldIndexCollection, DeleteFullSnapshotRequest, DeletePayloadPoints,
-    DeletePointVectors, DeletePoints, DeleteShardKey, DeleteShardKeyRequest,
+    CollectionOperationResponse, CollectionParamsDiff, CountPoints, CountResponse, CreateAlias,
+    CreateCollection, CreateFieldIndexCollection, CreateFullSnapshotRequest, CreateShardKey,
+    CreateShardKeyRequest, CreateShardKeyResponse, CreateSnapshotRequest, CreateSnapshotResponse,
+    DeleteAlias, DeleteCollection, DeleteFieldIndexCollection, DeleteFullSnapshotRequest,
+    DeletePayloadPoints, DeletePointVectors, DeletePoints, DeleteShardKey, DeleteShardKeyRequest,
     DeleteShardKeyResponse, DeleteSnapshotRequest, DeleteSnapshotResponse, DiscoverBatchPoints,
     DiscoverBatchResponse, DiscoverPoints, DiscoverResponse, FieldType, GetCollectionInfoRequest,
     GetCollectionInfoResponse, GetPoints, GetResponse, HealthCheckReply, HealthCheckRequest,
-    ListAliasesRequest, ListAliasesResponse, ListCollectionAliasesRequest, ListCollectionsRequest,
-    ListCollectionsResponse, ListFullSnapshotsRequest, ListSnapshotsRequest, ListSnapshotsResponse,
-    ListValue, NamedVectors, OptimizersConfigDiff, PayloadIncludeSelector, PayloadIndexParams,
-    PointId, PointStruct, PointVectors, PointsIdsList, PointsOperationResponse, PointsSelector,
-    PointsUpdateOperation, ReadConsistency, RecommendBatchPoints, RecommendBatchResponse,
-    RecommendGroupsResponse, RecommendPointGroups, RecommendPoints, RecommendResponse, RenameAlias,
-    ScrollPoints, ScrollResponse, SearchBatchPoints, SearchBatchResponse, SearchGroupsResponse,
+    HnswConfigDiff, ListAliasesRequest, ListAliasesResponse, ListCollectionAliasesRequest,
+    ListCollectionsRequest, ListCollectionsResponse, ListFullSnapshotsRequest,
+    ListSnapshotsRequest, ListSnapshotsResponse, ListValue, NamedVectors, OptimizersConfigDiff,
+    PayloadIncludeSelector, PayloadIndexParams, PointId, PointStruct, PointVectors, PointsIdsList,
+    PointsOperationResponse, PointsSelector, PointsUpdateOperation, QuantizationConfigDiff,
+    ReadConsistency, RecommendBatchPoints, RecommendBatchResponse, RecommendGroupsResponse,
+    RecommendPointGroups, RecommendPoints, RecommendResponse, RenameAlias, ScrollPoints,
+    ScrollResponse, SearchBatchPoints, SearchBatchResponse, SearchGroupsResponse,
     SearchPointGroups, SearchPoints, SearchResponse, SetPayloadPoints, ShardKey, ShardKeySelector,
-    SparseIndices, Struct, UpdateBatchPoints, UpdateBatchResponse, UpdateCollection,
-    UpdateCollectionClusterSetupRequest, UpdateCollectionClusterSetupResponse, UpdatePointVectors,
-    UpsertPoints, Value, Vector, Vectors, VectorsSelector, WithPayloadSelector,
-    WithVectorsSelector, WriteOrdering,
+    SparseIndices, SparseVectorConfig, Struct, UpdateBatchPoints, UpdateBatchResponse,
+    UpdateCollection, UpdateCollectionClusterSetupRequest, UpdateCollectionClusterSetupResponse,
+    UpdatePointVectors, UpsertPoints, Value, Vector, Vectors, VectorsConfigDiff, VectorsSelector,
+    WithPayloadSelector, WithVectorsSelector, WriteOrdering,
 };
 use anyhow::Result;
 #[cfg(feature = "serde")]
@@ -506,10 +507,16 @@ impl QdrantClient {
             .await?)
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub async fn update_collection(
         &self,
         collection_name: impl ToString,
-        optimizers_config: &OptimizersConfigDiff,
+        optimizers_config: Option<&OptimizersConfigDiff>,
+        params: Option<&CollectionParamsDiff>,
+        sparse_vectors_config: Option<&SparseVectorConfig>,
+        hnsw_config: Option<&HnswConfigDiff>,
+        vectors_config: Option<&VectorsConfigDiff>,
+        quantization_config: Option<&QuantizationConfigDiff>,
     ) -> Result<CollectionOperationResponse> {
         let collection_name = collection_name.to_string();
         let collection_name_ref = collection_name.as_str();
@@ -519,13 +526,13 @@ impl QdrantClient {
                 let result = collection_api
                     .update(UpdateCollection {
                         collection_name: collection_name_ref.to_string(),
-                        optimizers_config: Some(optimizers_config.clone()),
+                        optimizers_config: optimizers_config.cloned(),
                         timeout: None,
-                        params: None,
-                        hnsw_config: None,
-                        vectors_config: None,
-                        quantization_config: None,
-                        sparse_vectors_config: None,
+                        params: params.cloned(),
+                        sparse_vectors_config: sparse_vectors_config.cloned(),
+                        hnsw_config: hnsw_config.cloned(),
+                        vectors_config: vectors_config.cloned(),
+                        quantization_config: quantization_config.cloned(),
                     })
                     .await?;
 
