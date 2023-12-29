@@ -186,6 +186,24 @@ impl qdrant::Condition {
         }
     }
 
+    /// create a Condition to initiate full text match
+    ///
+    /// # Examples:
+    /// ```
+    /// qdrant_client::qdrant::Condition::matches_text("description", "good cheap");
+    /// ```
+    pub fn matches_text(field: impl Into<String>, query: impl Into<String>) -> Self {
+        Self {
+            condition_one_of: Some(ConditionOneOf::Field(qdrant::FieldCondition {
+                key: field.into(),
+                r#match: Some(qdrant::Match {
+                    match_value: Some(MatchValue::Text(query.into())),
+                }),
+                ..Default::default()
+            })),
+        }
+    }
+
     /// create a Condition that checks numeric fields against a range
     ///
     /// # Examples:
@@ -331,11 +349,7 @@ impl From<i64> for MatchValue {
 
 impl From<String> for MatchValue {
     fn from(value: String) -> Self {
-        if value.contains(char::is_whitespace) {
-            Self::Text(value)
-        } else {
-            Self::Keyword(value)
-        }
+        Self::Keyword(value)
     }
 }
 
