@@ -406,8 +406,8 @@ mod tests {
     use crate::qdrant::value::Kind::*;
     use crate::qdrant::vectors_config::Config;
     use crate::qdrant::{
-        CreateFieldIndexCollection, FieldType, ListValue, Struct, Value, VectorParams,
-        VectorsConfig,
+        Condition, CreateFieldIndexCollection, FieldType, Filter, ListValue, Struct, Value,
+        VectorParams, VectorsConfig,
     };
     use std::collections::HashMap;
 
@@ -507,24 +507,34 @@ mod tests {
             .upsert_points_blocking(collection_name, None, points, None)
             .await?;
 
+        // Keyword filter result
         let search_result = client
             .search_points(&SearchPoints {
                 collection_name: collection_name.into(),
                 vector: vec![11.; 10],
-                filter: None,
+                filter: Some(Filter::all([Condition::matches("bar", 12)])),
                 limit: 10,
                 with_payload: Some(true.into()),
-                params: None,
-                score_threshold: None,
-                offset: None,
-                vector_name: None,
-                with_vectors: None,
-                read_consistency: None,
-                timeout: None,
-                shard_key_selector: None,
-                sparse_indices: None,
+                ..Default::default()
             })
             .await?;
+        assert!(!search_result.result.is_empty());
+
+        // Full text search filter result
+        let search_result = client
+            .search_points(&SearchPoints {
+                collection_name: collection_name.into(),
+                vector: vec![11.; 10],
+                filter: Some(Filter::all([Condition::matches_text(
+                    "sub_payload.foo",
+                    "Not",
+                )])),
+                limit: 10,
+                with_payload: Some(true.into()),
+                ..Default::default()
+            })
+            .await?;
+        assert!(!search_result.result.is_empty());
 
         eprintln!("search_result = {:#?}", search_result);
 
