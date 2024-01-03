@@ -349,7 +349,11 @@ impl From<i64> for MatchValue {
 
 impl From<String> for MatchValue {
     fn from(value: String) -> Self {
-        Self::Keyword(value)
+        if value.contains(char::is_whitespace) {
+            Self::Text(value)
+        } else {
+            Self::Keyword(value)
+        }
     }
 }
 
