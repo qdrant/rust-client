@@ -507,33 +507,33 @@ mod tests {
             .upsert_points_blocking(collection_name, None, points, None)
             .await?;
 
+        let mut search_points = SearchPoints {
+            collection_name: collection_name.into(),
+            vector: vec![11.; 10],
+            limit: 10,
+            with_payload: Some(true.into()),
+            ..Default::default()
+        };
+
         // Keyword filter result
-        let search_result = client
-            .search_points(&SearchPoints {
-                collection_name: collection_name.into(),
-                vector: vec![11.; 10],
-                filter: Some(Filter::all([Condition::matches("bar", 12)])),
-                limit: 10,
-                with_payload: Some(true.into()),
-                ..Default::default()
-            })
-            .await?;
+        search_points.filter = Some(Filter::all([Condition::matches("foo", "Bar".to_string())]));
+        let search_result = client.search_points(&search_points).await?;
         assert!(!search_result.result.is_empty());
 
-        // Full text search filter result
-        let search_result = client
-            .search_points(&SearchPoints {
-                collection_name: collection_name.into(),
-                vector: vec![11.; 10],
-                filter: Some(Filter::all([Condition::matches_text(
-                    "sub_payload.foo",
-                    "Not",
-                )])),
-                limit: 10,
-                with_payload: Some(true.into()),
-                ..Default::default()
-            })
-            .await?;
+        // Existing implementations full text search filter result (`Condition::matches`)
+        search_points.filter = Some(Filter::all([Condition::matches(
+            "sub_payload.foo",
+            "Not ".to_string(),
+        )]));
+        let search_result = client.search_points(&search_points).await?;
+        assert!(!search_result.result.is_empty());
+
+        // Full text search filter result (`Condition::matches_text`)
+        search_points.filter = Some(Filter::all([Condition::matches_text(
+            "sub_payload.foo",
+            "Not",
+        )]));
+        let search_result = client.search_points(&search_points).await?;
         assert!(!search_result.result.is_empty());
 
         eprintln!("search_result = {:#?}", search_result);
