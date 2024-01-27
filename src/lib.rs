@@ -406,8 +406,8 @@ mod tests {
     use crate::qdrant::value::Kind::*;
     use crate::qdrant::vectors_config::Config;
     use crate::qdrant::{
-        CreateFieldIndexCollection, FieldType, ListValue, Struct, Value, VectorParams,
-        VectorsConfig,
+        Condition, CreateFieldIndexCollection, FieldType, Filter, ListValue, Struct, Value,
+        VectorParams, VectorsConfig,
     };
     use std::collections::HashMap;
 
@@ -507,24 +507,34 @@ mod tests {
             .upsert_points_blocking(collection_name, None, points, None)
             .await?;
 
-        let search_result = client
-            .search_points(&SearchPoints {
-                collection_name: collection_name.into(),
-                vector: vec![11.; 10],
-                filter: None,
-                limit: 10,
-                with_payload: Some(true.into()),
-                params: None,
-                score_threshold: None,
-                offset: None,
-                vector_name: None,
-                with_vectors: None,
-                read_consistency: None,
-                timeout: None,
-                shard_key_selector: None,
-                sparse_indices: None,
-            })
-            .await?;
+        let mut search_points = SearchPoints {
+            collection_name: collection_name.into(),
+            vector: vec![11.; 10],
+            limit: 10,
+            with_payload: Some(true.into()),
+            ..Default::default()
+        };
+
+        // Keyword filter result
+        search_points.filter = Some(Filter::all([Condition::matches("foo", "Bar".to_string())]));
+        let search_result = client.search_points(&search_points).await?;
+        assert!(!search_result.result.is_empty());
+
+        // Existing implementations full text search filter result (`Condition::matches`)
+        search_points.filter = Some(Filter::all([Condition::matches(
+            "sub_payload.foo",
+            "Not ".to_string(),
+        )]));
+        let search_result = client.search_points(&search_points).await?;
+        assert!(!search_result.result.is_empty());
+
+        // Full text search filter result (`Condition::matches_text`)
+        search_points.filter = Some(Filter::all([Condition::matches_text(
+            "sub_payload.foo",
+            "Not",
+        )]));
+        let search_result = client.search_points(&search_points).await?;
+        assert!(!search_result.result.is_empty());
 
         eprintln!("search_result = {:#?}", search_result);
 
