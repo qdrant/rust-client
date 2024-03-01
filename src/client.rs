@@ -12,13 +12,14 @@ use crate::qdrant::with_payload_selector::SelectorOptions;
 use crate::qdrant::{
     qdrant_client, shard_key, with_vectors_selector, AliasOperations, ChangeAliases,
     ClearPayloadPoints, CollectionClusterInfoRequest, CollectionClusterInfoResponse,
-    CollectionOperationResponse, CollectionParamsDiff, CountPoints, CountResponse, CreateAlias,
-    CreateCollection, CreateFieldIndexCollection, CreateFullSnapshotRequest, CreateShardKey,
-    CreateShardKeyRequest, CreateShardKeyResponse, CreateSnapshotRequest, CreateSnapshotResponse,
-    DeleteAlias, DeleteCollection, DeleteFieldIndexCollection, DeleteFullSnapshotRequest,
-    DeletePayloadPoints, DeletePointVectors, DeletePoints, DeleteShardKey, DeleteShardKeyRequest,
-    DeleteShardKeyResponse, DeleteSnapshotRequest, DeleteSnapshotResponse, DiscoverBatchPoints,
-    DiscoverBatchResponse, DiscoverPoints, DiscoverResponse, FieldType, GetCollectionInfoRequest,
+    CollectionExistsRequest, CollectionOperationResponse, CollectionParamsDiff, CountPoints,
+    CountResponse, CreateAlias, CreateCollection, CreateFieldIndexCollection,
+    CreateFullSnapshotRequest, CreateShardKey, CreateShardKeyRequest, CreateShardKeyResponse,
+    CreateSnapshotRequest, CreateSnapshotResponse, DeleteAlias, DeleteCollection,
+    DeleteFieldIndexCollection, DeleteFullSnapshotRequest, DeletePayloadPoints, DeletePointVectors,
+    DeletePoints, DeleteShardKey, DeleteShardKeyRequest, DeleteShardKeyResponse,
+    DeleteSnapshotRequest, DeleteSnapshotResponse, DiscoverBatchPoints, DiscoverBatchResponse,
+    DiscoverPoints, DiscoverResponse, FieldType, GetCollectionInfoRequest,
     GetCollectionInfoResponse, GetPoints, GetResponse, HealthCheckReply, HealthCheckRequest,
     HnswConfigDiff, ListAliasesRequest, ListAliasesResponse, ListCollectionAliasesRequest,
     ListCollectionsRequest, ListCollectionsResponse, ListFullSnapshotsRequest,
@@ -484,6 +485,7 @@ impl QdrantClient {
             .await?)
     }
 
+    #[deprecated(since = "1.8.0", note = "Please use the `collection_exists` instead")]
     pub async fn has_collection(&self, collection_name: impl ToString) -> Result<bool> {
         let collection_name = collection_name.to_string();
         let response = self.list_collections().await?;
@@ -493,6 +495,23 @@ impl QdrantClient {
             .any(|c| c.name == collection_name);
 
         Ok(result)
+    }
+
+    pub async fn collection_exists(&self, collection_name: impl ToString) -> Result<bool> {
+        let collection_name_ref = &collection_name.to_string();
+        Ok(self
+            .with_collections_client(|mut collection_api| async move {
+                let request = CollectionExistsRequest {
+                    collection_name: collection_name_ref.clone(),
+                };
+                let result = collection_api.collection_exists(request).await?;
+                Ok(result
+                    .into_inner()
+                    .result
+                    .map(|r| r.exists)
+                    .unwrap_or(false))
+            })
+            .await?)
     }
 
     pub async fn create_collection(

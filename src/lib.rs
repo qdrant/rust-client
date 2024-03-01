@@ -487,6 +487,9 @@ mod tests {
             })
             .await?;
 
+        let exists = client.collection_exists(collection_name).await?;
+        assert!(exists);
+
         let collection_info = client.collection_info(collection_name).await?;
         println!("{:#?}", collection_info);
 
