@@ -266,7 +266,7 @@ impl From<HashMap<String, Vector>> for Vectors {
     fn from(named_vectors: HashMap<String, Vector>) -> Self {
         Vectors {
             vectors_options: Some(VectorsOptions::Vectors(NamedVectors {
-                vectors: named_vectors.into_iter().map(|(k, v)| (k, v)).collect(),
+                vectors: named_vectors.into_iter().collect(),
             })),
         }
     }
@@ -1015,6 +1015,7 @@ impl QdrantClient {
     }
 
     #[inline]
+    #[allow(clippy::too_many_arguments)]
     async fn _set_payload(
         &self,
         collection_name: impl ToString,
@@ -1093,6 +1094,7 @@ impl QdrantClient {
     }
 
     #[inline]
+    #[allow(clippy::too_many_arguments)]
     async fn _overwrite_payload(
         &self,
         collection_name: impl ToString,
