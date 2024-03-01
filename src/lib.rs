@@ -550,6 +550,7 @@ mod tests {
                 &vec![0.into()].into(),
                 new_payload,
                 None,
+                None,
             )
             .await?;
 

@@ -978,6 +978,7 @@ impl QdrantClient {
         shard_key_selector: Option<Vec<shard_key::Key>>,
         points: &PointsSelector,
         payload: Payload,
+        payload_key: Option<String>,
         ordering: Option<WriteOrdering>,
     ) -> Result<PointsOperationResponse> {
         self._set_payload(
@@ -985,6 +986,7 @@ impl QdrantClient {
             shard_key_selector,
             points,
             &payload,
+            payload_key,
             false,
             ordering,
         )
@@ -997,6 +999,7 @@ impl QdrantClient {
         shard_key_selector: Option<Vec<shard_key::Key>>,
         points: &PointsSelector,
         payload: Payload,
+        payload_key: Option<String>,
         ordering: Option<WriteOrdering>,
     ) -> Result<PointsOperationResponse> {
         self._set_payload(
@@ -1004,6 +1007,7 @@ impl QdrantClient {
             shard_key_selector,
             points,
             &payload,
+            payload_key,
             true,
             ordering,
         )
@@ -1017,6 +1021,7 @@ impl QdrantClient {
         shard_key_selector: Option<Vec<shard_key::Key>>,
         points: &PointsSelector,
         payload: &Payload,
+        payload_key: Option<String>,
         block: bool,
         ordering: Option<WriteOrdering>,
     ) -> Result<PointsOperationResponse> {
@@ -1025,6 +1030,7 @@ impl QdrantClient {
         let ordering_ref = ordering.as_ref();
         let shard_keys = shard_key_selector.map(ShardKeySelector::from);
         let shard_keys_ref = &shard_keys;
+        let payload_key_ref = payload_key.as_ref();
 
         Ok(self
             .with_points_client(|mut points_api| async move {
@@ -1036,6 +1042,7 @@ impl QdrantClient {
                         points_selector: Some(points.clone()),
                         ordering: ordering_ref.cloned(),
                         shard_key_selector: shard_keys_ref.clone(),
+                        key: payload_key_ref.cloned(),
                     })
                     .await?;
                 Ok(result.into_inner())
@@ -1049,6 +1056,7 @@ impl QdrantClient {
         shard_key_selector: Option<Vec<shard_key::Key>>,
         points: &PointsSelector,
         payload: Payload,
+        payload_key: Option<String>,
         ordering: Option<WriteOrdering>,
     ) -> Result<PointsOperationResponse> {
         self._overwrite_payload(
@@ -1056,6 +1064,7 @@ impl QdrantClient {
             shard_key_selector,
             points,
             &payload,
+            payload_key,
             false,
             ordering,
         )
@@ -1068,6 +1077,7 @@ impl QdrantClient {
         shard_key_selector: Option<Vec<shard_key::Key>>,
         points: &PointsSelector,
         payload: Payload,
+        payload_key: Option<String>,
         ordering: Option<WriteOrdering>,
     ) -> Result<PointsOperationResponse> {
         self._overwrite_payload(
@@ -1075,6 +1085,7 @@ impl QdrantClient {
             shard_key_selector,
             points,
             &payload,
+            payload_key,
             true,
             ordering,
         )
@@ -1088,6 +1099,7 @@ impl QdrantClient {
         shard_key_selector: Option<Vec<shard_key::Key>>,
         points: &PointsSelector,
         payload: &Payload,
+        payload_key: Option<String>,
         block: bool,
         ordering: Option<WriteOrdering>,
     ) -> Result<PointsOperationResponse> {
@@ -1096,6 +1108,7 @@ impl QdrantClient {
         let ordering_ref = ordering.as_ref();
         let shard_keys = shard_key_selector.map(ShardKeySelector::from);
         let shard_keys_ref = &shard_keys;
+        let payload_key_ref = payload_key.as_ref();
 
         Ok(self
             .with_points_client(|mut points_api| async move {
@@ -1107,6 +1120,7 @@ impl QdrantClient {
                         points_selector: Some(points.clone()),
                         ordering: ordering_ref.cloned(),
                         shard_key_selector: shard_keys_ref.clone(),
+                        key: payload_key_ref.cloned(),
                     })
                     .await?;
                 Ok(result.into_inner())
