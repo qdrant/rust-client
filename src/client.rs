@@ -485,7 +485,7 @@ impl QdrantClient {
             .await?)
     }
 
-    #[deprecated(since = "1.8.0", note = "Please use the `collection_exists` instead")]
+    #[deprecated(since = "1.8.0", note = "Please use `collection_exists` instead")]
     pub async fn has_collection(&self, collection_name: impl ToString) -> Result<bool> {
         let collection_name = collection_name.to_string();
         let response = self.list_collections().await?;
