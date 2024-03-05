@@ -11,8 +11,7 @@ function stop_docker()
 # Ensure current path is project root
 cd "$(dirname "$0")/../"
 
-# TODO use v1.8.0
-QDRANT_VERSION='dev'
+QDRANT_VERSION='v1.8.0'
 
 QDRANT_HOST='localhost:6333'
 
