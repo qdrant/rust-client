@@ -119,6 +119,9 @@ use std::error::Error;
 use std::fmt::{Debug, Display, Formatter};
 use std::hash::{Hash, Hasher};
 
+#[doc(no_inline)]
+pub use prost_types::Timestamp;
+
 static NULL_VALUE: Value = Value {
     kind: Some(NullValue(0)),
 };
