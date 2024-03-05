@@ -1,7 +1,7 @@
-use crate::qdrant;
 use crate::qdrant::condition::ConditionOneOf;
 use crate::qdrant::points_selector::PointsSelectorOneOf;
 use crate::qdrant::r#match::MatchValue;
+use crate::qdrant::{self, DatetimeRange};
 use crate::qdrant::{
     Condition, FieldCondition, Filter, GeoBoundingBox, GeoPolygon, GeoRadius, HasIdCondition,
     IsEmptyCondition, IsNullCondition, NestedCondition, PointId, PointsSelector, Range,
@@ -220,6 +220,28 @@ impl qdrant::Condition {
             condition_one_of: Some(ConditionOneOf::Field(qdrant::FieldCondition {
                 key: field.into(),
                 range: Some(range),
+                ..Default::default()
+            })),
+        }
+    }
+
+    /// create a Condition that checks datetime fields against a range
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// use qdrant_client::qdrant::DatetimeRange;
+    /// use qdrant_client::Timestamp;
+    /// qdrant_client::qdrant::Condition::datetime_range("timestamp", DatetimeRange {
+    ///     gte: Some(Timestamp::date(2023, 2, 8).unwrap()),
+    ///     ..Default::default()
+    /// });
+    /// ```
+    pub fn datetime_range(field: impl Into<String>, range: DatetimeRange) -> Self {
+        Self {
+            condition_one_of: Some(ConditionOneOf::Field(qdrant::FieldCondition {
+                key: field.into(),
+                datetime_range: Some(range),
                 ..Default::default()
             })),
         }
