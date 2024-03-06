@@ -91,7 +91,7 @@ impl qdrant::Filter {
             })
     }
 
-    /// create a Filter where all the conditions must be satisfied
+    /// Create a [`Filter`] where all the conditions must be satisfied.
     pub fn must(conds: impl IntoIterator<Item = qdrant::Condition>) -> Self {
         Self {
             must: conds.into_iter().collect(),
@@ -99,7 +99,7 @@ impl qdrant::Filter {
         }
     }
 
-    /// create a Filter where at least one of the conditions should be satisfied
+    /// Create a [`Filter`] where at least one of the conditions should be satisfied.
     pub fn should(conds: impl IntoIterator<Item = qdrant::Condition>) -> Self {
         Self {
             should: conds.into_iter().collect(),
@@ -107,7 +107,7 @@ impl qdrant::Filter {
         }
     }
 
-    /// create a Filter where at least a minimum amount of given conditions should be statisfied
+    /// Create a [`Filter`] where at least a minimum amount of given conditions should be statisfied.
     pub fn min_should(min_count: u64, conds: impl IntoIterator<Item = qdrant::Condition>) -> Self {
         Self {
             min_should: Some(MinShould {
@@ -118,7 +118,7 @@ impl qdrant::Filter {
         }
     }
 
-    /// create a Filter where none of the conditions must be satisfied
+    /// Create a [`Filter`] where none of the conditions must be satisfied.
     pub fn must_not(conds: impl IntoIterator<Item = qdrant::Condition>) -> Self {
         Self {
             must_not: conds.into_iter().collect(),
@@ -126,27 +126,30 @@ impl qdrant::Filter {
         }
     }
 
-    /// Alias for [`should`](Self::should)
-    /// create a Filter that matches if any of the conditions match
+    /// Alias for [`should`](Self::should).
+    ///
+    /// Create a [`Filter`] that matches if any of the conditions match.
     pub fn any(conds: impl IntoIterator<Item = qdrant::Condition>) -> Self {
         Self::should(conds)
     }
 
-    /// Alias for [`must`](Self::must)
-    /// create a Filter that matches if all of the conditions match
+    /// Alias for [`must`](Self::must).
+    ///
+    /// Create a [`Filter`] that matches if all of the conditions match.
     pub fn all(conds: impl IntoIterator<Item = qdrant::Condition>) -> Self {
         Self::must(conds)
     }
 
-    /// Alias for [`must_not`](Self::must_not)
-    /// create a Filter that matches if none of the conditions match
+    /// Alias for [`must_not`](Self::must_not).
+    ///
+    /// Create a [`Filter`] that matches if none of the conditions match.
     pub fn none(conds: impl IntoIterator<Item = qdrant::Condition>) -> Self {
         Self::must_not(conds)
     }
 }
 
 impl qdrant::Condition {
-    /// create a Condition to check if a field is empty
+    /// Create a [`Condition`] to check if a field is empty.
     ///
     /// # Examples:
     /// ```
@@ -156,7 +159,7 @@ impl qdrant::Condition {
         Self::from(qdrant::IsEmptyCondition { key: key.into() })
     }
 
-    /// create a Condition to check if the point has a null key
+    /// Create a [`Condition`] to check if the point has a null key.
     ///
     /// # Examples:
     /// ```
@@ -166,7 +169,7 @@ impl qdrant::Condition {
         Self::from(qdrant::IsNullCondition { key: key.into() })
     }
 
-    /// create a Condition to check if the point has one of the given ids
+    /// Create a [`Condition`] to check if the point has one of the given ids.
     ///
     /// # Examples:
     /// ```
@@ -178,7 +181,7 @@ impl qdrant::Condition {
         })
     }
 
-    /// create a Condition that matches a field against a certain value
+    /// Create a [`Condition`] that matches a field against a certain value.
     ///
     /// # Examples:
     /// ```
@@ -197,7 +200,7 @@ impl qdrant::Condition {
         }
     }
 
-    /// create a Condition to initiate full text match
+    /// Create a [`Condition`] to initiate full text match.
     ///
     /// # Examples:
     /// ```
@@ -215,7 +218,7 @@ impl qdrant::Condition {
         }
     }
 
-    /// create a Condition that checks numeric fields against a range
+    /// Create a [`Condition`] that checks numeric fields against a range.
     ///
     /// # Examples:
     ///
@@ -236,7 +239,7 @@ impl qdrant::Condition {
         }
     }
 
-    /// create a Condition that checks datetime fields against a range
+    /// Create a [`Condition`] that checks datetime fields against a range.
     ///
     /// # Examples:
     ///
@@ -258,7 +261,7 @@ impl qdrant::Condition {
         }
     }
 
-    /// create a Condition that checks geo fields against a radius
+    /// Create a [`Condition`] that checks geo fields against a radius.
     ///
     /// # Examples:
     ///
@@ -278,7 +281,7 @@ impl qdrant::Condition {
         }
     }
 
-    /// create a Condition that checks geo fields against a bounding box
+    /// Create a [`Condition`] that checks geo fields against a bounding box.
     ///
     /// # Examples:
     ///
@@ -298,7 +301,7 @@ impl qdrant::Condition {
         }
     }
 
-    /// create a Condition that checks geo fields against a geo polygons
+    /// Create a [`Condition`] that checks geo fields against a geo polygons.
     ///
     /// # Examples:
     ///
@@ -319,7 +322,7 @@ impl qdrant::Condition {
         }
     }
 
-    /// create a Condition that checks count of values in a field
+    /// Create a [`Condition`] that checks count of values in a field.
     ///
     /// # Examples:
     ///
@@ -339,7 +342,7 @@ impl qdrant::Condition {
         }
     }
 
-    /// create a Condition that applies a per-element filter to a nested array
+    /// Create a [`Condition`] that applies a per-element filter to a nested array
     ///
     /// The `field` parameter should be a key-path to a nested array of objects.
     /// You may specify it as both `array_field` or `array_field[]`.
@@ -350,7 +353,7 @@ impl qdrant::Condition {
     /// # Panics:
     ///
     /// If debug assertions are enabled, this will panic if the filter, or any its subfilters,
-    /// contain a `HasIdCondition` (equivalently, a condition created with `Self::has_id`),
+    /// contain a [`HasIdCondition`] (equivalently, a condition created with `Self::has_id`),
     /// as these are unsupported for nested object filters.
     ///
     /// # Examples:
