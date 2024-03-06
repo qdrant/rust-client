@@ -1,3 +1,6 @@
+use std::cmp::Ordering;
+use std::ops::{Bound, RangeBounds};
+
 use crate::qdrant;
 use crate::qdrant::condition::ConditionOneOf;
 use crate::qdrant::points_selector::PointsSelectorOneOf;
@@ -7,6 +10,280 @@ use crate::qdrant::{
     IsEmptyCondition, IsNullCondition, NestedCondition, PointId, PointsSelector, Range,
     ValuesCount,
 };
+
+macro_rules! impl_from_std_range {
+    ($this:ty; $($from:ty),+) => {
+        $(
+            impl From<$from> for $this {
+                fn from(value: $from) -> Self {
+                    Self::from_bounds(value.start_bound(), value.end_bound())
+                }
+            }
+        )+
+    };
+}
+
+impl_from_std_range!(
+    Range;
+    std::ops::Range<f64>,
+    std::ops::RangeFrom<f64>,
+    std::ops::RangeTo<f64>,
+    std::ops::RangeInclusive<f64>,
+    std::ops::RangeToInclusive<f64>,
+    std::ops::RangeFull
+);
+
+impl_from_std_range!(
+    ValuesCount;
+    std::ops::Range<u64>,
+    std::ops::RangeFrom<u64>,
+    std::ops::RangeTo<u64>,
+    std::ops::RangeInclusive<u64>,
+    std::ops::RangeToInclusive<u64>,
+    std::ops::RangeFull
+);
+
+macro_rules! impl_common {
+    ($this:ty, $num:ty) => {
+        impl $this {
+            #[doc=concat!("Returns an empty `", stringify!($this),"` with unsatisfiable bounds. \
+            An empty `", stringify!($this), "` will match nothing.")]
+            #[doc=""]
+            #[doc=concat!("Note that there are many representations of empty ranges. Do not use `some_range == ",
+            stringify!($this), "::empty()` to check if a range is empty; use `is_empty` instead."
+            )]
+            pub fn empty() -> Self {
+                Self::from_bounds(Bound::Excluded(&Default::default()), Bound::Excluded(&Default::default()))
+            }
+
+            /// Returns a range that matches only the specified value.
+            pub fn only(val: $num) -> Self {
+                Self::from_bounds(Bound::Included(&val), Bound::Included(&val))
+            }
+
+            /// Returns a range that matches any value.
+            pub fn any() -> Self {
+                Self::default()
+            }
+
+            /// Construct a range by explicitly specifying both of its bounds.
+            pub fn from_bounds(lo: Bound<&$num>, hi: Bound<&$num>) -> Self {
+                let mut range = Self::default();
+
+                match lo {
+                    Bound::Included(gte) => {
+                        range.gte = Some(*gte);
+                    }
+                    Bound::Excluded(gt) => {
+                        range.gt = Some(*gt);
+                    }
+                    Bound::Unbounded => {}
+                }
+
+                match hi {
+                    Bound::Included(lte) => {
+                        range.lte = Some(*lte);
+                    }
+                    Bound::Excluded(lt) => {
+                        range.lt = Some(*lt);
+                    }
+                    Bound::Unbounded => {}
+                }
+
+                range
+            }
+
+            /// Normalizes the representation of a given range
+            /// by removing redundant constraints.
+            ///
+            /// Redundant constraints occur when both `gt` and `gte`,
+            /// or both `lt` and `lte` fields are specified. In this case,
+            /// at least one of them will never be satisfied, so it can safely
+            /// be removed, leaving the stricter constraint.
+            ///
+            /// This is mostly useful for debugging purposes. At the moment,
+            /// filters do not require that they are passed collapsed ranges.
+            ///
+            /// You don't need to call this function if you construct
+            /// ranges by calling the library functions,
+            /// as they never produce ranges with redundant constraints.
+            pub fn collapse(&mut self) {
+                *self = Self::from_bounds(self.start_bound(), self.end_bound())
+            }
+
+            /// Consumes a given range and returns its collapsed version.
+            ///
+            /// See `collapse` for details.
+            pub fn collapsed(mut self) -> Self {
+                self.collapse();
+                self
+            }
+
+            /// Consumes a given range and returns its intersection with `other`.
+            pub fn intersection(mut self, other: &Self) -> Self {
+                self.intersect(other);
+                self
+            }
+
+            /// Returns `true` if `val` is contained in the range.
+            pub fn contains(&self, val: $num) -> bool {
+                <Self as RangeBounds<$num>>::contains(self, &val)
+            }
+
+            /// A convenience method to exclude the lower bound
+            /// for ranges constructed `From` standard library range types.
+            pub fn exclude_lower(&mut self) {
+                self.collapse();
+                self.gt = self.gte.or(self.gt);
+                self.gte = None;
+            }
+
+            /// A convenience function to exclude the lower bound
+            /// for ranges constructed `From` standard library range types.
+            pub fn excluding_lower(mut self) -> Self {
+                self.exclude_lower();
+                self
+            }
+        }
+
+        impl RangeBounds<$num> for $this {
+            fn start_bound(&self) -> Bound<&$num> {
+                match (&self.gt, &self.gte) {
+                    (None, None) => Bound::Unbounded,
+                    (None, Some(b)) => Bound::Included(b),
+                    (Some(b), None) => Bound::Excluded(b),
+                    (Some(gt), Some(gte)) => {
+                        if gt < gte {
+                            Bound::Included(gte)
+                        } else {
+                            Bound::Excluded(gt)
+                        }
+                    }
+                }
+            }
+
+            fn end_bound(&self) -> std::ops::Bound<&$num> {
+                match (&self.lt, &self.lte) {
+                    (None, None) => Bound::Unbounded,
+                    (None, Some(b)) => Bound::Included(b),
+                    (Some(b), None) => Bound::Excluded(b),
+                    (Some(lt), Some(lte)) => {
+                        if lt > lte {
+                            Bound::Included(lte)
+                        } else {
+                            Bound::Excluded(lt)
+                        }
+                    }
+                }
+            }
+        }
+    };
+}
+
+impl_common!(Range, f64);
+impl_common!(ValuesCount, u64);
+
+impl Range {
+    /// A range is empty if no possible `f64` value can match against it.
+    ///
+    /// You may use this to avoid passing unsatisfiable ranges to filters and conditions.
+    pub fn is_empty(&self) -> bool {
+        match (self.start_bound(), self.end_bound()) {
+            (Bound::Excluded(lo), Bound::Excluded(hi)) => {
+                lo.partial_cmp(hi).map_or(true, |o| o != Ordering::Less)
+            }
+
+            (Bound::Included(lo), Bound::Excluded(hi))
+            | (Bound::Excluded(lo), Bound::Included(hi))
+            | (Bound::Included(lo), Bound::Included(hi)) => {
+                lo.partial_cmp(hi).map_or(true, |o| o == Ordering::Greater)
+            }
+
+            (Bound::Excluded(b), Bound::Unbounded) => b.is_nan() || *b == f64::INFINITY,
+            (Bound::Unbounded, Bound::Excluded(b)) => b.is_nan() || *b == f64::NEG_INFINITY,
+
+            (Bound::Included(b), Bound::Unbounded) | (Bound::Unbounded, Bound::Included(b)) => {
+                b.is_nan()
+            }
+
+            (Bound::Unbounded, Bound::Unbounded) => false,
+        }
+    }
+
+    /// Intersect a given range with another range.
+    ///
+    /// The result is a range that contains `a` if and only if
+    /// `self` contains `a` and `other` contains `a`.
+    pub fn intersect(&mut self, other: &Self) {
+        fn intersect_one(
+            bound1: Option<f64>,
+            bound2: Option<f64>,
+            cmp: impl Fn(f64, f64) -> f64,
+        ) -> Option<f64> {
+            match (bound1, bound2) {
+                (Some(b1), Some(b2)) => {
+                    // We have to specially handle NaNs because
+                    // the normal comparators return the other operand
+                    // if one of them is NaN.
+                    if b1.is_nan() || b2.is_nan() {
+                        Some(f64::NAN)
+                    } else {
+                        Some(cmp(b1, b2))
+                    }
+                }
+                _ => bound1.or(bound2),
+            }
+        }
+
+        self.gt = intersect_one(self.gt, other.gt, f64::max);
+        self.gte = intersect_one(self.gte, other.gte, f64::max);
+        self.lt = intersect_one(self.lt, other.lt, f64::min);
+        self.lte = intersect_one(self.lte, other.lte, f64::min);
+
+        self.collapse();
+    }
+}
+
+impl ValuesCount {
+    /// A range is empty if no possible `u64` value can match against it.
+    ///
+    /// You may use this to avoid creating unsatisfiable filters and conditions.
+    pub fn is_empty(&self) -> bool {
+        match (self.start_bound(), self.end_bound()) {
+            (Bound::Excluded(lo), Bound::Excluded(hi)) => lo >= hi || lo.abs_diff(*hi) <= 1,
+
+            (Bound::Included(lo), Bound::Excluded(hi))
+            | (Bound::Excluded(lo), Bound::Included(hi))
+            | (Bound::Included(lo), Bound::Included(hi)) => lo > hi,
+
+            _ => false,
+        }
+    }
+
+    /// Intersect a given range with another range.
+    ///
+    /// The result is a range that contains `a` if and only if
+    /// `self` contains `a` and `other` contains `a`.
+    pub fn intersect(&mut self, other: &Self) {
+        fn intersect_one(
+            bound1: Option<u64>,
+            bound2: Option<u64>,
+            cmp: impl Fn(u64, u64) -> u64,
+        ) -> Option<u64> {
+            match (bound1, bound2) {
+                (Some(b1), Some(b2)) => Some(cmp(b1, b2)),
+                _ => bound1.or(bound2),
+            }
+        }
+
+        self.gt = intersect_one(self.gt, other.gt, u64::max);
+        self.gte = intersect_one(self.gte, other.gte, u64::max);
+        self.lt = intersect_one(self.lt, other.lt, u64::min);
+        self.lte = intersect_one(self.lte, other.lte, u64::min);
+
+        self.collapse();
+    }
+}
 
 impl From<Filter> for PointsSelector {
     fn from(filter: Filter) -> Self {
@@ -390,6 +667,8 @@ impl std::ops::Not for MatchValue {
 
 #[cfg(test)]
 mod tests {
+    use super::Range;
+    use super::ValuesCount;
     use crate::qdrant::{Condition, Filter, NestedCondition};
 
     #[test]
@@ -425,5 +704,172 @@ mod tests {
             "test",
             Filter::any([Condition::has_id([0])]),
         )]);
+    }
+
+    #[test]
+    fn test_range_empty() {
+        assert!(Range::empty().is_empty());
+        assert!(Range::from(0.0..0.0).excluding_lower().is_empty());
+        assert!(Range::from(1.0..0.0).excluding_lower().is_empty());
+        assert!(Range::from(1.0..-1.0).excluding_lower().is_empty());
+    }
+
+    #[test]
+    fn test_range_empty_edge_cases() {
+        assert!(Range::from(f64::NAN..).is_empty());
+        assert!(Range::only(f64::NAN).is_empty());
+        assert!(Range::from(..f64::NEG_INFINITY).is_empty());
+        assert!(Range::from(f64::INFINITY..).excluding_lower().is_empty());
+
+        // These are non-empty because they still can match the infinities.
+        assert!(!Range::from(..=f64::INFINITY).is_empty());
+        assert!(!Range::from(f64::INFINITY..).is_empty());
+    }
+
+    #[test]
+    fn test_range_contains() {
+        assert!(Range::any().contains(0.0));
+        assert!(Range::only(0.0).contains(0.0));
+        assert!(!Range::only(0.0).contains(1.0));
+    }
+
+    #[test]
+    fn test_range_contains_edge_cases() {
+        assert!(Range::from(..=f64::INFINITY).contains(f64::INFINITY));
+        assert!(Range::from(f64::INFINITY..).contains(f64::INFINITY));
+
+        assert!(!Range::from(f64::INFINITY..)
+            .excluding_lower()
+            .contains(f64::INFINITY));
+        assert!(!Range::from(..f64::INFINITY).contains(f64::INFINITY));
+
+        let test_vals = [f64::NAN, f64::INFINITY, f64::NEG_INFINITY, 0.0, 1.0, -1.0];
+        assert!(test_vals
+            .iter()
+            .all(|&val| !Range::only(f64::NAN).contains(val)));
+        assert!(test_vals
+            .iter()
+            .all(|&val| !Range::from(f64::NAN..).contains(val)));
+        assert!(test_vals
+            .iter()
+            .all(|&val| !Range::from(f64::INFINITY..).excluding_lower().contains(val)));
+        assert!(test_vals
+            .iter()
+            .all(|&val| !Range::from(..f64::NEG_INFINITY).contains(val)));
+    }
+
+    #[test]
+    fn test_range_intersection() {
+        assert_eq!(
+            Range::from(0.0..1.0)
+                .excluding_lower()
+                .intersection(&Range::from(0.0..2.0).excluding_lower()),
+            Range::from(0.0..1.0).excluding_lower()
+        );
+
+        assert_eq!(
+            Range::from(0.0..5.0)
+                .excluding_lower()
+                .intersection(&Range::from(1.0..2.0).excluding_lower()),
+            Range::from(1.0..2.0).excluding_lower()
+        );
+
+        assert_eq!(
+            Range::from(..5.0).intersection(&Range::from(1.0..)),
+            Range::from(1.0..5.0)
+        );
+
+        assert!(Range::from(..=f64::NAN)
+            .intersection(&Range::from(0.0..=1.0))
+            .lte
+            .unwrap()
+            .is_nan());
+
+        assert!(Range::from(..f64::NAN)
+            .intersection(&Range::from(0.0..=1.0))
+            .lt
+            .unwrap()
+            .is_nan());
+    }
+
+    #[test]
+    fn test_range_collapse() {
+        {
+            let mut range = Range {
+                gt: Some(0.0),
+                gte: Some(0.0),
+                ..Default::default()
+            };
+            range.collapse();
+            assert_eq!(range, Range::from(0.0..).excluding_lower());
+        }
+
+        {
+            let mut range = Range {
+                lt: Some(0.0),
+                lte: Some(0.0),
+                ..Default::default()
+            };
+            range.collapse();
+            assert_eq!(range, Range::from(..0.0));
+        }
+
+        {
+            let mut range = Range {
+                gt: Some(0.0),
+                gte: Some(-1.0),
+                lt: Some(2.0),
+                lte: Some(1.0),
+            };
+            range.collapse();
+            assert_eq!(range, Range::from(0.0..=1.0).excluding_lower());
+        }
+    }
+
+    #[test]
+    fn test_values_count_empty() {
+        assert!(ValuesCount::empty().is_empty());
+
+        assert!(ValuesCount::from(0..0).excluding_lower().is_empty());
+        assert!(ValuesCount::from(1..0).excluding_lower().is_empty());
+        assert!(ValuesCount::from(0..1).excluding_lower().is_empty());
+
+        assert!(!ValuesCount::from(0..=1).excluding_lower().is_empty());
+        assert!(!ValuesCount::from(0..1).is_empty());
+        assert!(!ValuesCount::from(0..=1).is_empty());
+    }
+
+    #[test]
+    fn test_values_count_contains() {
+        assert!(ValuesCount::any().contains(0));
+        assert!(ValuesCount::only(0).contains(0));
+
+        assert!(ValuesCount::from(0..=1).excluding_lower().contains(1));
+        assert!(ValuesCount::from(0..=1).contains(0));
+
+        assert!(!ValuesCount::from(0..0).excluding_lower().contains(0));
+        assert!(!ValuesCount::from(1..0).excluding_lower().contains(0));
+        assert!(!ValuesCount::from(0..1).excluding_lower().contains(0));
+        assert!(!ValuesCount::from(0..1).excluding_lower().contains(1));
+    }
+
+    #[test]
+    fn test_values_count_intersection() {
+        assert_eq!(
+            ValuesCount::from(0..1)
+                .excluding_lower()
+                .intersection(&ValuesCount::from(0..2).excluding_lower()),
+            ValuesCount::from(0..1).excluding_lower()
+        );
+
+        assert_eq!(
+            ValuesCount::from(0..5).intersection(&ValuesCount::from(1..2)),
+            ValuesCount::from(1..2)
+        );
+
+        assert_eq!(
+            ValuesCount::from(..5).intersection(&ValuesCount::from(1..)),
+            ValuesCount::from(1..5)
+        );
     }
 }
