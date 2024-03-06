@@ -196,4 +196,30 @@ mod tests {
 
         eprintln!("payload = {:#?}", payload);
     }
+
+    #[test]
+    fn test_ergonomic_deserialize() {
+        #[derive(Deserialize, Serialize, Eq, PartialEq, Debug)]
+        struct S {
+            some_string: String,
+            some_bool: bool,
+            some_int: i32,
+            some_seq: Vec<String>,
+            some_obj: HashMap<String, String>,
+        }
+
+        let value = S {
+            some_string: "Bar".into(),
+            some_bool: true,
+            some_int: 12,
+            some_seq: vec!["elem1".into(), "elem2".into()],
+            some_obj: HashMap::from([("key".into(), "value".into())]),
+        };
+
+        let json_value = serde_json::to_value(&value).unwrap();
+        let payload: Payload = json_value.try_into().unwrap();
+        let deserialized_value: S = payload.deserialize().unwrap();
+
+        assert_eq!(value, deserialized_value)
+    }
 }
