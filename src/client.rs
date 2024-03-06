@@ -12,13 +12,14 @@ use crate::qdrant::with_payload_selector::SelectorOptions;
 use crate::qdrant::{
     qdrant_client, shard_key, with_vectors_selector, AliasOperations, ChangeAliases,
     ClearPayloadPoints, CollectionClusterInfoRequest, CollectionClusterInfoResponse,
-    CollectionOperationResponse, CollectionParamsDiff, CountPoints, CountResponse, CreateAlias,
-    CreateCollection, CreateFieldIndexCollection, CreateFullSnapshotRequest, CreateShardKey,
-    CreateShardKeyRequest, CreateShardKeyResponse, CreateSnapshotRequest, CreateSnapshotResponse,
-    DeleteAlias, DeleteCollection, DeleteFieldIndexCollection, DeleteFullSnapshotRequest,
-    DeletePayloadPoints, DeletePointVectors, DeletePoints, DeleteShardKey, DeleteShardKeyRequest,
-    DeleteShardKeyResponse, DeleteSnapshotRequest, DeleteSnapshotResponse, DiscoverBatchPoints,
-    DiscoverBatchResponse, DiscoverPoints, DiscoverResponse, FieldType, GetCollectionInfoRequest,
+    CollectionExistsRequest, CollectionOperationResponse, CollectionParamsDiff, CountPoints,
+    CountResponse, CreateAlias, CreateCollection, CreateFieldIndexCollection,
+    CreateFullSnapshotRequest, CreateShardKey, CreateShardKeyRequest, CreateShardKeyResponse,
+    CreateSnapshotRequest, CreateSnapshotResponse, DeleteAlias, DeleteCollection,
+    DeleteFieldIndexCollection, DeleteFullSnapshotRequest, DeletePayloadPoints, DeletePointVectors,
+    DeletePoints, DeleteShardKey, DeleteShardKeyRequest, DeleteShardKeyResponse,
+    DeleteSnapshotRequest, DeleteSnapshotResponse, DiscoverBatchPoints, DiscoverBatchResponse,
+    DiscoverPoints, DiscoverResponse, FieldType, GetCollectionInfoRequest,
     GetCollectionInfoResponse, GetPoints, GetResponse, HealthCheckReply, HealthCheckRequest,
     HnswConfigDiff, ListAliasesRequest, ListAliasesResponse, ListCollectionAliasesRequest,
     ListCollectionsRequest, ListCollectionsResponse, ListFullSnapshotsRequest,
@@ -266,7 +267,7 @@ impl From<HashMap<String, Vector>> for Vectors {
     fn from(named_vectors: HashMap<String, Vector>) -> Self {
         Vectors {
             vectors_options: Some(VectorsOptions::Vectors(NamedVectors {
-                vectors: named_vectors.into_iter().map(|(k, v)| (k, v)).collect(),
+                vectors: named_vectors.into_iter().collect(),
             })),
         }
     }
@@ -484,6 +485,7 @@ impl QdrantClient {
             .await?)
     }
 
+    #[deprecated(since = "1.8.0", note = "Please use `collection_exists` instead")]
     pub async fn has_collection(&self, collection_name: impl ToString) -> Result<bool> {
         let collection_name = collection_name.to_string();
         let response = self.list_collections().await?;
@@ -493,6 +495,23 @@ impl QdrantClient {
             .any(|c| c.name == collection_name);
 
         Ok(result)
+    }
+
+    pub async fn collection_exists(&self, collection_name: impl ToString) -> Result<bool> {
+        let collection_name_ref = &collection_name.to_string();
+        Ok(self
+            .with_collections_client(|mut collection_api| async move {
+                let request = CollectionExistsRequest {
+                    collection_name: collection_name_ref.clone(),
+                };
+                let result = collection_api.collection_exists(request).await?;
+                Ok(result
+                    .into_inner()
+                    .result
+                    .map(|r| r.exists)
+                    .unwrap_or(false))
+            })
+            .await?)
     }
 
     pub async fn create_collection(
@@ -978,6 +997,7 @@ impl QdrantClient {
         shard_key_selector: Option<Vec<shard_key::Key>>,
         points: &PointsSelector,
         payload: Payload,
+        payload_key: Option<String>,
         ordering: Option<WriteOrdering>,
     ) -> Result<PointsOperationResponse> {
         self._set_payload(
@@ -985,6 +1005,7 @@ impl QdrantClient {
             shard_key_selector,
             points,
             &payload,
+            payload_key,
             false,
             ordering,
         )
@@ -997,6 +1018,7 @@ impl QdrantClient {
         shard_key_selector: Option<Vec<shard_key::Key>>,
         points: &PointsSelector,
         payload: Payload,
+        payload_key: Option<String>,
         ordering: Option<WriteOrdering>,
     ) -> Result<PointsOperationResponse> {
         self._set_payload(
@@ -1004,6 +1026,7 @@ impl QdrantClient {
             shard_key_selector,
             points,
             &payload,
+            payload_key,
             true,
             ordering,
         )
@@ -1011,12 +1034,14 @@ impl QdrantClient {
     }
 
     #[inline]
+    #[allow(clippy::too_many_arguments)]
     async fn _set_payload(
         &self,
         collection_name: impl ToString,
         shard_key_selector: Option<Vec<shard_key::Key>>,
         points: &PointsSelector,
         payload: &Payload,
+        payload_key: Option<String>,
         block: bool,
         ordering: Option<WriteOrdering>,
     ) -> Result<PointsOperationResponse> {
@@ -1025,6 +1050,7 @@ impl QdrantClient {
         let ordering_ref = ordering.as_ref();
         let shard_keys = shard_key_selector.map(ShardKeySelector::from);
         let shard_keys_ref = &shard_keys;
+        let payload_key_ref = payload_key.as_ref();
 
         Ok(self
             .with_points_client(|mut points_api| async move {
@@ -1036,6 +1062,7 @@ impl QdrantClient {
                         points_selector: Some(points.clone()),
                         ordering: ordering_ref.cloned(),
                         shard_key_selector: shard_keys_ref.clone(),
+                        key: payload_key_ref.cloned(),
                     })
                     .await?;
                 Ok(result.into_inner())
@@ -1049,6 +1076,7 @@ impl QdrantClient {
         shard_key_selector: Option<Vec<shard_key::Key>>,
         points: &PointsSelector,
         payload: Payload,
+        payload_key: Option<String>,
         ordering: Option<WriteOrdering>,
     ) -> Result<PointsOperationResponse> {
         self._overwrite_payload(
@@ -1056,6 +1084,7 @@ impl QdrantClient {
             shard_key_selector,
             points,
             &payload,
+            payload_key,
             false,
             ordering,
         )
@@ -1068,6 +1097,7 @@ impl QdrantClient {
         shard_key_selector: Option<Vec<shard_key::Key>>,
         points: &PointsSelector,
         payload: Payload,
+        payload_key: Option<String>,
         ordering: Option<WriteOrdering>,
     ) -> Result<PointsOperationResponse> {
         self._overwrite_payload(
@@ -1075,6 +1105,7 @@ impl QdrantClient {
             shard_key_selector,
             points,
             &payload,
+            payload_key,
             true,
             ordering,
         )
@@ -1082,12 +1113,14 @@ impl QdrantClient {
     }
 
     #[inline]
+    #[allow(clippy::too_many_arguments)]
     async fn _overwrite_payload(
         &self,
         collection_name: impl ToString,
         shard_key_selector: Option<Vec<shard_key::Key>>,
         points: &PointsSelector,
         payload: &Payload,
+        payload_key: Option<String>,
         block: bool,
         ordering: Option<WriteOrdering>,
     ) -> Result<PointsOperationResponse> {
@@ -1096,6 +1129,7 @@ impl QdrantClient {
         let ordering_ref = ordering.as_ref();
         let shard_keys = shard_key_selector.map(ShardKeySelector::from);
         let shard_keys_ref = &shard_keys;
+        let payload_key_ref = payload_key.as_ref();
 
         Ok(self
             .with_points_client(|mut points_api| async move {
@@ -1107,6 +1141,7 @@ impl QdrantClient {
                         points_selector: Some(points.clone()),
                         ordering: ordering_ref.cloned(),
                         shard_key_selector: shard_keys_ref.clone(),
+                        key: payload_key_ref.cloned(),
                     })
                     .await?;
                 Ok(result.into_inner())

@@ -119,6 +119,9 @@ use std::error::Error;
 use std::fmt::{Debug, Display, Formatter};
 use std::hash::{Hash, Hasher};
 
+#[doc(no_inline)]
+pub use prost_types::Timestamp;
+
 static NULL_VALUE: Value = Value {
     kind: Some(NullValue(0)),
 };
@@ -487,6 +490,9 @@ mod tests {
             })
             .await?;
 
+        let exists = client.collection_exists(collection_name).await?;
+        assert!(exists);
+
         let collection_info = client.collection_info(collection_name).await?;
         println!("{:#?}", collection_info);
 
@@ -549,6 +555,7 @@ mod tests {
                 None,
                 &vec![0.into()].into(),
                 new_payload,
+                None,
                 None,
             )
             .await?;
