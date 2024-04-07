@@ -47,6 +47,7 @@ use tonic::codegen::InterceptedService;
 use tonic::service::Interceptor;
 use tonic::transport::{Channel, Uri};
 use tonic::{Request, Status};
+use url::Url;
 
 pub struct QdrantClientConfig {
     pub uri: String,
@@ -118,8 +119,13 @@ impl AsTimeout for u64 {
 
 impl QdrantClientConfig {
     pub fn from_url(url: &str) -> Self {
+        // Add default port if not present
+        let mut parsed_url = Url::parse(url).unwrap();
+        if parsed_url.port().is_none(){
+            parsed_url.set_port(Some(6334)).unwrap();
+        }
         QdrantClientConfig {
-            uri: url.to_string(),
+            uri: parsed_url.to_string(),
             ..Self::default()
         }
     }
