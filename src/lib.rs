@@ -110,6 +110,8 @@ pub mod prelude;
 #[rustfmt::skip]
 pub mod qdrant;
 pub mod filters;
+#[cfg(feature = "new_client")]
+pub mod new_client;
 #[cfg(feature = "serde")]
 pub mod serde;
 
