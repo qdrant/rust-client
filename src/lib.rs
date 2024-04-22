@@ -484,6 +484,7 @@ mod tests {
                         hnsw_config: None,
                         quantization_config: None,
                         on_disk: None,
+                        datatype: None,
                     })),
                 }),
                 ..Default::default()
