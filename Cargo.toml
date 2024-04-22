@@ -13,18 +13,18 @@ categories = ["database", "api-bindings"]
 keywords = ["qdrant", "vector-search", "search-engine", "client", "grpc"]
 
 [dependencies]
-tonic = { version = "0.9.2", features = ["tls", "tls-roots"] }
-prost = "0.11.9"
-prost-types = "0.11.9"
+tonic = { version = "0.11.0", features = ["tls", "tls-roots"] }
+prost = "0.12.4"
+prost-types = "0.12.4"
 anyhow = "1"
 
 serde = { version = "1", features = ["derive"], optional = true }
 serde_json = { version = "1", optional = true }
-reqwest = { version = "0.11.24", optional = true, default-features = false, features = ["stream", "rustls-tls"] }
+reqwest = { version = "0.12.3", optional = true, default-features = false, features = ["stream", "rustls-tls", "http2"] }
 futures-util = { version = "0.3.30", optional = true }
 
 [dev-dependencies]
-tonic-build = { version = "0.9.2", features = ["prost"] }
+tonic-build = { version = "0.11.0", features = ["prost"] }
 tokio = { version = "1.36.0", features = ["rt-multi-thread"] }
 
 [features]
