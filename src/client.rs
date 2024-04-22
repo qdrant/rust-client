@@ -53,6 +53,8 @@ pub struct QdrantClientConfig {
     pub timeout: Duration,
     pub connect_timeout: Duration,
     pub keep_alive_while_idle: bool,
+
+    /// API key or token to use for authorization
     pub api_key: Option<String>,
 }
 
@@ -124,6 +126,7 @@ impl QdrantClientConfig {
         }
     }
 
+    /// Sets the API key or token
     pub fn set_api_key(&mut self, api_key: &str) {
         self.api_key = Some(api_key.to_string());
     }
@@ -140,8 +143,8 @@ impl QdrantClientConfig {
         self.keep_alive_while_idle = keep_alive_while_idle;
     }
 
-    /// set the API key, builder-like. The API key argument can be any of
-    /// `&str`, `String`, `Option<&str>``, `Option<String>` or `Result<String>`.`
+    /// Set the API key or token, builder-like. The API key argument can be any of
+    /// `&str`, `String`, `Option<&str>`, `Option<String>` or `Result<String>`.
     ///
     /// # Examples:
     ///
@@ -356,7 +359,7 @@ impl Interceptor for TokenInterceptor {
             req.metadata_mut().insert(
                 "api-key",
                 api_key.parse().map_err(|_| {
-                    Status::invalid_argument(format!("Malformed API key: {}", api_key))
+                    Status::invalid_argument(format!("Malformed API key or token: {}", api_key))
                 })?,
             );
         }
