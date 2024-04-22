@@ -157,7 +157,7 @@ impl QdrantClientConfig {
     pub fn set_keep_alive_while_idle(&mut self, keep_alive_while_idle: bool) {
         self.keep_alive_while_idle = keep_alive_while_idle;
     }
-    
+
     pub fn set_compression(&mut self, compression: Option<CompressionEncoding>) {
         self.compression = compression;
     }
@@ -410,7 +410,7 @@ impl QdrantClient {
         InterceptedService::new(channel, interceptor)
     }
 
-    pub async fn with_snapshot_client<T, O: Future<Output=Result<T, Status>>>(
+    pub async fn with_snapshot_client<T, O: Future<Output = Result<T, Status>>>(
         &self,
         f: impl Fn(SnapshotsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
     ) -> Result<T, Status> {
@@ -433,7 +433,7 @@ impl QdrantClient {
     }
 
     // Access to raw collection API
-    pub async fn with_collections_client<T, O: Future<Output=Result<T, Status>>>(
+    pub async fn with_collections_client<T, O: Future<Output = Result<T, Status>>>(
         &self,
         f: impl Fn(CollectionsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
     ) -> Result<T, Status> {
@@ -456,7 +456,7 @@ impl QdrantClient {
     }
 
     // Access to raw points API
-    pub async fn with_points_client<T, O: Future<Output=Result<T, Status>>>(
+    pub async fn with_points_client<T, O: Future<Output = Result<T, Status>>>(
         &self,
         f: impl Fn(PointsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
     ) -> Result<T, Status> {
@@ -479,7 +479,7 @@ impl QdrantClient {
     }
 
     // Access to raw root qdrant API
-    pub async fn with_root_qdrant_client<T, O: Future<Output=Result<T, Status>>>(
+    pub async fn with_root_qdrant_client<T, O: Future<Output = Result<T, Status>>>(
         &self,
         f: impl Fn(qdrant_client::QdrantClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
     ) -> Result<T, Status> {
@@ -902,7 +902,7 @@ impl QdrantClient {
             false,
             ordering,
         )
-            .await
+        .await
     }
 
     /// Update or insert points into the collection, wait for completion.
@@ -970,7 +970,7 @@ impl QdrantClient {
             ordering,
             chunk_size,
         )
-            .await
+        .await
     }
 
     /// Update or insert points into the collection, splitting in chunks and
@@ -992,7 +992,7 @@ impl QdrantClient {
             ordering,
             chunk_size,
         )
-            .await
+        .await
     }
 
     #[inline]
@@ -1058,7 +1058,7 @@ impl QdrantClient {
             false,
             ordering,
         )
-            .await
+        .await
     }
 
     pub async fn set_payload_blocking(
@@ -1079,7 +1079,7 @@ impl QdrantClient {
             true,
             ordering,
         )
-            .await
+        .await
     }
 
     #[inline]
@@ -1137,7 +1137,7 @@ impl QdrantClient {
             false,
             ordering,
         )
-            .await
+        .await
     }
 
     pub async fn overwrite_payload_blocking(
@@ -1158,7 +1158,7 @@ impl QdrantClient {
             true,
             ordering,
         )
-            .await
+        .await
     }
 
     #[inline]
@@ -1214,7 +1214,7 @@ impl QdrantClient {
             false,
             ordering,
         )
-            .await
+        .await
     }
 
     pub async fn delete_payload_blocking(
@@ -1233,7 +1233,7 @@ impl QdrantClient {
             true,
             ordering,
         )
-            .await
+        .await
     }
 
     #[inline]
@@ -1283,7 +1283,7 @@ impl QdrantClient {
             false,
             ordering,
         )
-            .await
+        .await
     }
 
     pub async fn clear_payload_blocking(
@@ -1300,7 +1300,7 @@ impl QdrantClient {
             true,
             ordering,
         )
-            .await
+        .await
     }
 
     #[inline]
@@ -1472,7 +1472,7 @@ impl QdrantClient {
             vector_selector,
             ordering,
         )
-            .await
+        .await
     }
 
     pub async fn delete_vectors_blocking(
@@ -1491,7 +1491,7 @@ impl QdrantClient {
             vector_selector,
             ordering,
         )
-            .await
+        .await
     }
 
     async fn _delete_vectors(
@@ -1750,7 +1750,7 @@ impl QdrantClient {
             false,
             ordering,
         )
-            .await
+        .await
     }
 
     pub async fn create_field_index_blocking(
@@ -1769,7 +1769,7 @@ impl QdrantClient {
             true,
             ordering,
         )
-            .await
+        .await
     }
 
     pub async fn _delete_field_index(
@@ -1924,8 +1924,8 @@ impl QdrantClient {
         snapshot_name: Option<T>,
         rest_api_uri: Option<T>,
     ) -> Result<()>
-        where
-            T: ToString + Clone,
+    where
+        T: ToString + Clone,
     {
         use futures_util::StreamExt;
         use std::io::Write;
@@ -1954,8 +1954,8 @@ impl QdrantClient {
             collection_name.to_string(),
             snapshot_name
         ))
-            .await?
-            .bytes_stream();
+        .await?
+        .bytes_stream();
 
         let out_path = out_path.into();
         let _ = std::fs::remove_file(&out_path);
@@ -2084,8 +2084,8 @@ impl From<Payload> for Value {
 }
 
 impl<T> From<Vec<T>> for Value
-    where
-        T: Into<Value>,
+where
+    T: Into<Value>,
 {
     fn from(val: Vec<T>) -> Self {
         Self {
@@ -2097,8 +2097,8 @@ impl<T> From<Vec<T>> for Value
 }
 
 impl<T> From<Vec<(&str, T)>> for Value
-    where
-        T: Into<Value>,
+where
+    T: Into<Value>,
 {
     fn from(val: Vec<(&str, T)>) -> Self {
         Self {
