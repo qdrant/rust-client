@@ -56,6 +56,7 @@ pub struct QdrantClientConfig {
 
     /// API key or token to use for authorization
     pub api_key: Option<String>,
+    pub compression: Option<CompressionEncoding>,
 }
 
 /// A builder type for `QdrantClient`s
@@ -118,6 +119,20 @@ impl AsTimeout for u64 {
     }
 }
 
+/// The type of compression to use for requests.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CompressionEncoding {
+    Gzip,
+}
+
+impl From<CompressionEncoding> for tonic::codec::CompressionEncoding {
+    fn from(encoding: CompressionEncoding) -> Self {
+        match encoding {
+            CompressionEncoding::Gzip => tonic::codec::CompressionEncoding::Gzip,
+        }
+    }
+}
+
 impl QdrantClientConfig {
     pub fn from_url(url: &str) -> Self {
         QdrantClientConfig {
@@ -143,8 +158,12 @@ impl QdrantClientConfig {
         self.keep_alive_while_idle = keep_alive_while_idle;
     }
 
-    /// Set the API key or token, builder-like. The API key argument can be any of
-    /// `&str`, `String`, `Option<&str>`, `Option<String>` or `Result<String>`.
+    pub fn set_compression(&mut self, compression: Option<CompressionEncoding>) {
+        self.compression = compression;
+    }
+
+    /// set the API key, builder-like. The API key argument can be any of
+    /// `&str`, `String`, `Option<&str>``, `Option<String>` or `Result<String>`.`
     ///
     /// # Examples:
     ///
@@ -185,6 +204,12 @@ impl QdrantClientConfig {
     /// Set the connect timeout for this client
     pub fn with_connect_timeout(mut self, timeout: impl AsTimeout) -> Self {
         self.connect_timeout = timeout.timeout();
+        self
+    }
+
+    /// Set the compression to use for this client
+    pub fn with_compression(mut self, compression: Option<CompressionEncoding>) -> Self {
+        self.compression = compression;
         self
     }
 
@@ -339,6 +364,7 @@ impl Default for QdrantClientConfig {
             connect_timeout: Duration::from_secs(5),
             keep_alive_while_idle: true,
             api_key: None,
+            compression: None,
         }
     }
 }
@@ -392,8 +418,13 @@ impl QdrantClient {
             .with_channel(
                 |channel| {
                     let service = self.with_api_key(channel);
-                    let client = SnapshotsClient::new(service);
-                    let client = client.max_decoding_message_size(usize::MAX);
+                    let mut client =
+                        SnapshotsClient::new(service).max_decoding_message_size(usize::MAX);
+                    if let Some(compression) = self.cfg.compression {
+                        client = client
+                            .send_compressed(compression.into())
+                            .accept_compressed(compression.into());
+                    }
                     f(client)
                 },
                 false,
@@ -410,8 +441,13 @@ impl QdrantClient {
             .with_channel(
                 |channel| {
                     let service = self.with_api_key(channel);
-                    let client = CollectionsClient::new(service);
-                    let client = client.max_decoding_message_size(usize::MAX);
+                    let mut client =
+                        CollectionsClient::new(service).max_decoding_message_size(usize::MAX);
+                    if let Some(compression) = self.cfg.compression {
+                        client = client
+                            .send_compressed(compression.into())
+                            .accept_compressed(compression.into());
+                    }
                     f(client)
                 },
                 false,
@@ -428,8 +464,13 @@ impl QdrantClient {
             .with_channel(
                 |channel| {
                     let service = self.with_api_key(channel);
-                    let client = PointsClient::new(service);
-                    let client = client.max_decoding_message_size(usize::MAX);
+                    let mut client =
+                        PointsClient::new(service).max_decoding_message_size(usize::MAX);
+                    if let Some(compression) = self.cfg.compression {
+                        client = client
+                            .send_compressed(compression.into())
+                            .accept_compressed(compression.into());
+                    }
                     f(client)
                 },
                 true,
@@ -446,8 +487,13 @@ impl QdrantClient {
             .with_channel(
                 |channel| {
                     let service = self.with_api_key(channel);
-                    let client = qdrant_client::QdrantClient::new(service);
-                    let client = client.max_decoding_message_size(usize::MAX);
+                    let mut client = qdrant_client::QdrantClient::new(service)
+                        .max_decoding_message_size(usize::MAX);
+                    if let Some(compression) = self.cfg.compression {
+                        client = client
+                            .send_compressed(compression.into())
+                            .accept_compressed(compression.into());
+                    }
                     f(client)
                 },
                 true,
