@@ -111,6 +111,7 @@ pub mod prelude;
 pub mod qdrant;
 pub mod config;
 pub mod filters;
+pub mod grpc_ext;
 #[cfg(feature = "serde")]
 pub mod serde;
 
