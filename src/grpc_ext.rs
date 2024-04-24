@@ -6,10 +6,9 @@ use crate::qdrant::vectors::VectorsOptions;
 use crate::qdrant::with_payload_selector::SelectorOptions;
 use crate::qdrant::{
     shard_key, with_vectors_selector, ListValue, NamedVectors, PayloadIncludeSelector, PointId,
-    PointsIdsList, PointsSelector, ShardKey, ShardKeySelector, SparseIndices, Struct, Vector,
-    Vectors, VectorsSelector, WithPayloadSelector, WithVectorsSelector,
+    PointStruct, PointsIdsList, PointsSelector, ShardKey, ShardKeySelector, SparseIndices, Struct,
+    Value, Vector, Vectors, VectorsSelector, WithPayloadSelector, WithVectorsSelector,
 };
-use crate::qdrant::{PointStruct, Value};
 use std::collections::HashMap;
 
 impl From<bool> for WithPayloadSelector {
