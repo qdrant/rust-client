@@ -111,14 +111,15 @@ pub mod prelude;
 pub mod qdrant;
 pub mod auth;
 pub mod config;
+pub mod error;
 pub mod filters;
 pub mod grpc_ext;
 pub mod payload;
 #[cfg(feature = "serde")]
 pub mod serde;
 
+use error::NotA;
 use qdrant::{value::Kind::*, ListValue, RetrievedPoint, ScoredPoint, Struct, Value};
-
 use std::error::Error;
 use std::fmt::{Debug, Display, Formatter};
 use std::hash::{Hash, Hasher};
@@ -130,27 +131,35 @@ static NULL_VALUE: Value = Value {
     kind: Some(NullValue(0)),
 };
 
-macro_rules! get_payload {
-    ($ty:ty) => {
-        impl $ty {
-            /// get a payload value for the specified key. If the key is not present,
-            /// this will return a null value.
-            ///
-            /// # Examples:
-            /// ```
-            #[doc = concat!("use qdrant_client::qdrant::", stringify!($ty), ";")]
-            #[doc = concat!("let point = ", stringify!($ty), "::default();")]
-            /// assert!(point.get("not_present").is_null());
-            /// ````
-            pub fn get(&self, key: &str) -> &Value {
-                self.payload.get(key).unwrap_or(&NULL_VALUE)
-            }
-        }
-    };
+impl RetrievedPoint {
+    /// get a payload value for the specified key. If the key is not present,
+    /// this will return a null value.
+    ///
+    /// # Examples:
+    /// ```
+    /// use qdrant_client::qdrant::RetrievedPoint;
+    /// let point = RetrievedPoint::default();
+    /// assert!(point.get("not_present").is_null());
+    /// ````
+    pub fn get(&self, key: &str) -> &Value {
+        self.payload.get(key).unwrap_or(&NULL_VALUE)
+    }
 }
 
-get_payload!(RetrievedPoint);
-get_payload!(ScoredPoint);
+impl ScoredPoint {
+    /// get a payload value for the specified key. If the key is not present,
+    /// this will return a null value.
+    ///
+    /// # Examples:
+    /// ```
+    /// use qdrant_client::qdrant::ScrollPoints;
+    /// let point = ScrollPoints::default();
+    /// assert!(point.get("not_present").is_null());
+    /// ````
+    pub fn get(&self, key: &str) -> &Value {
+        self.payload.get(key).unwrap_or(&NULL_VALUE)
+    }
+}
 
 macro_rules! extract {
     ($kind:ident, $check:ident) => {
@@ -275,70 +284,6 @@ impl Display for Value {
         }
     }
 }
-
-pub mod error {
-    use std::marker::PhantomData;
-
-    /// An error for failed conversions (e.g. calling `String::try_from(v)`
-    /// on an integer [`Value`](crate::Value))
-    pub struct NotA<T> {
-        marker: PhantomData<T>,
-    }
-
-    impl<T> Default for NotA<T> {
-        fn default() -> Self {
-            NotA {
-                marker: PhantomData,
-            }
-        }
-    }
-}
-
-use error::NotA;
-
-macro_rules! not_a {
-    ($ty:ty) => {
-        impl Error for NotA<$ty> {}
-
-        impl Debug for NotA<$ty> {
-            fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-                write!(f, "{}", self)
-            }
-        }
-
-        impl Display for NotA<$ty> {
-            fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-                f.write_str(concat!("not a ", stringify!($ty)))
-            }
-        }
-    };
-}
-
-macro_rules! impl_try_from {
-    ($ty:ty, $key:ident) => {
-        not_a!($ty);
-
-        impl std::convert::TryFrom<Value> for $ty {
-            type Error = NotA<$ty>;
-
-            fn try_from(v: Value) -> Result<Self, NotA<$ty>> {
-                if let Some($key(t)) = v.kind {
-                    Ok(t)
-                } else {
-                    Err(NotA::default())
-                }
-            }
-        }
-    };
-}
-
-impl_try_from!(bool, BoolValue);
-impl_try_from!(i64, IntegerValue);
-impl_try_from!(f64, DoubleValue);
-impl_try_from!(String, StringValue);
-
-not_a!(ListValue);
-not_a!(Struct);
 
 impl Value {
     /// try to get an iterator over the items of the contained list value, if any
