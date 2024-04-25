@@ -1,73 +1,44 @@
+pub mod snapshot;
+
 use crate::channel_pool::ChannelPool;
 use crate::qdrant::alias_operations::Action;
 use crate::qdrant::collections_client::CollectionsClient;
 use crate::qdrant::points_client::PointsClient;
-use crate::qdrant::snapshots_client::SnapshotsClient;
 use crate::qdrant::update_collection_cluster_setup_request::Operation;
 use crate::qdrant::{
     qdrant_client, shard_key, AliasOperations, ChangeAliases, ClearPayloadPoints,
     CollectionClusterInfoRequest, CollectionClusterInfoResponse, CollectionExistsRequest,
     CollectionOperationResponse, CollectionParamsDiff, CountPoints, CountResponse, CreateAlias,
-    CreateCollection, CreateFieldIndexCollection, CreateFullSnapshotRequest, CreateShardKey,
-    CreateShardKeyRequest, CreateShardKeyResponse, CreateSnapshotRequest, CreateSnapshotResponse,
-    DeleteAlias, DeleteCollection, DeleteFieldIndexCollection, DeleteFullSnapshotRequest,
+    CreateCollection, CreateFieldIndexCollection, CreateShardKey, CreateShardKeyRequest,
+    CreateShardKeyResponse, DeleteAlias, DeleteCollection, DeleteFieldIndexCollection,
     DeletePayloadPoints, DeletePointVectors, DeletePoints, DeleteShardKey, DeleteShardKeyRequest,
-    DeleteShardKeyResponse, DeleteSnapshotRequest, DeleteSnapshotResponse, DiscoverBatchPoints,
-    DiscoverBatchResponse, DiscoverPoints, DiscoverResponse, FieldType, GetCollectionInfoRequest,
-    GetCollectionInfoResponse, GetPoints, GetResponse, HealthCheckReply, HealthCheckRequest,
-    HnswConfigDiff, ListAliasesRequest, ListAliasesResponse, ListCollectionAliasesRequest,
-    ListCollectionsRequest, ListCollectionsResponse, ListFullSnapshotsRequest,
-    ListSnapshotsRequest, ListSnapshotsResponse, OptimizersConfigDiff, PayloadIndexParams, PointId,
-    PointStruct, PointVectors, PointsOperationResponse, PointsSelector, PointsUpdateOperation,
+    DeleteShardKeyResponse, DiscoverBatchPoints, DiscoverBatchResponse, DiscoverPoints,
+    DiscoverResponse, FieldType, GetCollectionInfoRequest, GetCollectionInfoResponse, GetPoints,
+    GetResponse, HealthCheckReply, HealthCheckRequest, HnswConfigDiff, ListAliasesRequest,
+    ListAliasesResponse, ListCollectionAliasesRequest, ListCollectionsRequest,
+    ListCollectionsResponse, OptimizersConfigDiff, PayloadIndexParams, PointId, PointStruct,
+    PointVectors, PointsOperationResponse, PointsSelector, PointsUpdateOperation,
     QuantizationConfigDiff, ReadConsistency, RecommendBatchPoints, RecommendBatchResponse,
     RecommendGroupsResponse, RecommendPointGroups, RecommendPoints, RecommendResponse, RenameAlias,
     ScrollPoints, ScrollResponse, SearchBatchPoints, SearchBatchResponse, SearchGroupsResponse,
     SearchPointGroups, SearchPoints, SearchResponse, SetPayloadPoints, ShardKey, ShardKeySelector,
     SparseVectorConfig, UpdateBatchPoints, UpdateBatchResponse, UpdateCollection,
     UpdateCollectionClusterSetupRequest, UpdateCollectionClusterSetupResponse, UpdatePointVectors,
-    UpsertPoints, Value, VectorsConfigDiff, VectorsSelector, WithPayloadSelector,
-    WithVectorsSelector, WriteOrdering,
+    UpsertPoints, VectorsConfigDiff, VectorsSelector, WithPayloadSelector, WithVectorsSelector,
+    WriteOrdering,
 };
 use anyhow::Result;
-#[cfg(feature = "serde")]
-use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::future::Future;
-#[cfg(feature = "download_snapshots")]
-use std::path::PathBuf;
 use tonic::codegen::InterceptedService;
-use tonic::service::Interceptor;
 use tonic::transport::{Channel, Uri};
-use tonic::{Request, Status};
+use tonic::Status;
 
+pub use crate::auth::TokenInterceptor;
 pub use crate::config::{AsTimeout, CompressionEncoding, MaybeApiKey, QdrantClientConfig};
+pub use crate::payload::Payload;
 
 /// A builder type for `QdrantClient`s
 pub type QdrantClientBuilder = QdrantClientConfig;
-
-pub struct TokenInterceptor {
-    api_key: Option<String>,
-}
-
-impl TokenInterceptor {
-    pub fn new(api_key: Option<String>) -> Self {
-        Self { api_key }
-    }
-}
-
-impl Interceptor for TokenInterceptor {
-    fn call(&mut self, mut req: Request<()>) -> Result<Request<()>, Status> {
-        if let Some(api_key) = &self.api_key {
-            req.metadata_mut().insert(
-                "api-key",
-                api_key.parse().map_err(|_| {
-                    Status::invalid_argument(format!("Malformed API key or token: {}", api_key))
-                })?,
-            );
-        }
-        Ok(req)
-    }
-}
 
 pub struct QdrantClient {
     pub channel: ChannelPool,
@@ -84,28 +55,6 @@ impl QdrantClient {
     fn with_api_key(&self, channel: Channel) -> InterceptedService<Channel, TokenInterceptor> {
         let interceptor = TokenInterceptor::new(self.cfg.api_key.clone());
         InterceptedService::new(channel, interceptor)
-    }
-
-    pub async fn with_snapshot_client<T, O: Future<Output = Result<T, Status>>>(
-        &self,
-        f: impl Fn(SnapshotsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
-    ) -> Result<T, Status> {
-        self.channel
-            .with_channel(
-                |channel| {
-                    let service = self.with_api_key(channel);
-                    let mut client =
-                        SnapshotsClient::new(service).max_decoding_message_size(usize::MAX);
-                    if let Some(compression) = self.cfg.compression {
-                        client = client
-                            .send_compressed(compression.into())
-                            .accept_compressed(compression.into());
-                    }
-                    f(client)
-                },
-                false,
-            )
-            .await
     }
 
     // Access to raw collection API
@@ -1494,193 +1443,5 @@ impl QdrantClient {
     ) -> Result<PointsOperationResponse> {
         self._delete_field_index(collection_name, field_name, true, ordering)
             .await
-    }
-
-    pub async fn create_snapshot(
-        &self,
-        collection_name: impl ToString,
-    ) -> Result<CreateSnapshotResponse> {
-        let collection_name = collection_name.to_string();
-        let collection_name_ref = collection_name.as_str();
-        Ok(self
-            .with_snapshot_client(|mut client| async move {
-                let result = client
-                    .create(CreateSnapshotRequest {
-                        collection_name: collection_name_ref.to_string(),
-                    })
-                    .await?;
-
-                Ok(result.into_inner())
-            })
-            .await?)
-    }
-
-    pub async fn list_snapshots(
-        &self,
-        collection_name: impl ToString,
-    ) -> Result<ListSnapshotsResponse> {
-        let collection_name = collection_name.to_string();
-        let collection_name_ref = collection_name.as_str();
-        Ok(self
-            .with_snapshot_client(|mut client| async move {
-                let result = client
-                    .list(ListSnapshotsRequest {
-                        collection_name: collection_name_ref.to_string(),
-                    })
-                    .await?;
-                Ok(result.into_inner())
-            })
-            .await?)
-    }
-
-    pub async fn delete_snapshot(
-        &self,
-        collection_name: impl ToString,
-        snapshot_name: impl ToString,
-    ) -> Result<DeleteSnapshotResponse> {
-        let collection_name = collection_name.to_string();
-        let collection_name_ref = collection_name.as_str();
-        let snapshot_name = snapshot_name.to_string();
-        let snapshot_name_ref = snapshot_name.as_str();
-        Ok(self
-            .with_snapshot_client(|mut client| async move {
-                let result = client
-                    .delete(DeleteSnapshotRequest {
-                        collection_name: collection_name_ref.to_string(),
-                        snapshot_name: snapshot_name_ref.to_string(),
-                    })
-                    .await?;
-                Ok(result.into_inner())
-            })
-            .await?)
-    }
-
-    pub async fn create_full_snapshot(&self) -> Result<CreateSnapshotResponse> {
-        Ok(self
-            .with_snapshot_client(|mut client| async move {
-                let result = client.create_full(CreateFullSnapshotRequest {}).await?;
-
-                Ok(result.into_inner())
-            })
-            .await?)
-    }
-
-    pub async fn list_full_snapshots(&self) -> Result<ListSnapshotsResponse> {
-        Ok(self
-            .with_snapshot_client(|mut client| async move {
-                let result = client.list_full(ListFullSnapshotsRequest {}).await?;
-                Ok(result.into_inner())
-            })
-            .await?)
-    }
-
-    pub async fn delete_full_snapshot(
-        &self,
-        snapshot_name: impl ToString,
-    ) -> Result<DeleteSnapshotResponse> {
-        let snapshot_name = snapshot_name.to_string();
-        let snapshot_name_ref = snapshot_name.as_str();
-        Ok(self
-            .with_snapshot_client(|mut client| async move {
-                let result = client
-                    .delete_full(DeleteFullSnapshotRequest {
-                        snapshot_name: snapshot_name_ref.to_string(),
-                    })
-                    .await?;
-                Ok(result.into_inner())
-            })
-            .await?)
-    }
-
-    #[cfg(feature = "download_snapshots")]
-    pub async fn download_snapshot<T>(
-        &self,
-        out_path: impl Into<PathBuf>,
-        collection_name: T,
-        snapshot_name: Option<T>,
-        rest_api_uri: Option<T>,
-    ) -> Result<()>
-    where
-        T: ToString + Clone,
-    {
-        use futures_util::StreamExt;
-        use std::io::Write;
-
-        let snapshot_name = match snapshot_name {
-            Some(sn) => sn.to_string(),
-            _ => match self
-                .list_snapshots(collection_name.clone())
-                .await?
-                .snapshot_descriptions
-                .first()
-            {
-                Some(sn) => sn.name.clone(),
-                _ => anyhow::bail!(
-                    "No snapshots found for collection {}",
-                    collection_name.to_string()
-                ),
-            },
-        };
-
-        let mut stream = reqwest::get(format!(
-            "{}/collections/{}/snapshots/{}",
-            rest_api_uri
-                .map(|uri| uri.to_string())
-                .unwrap_or_else(|| String::from("http://localhost:6333")),
-            collection_name.to_string(),
-            snapshot_name
-        ))
-        .await?
-        .bytes_stream();
-
-        let out_path = out_path.into();
-        let _ = std::fs::remove_file(&out_path);
-        let mut file = std::fs::OpenOptions::new()
-            .write(true)
-            .create_new(true)
-            .open(out_path)?;
-
-        while let Some(chunk) = stream.next().await {
-            let _written = file.write(&chunk?)?;
-        }
-
-        Ok(())
-    }
-}
-
-#[derive(Clone, PartialEq, Debug, Default)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-pub struct Payload(pub(crate) HashMap<String, Value>);
-
-impl From<Payload> for HashMap<String, Value> {
-    #[inline]
-    fn from(payload: Payload) -> Self {
-        payload.0
-    }
-}
-
-impl From<HashMap<&str, Value>> for Payload {
-    #[inline]
-    fn from(payload: HashMap<&str, Value>) -> Self {
-        Self(
-            payload
-                .into_iter()
-                .map(|(k, v)| (k.to_string(), v))
-                .collect(),
-        )
-    }
-}
-
-impl Payload {
-    pub fn new() -> Self {
-        Self(HashMap::new())
-    }
-
-    pub fn new_from_hashmap(payload: HashMap<String, Value>) -> Self {
-        Self(payload)
-    }
-
-    pub fn insert(&mut self, key: impl ToString, val: impl Into<Value>) {
-        self.0.insert(key.to_string(), val.into());
     }
 }
