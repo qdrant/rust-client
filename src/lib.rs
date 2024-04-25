@@ -120,8 +120,7 @@ pub mod serde;
 
 use error::NotA;
 use qdrant::{value::Kind::*, ListValue, RetrievedPoint, ScoredPoint, Struct, Value};
-use std::error::Error;
-use std::fmt::{Debug, Display, Formatter};
+use std::fmt::{Display, Formatter};
 use std::hash::{Hash, Hasher};
 
 #[doc(no_inline)]
@@ -152,8 +151,8 @@ impl ScoredPoint {
     ///
     /// # Examples:
     /// ```
-    /// use qdrant_client::qdrant::ScrollPoints;
-    /// let point = ScrollPoints::default();
+    /// use qdrant_client::qdrant::ScoredPoint;
+    /// let point = ScoredPoint::default();
     /// assert!(point.get("not_present").is_null());
     /// ````
     pub fn get(&self, key: &str) -> &Value {

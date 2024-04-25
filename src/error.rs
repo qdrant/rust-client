@@ -1,11 +1,11 @@
-use crate::qdrant::value::Kind;
+use crate::qdrant::value::Kind::*;
 use crate::qdrant::{ListValue, Struct, Value};
 use std::error::Error;
 use std::fmt::{Debug, Display, Formatter};
 use std::marker::PhantomData;
 
 /// An error for failed conversions (e.g. calling `String::try_from(v)`
-/// on an integer [`Value`](crate::Value))
+/// on an integer [`Value`](Value))
 pub struct NotA<T> {
     marker: PhantomData<T>,
 }
@@ -64,7 +64,7 @@ impl TryFrom<Value> for bool {
     type Error = NotA<bool>;
 
     fn try_from(v: Value) -> Result<Self, NotA<bool>> {
-        if let Some(Kind::BoolValue(t)) = v.kind {
+        if let Some(BoolValue(t)) = v.kind {
             Ok(t)
         } else {
             Err(NotA::default())
@@ -91,7 +91,7 @@ impl TryFrom<Value> for i64 {
     type Error = NotA<i64>;
 
     fn try_from(v: Value) -> Result<Self, NotA<i64>> {
-        if let Some(Kind::IntegerValue(t)) = v.kind {
+        if let Some(IntegerValue(t)) = v.kind {
             Ok(t)
         } else {
             Err(NotA::default())
@@ -118,7 +118,7 @@ impl TryFrom<Value> for f64 {
     type Error = NotA<f64>;
 
     fn try_from(v: Value) -> Result<Self, NotA<f64>> {
-        if let Some(Kind::DoubleValue(t)) = v.kind {
+        if let Some(DoubleValue(t)) = v.kind {
             Ok(t)
         } else {
             Err(NotA::default())
@@ -145,7 +145,7 @@ impl TryFrom<Value> for String {
     type Error = NotA<String>;
 
     fn try_from(v: Value) -> Result<Self, NotA<String>> {
-        if let Some(Kind::StringValue(t)) = v.kind {
+        if let Some(StringValue(t)) = v.kind {
             Ok(t)
         } else {
             Err(NotA::default())
