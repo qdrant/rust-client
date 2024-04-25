@@ -109,9 +109,11 @@ pub mod prelude;
 #[allow(clippy::all)]
 #[rustfmt::skip]
 pub mod qdrant;
+pub mod auth;
 pub mod config;
 pub mod filters;
 pub mod grpc_ext;
+pub mod payload;
 #[cfg(feature = "serde")]
 pub mod serde;
 
