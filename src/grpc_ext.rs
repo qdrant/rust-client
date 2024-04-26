@@ -250,6 +250,12 @@ impl From<Vec<shard_key::Key>> for ShardKeySelector {
     }
 }
 
+impl From<Vec<ShardKey>> for ShardKeySelector {
+    fn from(value: Vec<ShardKey>) -> Self {
+        Self { shard_keys: value }
+    }
+}
+
 impl From<String> for shard_key::Key {
     fn from(keyword: String) -> Self {
         shard_key::Key::Keyword(keyword)
