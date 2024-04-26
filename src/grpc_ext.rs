@@ -4,24 +4,26 @@ use crate::qdrant::point_id::PointIdOptions;
 use crate::qdrant::points_selector::PointsSelectorOneOf;
 use crate::qdrant::value::Kind;
 use crate::qdrant::vectors::VectorsOptions;
-use crate::qdrant::with_payload_selector::SelectorOptions;
 use crate::qdrant::{
-    alias_operations, quantization_config, quantization_config_diff, shard_key, value,
-    vectors_config, vectors_config_diff, with_vectors_selector, AliasOperations,
-    BinaryQuantization, CreateAlias, DeleteAlias, Disabled, IntegerIndexParams, ListValue,
-    NamedVectors, PayloadIncludeSelector, PayloadIndexParams, PointId, PointStruct, PointsIdsList,
-    PointsSelector, ProductQuantization, QuantizationConfigDiff, RenameAlias, ScalarQuantization,
+    alias_operations, condition, group_id, points_update_operation, quantization_config,
+    quantization_config_diff, r#match, read_consistency, shard_key, start_from, target_vector,
+    vector_example, vectors_config, vectors_config_diff, with_payload_selector,
+    with_vectors_selector, AliasOperations, BinaryQuantization, Condition, CreateAlias,
+    DeleteAlias, Disabled, GeoLineString, GeoPoint, GroupId, IntegerIndexParams, ListValue, Match,
+    NamedVectors, PayloadExcludeSelector, PayloadIncludeSelector, PayloadIndexParams, PointId,
+    PointStruct, PointsIdsList, PointsSelector, PointsUpdateOperation, ProductQuantization,
+    QuantizationConfigDiff, ReadConsistency, RenameAlias, RepeatedStrings, ScalarQuantization,
     ShardKey, ShardKeySelector, SparseIndexConfig, SparseIndices, SparseVectorConfig,
-    SparseVectorParams, Struct, TextIndexParams, Value, Vector, VectorParams, VectorParamsDiff,
-    VectorParamsDiffMap, VectorParamsMap, Vectors, VectorsConfig, VectorsConfigDiff,
-    VectorsSelector, WithPayloadSelector, WithVectorsSelector,
+    SparseVectorParams, StartFrom, Struct, TargetVector, TextIndexParams, Value, Vector,
+    VectorExample, VectorParams, VectorParamsDiff, VectorParamsDiffMap, VectorParamsMap, Vectors,
+    VectorsConfig, VectorsConfigDiff, VectorsSelector, WithPayloadSelector, WithVectorsSelector,
 };
 use std::collections::HashMap;
 
 impl From<bool> for WithPayloadSelector {
     fn from(flag: bool) -> Self {
         WithPayloadSelector {
-            selector_options: Some(SelectorOptions::Enable(flag)),
+            selector_options: Some(with_payload_selector::SelectorOptions::Enable(flag)),
         }
     }
 }
@@ -29,9 +31,11 @@ impl From<bool> for WithPayloadSelector {
 impl From<Vec<&str>> for WithPayloadSelector {
     fn from(fields: Vec<&str>) -> Self {
         WithPayloadSelector {
-            selector_options: Some(SelectorOptions::Include(PayloadIncludeSelector {
-                fields: fields.into_iter().map(|f| f.to_string()).collect(),
-            })),
+            selector_options: Some(with_payload_selector::SelectorOptions::Include(
+                PayloadIncludeSelector {
+                    fields: fields.into_iter().map(|f| f.to_string()).collect(),
+                },
+            )),
         }
     }
 }
@@ -477,5 +481,181 @@ impl From<HashMap<String, Value>> for Struct {
 impl From<Kind> for Value {
     fn from(value: Kind) -> Self {
         Self { kind: Some(value) }
+    }
+}
+
+impl From<Vec<Value>> for ListValue {
+    fn from(value: Vec<Value>) -> Self {
+        Self { values: value }
+    }
+}
+
+impl From<read_consistency::Value> for ReadConsistency {
+    fn from(value: read_consistency::Value) -> Self {
+        Self { value: Some(value) }
+    }
+}
+
+impl From<PointIdOptions> for PointId {
+    fn from(value: PointIdOptions) -> Self {
+        Self {
+            point_id_options: Some(value),
+        }
+    }
+}
+
+impl From<with_payload_selector::SelectorOptions> for WithPayloadSelector {
+    fn from(value: with_payload_selector::SelectorOptions) -> Self {
+        Self {
+            selector_options: Some(value),
+        }
+    }
+}
+
+impl From<PayloadIncludeSelector> for with_payload_selector::SelectorOptions {
+    fn from(value: PayloadIncludeSelector) -> Self {
+        Self::Include(value)
+    }
+}
+
+impl From<PayloadExcludeSelector> for with_payload_selector::SelectorOptions {
+    fn from(value: PayloadExcludeSelector) -> Self {
+        Self::Exclude(value)
+    }
+}
+
+impl From<VectorsOptions> for Vectors {
+    fn from(value: VectorsOptions) -> Self {
+        Self {
+            vectors_options: Some(value),
+        }
+    }
+}
+
+impl From<Vector> for VectorsOptions {
+    fn from(value: Vector) -> Self {
+        Self::Vector(value)
+    }
+}
+
+impl From<NamedVectors> for VectorsOptions {
+    fn from(value: NamedVectors) -> Self {
+        Self::Vectors(value)
+    }
+}
+
+impl From<Vec<String>> for VectorsSelector {
+    fn from(value: Vec<String>) -> Self {
+        VectorsSelector { names: value }
+    }
+}
+
+impl From<with_vectors_selector::SelectorOptions> for WithVectorsSelector {
+    fn from(value: with_vectors_selector::SelectorOptions) -> Self {
+        Self {
+            selector_options: Some(value),
+        }
+    }
+}
+
+impl From<VectorsSelector> for with_vectors_selector::SelectorOptions {
+    fn from(value: VectorsSelector) -> Self {
+        Self::Include(value)
+    }
+}
+
+impl From<start_from::Value> for StartFrom {
+    fn from(value: start_from::Value) -> Self {
+        Self { value: Some(value) }
+    }
+}
+
+impl From<target_vector::Target> for TargetVector {
+    fn from(value: target_vector::Target) -> Self {
+        Self {
+            target: Some(value),
+        }
+    }
+}
+
+impl From<VectorExample> for target_vector::Target {
+    fn from(value: VectorExample) -> Self {
+        Self::Single(value)
+    }
+}
+
+impl From<vector_example::Example> for VectorExample {
+    fn from(value: vector_example::Example) -> Self {
+        Self {
+            example: Some(value),
+        }
+    }
+}
+
+impl From<PointId> for vector_example::Example {
+    fn from(value: PointId) -> Self {
+        Self::Id(value)
+    }
+}
+
+impl From<Vector> for vector_example::Example {
+    fn from(value: Vector) -> Self {
+        Self::Vector(value)
+    }
+}
+
+impl From<points_update_operation::Operation> for PointsUpdateOperation {
+    fn from(value: points_update_operation::Operation) -> Self {
+        Self {
+            operation: Some(value),
+        }
+    }
+}
+
+impl From<group_id::Kind> for GroupId {
+    fn from(value: group_id::Kind) -> Self {
+        Self { kind: Some(value) }
+    }
+}
+
+impl From<condition::ConditionOneOf> for Condition {
+    fn from(value: condition::ConditionOneOf) -> Self {
+        Self {
+            condition_one_of: Some(value),
+        }
+    }
+}
+
+impl From<Vec<String>> for RepeatedStrings {
+    fn from(value: Vec<String>) -> Self {
+        Self { strings: value }
+    }
+}
+
+impl From<Vec<GeoPoint>> for GeoLineString {
+    fn from(value: Vec<GeoPoint>) -> Self {
+        Self { points: value }
+    }
+}
+
+impl From<r#match::MatchValue> for Match {
+    fn from(value: r#match::MatchValue) -> Self {
+        Self {
+            match_value: Some(value),
+        }
+    }
+}
+
+impl From<PointsSelectorOneOf> for PointsSelector {
+    fn from(value: PointsSelectorOneOf) -> Self {
+        Self {
+            points_selector_one_of: Some(value),
+        }
+    }
+}
+
+impl From<Vec<PointId>> for PointsIdsList {
+    fn from(value: Vec<PointId>) -> Self {
+        Self { ids: value }
     }
 }
