@@ -16,9 +16,9 @@ use crate::qdrant::{
     ProductQuantization, QuantizationConfig, QuantizationConfigDiff, ReadConsistency, RenameAlias,
     RepeatedIntegers, RepeatedStrings, ScalarQuantization, ShardKey, ShardKeySelector,
     SparseIndexConfig, SparseIndices, SparseVectorConfig, SparseVectorParams, StartFrom, Struct,
-    TargetVector, TextIndexParams, Value, Vector, VectorExample, VectorParams, VectorParamsDiff,
-    VectorParamsDiffMap, VectorParamsMap, Vectors, VectorsConfig, VectorsConfigDiff,
-    VectorsSelector, WithPayloadSelector, WithVectorsSelector,
+    TargetVector, TextIndexParams, Value, Vector, VectorExample, VectorParams, VectorParamsBuilder,
+    VectorParamsDiff, VectorParamsDiffMap, VectorParamsMap, Vectors, VectorsConfig,
+    VectorsConfigDiff, VectorsSelector, WithPayloadSelector, WithVectorsSelector,
 };
 use std::collections::HashMap;
 
@@ -769,5 +769,11 @@ impl From<Filter> for PointsSelectorOneOf {
 impl From<Vec<PointId>> for PointsIdsList {
     fn from(value: Vec<PointId>) -> Self {
         Self { ids: value }
+    }
+}
+
+impl From<&mut VectorParamsBuilder> for vectors_config::Config {
+    fn from(value: &mut VectorParamsBuilder) -> Self {
+        value.build().into()
     }
 }

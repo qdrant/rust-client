@@ -2,8 +2,10 @@ use anyhow::Result;
 use qdrant_client::prelude::*;
 use qdrant_client::qdrant::vectors_config::Config;
 use qdrant_client::qdrant::{
-    Condition, CreateCollection, Filter, SearchPoints, VectorParams, VectorsConfig,
+    Condition, CreateCollection, CreateCollectionBuilder, Filter, SearchPoints, VectorParams,
+    VectorParamsBuilder, VectorsConfig,
 };
+use qdrant_client::qdrant::{Datatype, Distance};
 use serde_json::json;
 
 #[tokio::main]
@@ -27,6 +29,7 @@ async fn main() -> Result<()> {
     let collection_name = "test";
     client.delete_collection(collection_name).await?;
 
+    /*
     client
         .create_collection(&CreateCollection {
             collection_name: collection_name.into(),
@@ -39,6 +42,20 @@ async fn main() -> Result<()> {
             }),
             ..Default::default()
         })
+        .await?;
+     */
+
+    client
+        .create_collection(
+            &CreateCollectionBuilder::default()
+                .collection_name(collection_name)
+                .vectors_config(
+                    VectorParamsBuilder::default()
+                        .distance(Distance::Cosine)
+                        .size(10),
+                )
+                .build(),
+        )
         .await?;
 
     let collection_info = client.collection_info(collection_name).await?;
