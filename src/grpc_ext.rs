@@ -9,14 +9,16 @@ use crate::qdrant::{
     quantization_config_diff, r#match, read_consistency, shard_key, start_from, target_vector,
     vector_example, vectors_config, vectors_config_diff, with_payload_selector,
     with_vectors_selector, AliasOperations, BinaryQuantization, Condition, CreateAlias,
-    DeleteAlias, Disabled, GeoLineString, GeoPoint, GroupId, IntegerIndexParams, ListValue, Match,
-    NamedVectors, PayloadExcludeSelector, PayloadIncludeSelector, PayloadIndexParams, PointId,
-    PointStruct, PointsIdsList, PointsSelector, PointsUpdateOperation, ProductQuantization,
-    QuantizationConfigDiff, ReadConsistency, RenameAlias, RepeatedStrings, ScalarQuantization,
-    ShardKey, ShardKeySelector, SparseIndexConfig, SparseIndices, SparseVectorConfig,
-    SparseVectorParams, StartFrom, Struct, TargetVector, TextIndexParams, Value, Vector,
-    VectorExample, VectorParams, VectorParamsDiff, VectorParamsDiffMap, VectorParamsMap, Vectors,
-    VectorsConfig, VectorsConfigDiff, VectorsSelector, WithPayloadSelector, WithVectorsSelector,
+    DeleteAlias, Disabled, FieldCondition, Filter, GeoLineString, GeoPoint, GroupId,
+    HasIdCondition, IntegerIndexParams, IsEmptyCondition, IsNullCondition, ListValue, Match,
+    NamedVectors, NestedCondition, PayloadExcludeSelector, PayloadIncludeSelector,
+    PayloadIndexParams, PointId, PointStruct, PointsIdsList, PointsSelector, PointsUpdateOperation,
+    ProductQuantization, QuantizationConfig, QuantizationConfigDiff, ReadConsistency, RenameAlias,
+    RepeatedIntegers, RepeatedStrings, ScalarQuantization, ShardKey, ShardKeySelector,
+    SparseIndexConfig, SparseIndices, SparseVectorConfig, SparseVectorParams, StartFrom, Struct,
+    TargetVector, TextIndexParams, Value, Vector, VectorExample, VectorParams, VectorParamsDiff,
+    VectorParamsDiffMap, VectorParamsMap, Vectors, VectorsConfig, VectorsConfigDiff,
+    VectorsSelector, WithPayloadSelector, WithVectorsSelector,
 };
 use std::collections::HashMap;
 
@@ -382,6 +384,14 @@ impl From<HashMap<String, SparseVectorParams>> for SparseVectorConfig {
     }
 }
 
+impl From<quantization_config::Quantization> for QuantizationConfig {
+    fn from(value: quantization_config::Quantization) -> Self {
+        Self {
+            quantization: Some(value),
+        }
+    }
+}
+
 impl From<ScalarQuantization> for quantization_config::Quantization {
     fn from(value: ScalarQuantization) -> Self {
         Self::Scalar(value)
@@ -510,6 +520,24 @@ impl From<PointIdOptions> for PointId {
     }
 }
 
+impl From<Vec<u32>> for SparseIndices {
+    fn from(value: Vec<u32>) -> Self {
+        Self { data: value }
+    }
+}
+
+impl From<Vec<String>> for PayloadIncludeSelector {
+    fn from(value: Vec<String>) -> Self {
+        Self { fields: value }
+    }
+}
+
+impl From<Vec<String>> for PayloadExcludeSelector {
+    fn from(value: Vec<String>) -> Self {
+        Self { fields: value }
+    }
+}
+
 impl From<with_payload_selector::SelectorOptions> for WithPayloadSelector {
     fn from(value: with_payload_selector::SelectorOptions) -> Self {
         Self {
@@ -527,6 +555,12 @@ impl From<PayloadIncludeSelector> for with_payload_selector::SelectorOptions {
 impl From<PayloadExcludeSelector> for with_payload_selector::SelectorOptions {
     fn from(value: PayloadExcludeSelector) -> Self {
         Self::Exclude(value)
+    }
+}
+
+impl From<HashMap<String, Vector>> for NamedVectors {
+    fn from(value: HashMap<String, Vector>) -> Self {
+        Self { vectors: value }
     }
 }
 
@@ -632,15 +666,57 @@ impl From<condition::ConditionOneOf> for Condition {
     }
 }
 
-impl From<Vec<String>> for RepeatedStrings {
-    fn from(value: Vec<String>) -> Self {
-        Self { strings: value }
+impl From<FieldCondition> for condition::ConditionOneOf {
+    fn from(value: FieldCondition) -> Self {
+        Self::Field(value)
     }
 }
 
-impl From<Vec<GeoPoint>> for GeoLineString {
-    fn from(value: Vec<GeoPoint>) -> Self {
-        Self { points: value }
+impl From<IsEmptyCondition> for condition::ConditionOneOf {
+    fn from(value: IsEmptyCondition) -> Self {
+        Self::IsEmpty(value)
+    }
+}
+
+impl From<HasIdCondition> for condition::ConditionOneOf {
+    fn from(value: HasIdCondition) -> Self {
+        Self::HasId(value)
+    }
+}
+
+impl From<Filter> for condition::ConditionOneOf {
+    fn from(value: Filter) -> Self {
+        Self::Filter(value)
+    }
+}
+
+impl From<IsNullCondition> for condition::ConditionOneOf {
+    fn from(value: IsNullCondition) -> Self {
+        Self::IsNull(value)
+    }
+}
+
+impl From<NestedCondition> for condition::ConditionOneOf {
+    fn from(value: NestedCondition) -> Self {
+        Self::Nested(value)
+    }
+}
+
+impl From<String> for IsEmptyCondition {
+    fn from(value: String) -> Self {
+        Self { key: value }
+    }
+}
+
+impl From<String> for IsNullCondition {
+    fn from(value: String) -> Self {
+        Self { key: value }
+    }
+}
+
+impl From<Vec<PointId>> for HasIdCondition {
+    fn from(value: Vec<PointId>) -> Self {
+        Self { has_id: value }
     }
 }
 
@@ -652,11 +728,41 @@ impl From<r#match::MatchValue> for Match {
     }
 }
 
+impl From<Vec<String>> for RepeatedStrings {
+    fn from(value: Vec<String>) -> Self {
+        Self { strings: value }
+    }
+}
+
+impl From<Vec<i64>> for RepeatedIntegers {
+    fn from(value: Vec<i64>) -> Self {
+        Self { integers: value }
+    }
+}
+
+impl From<Vec<GeoPoint>> for GeoLineString {
+    fn from(value: Vec<GeoPoint>) -> Self {
+        Self { points: value }
+    }
+}
+
 impl From<PointsSelectorOneOf> for PointsSelector {
     fn from(value: PointsSelectorOneOf) -> Self {
         Self {
             points_selector_one_of: Some(value),
         }
+    }
+}
+
+impl From<PointsIdsList> for PointsSelectorOneOf {
+    fn from(value: PointsIdsList) -> Self {
+        Self::Points(value)
+    }
+}
+
+impl From<Filter> for PointsSelectorOneOf {
+    fn from(value: Filter) -> Self {
+        Self::Filter(value)
     }
 }
 
