@@ -10,7 +10,9 @@ const GRPC_OUTPUT_FILE: &str = "src/qdrant.rs";
 fn protos() {
     let out_time = timestamp(GRPC_OUTPUT_FILE);
     let mut protos = std::fs::read_dir("proto").unwrap();
-    if !protos.any(|d| timestamp(d.unwrap().path()) > out_time) {
+    if !protos.any(|d| timestamp(d.unwrap().path()) > out_time)
+        && timestamp("tests/protos.rs") <= out_time
+    {
         return;
     }
 
