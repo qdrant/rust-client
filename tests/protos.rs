@@ -141,6 +141,13 @@ fn configure_builder(builder: Builder) -> Builder {
                 "CreateCollection.sparse_vectors_config",
                 DEFAULT_OPTION_INTO,
             ),
+            // HnswConfig
+            ("HnswConfigDiff.m", DEFAULT_OPTION),
+            ("HnswConfigDiff.ef_construct", DEFAULT_OPTION),
+            ("HnswConfigDiff.full_scan_threshold", DEFAULT_OPTION),
+            ("HnswConfigDiff.max_indexing_threads", DEFAULT_OPTION),
+            ("HnswConfigDiff.on_disk", DEFAULT_OPTION),
+            ("HnswConfigDiff.payload_m", DEFAULT_OPTION),
         ],
         builder_derive_options(),
     )
@@ -158,6 +165,7 @@ fn builder_derive_options() -> &'static [BuildDeriveOptions] {
     &[
         ("CreateCollection", DEFAULT_BUILDER_DERIVE_OPTIONS, true),
         ("VectorParams", DEFAULT_BUILDER_DERIVE_OPTIONS, true),
+        ("HnswConfigDiff", DEFAULT_BUILDER_DERIVE_OPTIONS, true),
     ]
 }
 

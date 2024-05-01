@@ -171,16 +171,20 @@ pub struct OptimizerStatus {
     #[prost(string, tag = "2")]
     pub error: ::prost::alloc::string::String,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, error = "std::convert::Infallible", name = "build_inner"))]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct HnswConfigDiff {
     ///
     /// Number of edges per node in the index graph. Larger the value - more accurate the search, more space required.
     #[prost(uint64, optional, tag = "1")]
+    #[builder(default, setter(strip_option))]
     pub m: ::core::option::Option<u64>,
     ///
     /// Number of neighbours to consider during the index building. Larger the value - more accurate the search, more time required to build the index.
     #[prost(uint64, optional, tag = "2")]
+    #[builder(default, setter(strip_option))]
     pub ef_construct: ::core::option::Option<u64>,
     ///
     /// Minimal size (in KiloBytes) of vectors for additional payload-based indexing.
@@ -188,6 +192,7 @@ pub struct HnswConfigDiff {
     /// in this case full-scan search should be preferred by query planner and additional indexing is not required.
     /// Note: 1 Kb = 1 vector of size 256
     #[prost(uint64, optional, tag = "3")]
+    #[builder(default, setter(strip_option))]
     pub full_scan_threshold: ::core::option::Option<u64>,
     ///
     /// Number of parallel threads used for background index building.
@@ -195,14 +200,17 @@ pub struct HnswConfigDiff {
     /// Best to keep between 8 and 16 to prevent likelihood of building broken/inefficient HNSW graphs.
     /// On small CPUs, less threads are used.
     #[prost(uint64, optional, tag = "4")]
+    #[builder(default, setter(strip_option))]
     pub max_indexing_threads: ::core::option::Option<u64>,
     ///
     /// Store HNSW index on disk. If set to false, the index will be stored in RAM.
     #[prost(bool, optional, tag = "5")]
+    #[builder(default, setter(strip_option))]
     pub on_disk: ::core::option::Option<bool>,
     ///
     /// Number of additional payload-aware links per node in the index graph. If not set - regular M parameter will be used.
     #[prost(uint64, optional, tag = "6")]
+    #[builder(default, setter(strip_option))]
     pub payload_m: ::core::option::Option<u64>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -7471,4 +7479,5 @@ where
 
 builder_type_conversions!(CreateCollection, CreateCollectionBuilder);
 builder_type_conversions!(VectorParams, VectorParamsBuilder);
+builder_type_conversions!(HnswConfigDiff, HnswConfigDiffBuilder);
 
