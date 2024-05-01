@@ -1,11 +1,9 @@
 use anyhow::Result;
 use qdrant_client::prelude::*;
-use qdrant_client::qdrant::vectors_config::Config;
+use qdrant_client::qdrant::Distance;
 use qdrant_client::qdrant::{
-    Condition, CreateCollection, CreateCollectionBuilder, Filter, SearchPoints, VectorParams,
-    VectorParamsBuilder, VectorsConfig,
+    Condition, CreateCollectionBuilder, Filter, SearchPoints, VectorParamsBuilder,
 };
-use qdrant_client::qdrant::{Datatype, Distance};
 use serde_json::json;
 
 #[tokio::main]
