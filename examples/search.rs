@@ -1,8 +1,8 @@
 use anyhow::Result;
 use qdrant_client::prelude::*;
-use qdrant_client::qdrant::vectors_config::Config;
+use qdrant_client::qdrant::Distance;
 use qdrant_client::qdrant::{
-    Condition, CreateCollection, Filter, SearchPoints, VectorParams, VectorsConfig,
+    Condition, CreateCollectionBuilder, Filter, SearchPoints, VectorParamsBuilder,
 };
 use serde_json::json;
 
@@ -28,17 +28,16 @@ async fn main() -> Result<()> {
     client.delete_collection(collection_name).await?;
 
     client
-        .create_collection(&CreateCollection {
-            collection_name: collection_name.into(),
-            vectors_config: Some(VectorsConfig {
-                config: Some(Config::Params(VectorParams {
-                    size: 10,
-                    distance: Distance::Cosine.into(),
-                    ..Default::default()
-                })),
-            }),
-            ..Default::default()
-        })
+        .create_collection(
+            &CreateCollectionBuilder::default()
+                .collection_name(collection_name)
+                .vectors_config(
+                    VectorParamsBuilder::default()
+                        .distance(Distance::Cosine)
+                        .size(10),
+                )
+                .build(),
+        )
         .await?;
 
     let collection_info = client.collection_info(collection_name).await?;
