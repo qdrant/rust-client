@@ -35,7 +35,7 @@ fn protos() {
 /// Derive options for structs. (Path, build attributes, 'from' macro generation enabled)
 type BuildDeriveOptions = (&'static str, &'static str, bool);
 
-/// Extension to [`Builder`] to configure validation attributes.
+/// Extension to [`Builder`] to configure builder attributes.
 trait BuilderExt {
     fn configure_derive_builder(self) -> Self;
     fn derive_builders(self, paths: &[(&str, &str)], derive_options: &[BuildDeriveOptions])

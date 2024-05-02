@@ -27,22 +27,6 @@ async fn main() -> Result<()> {
     let collection_name = "test";
     client.delete_collection(collection_name).await?;
 
-    /*
-    client
-        .create_collection(&CreateCollection {
-            collection_name: collection_name.into(),
-            vectors_config: Some(VectorsConfig {
-                config: Some(Config::Params(VectorParams {
-                    size: 10,
-                    distance: Distance::Cosine.into(),
-                    ..Default::default()
-                })),
-            }),
-            ..Default::default()
-        })
-        .await?;
-     */
-
     client
         .create_collection(
             &CreateCollectionBuilder::default()
