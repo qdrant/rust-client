@@ -57,7 +57,7 @@ async fn main() -> Result<()> {
         .upsert_points_blocking(collection_name, None, points, None)
         .await?;
 
-    let search_point_req = SearchPointsBuilder::new(collection_name, &[11.; 10], 10)
+    let search_point_req = SearchPointsBuilder::new(collection_name, [11.; 10], 10)
         .filter(Filter::all([Condition::matches("bar", 12)]))
         .with_payload(PayloadIncludeSelector { fields: vec![] })
         .params(SearchParamsBuilder::default().exact(true))
