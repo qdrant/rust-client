@@ -787,36 +787,36 @@ impl From<&mut VectorParamsBuilder> for vectors_config::Config {
 
 impl From<ScalarQuantizationBuilder> for quantization_config::Quantization {
     fn from(value: ScalarQuantizationBuilder) -> Self {
-        Self::Scalar(value.build().into())
+        Self::Scalar(value.build())
     }
 }
 
 impl From<&mut ScalarQuantizationBuilder> for quantization_config::Quantization {
     fn from(value: &mut ScalarQuantizationBuilder) -> Self {
-        Self::Scalar(value.build().into())
+        Self::Scalar(value.build())
     }
 }
 
 impl From<ProductQuantizationBuilder> for quantization_config::Quantization {
     fn from(value: ProductQuantizationBuilder) -> Self {
-        Self::Product(value.build().into())
+        Self::Product(value.build())
     }
 }
 
 impl From<&mut ProductQuantizationBuilder> for quantization_config::Quantization {
     fn from(value: &mut ProductQuantizationBuilder) -> Self {
-        Self::Product(value.build().into())
+        Self::Product(value.build())
     }
 }
 
 impl From<BinaryQuantizationBuilder> for quantization_config::Quantization {
     fn from(value: BinaryQuantizationBuilder) -> Self {
-        Self::Binary(value.build().into())
+        Self::Binary(value.build())
     }
 }
 
 impl From<&mut BinaryQuantizationBuilder> for quantization_config::Quantization {
     fn from(value: &mut BinaryQuantizationBuilder) -> Self {
-        Self::Binary(value.build().into())
+        Self::Binary(value.build())
     }
 }
