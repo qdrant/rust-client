@@ -1,8 +1,8 @@
 use anyhow::Result;
 use qdrant_client::prelude::*;
-use qdrant_client::qdrant::Distance;
 use qdrant_client::qdrant::{
-    Condition, CreateCollectionBuilder, Filter, SearchPoints, VectorParamsBuilder,
+    Condition, CreateCollectionBuilder, Distance, Filter, QuantizationType,
+    ScalarQuantizationBuilder, SearchPoints, VectorParamsBuilder,
 };
 use serde_json::json;
 
@@ -31,11 +31,8 @@ async fn main() -> Result<()> {
         .create_collection(
             &CreateCollectionBuilder::default()
                 .collection_name(collection_name)
-                .vectors_config(
-                    VectorParamsBuilder::default()
-                        .distance(Distance::Cosine)
-                        .size(10),
-                )
+                .vectors_config(VectorParamsBuilder::new(300, Distance::Cosine))
+                .quantization_config(ScalarQuantizationBuilder::new(QuantizationType::Int8))
                 .build(),
         )
         .await?;

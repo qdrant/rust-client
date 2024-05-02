@@ -8,17 +8,18 @@ use crate::qdrant::{
     alias_operations, condition, group_id, points_update_operation, quantization_config,
     quantization_config_diff, r#match, read_consistency, shard_key, start_from, target_vector,
     vector_example, vectors_config, vectors_config_diff, with_payload_selector,
-    with_vectors_selector, AliasOperations, BinaryQuantization, Condition, CreateAlias,
-    DeleteAlias, Disabled, FieldCondition, Filter, GeoLineString, GeoPoint, GroupId,
-    HasIdCondition, IntegerIndexParams, IsEmptyCondition, IsNullCondition, ListValue, Match,
-    NamedVectors, NestedCondition, PayloadExcludeSelector, PayloadIncludeSelector,
+    with_vectors_selector, AliasOperations, BinaryQuantization, BinaryQuantizationBuilder,
+    Condition, CreateAlias, DeleteAlias, Disabled, FieldCondition, Filter, GeoLineString, GeoPoint,
+    GroupId, HasIdCondition, IntegerIndexParams, IsEmptyCondition, IsNullCondition, ListValue,
+    Match, NamedVectors, NestedCondition, PayloadExcludeSelector, PayloadIncludeSelector,
     PayloadIndexParams, PointId, PointStruct, PointsIdsList, PointsSelector, PointsUpdateOperation,
-    ProductQuantization, QuantizationConfig, QuantizationConfigDiff, ReadConsistency, RenameAlias,
-    RepeatedIntegers, RepeatedStrings, ScalarQuantization, ShardKey, ShardKeySelector,
-    SparseIndexConfig, SparseIndices, SparseVectorConfig, SparseVectorParams, StartFrom, Struct,
-    TargetVector, TextIndexParams, Value, Vector, VectorExample, VectorParams, VectorParamsBuilder,
-    VectorParamsDiff, VectorParamsDiffMap, VectorParamsMap, Vectors, VectorsConfig,
-    VectorsConfigDiff, VectorsSelector, WithPayloadSelector, WithVectorsSelector,
+    ProductQuantization, ProductQuantizationBuilder, QuantizationConfig, QuantizationConfigDiff,
+    ReadConsistency, RenameAlias, RepeatedIntegers, RepeatedStrings, ScalarQuantization,
+    ScalarQuantizationBuilder, ShardKey, ShardKeySelector, SparseIndexConfig, SparseIndices,
+    SparseVectorConfig, SparseVectorParams, StartFrom, Struct, TargetVector, TextIndexParams,
+    Value, Vector, VectorExample, VectorParams, VectorParamsBuilder, VectorParamsDiff,
+    VectorParamsDiffMap, VectorParamsMap, Vectors, VectorsConfig, VectorsConfigDiff,
+    VectorsSelector, WithPayloadSelector, WithVectorsSelector,
 };
 use std::collections::HashMap;
 
@@ -772,8 +773,50 @@ impl From<Vec<PointId>> for PointsIdsList {
     }
 }
 
+impl From<VectorParamsBuilder> for vectors_config::Config {
+    fn from(value: VectorParamsBuilder) -> Self {
+        value.build().into()
+    }
+}
+
 impl From<&mut VectorParamsBuilder> for vectors_config::Config {
     fn from(value: &mut VectorParamsBuilder) -> Self {
         value.build().into()
+    }
+}
+
+impl From<ScalarQuantizationBuilder> for quantization_config::Quantization {
+    fn from(value: ScalarQuantizationBuilder) -> Self {
+        Self::Scalar(value.build().into())
+    }
+}
+
+impl From<&mut ScalarQuantizationBuilder> for quantization_config::Quantization {
+    fn from(value: &mut ScalarQuantizationBuilder) -> Self {
+        Self::Scalar(value.build().into())
+    }
+}
+
+impl From<ProductQuantizationBuilder> for quantization_config::Quantization {
+    fn from(value: ProductQuantizationBuilder) -> Self {
+        Self::Product(value.build().into())
+    }
+}
+
+impl From<&mut ProductQuantizationBuilder> for quantization_config::Quantization {
+    fn from(value: &mut ProductQuantizationBuilder) -> Self {
+        Self::Product(value.build().into())
+    }
+}
+
+impl From<BinaryQuantizationBuilder> for quantization_config::Quantization {
+    fn from(value: BinaryQuantizationBuilder) -> Self {
+        Self::Binary(value.build().into())
+    }
+}
+
+impl From<&mut BinaryQuantizationBuilder> for quantization_config::Quantization {
+    fn from(value: &mut BinaryQuantizationBuilder) -> Self {
+        Self::Binary(value.build().into())
     }
 }
