@@ -30,3 +30,17 @@ impl BinaryQuantizationBuilder {
         builder
     }
 }
+
+impl SearchPointsBuilder {
+    pub fn new(
+        collection_name: impl Into<String>,
+        vector: impl Into<Vec<f32>>,
+        limit: u64,
+    ) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder.vector = Some(vector.into());
+        builder.limit = Some(limit);
+        builder
+    }
+}
