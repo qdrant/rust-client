@@ -1,8 +1,8 @@
 use anyhow::Result;
 use qdrant_client::prelude::*;
 use qdrant_client::qdrant::{
-    Condition, CreateCollectionBuilder, Distance, Filter, QuantizationType,
-    ScalarQuantizationBuilder, SearchPoints, VectorParamsBuilder,
+    Condition, CreateCollectionBuilder, Distance, Filter, PayloadIncludeSelector, QuantizationType,
+    ScalarQuantizationBuilder, SearchParamsBuilder, SearchPointsBuilder, VectorParamsBuilder,
 };
 use serde_json::json;
 
@@ -57,16 +57,14 @@ async fn main() -> Result<()> {
         .upsert_points_blocking(collection_name, None, points, None)
         .await?;
 
-    let search_result = client
-        .search_points(&SearchPoints {
-            collection_name: collection_name.into(),
-            vector: vec![11.; 10],
-            filter: Some(Filter::all([Condition::matches("bar", 12)])),
-            limit: 10,
-            with_payload: Some(true.into()),
-            ..Default::default()
-        })
-        .await?;
+    let search_point_req = SearchPointsBuilder::new(collection_name, [11.; 10], 10)
+        .filter(Filter::all([Condition::matches("bar", 12)]))
+        .with_payload(PayloadIncludeSelector { fields: vec![] })
+        .params(SearchParamsBuilder::default().exact(true))
+        .build();
+
+    let search_result = client.search_points(&search_point_req).await?;
+
     dbg!(&search_result);
     // search_result = SearchResponse {
     //     result: [

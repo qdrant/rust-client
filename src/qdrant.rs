@@ -3100,16 +3100,20 @@ pub mod with_vectors_selector {
         Include(super::VectorsSelector),
     }
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, error = "std::convert::Infallible", name = "build_inner"))]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct QuantizationSearchParams {
     ///
     /// If set to true, search will ignore quantized vector data
     #[prost(bool, optional, tag = "1")]
+    #[builder(default, setter(strip_option))]
     pub ignore: ::core::option::Option<bool>,
     ///
     /// If true, use original vectors to re-score top-k results. If ignored, qdrant decides automatically does rescore enabled or not.
     #[prost(bool, optional, tag = "2")]
+    #[builder(default, setter(strip_option))]
     pub rescore: ::core::option::Option<bool>,
     ///
     /// Oversampling factor for quantization.
@@ -3120,8 +3124,11 @@ pub struct QuantizationSearchParams {
     /// For example, if `oversampling` is 2.4 and `limit` is 100, then 240 vectors will be pre-selected using quantized index,
     /// and then top-100 will be returned after re-scoring.
     #[prost(double, optional, tag = "3")]
+    #[builder(default, setter(strip_option))]
     pub oversampling: ::core::option::Option<f64>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, error = "std::convert::Infallible", name = "build_inner"))]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SearchParams {
@@ -3129,22 +3136,28 @@ pub struct SearchParams {
     /// Params relevant to HNSW index. Size of the beam in a beam-search.
     /// Larger the value - more accurate the result, more time required for search.
     #[prost(uint64, optional, tag = "1")]
+    #[builder(default, setter(strip_option))]
     pub hnsw_ef: ::core::option::Option<u64>,
     ///
     /// Search without approximation. If set to true, search may run long but with exact results.
     #[prost(bool, optional, tag = "2")]
+    #[builder(default, setter(strip_option))]
     pub exact: ::core::option::Option<bool>,
     ///
     /// If set to true, search will ignore quantized vector data
     #[prost(message, optional, tag = "3")]
+    #[builder(default, setter(into, strip_option))]
     pub quantization: ::core::option::Option<QuantizationSearchParams>,
     ///
     /// If enabled, the engine will only perform search among indexed or small segments.
     /// Using this option prevents slow searches in case of delayed index, but does not
     /// guarantee that all uploaded vectors will be included in search results
     #[prost(bool, optional, tag = "4")]
+    #[builder(default, setter(strip_option))]
     pub indexed_only: ::core::option::Option<bool>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SearchPoints {
@@ -3156,38 +3169,67 @@ pub struct SearchPoints {
     pub vector: ::prost::alloc::vec::Vec<f32>,
     /// Filter conditions - return only those points that satisfy the specified conditions
     #[prost(message, optional, tag = "3")]
+    #[builder(default, setter(into, strip_option))]
     pub filter: ::core::option::Option<Filter>,
     /// Max number of result
     #[prost(uint64, tag = "4")]
     pub limit: u64,
     /// Options for specifying which payload to include or not
     #[prost(message, optional, tag = "6")]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<with_payload_selector::SelectorOptions>",
+            build = "convert_option(&self.with_payload)"
+        )
+    )]
     pub with_payload: ::core::option::Option<WithPayloadSelector>,
     /// Search config
     #[prost(message, optional, tag = "7")]
+    #[builder(default, setter(into, strip_option))]
     pub params: ::core::option::Option<SearchParams>,
     /// If provided - cut off results with worse scores
     #[prost(float, optional, tag = "8")]
+    #[builder(default, setter(strip_option))]
     pub score_threshold: ::core::option::Option<f32>,
     /// Offset of the result
     #[prost(uint64, optional, tag = "9")]
+    #[builder(default, setter(strip_option))]
     pub offset: ::core::option::Option<u64>,
     /// Which vector to use for search, if not specified - use default vector
     #[prost(string, optional, tag = "10")]
+    #[builder(default, setter(into, strip_option))]
     pub vector_name: ::core::option::Option<::prost::alloc::string::String>,
     /// Options for specifying which vectors to include into response
     #[prost(message, optional, tag = "11")]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<with_vectors_selector::SelectorOptions>",
+            build = "convert_option(&self.with_vectors)"
+        )
+    )]
     pub with_vectors: ::core::option::Option<WithVectorsSelector>,
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "12")]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<read_consistency::Value>",
+            build = "convert_option(&self.read_consistency)"
+        )
+    )]
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// If set, overrides global timeout setting for this request. Unit is seconds.
     #[prost(uint64, optional, tag = "13")]
+    #[builder(default, setter(strip_option))]
     pub timeout: ::core::option::Option<u64>,
     /// Specify in which shards to look for the points, if not specified - look in all shards
     #[prost(message, optional, tag = "14")]
+    #[builder(default, setter(into, strip_option))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
     #[prost(message, optional, tag = "15")]
+    #[builder(default, setter(into, strip_option))]
     pub sparse_indices: ::core::option::Option<SparseIndices>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -7521,6 +7563,9 @@ builder_type_conversions!(ProductQuantization, ProductQuantizationBuilder);
 builder_type_conversions!(BinaryQuantization, BinaryQuantizationBuilder);
 builder_type_conversions!(OptimizersConfigDiff, OptimizersConfigDiffBuilder);
 builder_type_conversions!(WalConfigDiff, WalConfigDiffBuilder);
+builder_type_conversions!(SearchPoints, SearchPointsBuilder);
+builder_type_conversions!(SearchParams, SearchParamsBuilder);
+builder_type_conversions!(QuantizationSearchParams, QuantizationSearchParamsBuilder);
 
 impl VectorParamsBuilder {
     pub fn new(size: u64, distance: Distance) -> Self {
@@ -7551,6 +7596,20 @@ impl BinaryQuantizationBuilder {
     pub fn new(always_ram: bool) -> Self {
         let mut builder = Self::create_empty();
         builder.always_ram = Some(Some(always_ram));
+        builder
+    }
+}
+
+impl SearchPointsBuilder {
+    pub fn new(
+        collection_name: impl Into<String>,
+        vector: impl Into<Vec<f32>>,
+        limit: u64,
+    ) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder.vector = Some(vector.into());
+        builder.limit = Some(limit);
         builder
     }
 }
