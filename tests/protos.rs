@@ -12,6 +12,7 @@ fn protos() {
     let mut protos = std::fs::read_dir("proto").unwrap();
     if !protos.any(|d| timestamp(d.unwrap().path()) > out_time)
         && timestamp("tests/protos.rs") <= out_time
+        && timestamp("tests/protos_append/builder_ext.rs") <= out_time
     {
         return;
     }
@@ -216,6 +217,34 @@ fn configure_builder(builder: Builder) -> Builder {
             ("QuantizationSearchParams.ignore", DEFAULT_OPTION),
             ("QuantizationSearchParams.rescore", DEFAULT_OPTION),
             ("QuantizationSearchParams.oversampling", DEFAULT_OPTION),
+            // UpdateCollection
+            ("UpdateCollection.optimizers_config", DEFAULT_OPTION_INTO),
+            ("UpdateCollection.timeout", DEFAULT_OPTION),
+            ("UpdateCollection.params", DEFAULT_OPTION_INTO),
+            ("UpdateCollection.hnsw_config", DEFAULT_OPTION_INTO),
+            ("UpdateCollection.vectors_config", DEFAULT_OPTION_INTO),
+            ("UpdateCollection.quantization_config", DEFAULT_OPTION_INTO),
+            (
+                "UpdateCollection.sparse_vectors_config",
+                DEFAULT_OPTION_INTO,
+            ),
+            // SetPayloadPoints
+            ("SetPayloadPoints.wait", DEFAULT_OPTION),
+            (
+                "SetPayloadPoints.points_selector",
+                builder_custom_into!(points_selector::PointsSelectorOneOf, self.points_selector),
+            ),
+            ("SetPayloadPoints.ordering", DEFAULT_OPTION_INTO),
+            ("SetPayloadPoints.shard_key_selector", DEFAULT_OPTION_INTO),
+            ("SetPayloadPoints.key", DEFAULT_OPTION_INTO),
+            // UpsertPoints
+            ("UpsertPoints.wait", DEFAULT_OPTION),
+            ("UpsertPoints.points", DEFAULT_OPTION_INTO),
+            ("UpsertPoints.ordering", DEFAULT_OPTION_INTO),
+            ("UpsertPoints.shard_key_selector", DEFAULT_OPTION_INTO),
+            // UpdateBatchPoints
+            ("UpdateBatchPoints.wait", DEFAULT_OPTION),
+            ("UpdateBatchPoints.ordering", DEFAULT_OPTION_INTO),
         ],
         builder_derive_options(),
     )
@@ -260,6 +289,10 @@ fn builder_derive_options() -> &'static [BuildDeriveOptions] {
             DEFAULT_BUILDER_DERIVE_OPTIONS,
             true,
         ),
+        ("UpdateCollection", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
+        ("SetPayloadPoints", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
+        ("UpsertPoints", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
+        ("UpdateBatchPoints", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
     ]
 }
 
