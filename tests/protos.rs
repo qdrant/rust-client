@@ -186,6 +186,36 @@ fn configure_builder(builder: Builder) -> Builder {
             //WalConfigDiff
             ("WalConfigDiff.wal_capacity_mb", DEFAULT_OPTION),
             ("WalConfigDiff.wal_segments_ahead", DEFAULT_OPTION),
+            // SearchPoints
+            ("SearchPoints.filter", DEFAULT_OPTION_INTO),
+            (
+                "SearchPoints.with_payload",
+                builder_custom_into!(with_payload_selector::SelectorOptions, self.with_payload),
+            ),
+            ("SearchPoints.params", DEFAULT_OPTION_INTO),
+            ("SearchPoints.score_threshold", DEFAULT_OPTION),
+            ("SearchPoints.offset", DEFAULT_OPTION),
+            ("SearchPoints.vector_name", DEFAULT_OPTION_INTO),
+            (
+                "SearchPoints.with_vectors",
+                builder_custom_into!(with_vectors_selector::SelectorOptions, self.with_vectors),
+            ),
+            (
+                "SearchPoints.read_consistency",
+                builder_custom_into!(read_consistency::Value, self.read_consistency),
+            ),
+            ("SearchPoints.timeout", DEFAULT_OPTION),
+            ("SearchPoints.shard_key_selector", DEFAULT_OPTION_INTO),
+            ("SearchPoints.sparse_indices", DEFAULT_OPTION_INTO),
+            // SearchParams
+            ("SearchParams.hnsw_ef", DEFAULT_OPTION),
+            ("SearchParams.exact", DEFAULT_OPTION),
+            ("SearchParams.quantization", DEFAULT_OPTION_INTO),
+            ("SearchParams.indexed_only", DEFAULT_OPTION),
+            // QuantizationSearchParams
+            ("QuantizationSearchParams.ignore", DEFAULT_OPTION),
+            ("QuantizationSearchParams.rescore", DEFAULT_OPTION),
+            ("QuantizationSearchParams.oversampling", DEFAULT_OPTION),
         ],
         builder_derive_options(),
     )
@@ -223,6 +253,13 @@ fn builder_derive_options() -> &'static [BuildDeriveOptions] {
         ),
         ("OptimizersConfigDiff", DEFAULT_BUILDER_DERIVE_OPTIONS, true),
         ("WalConfigDiff", DEFAULT_BUILDER_DERIVE_OPTIONS, true),
+        ("SearchPoints", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
+        ("SearchParams", DEFAULT_BUILDER_DERIVE_OPTIONS, true),
+        (
+            "QuantizationSearchParams",
+            DEFAULT_BUILDER_DERIVE_OPTIONS,
+            true,
+        ),
     ]
 }
 
