@@ -2654,6 +2654,8 @@ pub struct DeletePoints {
     #[prost(message, optional, tag = "5")]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GetPoints {
@@ -2665,15 +2667,37 @@ pub struct GetPoints {
     pub ids: ::prost::alloc::vec::Vec<PointId>,
     /// Options for specifying which payload to include or not
     #[prost(message, optional, tag = "4")]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<with_payload_selector::SelectorOptions>",
+            build = "convert_option(&self.with_payload)"
+        )
+    )]
     pub with_payload: ::core::option::Option<WithPayloadSelector>,
     /// Options for specifying which vectors to include into response
     #[prost(message, optional, tag = "5")]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<with_vectors_selector::SelectorOptions>",
+            build = "convert_option(&self.with_vectors)"
+        )
+    )]
     pub with_vectors: ::core::option::Option<WithVectorsSelector>,
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "6")]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<read_consistency::Value>",
+            build = "convert_option(&self.read_consistency)"
+        )
+    )]
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// Specify in which shards to look for the points, if not specified - look in all shards
     #[prost(message, optional, tag = "7")]
+    #[builder(default, setter(into, strip_option))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -2765,6 +2789,8 @@ pub struct SetPayloadPoints {
     #[builder(default, setter(into, strip_option))]
     pub key: ::core::option::Option<::prost::alloc::string::String>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeletePayloadPoints {
@@ -2773,20 +2799,32 @@ pub struct DeletePayloadPoints {
     pub collection_name: ::prost::alloc::string::String,
     /// Wait until the changes have been applied?
     #[prost(bool, optional, tag = "2")]
+    #[builder(default, setter(strip_option))]
     pub wait: ::core::option::Option<bool>,
     /// List of keys to delete
     #[prost(string, repeated, tag = "3")]
     pub keys: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
     /// Affected points
     #[prost(message, optional, tag = "5")]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<points_selector::PointsSelectorOneOf>",
+            build = "convert_option(&self.points_selector)"
+        )
+    )]
     pub points_selector: ::core::option::Option<PointsSelector>,
     /// Write ordering guarantees
     #[prost(message, optional, tag = "6")]
+    #[builder(default, setter(into, strip_option))]
     pub ordering: ::core::option::Option<WriteOrdering>,
     /// Option for custom sharding to specify used shard keys
     #[prost(message, optional, tag = "7")]
+    #[builder(default, setter(into, strip_option))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ClearPayloadPoints {
@@ -2795,15 +2833,25 @@ pub struct ClearPayloadPoints {
     pub collection_name: ::prost::alloc::string::String,
     /// Wait until the changes have been applied?
     #[prost(bool, optional, tag = "2")]
+    #[builder(default, setter(strip_option))]
     pub wait: ::core::option::Option<bool>,
     /// Affected points
     #[prost(message, optional, tag = "3")]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<points_selector::PointsSelectorOneOf>",
+            build = "convert_option(&self.points)"
+        )
+    )]
     pub points: ::core::option::Option<PointsSelector>,
     /// Write ordering guarantees
     #[prost(message, optional, tag = "4")]
+    #[builder(default, setter(into, strip_option))]
     pub ordering: ::core::option::Option<WriteOrdering>,
     /// Option for custom sharding to specify used shard keys
     #[prost(message, optional, tag = "5")]
+    #[builder(default, setter(into, strip_option))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -3059,6 +3107,8 @@ pub struct SearchPoints {
     #[builder(default, setter(into, strip_option))]
     pub sparse_indices: ::core::option::Option<SparseIndices>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SearchBatchPoints {
@@ -3069,9 +3119,17 @@ pub struct SearchBatchPoints {
     pub search_points: ::prost::alloc::vec::Vec<SearchPoints>,
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "3")]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<read_consistency::Value>",
+            build = "convert_option(&self.read_consistency)"
+        )
+    )]
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// If set, overrides global timeout setting for this request. Unit is seconds.
     #[prost(uint64, optional, tag = "4")]
+    #[builder(default, setter(strip_option))]
     pub timeout: ::core::option::Option<u64>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -3087,6 +3145,7 @@ pub struct WithLookup {
     #[prost(message, optional, tag = "3")]
     pub with_vectors: ::core::option::Option<WithVectorsSelector>,
 }
+
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SearchPointGroups {
@@ -6967,6 +7026,10 @@ builder_type_conversions!(UpdateCollection, UpdateCollectionBuilder);
 builder_type_conversions!(SetPayloadPoints, SetPayloadPointsBuilder);
 builder_type_conversions!(UpsertPoints, UpsertPointsBuilder);
 builder_type_conversions!(UpdateBatchPoints, UpdateBatchPointsBuilder);
+builder_type_conversions!(DeletePayloadPoints, DeletePayloadPointsBuilder);
+builder_type_conversions!(ClearPayloadPoints, ClearPayloadPointsBuilder);
+builder_type_conversions!(GetPoints, GetPointsBuilder);
+builder_type_conversions!(SearchBatchPoints, SearchBatchPointsBuilder);
 
 use std::collections::HashMap;
 
@@ -7045,6 +7108,44 @@ impl UpdateBatchPointsBuilder {
         let mut builder = Self::create_empty();
         builder.collection_name = Some(collection_name.into());
         builder.operations = Some(operations.into());
+        builder
+    }
+}
+
+impl DeletePayloadPointsBuilder {
+    pub fn new(collection_name: impl Into<String>, keys: impl Into<Vec<String>>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder.keys = Some(keys.into());
+        builder
+    }
+}
+
+impl ClearPayloadPointsBuilder {
+    pub fn new(collection_name: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder
+    }
+}
+
+impl GetPointsBuilder {
+    pub fn new(collection_name: impl Into<String>, ids: impl Into<Vec<PointId>>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder.ids = Some(ids.into());
+        builder
+    }
+}
+
+impl SearchBatchPointsBuilder {
+    pub fn new(
+        collection_name: impl Into<String>,
+        search_points: impl Into<Vec<SearchPoints>>,
+    ) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder.search_points = Some(search_points.into());
         builder
     }
 }

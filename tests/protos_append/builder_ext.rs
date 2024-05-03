@@ -78,3 +78,41 @@ impl UpdateBatchPointsBuilder {
         builder
     }
 }
+
+impl DeletePayloadPointsBuilder {
+    pub fn new(collection_name: impl Into<String>, keys: impl Into<Vec<String>>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder.keys = Some(keys.into());
+        builder
+    }
+}
+
+impl ClearPayloadPointsBuilder {
+    pub fn new(collection_name: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder
+    }
+}
+
+impl GetPointsBuilder {
+    pub fn new(collection_name: impl Into<String>, ids: impl Into<Vec<PointId>>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder.ids = Some(ids.into());
+        builder
+    }
+}
+
+impl SearchBatchPointsBuilder {
+    pub fn new(
+        collection_name: impl Into<String>,
+        search_points: impl Into<Vec<SearchPoints>>,
+    ) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder.search_points = Some(search_points.into());
+        builder
+    }
+}
