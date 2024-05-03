@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 impl VectorParamsBuilder {
     pub fn new(size: u64, distance: Distance) -> Self {
         let mut builder = Self::create_empty();
@@ -41,6 +43,38 @@ impl SearchPointsBuilder {
         builder.collection_name = Some(collection_name.into());
         builder.vector = Some(vector.into());
         builder.limit = Some(limit);
+        builder
+    }
+}
+
+impl UpdateCollectionBuilder {
+    pub fn new(collection_name: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder
+    }
+}
+
+impl SetPayloadPointsBuilder {
+    pub fn new(
+        collection_name: impl Into<String>,
+        payload: impl Into<HashMap<String, Value>>,
+    ) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder.payload = Some(payload.into());
+        builder
+    }
+}
+
+impl UpdateBatchPointsBuilder {
+    pub fn new(
+        collection_name: impl Into<String>,
+        operations: impl Into<Vec<PointsUpdateOperation>>,
+    ) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder.operations = Some(operations.into());
         builder
     }
 }
