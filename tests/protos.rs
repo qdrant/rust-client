@@ -245,6 +245,45 @@ fn configure_builder(builder: Builder) -> Builder {
             // UpdateBatchPoints
             ("UpdateBatchPoints.wait", DEFAULT_OPTION),
             ("UpdateBatchPoints.ordering", DEFAULT_OPTION_INTO),
+            // DeletePayloadPoints
+            ("DeletePayloadPoints.wait", DEFAULT_OPTION),
+            (
+                "DeletePayloadPoints.points_selector",
+                builder_custom_into!(points_selector::PointsSelectorOneOf, self.points_selector),
+            ),
+            ("DeletePayloadPoints.ordering", DEFAULT_OPTION_INTO),
+            (
+                "DeletePayloadPoints.shard_key_selector",
+                DEFAULT_OPTION_INTO,
+            ),
+            // ClearPayloadPoints
+            ("ClearPayloadPoints.wait", DEFAULT_OPTION),
+            (
+                "ClearPayloadPoints.points",
+                builder_custom_into!(points_selector::PointsSelectorOneOf, self.points),
+            ),
+            ("ClearPayloadPoints.ordering", DEFAULT_OPTION_INTO),
+            ("ClearPayloadPoints.shard_key_selector", DEFAULT_OPTION_INTO),
+            // GetPoints
+            (
+                "GetPoints.with_payload",
+                builder_custom_into!(with_payload_selector::SelectorOptions, self.with_payload),
+            ),
+            (
+                "GetPoints.with_vectors",
+                builder_custom_into!(with_vectors_selector::SelectorOptions, self.with_vectors),
+            ),
+            (
+                "GetPoints.read_consistency",
+                builder_custom_into!(read_consistency::Value, self.read_consistency),
+            ),
+            ("GetPoints.shard_key_selector", DEFAULT_OPTION_INTO),
+            // SearchBatchPoints
+            (
+                "SearchBatchPoints.read_consistency",
+                builder_custom_into!(read_consistency::Value, self.read_consistency),
+            ),
+            ("SearchBatchPoints.timeout", DEFAULT_OPTION),
         ],
         builder_derive_options(),
     )
@@ -293,6 +332,19 @@ fn builder_derive_options() -> &'static [BuildDeriveOptions] {
         ("SetPayloadPoints", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
         ("UpsertPoints", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
         ("UpdateBatchPoints", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
+        (
+            "DeletePayloadPoints",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            true,
+        ),
+        (
+            "ClearPayloadPoints",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            true,
+        ),
+        // GetPoints
+        ("GetPoints", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
+        ("SearchBatchPoints", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
     ]
 }
 
