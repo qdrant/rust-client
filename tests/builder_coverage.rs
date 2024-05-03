@@ -1,8 +1,9 @@
 use qdrant_client::prelude::Distance;
 use qdrant_client::qdrant::{
     BinaryQuantizationBuilder, ClearPayloadPointsBuilder, DeletePayloadPointsBuilder,
-    DeletePointVectorsBuilder, GetPointsBuilder, OrderByBuilder, ProductQuantizationBuilder,
-    QuantizationType, ScalarQuantizationBuilder, ScrollPointsBuilder, SearchBatchPointsBuilder,
+    DeletePointVectorsBuilder, GetPointsBuilder, LookupLocationBuilder, OrderByBuilder,
+    ProductQuantizationBuilder, QuantizationType, RecommendPointsBuilder,
+    ScalarQuantizationBuilder, ScrollPointsBuilder, SearchBatchPointsBuilder,
     SearchPointGroupsBuilder, SearchPointsBuilder, SetPayloadPointsBuilder,
     UpdateBatchPointsBuilder, UpdateCollectionBuilder, UpdatePointVectorsBuilder,
     VectorParamsBuilder, WithLookupBuilder,
@@ -26,18 +27,20 @@ fn builder_coverage() {
     ScalarQuantizationBuilder::new(QuantizationType::Int8).build();
     ProductQuantizationBuilder::new(1).build();
     BinaryQuantizationBuilder::new(true).build();
-    SearchPointsBuilder::new("mycollection", vec![11.; 5], 3).build();
+    SearchPointsBuilder::new("mycollection", [11.; 5], 3).build();
     UpdateCollectionBuilder::new("mycollection").build();
     SetPayloadPointsBuilder::new("mycollection", HashMap::default()).build();
-    UpdateBatchPointsBuilder::new("mycollection", vec![]).build();
-    DeletePayloadPointsBuilder::new("mycollection", vec![]).build();
+    UpdateBatchPointsBuilder::new("mycollection", []).build();
+    DeletePayloadPointsBuilder::new("mycollection", []).build();
     ClearPayloadPointsBuilder::new("mycollection").build();
-    GetPointsBuilder::new("mycollection", vec![]).build();
-    SearchBatchPointsBuilder::new("mycollection", vec![]).build();
-    SearchPointGroupsBuilder::new("mycollection", vec![11.; 5], 10, "mygroup", 5).build();
+    GetPointsBuilder::new("mycollection", []).build();
+    SearchBatchPointsBuilder::new("mycollection", []).build();
+    SearchPointGroupsBuilder::new("mycollection", [11.; 5], 10, "mygroup", 5).build();
     WithLookupBuilder::new("mycollection").build();
     DeletePointVectorsBuilder::new("mycollection").build();
-    UpdatePointVectorsBuilder::new("mycollection", vec![]).build();
+    UpdatePointVectorsBuilder::new("mycollection", []).build();
     ScrollPointsBuilder::new("mycollection").build();
     OrderByBuilder::new("key").build();
+    RecommendPointsBuilder::new("mycollection", [], [], [], [], 10).build();
+    LookupLocationBuilder::new("mycollection").build();
 }

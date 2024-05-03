@@ -185,3 +185,31 @@ impl OrderByBuilder {
         builder
     }
 }
+
+impl RecommendPointsBuilder {
+    pub fn new(
+        collection_name: impl Into<String>,
+        positive: impl Into<Vec<PointId>>,
+        negative: impl Into<Vec<PointId>>,
+        positive_vectors: impl Into<Vec<Vector>>,
+        negative_vectors: impl Into<Vec<Vector>>,
+        limit: u64,
+    ) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder.positive = Some(positive.into());
+        builder.negative = Some(negative.into());
+        builder.positive_vectors = Some(positive_vectors.into());
+        builder.negative_vectors = Some(negative_vectors.into());
+        builder.limit = Some(limit);
+        builder
+    }
+}
+
+impl LookupLocationBuilder {
+    pub fn new(collection_name: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder
+    }
+}

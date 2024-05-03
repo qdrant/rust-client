@@ -360,6 +360,28 @@ fn configure_builder(builder: Builder) -> Builder {
                 "OrderBy.start_from",
                 builder_custom_into!(start_from::Value, self.start_from),
             ),
+            // RecommendPoints
+            ("RecommendPoints.filter", DEFAULT_OPTION_INTO),
+            (
+                "RecommendPoints.with_payload",
+                builder_custom_into!(with_payload_selector::SelectorOptions, self.with_payload),
+            ),
+            ("RecommendPoints.params", DEFAULT_OPTION_INTO),
+            ("RecommendPoints.score_threshold", DEFAULT_OPTION),
+            ("RecommendPoints.offset", DEFAULT_OPTION),
+            ("RecommendPoints.using", DEFAULT_OPTION_INTO),
+            (
+                "RecommendPoints.with_vectors",
+                builder_custom_into!(with_vectors_selector::SelectorOptions, self.with_vectors),
+            ),
+            ("RecommendPoints.lookup_from", DEFAULT_OPTION_INTO),
+            ("RecommendPoints.read_consistency", DEFAULT_OPTION_INTO),
+            ("RecommendPoints.strategy", DEFAULT_OPTION_INTO),
+            ("RecommendPoints.timeout", DEFAULT_OPTION),
+            ("RecommendPoints.shard_key_selector", DEFAULT_OPTION_INTO),
+            // LookupLocation
+            ("LookupLocation.vector_name", DEFAULT_OPTION_INTO),
+            ("LookupLocation.shard_key_selector", DEFAULT_OPTION_INTO),
         ],
         builder_derive_options(),
     )
@@ -434,6 +456,8 @@ fn builder_derive_options() -> &'static [BuildDeriveOptions] {
         ),
         ("ScrollPoints", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
         ("OrderBy", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
+        ("RecommendPoints", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
+        ("LookupLocation", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
     ]
 }
 
