@@ -29,6 +29,8 @@ fn protos() {
     append_file_to_file(GRPC_OUTPUT_FILE, "./tests/protos_append/grpc_macros.rs");
     add_builder_macro_impls(GRPC_OUTPUT_FILE, builder_derive_options());
 
+    append_file_to_file(GRPC_OUTPUT_FILE, "./tests/protos_append/builder_ext.rs");
+
     panic!("proto definitions changed. Stubs recompiled. Please commit the changes.")
 }
 
@@ -116,7 +118,11 @@ fn configure_builder(builder: Builder) -> Builder {
             ("VectorParams.size", DEFAULT),
             ("VectorParams.distance", DEFAULT_INTO),
             ("VectorParams.hnsw_config", DEFAULT_OPTION_INTO),
-            ("VectorParams.quantization_config", DEFAULT_OPTION_INTO),
+            // ("VectorParams.quantization_config", DEFAULT_OPTION_INTO),
+            (
+                "VectorParams.quantization_config",
+                builder_custom_into!(quantization_config::Quantization, self.quantization_config),
+            ),
             ("VectorParams.on_disk", DEFAULT_OPTION),
             ("VectorParams.datatype", DEFAULT_OPTION_INTO),
             // Create collection
@@ -135,7 +141,11 @@ fn configure_builder(builder: Builder) -> Builder {
             ("CreateCollection.replication_factor", DEFAULT_OPTION),
             ("CreateCollection.write_consistency_factor", DEFAULT_OPTION),
             ("CreateCollection.init_from_collection", DEFAULT_OPTION_INTO),
-            ("CreateCollection.quantization_config", DEFAULT_OPTION_INTO),
+            // ("CreateCollection.quantization_config", DEFAULT_OPTION_INTO),  (
+            (
+                "CreateCollection.quantization_config",
+                builder_custom_into!(quantization_config::Quantization, self.quantization_config),
+            ),
             ("CreateCollection.sharding_method", DEFAULT_OPTION),
             (
                 "CreateCollection.sparse_vectors_config",
@@ -148,6 +158,34 @@ fn configure_builder(builder: Builder) -> Builder {
             ("HnswConfigDiff.max_indexing_threads", DEFAULT_OPTION),
             ("HnswConfigDiff.on_disk", DEFAULT_OPTION),
             ("HnswConfigDiff.payload_m", DEFAULT_OPTION),
+            // ScalarQuantization
+            ("ScalarQuantization.quantile", DEFAULT_OPTION),
+            ("ScalarQuantization.always_ram", DEFAULT_OPTION),
+            // ProductQuantization
+            ("ProductQuantization.always_ram", DEFAULT_OPTION),
+            // BinaryQuantization
+            ("BinaryQuantization.always_ram", DEFAULT_OPTION),
+            // OptimizersConfigDiff
+            ("OptimizersConfigDiff.deleted_threshold", DEFAULT_OPTION),
+            (
+                "OptimizersConfigDiff.vacuum_min_vector_number",
+                DEFAULT_OPTION,
+            ),
+            (
+                "OptimizersConfigDiff.default_segment_number",
+                DEFAULT_OPTION,
+            ),
+            ("OptimizersConfigDiff.max_segment_size", DEFAULT_OPTION),
+            ("OptimizersConfigDiff.memmap_threshold", DEFAULT_OPTION),
+            ("OptimizersConfigDiff.indexing_threshold", DEFAULT_OPTION),
+            ("OptimizersConfigDiff.flush_interval_sec", DEFAULT_OPTION),
+            (
+                "OptimizersConfigDiff.max_optimization_threads",
+                DEFAULT_OPTION,
+            ),
+            //WalConfigDiff
+            ("WalConfigDiff.wal_capacity_mb", DEFAULT_OPTION),
+            ("WalConfigDiff.wal_segments_ahead", DEFAULT_OPTION),
         ],
         builder_derive_options(),
     )
@@ -160,12 +198,31 @@ fn builder_derive_options() -> &'static [BuildDeriveOptions] {
     // Infallible allows secure unwrapping and compiler errors on missing fields.
     const DEFAULT_BUILDER_DERIVE_OPTIONS: &str =
         "build_fn(private, error = \"std::convert::Infallible\", name = \"build_inner\")";
+    const NO_DEFAULT_BUILDER_DERIVE_OPTIONS: &str =
+        "build_fn(private, name = \"build_inner\"), custom_constructor";
 
     // Tuple structure: (Path, build attributes, 'from' macro generation enabled)
     &[
         ("CreateCollection", DEFAULT_BUILDER_DERIVE_OPTIONS, true),
-        ("VectorParams", DEFAULT_BUILDER_DERIVE_OPTIONS, true),
+        ("VectorParams", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
         ("HnswConfigDiff", DEFAULT_BUILDER_DERIVE_OPTIONS, true),
+        (
+            "ScalarQuantization",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            true,
+        ),
+        (
+            "ProductQuantization",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            true,
+        ),
+        (
+            "BinaryQuantization",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            true,
+        ),
+        ("OptimizersConfigDiff", DEFAULT_BUILDER_DERIVE_OPTIONS, true),
+        ("WalConfigDiff", DEFAULT_BUILDER_DERIVE_OPTIONS, true),
     ]
 }
 
