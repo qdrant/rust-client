@@ -382,6 +382,25 @@ fn configure_builder(builder: Builder) -> Builder {
             // LookupLocation
             ("LookupLocation.vector_name", DEFAULT_OPTION_INTO),
             ("LookupLocation.shard_key_selector", DEFAULT_OPTION_INTO),
+            // RecommendBatchPoints
+            ("RecommendBatchPoints.read_consistency", DEFAULT_OPTION_INTO),
+            ("RecommendBatchPoints.timeout", DEFAULT_OPTION),
+            // RecommendPointGroups
+            ("RecommendPointGroups.filter", DEFAULT_OPTION_INTO),
+            ("RecommendPointGroups.with_payload", DEFAULT_OPTION_INTO),
+            ("RecommendPointGroups.params", DEFAULT_OPTION_INTO),
+            ("RecommendPointGroups.score_threshold", DEFAULT_OPTION),
+            ("RecommendPointGroups.using", DEFAULT_OPTION_INTO),
+            ("RecommendPointGroups.with_vectors", DEFAULT_OPTION_INTO),
+            ("RecommendPointGroups.lookup_from", DEFAULT_OPTION_INTO),
+            ("RecommendPointGroups.read_consistency", DEFAULT_OPTION_INTO),
+            ("RecommendPointGroups.with_lookup", DEFAULT_OPTION_INTO),
+            ("RecommendPointGroups.strategy", DEFAULT_OPTION_INTO),
+            ("RecommendPointGroups.timeout", DEFAULT_OPTION),
+            (
+                "RecommendPointGroups.shard_key_selector",
+                DEFAULT_OPTION_INTO,
+            ),
         ],
         builder_derive_options(),
     )
@@ -458,6 +477,16 @@ fn builder_derive_options() -> &'static [BuildDeriveOptions] {
         ("OrderBy", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
         ("RecommendPoints", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
         ("LookupLocation", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
+        (
+            "RecommendBatchPoints",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            true,
+        ),
+        (
+            "RecommendPointGroups",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            true,
+        ),
     ]
 }
 

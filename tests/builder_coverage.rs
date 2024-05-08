@@ -2,11 +2,11 @@ use qdrant_client::prelude::Distance;
 use qdrant_client::qdrant::{
     BinaryQuantizationBuilder, ClearPayloadPointsBuilder, DeletePayloadPointsBuilder,
     DeletePointVectorsBuilder, GetPointsBuilder, LookupLocationBuilder, OrderByBuilder,
-    ProductQuantizationBuilder, QuantizationType, RecommendPointsBuilder,
-    ScalarQuantizationBuilder, ScrollPointsBuilder, SearchBatchPointsBuilder,
-    SearchPointGroupsBuilder, SearchPointsBuilder, SetPayloadPointsBuilder,
-    UpdateBatchPointsBuilder, UpdateCollectionBuilder, UpdatePointVectorsBuilder,
-    VectorParamsBuilder, WithLookupBuilder,
+    ProductQuantizationBuilder, QuantizationType, RecommendBatchPointsBuilder,
+    RecommendPointGroupsBuilder, RecommendPointsBuilder, ScalarQuantizationBuilder,
+    ScrollPointsBuilder, SearchBatchPointsBuilder, SearchPointGroupsBuilder, SearchPointsBuilder,
+    SetPayloadPointsBuilder, UpdateBatchPointsBuilder, UpdateCollectionBuilder,
+    UpdatePointVectorsBuilder, VectorParamsBuilder, WithLookupBuilder,
 };
 use std::collections::HashMap;
 
@@ -43,4 +43,6 @@ fn builder_coverage() {
     OrderByBuilder::new("key").build();
     RecommendPointsBuilder::new("mycollection", [], [], [], [], 10).build();
     LookupLocationBuilder::new("mycollection").build();
+    RecommendBatchPointsBuilder::new("mycollection", []).build();
+    RecommendPointGroupsBuilder::new("mycollection", [], [], [], [], "group", 10, 10).build();
 }
