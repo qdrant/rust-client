@@ -230,3 +230,64 @@ impl RecommendPointGroupsBuilder {
         builder
     }
 }
+
+impl DiscoverPointsBuilder {
+    pub fn new(
+        collection_name: impl Into<String>,
+        context: impl Into<Vec<ContextExamplePair>>,
+        limit: u64,
+    ) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder.context = Some(context.into());
+        builder.limit = Some(limit);
+        builder
+    }
+}
+
+impl DiscoverBatchPointsBuilder {
+    pub fn new(
+        collection_name: impl Into<String>,
+        discover_points: impl Into<Vec<DiscoverPoints>>,
+    ) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder.discover_points = Some(discover_points.into());
+        builder
+    }
+}
+
+impl CountPointsBuilder {
+    pub fn new(collection_name: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder
+    }
+}
+
+impl UpsertPointsBuilder {
+    pub fn new(collection_name: impl Into<String>, points: impl Into<Vec<PointStruct>>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder.points = Some(points.into());
+        builder
+    }
+}
+
+impl CreateFieldIndexCollectionBuilder {
+    pub fn new(collection_name: impl Into<String>, field_name: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder.field_name = Some(field_name.into());
+        builder
+    }
+}
+
+impl DeleteFieldIndexCollectionBuilder {
+    pub fn new(collection_name: impl Into<String>, field_name: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder.field_name = Some(field_name.into());
+        builder
+    }
+}

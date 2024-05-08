@@ -2872,6 +2872,8 @@ pub struct ClearPayloadPoints {
     #[builder(default, setter(into, strip_option))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateFieldIndexCollection {
@@ -2880,20 +2882,26 @@ pub struct CreateFieldIndexCollection {
     pub collection_name: ::prost::alloc::string::String,
     /// Wait until the changes have been applied?
     #[prost(bool, optional, tag = "2")]
+    #[builder(default, setter(strip_option))]
     pub wait: ::core::option::Option<bool>,
     /// Field name to index
     #[prost(string, tag = "3")]
     pub field_name: ::prost::alloc::string::String,
     /// Field type.
     #[prost(enumeration = "FieldType", optional, tag = "4")]
+    #[builder(default, setter(strip_option))]
     pub field_type: ::core::option::Option<i32>,
     /// Payload index params.
     #[prost(message, optional, tag = "5")]
+    #[builder(default, setter(into, strip_option))]
     pub field_index_params: ::core::option::Option<PayloadIndexParams>,
     /// Write ordering guarantees
     #[prost(message, optional, tag = "6")]
+    #[builder(default, setter(into, strip_option))]
     pub ordering: ::core::option::Option<WriteOrdering>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeleteFieldIndexCollection {
@@ -2902,12 +2910,14 @@ pub struct DeleteFieldIndexCollection {
     pub collection_name: ::prost::alloc::string::String,
     /// Wait until the changes have been applied?
     #[prost(bool, optional, tag = "2")]
+    #[builder(default, setter(strip_option))]
     pub wait: ::core::option::Option<bool>,
     /// Field name to delete
     #[prost(string, tag = "3")]
     pub field_name: ::prost::alloc::string::String,
     /// Write ordering guarantees
     #[prost(message, optional, tag = "4")]
+    #[builder(default, setter(strip_option))]
     pub ordering: ::core::option::Option<WriteOrdering>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -3602,6 +3612,8 @@ pub struct ContextExamplePair {
     #[prost(message, optional, tag = "2")]
     pub negative: ::core::option::Option<VectorExample>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DiscoverPoints {
@@ -3610,44 +3622,57 @@ pub struct DiscoverPoints {
     pub collection_name: ::prost::alloc::string::String,
     /// Use this as the primary search objective
     #[prost(message, optional, tag = "2")]
+    #[builder(default, setter(into, strip_option))]
     pub target: ::core::option::Option<TargetVector>,
     /// Search will be constrained by these pairs of examples
     #[prost(message, repeated, tag = "3")]
     pub context: ::prost::alloc::vec::Vec<ContextExamplePair>,
     /// Filter conditions - return only those points that satisfy the specified conditions
     #[prost(message, optional, tag = "4")]
+    #[builder(default, setter(into, strip_option))]
     pub filter: ::core::option::Option<Filter>,
     /// Max number of result
     #[prost(uint64, tag = "5")]
     pub limit: u64,
     /// Options for specifying which payload to include or not
     #[prost(message, optional, tag = "6")]
+    #[builder(default, setter(into, strip_option))]
     pub with_payload: ::core::option::Option<WithPayloadSelector>,
     /// Search config
     #[prost(message, optional, tag = "7")]
+    #[builder(default, setter(into, strip_option))]
     pub params: ::core::option::Option<SearchParams>,
     /// Offset of the result
     #[prost(uint64, optional, tag = "8")]
+    #[builder(default, setter(strip_option))]
     pub offset: ::core::option::Option<u64>,
     /// Define which vector to use for recommendation, if not specified - default vector
     #[prost(string, optional, tag = "9")]
+    #[builder(default, setter(into, strip_option))]
     pub using: ::core::option::Option<::prost::alloc::string::String>,
     /// Options for specifying which vectors to include into response
     #[prost(message, optional, tag = "10")]
+    #[builder(default, setter(into, strip_option))]
     pub with_vectors: ::core::option::Option<WithVectorsSelector>,
     /// Name of the collection to use for points lookup, if not specified - use current collection
     #[prost(message, optional, tag = "11")]
+    #[builder(default, setter(into, strip_option))]
     pub lookup_from: ::core::option::Option<LookupLocation>,
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "12")]
+    #[builder(default, setter(into, strip_option))]
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// If set, overrides global timeout setting for this request. Unit is seconds.
     #[prost(uint64, optional, tag = "13")]
+    #[builder(default, setter(strip_option))]
     pub timeout: ::core::option::Option<u64>,
     /// Specify in which shards to look for the points, if not specified - look in all shards
     #[prost(message, optional, tag = "14")]
+    #[builder(default, setter(into, strip_option))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DiscoverBatchPoints {
@@ -3658,11 +3683,15 @@ pub struct DiscoverBatchPoints {
     pub discover_points: ::prost::alloc::vec::Vec<DiscoverPoints>,
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "3")]
+    #[builder(default, setter(into, strip_option))]
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// If set, overrides global timeout setting for this request. Unit is seconds.
     #[prost(uint64, optional, tag = "4")]
+    #[builder(default, setter(strip_option))]
     pub timeout: ::core::option::Option<u64>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CountPoints {
@@ -3671,15 +3700,19 @@ pub struct CountPoints {
     pub collection_name: ::prost::alloc::string::String,
     /// Filter conditions - return only those points that satisfy the specified conditions
     #[prost(message, optional, tag = "2")]
+    #[builder(default, setter(into, strip_option))]
     pub filter: ::core::option::Option<Filter>,
     /// If `true` - return exact count, if `false` - return approximate count
     #[prost(bool, optional, tag = "3")]
+    #[builder(default, setter(strip_option))]
     pub exact: ::core::option::Option<bool>,
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "4")]
+    #[builder(default, setter(into, strip_option))]
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// Specify in which shards to look for the points, if not specified - look in all shards
     #[prost(message, optional, tag = "5")]
+    #[builder(default, setter(into, strip_option))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -7192,6 +7225,17 @@ builder_type_conversions!(RecommendPoints, RecommendPointsBuilder);
 builder_type_conversions!(LookupLocation, LookupLocationBuilder);
 builder_type_conversions!(RecommendBatchPoints, RecommendBatchPointsBuilder);
 builder_type_conversions!(RecommendPointGroups, RecommendPointGroupsBuilder);
+builder_type_conversions!(DiscoverPoints, DiscoverPointsBuilder);
+builder_type_conversions!(DiscoverBatchPoints, DiscoverBatchPointsBuilder);
+builder_type_conversions!(CountPoints, CountPointsBuilder);
+builder_type_conversions!(
+    CreateFieldIndexCollection,
+    CreateFieldIndexCollectionBuilder
+);
+builder_type_conversions!(
+    DeleteFieldIndexCollection,
+    DeleteFieldIndexCollectionBuilder
+);
 
 use std::collections::HashMap;
 
@@ -7422,6 +7466,67 @@ impl RecommendPointGroupsBuilder {
         builder.group_by = Some(group_by.into());
         builder.group_size = Some(group_size);
         builder.limit = Some(limit);
+        builder
+    }
+}
+
+impl DiscoverPointsBuilder {
+    pub fn new(
+        collection_name: impl Into<String>,
+        context: impl Into<Vec<ContextExamplePair>>,
+        limit: u64,
+    ) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder.context = Some(context.into());
+        builder.limit = Some(limit);
+        builder
+    }
+}
+
+impl DiscoverBatchPointsBuilder {
+    pub fn new(
+        collection_name: impl Into<String>,
+        discover_points: impl Into<Vec<DiscoverPoints>>,
+    ) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder.discover_points = Some(discover_points.into());
+        builder
+    }
+}
+
+impl CountPointsBuilder {
+    pub fn new(collection_name: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder
+    }
+}
+
+impl UpsertPointsBuilder {
+    pub fn new(collection_name: impl Into<String>, points: impl Into<Vec<PointStruct>>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder.points = Some(points.into());
+        builder
+    }
+}
+
+impl CreateFieldIndexCollectionBuilder {
+    pub fn new(collection_name: impl Into<String>, field_name: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder.field_name = Some(field_name.into());
+        builder
+    }
+}
+
+impl DeleteFieldIndexCollectionBuilder {
+    pub fn new(collection_name: impl Into<String>, field_name: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder.field_name = Some(field_name.into());
         builder
     }
 }

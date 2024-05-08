@@ -1,12 +1,14 @@
 use qdrant_client::prelude::Distance;
 use qdrant_client::qdrant::{
-    BinaryQuantizationBuilder, ClearPayloadPointsBuilder, DeletePayloadPointsBuilder,
-    DeletePointVectorsBuilder, GetPointsBuilder, LookupLocationBuilder, OrderByBuilder,
+    BinaryQuantizationBuilder, ClearPayloadPointsBuilder, CountPointsBuilder,
+    CreateFieldIndexCollectionBuilder, DeleteFieldIndexCollectionBuilder,
+    DeletePayloadPointsBuilder, DeletePointVectorsBuilder, DiscoverBatchPointsBuilder,
+    DiscoverPointsBuilder, GetPointsBuilder, LookupLocationBuilder, OrderByBuilder,
     ProductQuantizationBuilder, QuantizationType, RecommendBatchPointsBuilder,
     RecommendPointGroupsBuilder, RecommendPointsBuilder, ScalarQuantizationBuilder,
     ScrollPointsBuilder, SearchBatchPointsBuilder, SearchPointGroupsBuilder, SearchPointsBuilder,
     SetPayloadPointsBuilder, UpdateBatchPointsBuilder, UpdateCollectionBuilder,
-    UpdatePointVectorsBuilder, VectorParamsBuilder, WithLookupBuilder,
+    UpdatePointVectorsBuilder, UpsertPointsBuilder, VectorParamsBuilder, WithLookupBuilder,
 };
 use std::collections::HashMap;
 
@@ -45,4 +47,10 @@ fn builder_coverage() {
     LookupLocationBuilder::new("mycollection").build();
     RecommendBatchPointsBuilder::new("mycollection", []).build();
     RecommendPointGroupsBuilder::new("mycollection", "group", 10, 10).build();
+    DiscoverPointsBuilder::new("mycollection", [], 10).build();
+    DiscoverBatchPointsBuilder::new("mycollection", []).build();
+    CountPointsBuilder::new("mycollection").build();
+    UpsertPointsBuilder::new("mycollection", []).build();
+    CreateFieldIndexCollectionBuilder::new("mycollection", " myfield").build();
+    DeleteFieldIndexCollectionBuilder::new("mycollection", " myfield").build();
 }
