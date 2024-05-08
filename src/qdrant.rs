@@ -19,11 +19,11 @@ pub struct VectorParams {
     /// Configuration of vector quantization config. If omitted - the collection configuration will be used
     #[prost(message, optional, tag = "4")]
     #[builder(
-    setter(into, strip_option),
-    field(
-    ty = "Option<quantization_config::Quantization>",
-    build = "convert_option(&self.quantization_config)"
-    )
+        setter(into, strip_option),
+        field(
+            ty = "Option<quantization_config::Quantization>",
+            build = "convert_option(&self.quantization_config)"
+        )
     )]
     pub quantization_config: ::core::option::Option<QuantizationConfig>,
     /// If true - serve vectors from disk. If set to false, the vectors will be loaded in RAM.
@@ -35,7 +35,6 @@ pub struct VectorParams {
     #[builder(default, setter(into, strip_option))]
     pub datatype: ::core::option::Option<i32>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct VectorParamsDiff {
@@ -49,28 +48,24 @@ pub struct VectorParamsDiff {
     #[prost(bool, optional, tag = "3")]
     pub on_disk: ::core::option::Option<bool>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct VectorParamsMap {
     #[prost(map = "string, message", tag = "1")]
     pub map: ::std::collections::HashMap<::prost::alloc::string::String, VectorParams>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct VectorParamsDiffMap {
     #[prost(map = "string, message", tag = "1")]
     pub map: ::std::collections::HashMap<::prost::alloc::string::String, VectorParamsDiff>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct VectorsConfig {
     #[prost(oneof = "vectors_config::Config", tags = "1, 2")]
     pub config: ::core::option::Option<vectors_config::Config>,
 }
-
 /// Nested message and enum types in `VectorsConfig`.
 pub mod vectors_config {
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -82,14 +77,12 @@ pub mod vectors_config {
         ParamsMap(super::VectorParamsMap),
     }
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct VectorsConfigDiff {
     #[prost(oneof = "vectors_config_diff::Config", tags = "1, 2")]
     pub config: ::core::option::Option<vectors_config_diff::Config>,
 }
-
 /// Nested message and enum types in `VectorsConfigDiff`.
 pub mod vectors_config_diff {
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -101,7 +94,6 @@ pub mod vectors_config_diff {
         ParamsMap(super::VectorParamsDiffMap),
     }
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SparseVectorParams {
@@ -109,14 +101,12 @@ pub struct SparseVectorParams {
     #[prost(message, optional, tag = "1")]
     pub index: ::core::option::Option<SparseIndexConfig>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SparseVectorConfig {
     #[prost(map = "string, message", tag = "1")]
     pub map: ::std::collections::HashMap<::prost::alloc::string::String, SparseVectorParams>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GetCollectionInfoRequest {
@@ -124,21 +114,18 @@ pub struct GetCollectionInfoRequest {
     #[prost(string, tag = "1")]
     pub collection_name: ::prost::alloc::string::String,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CollectionExistsRequest {
     #[prost(string, tag = "1")]
     pub collection_name: ::prost::alloc::string::String,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CollectionExists {
     #[prost(bool, tag = "1")]
     pub exists: bool,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CollectionExistsResponse {
@@ -148,11 +135,9 @@ pub struct CollectionExistsResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListCollectionsRequest {}
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CollectionDescription {
@@ -160,7 +145,6 @@ pub struct CollectionDescription {
     #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GetCollectionInfoResponse {
@@ -170,7 +154,6 @@ pub struct GetCollectionInfoResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListCollectionsResponse {
@@ -180,7 +163,6 @@ pub struct ListCollectionsResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct OptimizerStatus {
@@ -189,7 +171,6 @@ pub struct OptimizerStatus {
     #[prost(string, tag = "2")]
     pub error: ::prost::alloc::string::String,
 }
-
 #[derive(derive_builder::Builder)]
 #[builder(build_fn(private, error = "std::convert::Infallible", name = "build_inner"))]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -232,7 +213,6 @@ pub struct HnswConfigDiff {
     #[builder(default, setter(strip_option))]
     pub payload_m: ::core::option::Option<u64>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SparseIndexConfig {
@@ -246,7 +226,6 @@ pub struct SparseIndexConfig {
     #[prost(bool, optional, tag = "2")]
     pub on_disk: ::core::option::Option<bool>,
 }
-
 #[derive(derive_builder::Builder)]
 #[builder(build_fn(private, error = "std::convert::Infallible", name = "build_inner"))]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -261,7 +240,6 @@ pub struct WalConfigDiff {
     #[builder(default, setter(strip_option))]
     pub wal_segments_ahead: ::core::option::Option<u64>,
 }
-
 #[derive(derive_builder::Builder)]
 #[builder(build_fn(private, error = "std::convert::Infallible", name = "build_inner"))]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -338,7 +316,6 @@ pub struct OptimizersConfigDiff {
     #[builder(default, setter(strip_option))]
     pub max_optimization_threads: ::core::option::Option<u64>,
 }
-
 #[derive(derive_builder::Builder)]
 #[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -356,7 +333,6 @@ pub struct ScalarQuantization {
     #[builder(default, setter(strip_option))]
     pub always_ram: ::core::option::Option<bool>,
 }
-
 #[derive(derive_builder::Builder)]
 #[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -370,7 +346,6 @@ pub struct ProductQuantization {
     #[builder(default, setter(strip_option))]
     pub always_ram: ::core::option::Option<bool>,
 }
-
 #[derive(derive_builder::Builder)]
 #[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -381,14 +356,12 @@ pub struct BinaryQuantization {
     #[builder(default, setter(strip_option))]
     pub always_ram: ::core::option::Option<bool>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct QuantizationConfig {
     #[prost(oneof = "quantization_config::Quantization", tags = "1, 2, 3")]
     pub quantization: ::core::option::Option<quantization_config::Quantization>,
 }
-
 /// Nested message and enum types in `QuantizationConfig`.
 pub mod quantization_config {
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -402,18 +375,15 @@ pub mod quantization_config {
         Binary(super::BinaryQuantization),
     }
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Disabled {}
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct QuantizationConfigDiff {
     #[prost(oneof = "quantization_config_diff::Quantization", tags = "1, 2, 3, 4")]
     pub quantization: ::core::option::Option<quantization_config_diff::Quantization>,
 }
-
 /// Nested message and enum types in `QuantizationConfigDiff`.
 pub mod quantization_config_diff {
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -429,7 +399,6 @@ pub mod quantization_config_diff {
         Binary(super::BinaryQuantization),
     }
 }
-
 #[derive(derive_builder::Builder)]
 #[builder(build_fn(private, error = "std::convert::Infallible", name = "build_inner"))]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -466,11 +435,11 @@ pub struct CreateCollection {
     /// Configuration for vectors
     #[prost(message, optional, tag = "10")]
     #[builder(
-    setter(into, strip_option),
-    field(
-    ty = "Option<vectors_config::Config>",
-    build = "convert_option(&self.vectors_config)"
-    )
+        setter(into, strip_option),
+        field(
+            ty = "Option<vectors_config::Config>",
+            build = "convert_option(&self.vectors_config)"
+        )
     )]
     pub vectors_config: ::core::option::Option<VectorsConfig>,
     /// Number of replicas of each shard that network tries to maintain, default = 1
@@ -488,11 +457,11 @@ pub struct CreateCollection {
     /// Quantization configuration of vector
     #[prost(message, optional, tag = "14")]
     #[builder(
-    setter(into, strip_option),
-    field(
-    ty = "Option<quantization_config::Quantization>",
-    build = "convert_option(&self.quantization_config)"
-    )
+        setter(into, strip_option),
+        field(
+            ty = "Option<quantization_config::Quantization>",
+            build = "convert_option(&self.quantization_config)"
+        )
     )]
     pub quantization_config: ::core::option::Option<QuantizationConfig>,
     /// Sharding method
@@ -504,7 +473,6 @@ pub struct CreateCollection {
     #[builder(default, setter(into, strip_option))]
     pub sparse_vectors_config: ::core::option::Option<SparseVectorConfig>,
 }
-
 #[derive(derive_builder::Builder)]
 #[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -542,7 +510,6 @@ pub struct UpdateCollection {
     #[builder(default, setter(into, strip_option))]
     pub sparse_vectors_config: ::core::option::Option<SparseVectorConfig>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeleteCollection {
@@ -553,7 +520,6 @@ pub struct DeleteCollection {
     #[prost(uint64, optional, tag = "2")]
     pub timeout: ::core::option::Option<u64>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CollectionOperationResponse {
@@ -564,7 +530,6 @@ pub struct CollectionOperationResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CollectionParams {
@@ -593,7 +558,6 @@ pub struct CollectionParams {
     #[prost(message, optional, tag = "10")]
     pub sparse_vectors_config: ::core::option::Option<SparseVectorConfig>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CollectionParamsDiff {
@@ -610,7 +574,6 @@ pub struct CollectionParamsDiff {
     #[prost(uint32, optional, tag = "4")]
     pub read_fan_out_factor: ::core::option::Option<u32>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CollectionConfig {
@@ -630,7 +593,6 @@ pub struct CollectionConfig {
     #[prost(message, optional, tag = "5")]
     pub quantization_config: ::core::option::Option<QuantizationConfig>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct TextIndexParams {
@@ -647,7 +609,6 @@ pub struct TextIndexParams {
     #[prost(uint64, optional, tag = "4")]
     pub max_token_len: ::core::option::Option<u64>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct IntegerIndexParams {
@@ -658,14 +619,12 @@ pub struct IntegerIndexParams {
     #[prost(bool, tag = "2")]
     pub range: bool,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PayloadIndexParams {
     #[prost(oneof = "payload_index_params::IndexParams", tags = "1, 2")]
     pub index_params: ::core::option::Option<payload_index_params::IndexParams>,
 }
-
 /// Nested message and enum types in `PayloadIndexParams`.
 pub mod payload_index_params {
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -679,7 +638,6 @@ pub mod payload_index_params {
         IntegerIndexParams(super::IntegerIndexParams),
     }
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PayloadSchemaInfo {
@@ -693,7 +651,6 @@ pub struct PayloadSchemaInfo {
     #[prost(uint64, optional, tag = "3")]
     pub points: ::core::option::Option<u64>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CollectionInfo {
@@ -715,7 +672,7 @@ pub struct CollectionInfo {
     /// Collection data types
     #[prost(map = "string, message", tag = "8")]
     pub payload_schema:
-    ::std::collections::HashMap<::prost::alloc::string::String, PayloadSchemaInfo>,
+        ::std::collections::HashMap<::prost::alloc::string::String, PayloadSchemaInfo>,
     /// Approximate number of points in the collection
     #[prost(uint64, optional, tag = "9")]
     pub points_count: ::core::option::Option<u64>,
@@ -723,7 +680,6 @@ pub struct CollectionInfo {
     #[prost(uint64, optional, tag = "10")]
     pub indexed_vectors_count: ::core::option::Option<u64>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ChangeAliases {
@@ -734,14 +690,12 @@ pub struct ChangeAliases {
     #[prost(uint64, optional, tag = "2")]
     pub timeout: ::core::option::Option<u64>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct AliasOperations {
     #[prost(oneof = "alias_operations::Action", tags = "1, 2, 3")]
     pub action: ::core::option::Option<alias_operations::Action>,
 }
-
 /// Nested message and enum types in `AliasOperations`.
 pub mod alias_operations {
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -755,7 +709,6 @@ pub mod alias_operations {
         DeleteAlias(super::DeleteAlias),
     }
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateAlias {
@@ -766,7 +719,6 @@ pub struct CreateAlias {
     #[prost(string, tag = "2")]
     pub alias_name: ::prost::alloc::string::String,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RenameAlias {
@@ -777,7 +729,6 @@ pub struct RenameAlias {
     #[prost(string, tag = "2")]
     pub new_alias_name: ::prost::alloc::string::String,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeleteAlias {
@@ -785,11 +736,9 @@ pub struct DeleteAlias {
     #[prost(string, tag = "1")]
     pub alias_name: ::prost::alloc::string::String,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListAliasesRequest {}
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListCollectionAliasesRequest {
@@ -797,7 +746,6 @@ pub struct ListCollectionAliasesRequest {
     #[prost(string, tag = "1")]
     pub collection_name: ::prost::alloc::string::String,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct AliasDescription {
@@ -808,7 +756,6 @@ pub struct AliasDescription {
     #[prost(string, tag = "2")]
     pub collection_name: ::prost::alloc::string::String,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListAliasesResponse {
@@ -818,7 +765,6 @@ pub struct ListAliasesResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CollectionClusterInfoRequest {
@@ -826,14 +772,12 @@ pub struct CollectionClusterInfoRequest {
     #[prost(string, tag = "1")]
     pub collection_name: ::prost::alloc::string::String,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ShardKey {
     #[prost(oneof = "shard_key::Key", tags = "1, 2")]
     pub key: ::core::option::Option<shard_key::Key>,
 }
-
 /// Nested message and enum types in `ShardKey`.
 pub mod shard_key {
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -847,7 +791,6 @@ pub mod shard_key {
         Number(u64),
     }
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct LocalShardInfo {
@@ -864,7 +807,6 @@ pub struct LocalShardInfo {
     #[prost(message, optional, tag = "4")]
     pub shard_key: ::core::option::Option<ShardKey>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RemoteShardInfo {
@@ -881,7 +823,6 @@ pub struct RemoteShardInfo {
     #[prost(message, optional, tag = "4")]
     pub shard_key: ::core::option::Option<ShardKey>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ShardTransferInfo {
@@ -896,7 +837,6 @@ pub struct ShardTransferInfo {
     #[prost(bool, tag = "4")]
     pub sync: bool,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CollectionClusterInfoResponse {
@@ -916,7 +856,6 @@ pub struct CollectionClusterInfoResponse {
     #[prost(message, repeated, tag = "5")]
     pub shard_transfers: ::prost::alloc::vec::Vec<ShardTransferInfo>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct MoveShard {
@@ -930,7 +869,6 @@ pub struct MoveShard {
     #[prost(enumeration = "ShardTransferMethod", optional, tag = "4")]
     pub method: ::core::option::Option<i32>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct AbortShardTransfer {
@@ -942,7 +880,6 @@ pub struct AbortShardTransfer {
     #[prost(uint64, tag = "3")]
     pub to_peer_id: u64,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RestartTransfer {
@@ -956,7 +893,6 @@ pub struct RestartTransfer {
     #[prost(enumeration = "ShardTransferMethod", tag = "4")]
     pub method: i32,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Replica {
@@ -965,7 +901,6 @@ pub struct Replica {
     #[prost(uint64, tag = "2")]
     pub peer_id: u64,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateShardKey {
@@ -982,7 +917,6 @@ pub struct CreateShardKey {
     #[prost(uint64, repeated, tag = "4")]
     pub placement: ::prost::alloc::vec::Vec<u64>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeleteShardKey {
@@ -990,7 +924,6 @@ pub struct DeleteShardKey {
     #[prost(message, optional, tag = "1")]
     pub shard_key: ::core::option::Option<ShardKey>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpdateCollectionClusterSetupRequest {
@@ -1001,12 +934,11 @@ pub struct UpdateCollectionClusterSetupRequest {
     #[prost(uint64, optional, tag = "6")]
     pub timeout: ::core::option::Option<u64>,
     #[prost(
-    oneof = "update_collection_cluster_setup_request::Operation",
-    tags = "2, 3, 4, 5, 7, 8, 9"
+        oneof = "update_collection_cluster_setup_request::Operation",
+        tags = "2, 3, 4, 5, 7, 8, 9"
     )]
     pub operation: ::core::option::Option<update_collection_cluster_setup_request::Operation>,
 }
-
 /// Nested message and enum types in `UpdateCollectionClusterSetupRequest`.
 pub mod update_collection_cluster_setup_request {
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -1028,14 +960,12 @@ pub mod update_collection_cluster_setup_request {
         RestartTransfer(super::RestartTransfer),
     }
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpdateCollectionClusterSetupResponse {
     #[prost(bool, tag = "1")]
     pub result: bool,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateShardKeyRequest {
@@ -1049,7 +979,6 @@ pub struct CreateShardKeyRequest {
     #[prost(uint64, optional, tag = "3")]
     pub timeout: ::core::option::Option<u64>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeleteShardKeyRequest {
@@ -1063,21 +992,18 @@ pub struct DeleteShardKeyRequest {
     #[prost(uint64, optional, tag = "3")]
     pub timeout: ::core::option::Option<u64>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateShardKeyResponse {
     #[prost(bool, tag = "1")]
     pub result: bool,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeleteShardKeyResponse {
     #[prost(bool, tag = "1")]
     pub result: bool,
 }
-
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
 pub enum Datatype {
@@ -1085,7 +1011,6 @@ pub enum Datatype {
     Float32 = 1,
     Uint8 = 2,
 }
-
 impl Datatype {
     /// String value of the enum field names used in the ProtoBuf definition.
     ///
@@ -1108,7 +1033,6 @@ impl Datatype {
         }
     }
 }
-
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
 pub enum Distance {
@@ -1118,7 +1042,6 @@ pub enum Distance {
     Dot = 3,
     Manhattan = 4,
 }
-
 impl Distance {
     /// String value of the enum field names used in the ProtoBuf definition.
     ///
@@ -1145,7 +1068,6 @@ impl Distance {
         }
     }
 }
-
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
 pub enum CollectionStatus {
@@ -1159,7 +1081,6 @@ pub enum CollectionStatus {
     /// Optimization is pending
     Grey = 4,
 }
-
 impl CollectionStatus {
     /// String value of the enum field names used in the ProtoBuf definition.
     ///
@@ -1186,7 +1107,6 @@ impl CollectionStatus {
         }
     }
 }
-
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
 pub enum PayloadSchemaType {
@@ -1199,7 +1119,6 @@ pub enum PayloadSchemaType {
     Bool = 6,
     Datetime = 7,
 }
-
 impl PayloadSchemaType {
     /// String value of the enum field names used in the ProtoBuf definition.
     ///
@@ -1232,14 +1151,12 @@ impl PayloadSchemaType {
         }
     }
 }
-
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
 pub enum QuantizationType {
     UnknownQuantization = 0,
     Int8 = 1,
 }
-
 impl QuantizationType {
     /// String value of the enum field names used in the ProtoBuf definition.
     ///
@@ -1260,7 +1177,6 @@ impl QuantizationType {
         }
     }
 }
-
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
 pub enum CompressionRatio {
@@ -1270,7 +1186,6 @@ pub enum CompressionRatio {
     X32 = 3,
     X64 = 4,
 }
-
 impl CompressionRatio {
     /// String value of the enum field names used in the ProtoBuf definition.
     ///
@@ -1297,7 +1212,6 @@ impl CompressionRatio {
         }
     }
 }
-
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
 pub enum ShardingMethod {
@@ -1306,7 +1220,6 @@ pub enum ShardingMethod {
     /// Shard by user-defined key
     Custom = 1,
 }
-
 impl ShardingMethod {
     /// String value of the enum field names used in the ProtoBuf definition.
     ///
@@ -1327,7 +1240,6 @@ impl ShardingMethod {
         }
     }
 }
-
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
 pub enum TokenizerType {
@@ -1337,7 +1249,6 @@ pub enum TokenizerType {
     Word = 3,
     Multilingual = 4,
 }
-
 impl TokenizerType {
     /// String value of the enum field names used in the ProtoBuf definition.
     ///
@@ -1364,7 +1275,6 @@ impl TokenizerType {
         }
     }
 }
-
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
 pub enum ReplicaState {
@@ -1383,7 +1293,6 @@ pub enum ReplicaState {
     /// Shard is undergoing recovered by an external node; Normally rejects updates, accepts updates if force is true
     Recovery = 6,
 }
-
 impl ReplicaState {
     /// String value of the enum field names used in the ProtoBuf definition.
     ///
@@ -1414,7 +1323,6 @@ impl ReplicaState {
         }
     }
 }
-
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
 pub enum ShardTransferMethod {
@@ -1425,7 +1333,6 @@ pub enum ShardTransferMethod {
     /// Resolve WAL delta between peers and transfer the difference
     WalDelta = 2,
 }
-
 impl ShardTransferMethod {
     /// String value of the enum field names used in the ProtoBuf definition.
     ///
@@ -1448,37 +1355,32 @@ impl ShardTransferMethod {
         }
     }
 }
-
 /// Generated client implementations.
 pub mod collections_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
-
     use tonic::codegen::http::Uri;
     use tonic::codegen::*;
-
     #[derive(Debug, Clone)]
     pub struct CollectionsClient<T> {
         inner: tonic::client::Grpc<T>,
     }
-
     impl CollectionsClient<tonic::transport::Channel> {
         /// Attempt to create a new client by connecting to a given endpoint.
         pub async fn connect<D>(dst: D) -> Result<Self, tonic::transport::Error>
-            where
-                D: TryInto<tonic::transport::Endpoint>,
-                D::Error: Into<StdError>,
+        where
+            D: TryInto<tonic::transport::Endpoint>,
+            D::Error: Into<StdError>,
         {
             let conn = tonic::transport::Endpoint::new(dst)?.connect().await?;
             Ok(Self::new(conn))
         }
     }
-
     impl<T> CollectionsClient<T>
-        where
-            T: tonic::client::GrpcService<tonic::body::BoxBody>,
-            T::Error: Into<StdError>,
-            T::ResponseBody: Body<Data=Bytes> + Send + 'static,
-            <T::ResponseBody as Body>::Error: Into<StdError> + Send,
+    where
+        T: tonic::client::GrpcService<tonic::body::BoxBody>,
+        T::Error: Into<StdError>,
+        T::ResponseBody: Body<Data = Bytes> + Send + 'static,
+        <T::ResponseBody as Body>::Error: Into<StdError> + Send,
     {
         pub fn new(inner: T) -> Self {
             let inner = tonic::client::Grpc::new(inner);
@@ -1492,16 +1394,16 @@ pub mod collections_client {
             inner: T,
             interceptor: F,
         ) -> CollectionsClient<InterceptedService<T, F>>
-            where
-                F: tonic::service::Interceptor,
-                T::ResponseBody: Default,
-                T: tonic::codegen::Service<
-                    http::Request<tonic::body::BoxBody>,
-                    Response=http::Response<
-                        <T as tonic::client::GrpcService<tonic::body::BoxBody>>::ResponseBody,
-                    >,
+        where
+            F: tonic::service::Interceptor,
+            T::ResponseBody: Default,
+            T: tonic::codegen::Service<
+                http::Request<tonic::body::BoxBody>,
+                Response = http::Response<
+                    <T as tonic::client::GrpcService<tonic::body::BoxBody>>::ResponseBody,
                 >,
-                <T as tonic::codegen::Service<http::Request<tonic::body::BoxBody>>>::Error:
+            >,
+            <T as tonic::codegen::Service<http::Request<tonic::body::BoxBody>>>::Error:
                 Into<StdError> + Send + Sync,
         {
             CollectionsClient::new(InterceptedService::new(inner, interceptor))
@@ -1811,13 +1713,10 @@ pub mod collections_client {
         }
     }
 }
-
 /// Generated server implementations.
 pub mod collections_server {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
-
     use tonic::codegen::*;
-
     /// Generated trait containing gRPC methods that should be implemented for use with CollectionsServer.
     #[async_trait]
     pub trait Collections: Send + Sync + 'static {
@@ -1903,7 +1802,6 @@ pub mod collections_server {
             request: tonic::Request<super::DeleteShardKeyRequest>,
         ) -> std::result::Result<tonic::Response<super::DeleteShardKeyResponse>, tonic::Status>;
     }
-
     #[derive(Debug)]
     pub struct CollectionsServer<T: Collections> {
         inner: _Inner<T>,
@@ -1912,9 +1810,7 @@ pub mod collections_server {
         max_decoding_message_size: Option<usize>,
         max_encoding_message_size: Option<usize>,
     }
-
     struct _Inner<T>(Arc<T>);
-
     impl<T: Collections> CollectionsServer<T> {
         pub fn new(inner: T) -> Self {
             Self::from_arc(Arc::new(inner))
@@ -1930,8 +1826,8 @@ pub mod collections_server {
             }
         }
         pub fn with_interceptor<F>(inner: T, interceptor: F) -> InterceptedService<Self, F>
-            where
-                F: tonic::service::Interceptor,
+        where
+            F: tonic::service::Interceptor,
         {
             InterceptedService::new(Self::new(inner), interceptor)
         }
@@ -1964,12 +1860,11 @@ pub mod collections_server {
             self
         }
     }
-
     impl<T, B> tonic::codegen::Service<http::Request<B>> for CollectionsServer<T>
-        where
-            T: Collections,
-            B: Body + Send + 'static,
-            B::Error: Into<StdError> + Send + 'static,
+    where
+        T: Collections,
+        B: Body + Send + 'static,
+        B::Error: Into<StdError> + Send + 'static,
     {
         type Response = http::Response<tonic::body::BoxBody>;
         type Error = std::convert::Infallible;
@@ -1987,7 +1882,7 @@ pub mod collections_server {
                     #[allow(non_camel_case_types)]
                     struct GetSvc<T: Collections>(pub Arc<T>);
                     impl<T: Collections>
-                    tonic::server::UnaryService<super::GetCollectionInfoRequest> for GetSvc<T>
+                        tonic::server::UnaryService<super::GetCollectionInfoRequest> for GetSvc<T>
                     {
                         type Response = super::GetCollectionInfoResponse;
                         type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
@@ -2223,8 +2118,8 @@ pub mod collections_server {
                     #[allow(non_camel_case_types)]
                     struct ListCollectionAliasesSvc<T: Collections>(pub Arc<T>);
                     impl<T: Collections>
-                    tonic::server::UnaryService<super::ListCollectionAliasesRequest>
-                    for ListCollectionAliasesSvc<T>
+                        tonic::server::UnaryService<super::ListCollectionAliasesRequest>
+                        for ListCollectionAliasesSvc<T>
                     {
                         type Response = super::ListAliasesResponse;
                         type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
@@ -2306,8 +2201,8 @@ pub mod collections_server {
                     #[allow(non_camel_case_types)]
                     struct CollectionClusterInfoSvc<T: Collections>(pub Arc<T>);
                     impl<T: Collections>
-                    tonic::server::UnaryService<super::CollectionClusterInfoRequest>
-                    for CollectionClusterInfoSvc<T>
+                        tonic::server::UnaryService<super::CollectionClusterInfoRequest>
+                        for CollectionClusterInfoSvc<T>
                     {
                         type Response = super::CollectionClusterInfoResponse;
                         type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
@@ -2349,7 +2244,7 @@ pub mod collections_server {
                     #[allow(non_camel_case_types)]
                     struct CollectionExistsSvc<T: Collections>(pub Arc<T>);
                     impl<T: Collections> tonic::server::UnaryService<super::CollectionExistsRequest>
-                    for CollectionExistsSvc<T>
+                        for CollectionExistsSvc<T>
                     {
                         type Response = super::CollectionExistsResponse;
                         type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
@@ -2391,8 +2286,8 @@ pub mod collections_server {
                     #[allow(non_camel_case_types)]
                     struct UpdateCollectionClusterSetupSvc<T: Collections>(pub Arc<T>);
                     impl<T: Collections>
-                    tonic::server::UnaryService<super::UpdateCollectionClusterSetupRequest>
-                    for UpdateCollectionClusterSetupSvc<T>
+                        tonic::server::UnaryService<super::UpdateCollectionClusterSetupRequest>
+                        for UpdateCollectionClusterSetupSvc<T>
                     {
                         type Response = super::UpdateCollectionClusterSetupResponse;
                         type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
@@ -2435,7 +2330,7 @@ pub mod collections_server {
                     #[allow(non_camel_case_types)]
                     struct CreateShardKeySvc<T: Collections>(pub Arc<T>);
                     impl<T: Collections> tonic::server::UnaryService<super::CreateShardKeyRequest>
-                    for CreateShardKeySvc<T>
+                        for CreateShardKeySvc<T>
                     {
                         type Response = super::CreateShardKeyResponse;
                         type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
@@ -2477,7 +2372,7 @@ pub mod collections_server {
                     #[allow(non_camel_case_types)]
                     struct DeleteShardKeySvc<T: Collections>(pub Arc<T>);
                     impl<T: Collections> tonic::server::UnaryService<super::DeleteShardKeyRequest>
-                    for DeleteShardKeySvc<T>
+                        for DeleteShardKeySvc<T>
                     {
                         type Response = super::DeleteShardKeyResponse;
                         type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
@@ -2526,7 +2421,6 @@ pub mod collections_server {
             }
         }
     }
-
     impl<T: Collections> Clone for CollectionsServer<T> {
         fn clone(&self) -> Self {
             let inner = self.inner.clone();
@@ -2539,24 +2433,20 @@ pub mod collections_server {
             }
         }
     }
-
     impl<T: Collections> Clone for _Inner<T> {
         fn clone(&self) -> Self {
             Self(Arc::clone(&self.0))
         }
     }
-
     impl<T: std::fmt::Debug> std::fmt::Debug for _Inner<T> {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
             write!(f, "{:?}", self.0)
         }
     }
-
     impl<T: Collections> tonic::server::NamedService for CollectionsServer<T> {
         const NAME: &'static str = "qdrant.Collections";
     }
 }
-
 /// `Struct` represents a structured data value, consisting of fields
 /// which map to dynamically typed values. In some languages, `Struct`
 /// might be supported by a native representation. For example, in
@@ -2572,7 +2462,6 @@ pub struct Struct {
     #[prost(map = "string, message", tag = "1")]
     pub fields: ::std::collections::HashMap<::prost::alloc::string::String, Value>,
 }
-
 /// `Value` represents a dynamically typed value which can be either
 /// null, a number, a string, a boolean, a recursive struct value, or a
 /// list of values. A producer of value is expected to set one of those
@@ -2586,7 +2475,6 @@ pub struct Value {
     #[prost(oneof = "value::Kind", tags = "1, 2, 3, 4, 5, 6, 7")]
     pub kind: ::core::option::Option<value::Kind>,
 }
-
 /// Nested message and enum types in `Value`.
 pub mod value {
     /// The kind of value.
@@ -2616,7 +2504,6 @@ pub mod value {
         ListValue(super::ListValue),
     }
 }
-
 /// `ListValue` is a wrapper around a repeated field of values.
 ///
 /// The JSON representation for `ListValue` is a JSON array.
@@ -2627,7 +2514,6 @@ pub struct ListValue {
     #[prost(message, repeated, tag = "1")]
     pub values: ::prost::alloc::vec::Vec<Value>,
 }
-
 /// `NullValue` is a singleton enumeration to represent the null value for the
 /// `Value` type union.
 ///
@@ -2638,7 +2524,6 @@ pub enum NullValue {
     /// Null value.
     NullValue = 0,
 }
-
 impl NullValue {
     /// String value of the enum field names used in the ProtoBuf definition.
     ///
@@ -2657,7 +2542,6 @@ impl NullValue {
         }
     }
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct WriteOrdering {
@@ -2665,14 +2549,12 @@ pub struct WriteOrdering {
     #[prost(enumeration = "WriteOrderingType", tag = "1")]
     pub r#type: i32,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ReadConsistency {
     #[prost(oneof = "read_consistency::Value", tags = "1, 2")]
     pub value: ::core::option::Option<read_consistency::Value>,
 }
-
 /// Nested message and enum types in `ReadConsistency`.
 pub mod read_consistency {
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -2686,14 +2568,12 @@ pub mod read_consistency {
         Factor(u64),
     }
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PointId {
     #[prost(oneof = "point_id::PointIdOptions", tags = "1, 2")]
     pub point_id_options: ::core::option::Option<point_id::PointIdOptions>,
 }
-
 /// Nested message and enum types in `PointId`.
 pub mod point_id {
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -2707,14 +2587,12 @@ pub mod point_id {
         Uuid(::prost::alloc::string::String),
     }
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SparseIndices {
     #[prost(uint32, repeated, tag = "1")]
     pub data: ::prost::alloc::vec::Vec<u32>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Vector {
@@ -2723,7 +2601,6 @@ pub struct Vector {
     #[prost(message, optional, tag = "2")]
     pub indices: ::core::option::Option<SparseIndices>,
 }
-
 /// ---------------------------------------------
 /// ----------------- ShardKeySelector ----------
 /// ---------------------------------------------
@@ -2734,7 +2611,6 @@ pub struct ShardKeySelector {
     #[prost(message, repeated, tag = "1")]
     pub shard_keys: ::prost::alloc::vec::Vec<ShardKey>,
 }
-
 #[derive(derive_builder::Builder)]
 #[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -2759,7 +2635,6 @@ pub struct UpsertPoints {
     #[builder(default, setter(into, strip_option))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeletePoints {
@@ -2779,7 +2654,6 @@ pub struct DeletePoints {
     #[prost(message, optional, tag = "5")]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
-
 #[derive(derive_builder::Builder)]
 #[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -2794,31 +2668,31 @@ pub struct GetPoints {
     /// Options for specifying which payload to include or not
     #[prost(message, optional, tag = "4")]
     #[builder(
-    setter(into, strip_option),
-    field(
-    ty = "Option<with_payload_selector::SelectorOptions>",
-    build = "convert_option(&self.with_payload)"
-    )
+        setter(into, strip_option),
+        field(
+            ty = "Option<with_payload_selector::SelectorOptions>",
+            build = "convert_option(&self.with_payload)"
+        )
     )]
     pub with_payload: ::core::option::Option<WithPayloadSelector>,
     /// Options for specifying which vectors to include into response
     #[prost(message, optional, tag = "5")]
     #[builder(
-    setter(into, strip_option),
-    field(
-    ty = "Option<with_vectors_selector::SelectorOptions>",
-    build = "convert_option(&self.with_vectors)"
-    )
+        setter(into, strip_option),
+        field(
+            ty = "Option<with_vectors_selector::SelectorOptions>",
+            build = "convert_option(&self.with_vectors)"
+        )
     )]
     pub with_vectors: ::core::option::Option<WithVectorsSelector>,
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "6")]
     #[builder(
-    setter(into, strip_option),
-    field(
-    ty = "Option<read_consistency::Value>",
-    build = "convert_option(&self.read_consistency)"
-    )
+        setter(into, strip_option),
+        field(
+            ty = "Option<read_consistency::Value>",
+            build = "convert_option(&self.read_consistency)"
+        )
     )]
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// Specify in which shards to look for the points, if not specified - look in all shards
@@ -2826,7 +2700,6 @@ pub struct GetPoints {
     #[builder(default, setter(into, strip_option))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
-
 #[derive(derive_builder::Builder)]
 #[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -2851,7 +2724,6 @@ pub struct UpdatePointVectors {
     #[builder(default, setter(into, strip_option))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PointVectors {
@@ -2862,7 +2734,6 @@ pub struct PointVectors {
     #[prost(message, optional, tag = "2")]
     pub vectors: ::core::option::Option<Vectors>,
 }
-
 #[derive(derive_builder::Builder)]
 #[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -2878,11 +2749,11 @@ pub struct DeletePointVectors {
     /// Affected points
     #[prost(message, optional, tag = "3")]
     #[builder(
-    setter(into, strip_option),
-    field(
-    ty = "Option<points_selector::PointsSelectorOneOf>",
-    build = "convert_option(&self.points_selector)"
-    )
+        setter(into, strip_option),
+        field(
+            ty = "Option<points_selector::PointsSelectorOneOf>",
+            build = "convert_option(&self.points_selector)"
+        )
     )]
     pub points_selector: ::core::option::Option<PointsSelector>,
     /// List of vector names to delete
@@ -2898,7 +2769,6 @@ pub struct DeletePointVectors {
     #[builder(default, setter(into, strip_option))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
-
 #[derive(derive_builder::Builder)]
 #[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -2917,11 +2787,11 @@ pub struct SetPayloadPoints {
     /// Affected points
     #[prost(message, optional, tag = "5")]
     #[builder(
-    setter(into, strip_option),
-    field(
-    ty = "Option<points_selector::PointsSelectorOneOf>",
-    build = "convert_option(&self.points_selector)"
-    )
+        setter(into, strip_option),
+        field(
+            ty = "Option<points_selector::PointsSelectorOneOf>",
+            build = "convert_option(&self.points_selector)"
+        )
     )]
     pub points_selector: ::core::option::Option<PointsSelector>,
     /// Write ordering guarantees
@@ -2937,7 +2807,6 @@ pub struct SetPayloadPoints {
     #[builder(default, setter(into, strip_option))]
     pub key: ::core::option::Option<::prost::alloc::string::String>,
 }
-
 #[derive(derive_builder::Builder)]
 #[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -2956,11 +2825,11 @@ pub struct DeletePayloadPoints {
     /// Affected points
     #[prost(message, optional, tag = "5")]
     #[builder(
-    setter(into, strip_option),
-    field(
-    ty = "Option<points_selector::PointsSelectorOneOf>",
-    build = "convert_option(&self.points_selector)"
-    )
+        setter(into, strip_option),
+        field(
+            ty = "Option<points_selector::PointsSelectorOneOf>",
+            build = "convert_option(&self.points_selector)"
+        )
     )]
     pub points_selector: ::core::option::Option<PointsSelector>,
     /// Write ordering guarantees
@@ -2972,7 +2841,6 @@ pub struct DeletePayloadPoints {
     #[builder(default, setter(into, strip_option))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
-
 #[derive(derive_builder::Builder)]
 #[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -2988,11 +2856,11 @@ pub struct ClearPayloadPoints {
     /// Affected points
     #[prost(message, optional, tag = "3")]
     #[builder(
-    setter(into, strip_option),
-    field(
-    ty = "Option<points_selector::PointsSelectorOneOf>",
-    build = "convert_option(&self.points)"
-    )
+        setter(into, strip_option),
+        field(
+            ty = "Option<points_selector::PointsSelectorOneOf>",
+            build = "convert_option(&self.points)"
+        )
     )]
     pub points: ::core::option::Option<PointsSelector>,
     /// Write ordering guarantees
@@ -3004,7 +2872,6 @@ pub struct ClearPayloadPoints {
     #[builder(default, setter(into, strip_option))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateFieldIndexCollection {
@@ -3027,7 +2894,6 @@ pub struct CreateFieldIndexCollection {
     #[prost(message, optional, tag = "6")]
     pub ordering: ::core::option::Option<WriteOrdering>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeleteFieldIndexCollection {
@@ -3044,7 +2910,6 @@ pub struct DeleteFieldIndexCollection {
     #[prost(message, optional, tag = "4")]
     pub ordering: ::core::option::Option<WriteOrdering>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PayloadIncludeSelector {
@@ -3052,7 +2917,6 @@ pub struct PayloadIncludeSelector {
     #[prost(string, repeated, tag = "1")]
     pub fields: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PayloadExcludeSelector {
@@ -3060,14 +2924,12 @@ pub struct PayloadExcludeSelector {
     #[prost(string, repeated, tag = "1")]
     pub fields: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct WithPayloadSelector {
     #[prost(oneof = "with_payload_selector::SelectorOptions", tags = "1, 2, 3")]
     pub selector_options: ::core::option::Option<with_payload_selector::SelectorOptions>,
 }
-
 /// Nested message and enum types in `WithPayloadSelector`.
 pub mod with_payload_selector {
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -3082,21 +2944,18 @@ pub mod with_payload_selector {
         Exclude(super::PayloadExcludeSelector),
     }
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct NamedVectors {
     #[prost(map = "string, message", tag = "1")]
     pub vectors: ::std::collections::HashMap<::prost::alloc::string::String, Vector>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Vectors {
     #[prost(oneof = "vectors::VectorsOptions", tags = "1, 2")]
     pub vectors_options: ::core::option::Option<vectors::VectorsOptions>,
 }
-
 /// Nested message and enum types in `Vectors`.
 pub mod vectors {
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -3108,7 +2967,6 @@ pub mod vectors {
         Vectors(super::NamedVectors),
     }
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct VectorsSelector {
@@ -3116,14 +2974,12 @@ pub struct VectorsSelector {
     #[prost(string, repeated, tag = "1")]
     pub names: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct WithVectorsSelector {
     #[prost(oneof = "with_vectors_selector::SelectorOptions", tags = "1, 2")]
     pub selector_options: ::core::option::Option<with_vectors_selector::SelectorOptions>,
 }
-
 /// Nested message and enum types in `WithVectorsSelector`.
 pub mod with_vectors_selector {
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -3137,7 +2993,6 @@ pub mod with_vectors_selector {
         Include(super::VectorsSelector),
     }
 }
-
 #[derive(derive_builder::Builder)]
 #[builder(build_fn(private, error = "std::convert::Infallible", name = "build_inner"))]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -3165,7 +3020,6 @@ pub struct QuantizationSearchParams {
     #[builder(default, setter(strip_option))]
     pub oversampling: ::core::option::Option<f64>,
 }
-
 #[derive(derive_builder::Builder)]
 #[builder(build_fn(private, error = "std::convert::Infallible", name = "build_inner"))]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -3195,7 +3049,6 @@ pub struct SearchParams {
     #[builder(default, setter(strip_option))]
     pub indexed_only: ::core::option::Option<bool>,
 }
-
 #[derive(derive_builder::Builder)]
 #[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -3217,11 +3070,11 @@ pub struct SearchPoints {
     /// Options for specifying which payload to include or not
     #[prost(message, optional, tag = "6")]
     #[builder(
-    setter(into, strip_option),
-    field(
-    ty = "Option<with_payload_selector::SelectorOptions>",
-    build = "convert_option(&self.with_payload)"
-    )
+        setter(into, strip_option),
+        field(
+            ty = "Option<with_payload_selector::SelectorOptions>",
+            build = "convert_option(&self.with_payload)"
+        )
     )]
     pub with_payload: ::core::option::Option<WithPayloadSelector>,
     /// Search config
@@ -3243,21 +3096,21 @@ pub struct SearchPoints {
     /// Options for specifying which vectors to include into response
     #[prost(message, optional, tag = "11")]
     #[builder(
-    setter(into, strip_option),
-    field(
-    ty = "Option<with_vectors_selector::SelectorOptions>",
-    build = "convert_option(&self.with_vectors)"
-    )
+        setter(into, strip_option),
+        field(
+            ty = "Option<with_vectors_selector::SelectorOptions>",
+            build = "convert_option(&self.with_vectors)"
+        )
     )]
     pub with_vectors: ::core::option::Option<WithVectorsSelector>,
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "12")]
     #[builder(
-    setter(into, strip_option),
-    field(
-    ty = "Option<read_consistency::Value>",
-    build = "convert_option(&self.read_consistency)"
-    )
+        setter(into, strip_option),
+        field(
+            ty = "Option<read_consistency::Value>",
+            build = "convert_option(&self.read_consistency)"
+        )
     )]
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// If set, overrides global timeout setting for this request. Unit is seconds.
@@ -3272,7 +3125,6 @@ pub struct SearchPoints {
     #[builder(default, setter(into, strip_option))]
     pub sparse_indices: ::core::option::Option<SparseIndices>,
 }
-
 #[derive(derive_builder::Builder)]
 #[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -3286,11 +3138,11 @@ pub struct SearchBatchPoints {
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "3")]
     #[builder(
-    setter(into, strip_option),
-    field(
-    ty = "Option<read_consistency::Value>",
-    build = "convert_option(&self.read_consistency)"
-    )
+        setter(into, strip_option),
+        field(
+            ty = "Option<read_consistency::Value>",
+            build = "convert_option(&self.read_consistency)"
+        )
     )]
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// If set, overrides global timeout setting for this request. Unit is seconds.
@@ -3298,7 +3150,6 @@ pub struct SearchBatchPoints {
     #[builder(default, setter(strip_option))]
     pub timeout: ::core::option::Option<u64>,
 }
-
 #[derive(derive_builder::Builder)]
 #[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -3310,25 +3161,24 @@ pub struct WithLookup {
     /// Options for specifying which payload to include (or not)
     #[prost(message, optional, tag = "2")]
     #[builder(
-    setter(into, strip_option),
-    field(
-    ty = "Option<with_payload_selector::SelectorOptions>",
-    build = "convert_option(&self.with_payload)"
-    )
+        setter(into, strip_option),
+        field(
+            ty = "Option<with_payload_selector::SelectorOptions>",
+            build = "convert_option(&self.with_payload)"
+        )
     )]
     pub with_payload: ::core::option::Option<WithPayloadSelector>,
     /// Options for specifying which vectors to include (or not)
     #[prost(message, optional, tag = "3")]
     #[builder(
-    setter(into, strip_option),
-    field(
-    ty = "Option<with_vectors_selector::SelectorOptions>",
-    build = "convert_option(&self.with_vectors)"
-    )
+        setter(into, strip_option),
+        field(
+            ty = "Option<with_vectors_selector::SelectorOptions>",
+            build = "convert_option(&self.with_vectors)"
+        )
     )]
     pub with_vectors: ::core::option::Option<WithVectorsSelector>,
 }
-
 #[derive(derive_builder::Builder)]
 #[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -3350,11 +3200,11 @@ pub struct SearchPointGroups {
     /// Options for specifying which payload to include or not
     #[prost(message, optional, tag = "5")]
     #[builder(
-    setter(into, strip_option),
-    field(
-    ty = "Option<with_payload_selector::SelectorOptions>",
-    build = "convert_option(&self.with_payload)"
-    )
+        setter(into, strip_option),
+        field(
+            ty = "Option<with_payload_selector::SelectorOptions>",
+            build = "convert_option(&self.with_payload)"
+        )
     )]
     pub with_payload: ::core::option::Option<WithPayloadSelector>,
     /// Search config
@@ -3372,11 +3222,11 @@ pub struct SearchPointGroups {
     /// Options for specifying which vectors to include into response
     #[prost(message, optional, tag = "9")]
     #[builder(
-    setter(into, strip_option),
-    field(
-    ty = "Option<with_vectors_selector::SelectorOptions>",
-    build = "convert_option(&self.with_vectors)"
-    )
+        setter(into, strip_option),
+        field(
+            ty = "Option<with_vectors_selector::SelectorOptions>",
+            build = "convert_option(&self.with_vectors)"
+        )
     )]
     pub with_vectors: ::core::option::Option<WithVectorsSelector>,
     /// Payload field to group by, must be a string or number field. If there are multiple values for the field, all of them will be used. One point can be in multiple groups.
@@ -3388,11 +3238,11 @@ pub struct SearchPointGroups {
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "12")]
     #[builder(
-    setter(into, strip_option),
-    field(
-    ty = "Option<read_consistency::Value>",
-    build = "convert_option(&self.read_consistency)"
-    )
+        setter(into, strip_option),
+        field(
+            ty = "Option<read_consistency::Value>",
+            build = "convert_option(&self.read_consistency)"
+        )
     )]
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// Options for specifying how to use the group id to lookup points in another collection
@@ -3411,14 +3261,12 @@ pub struct SearchPointGroups {
     #[builder(default, setter(into, strip_option))]
     pub sparse_indices: ::core::option::Option<SparseIndices>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct StartFrom {
     #[prost(oneof = "start_from::Value", tags = "1, 2, 3, 4")]
     pub value: ::core::option::Option<start_from::Value>,
 }
-
 /// Nested message and enum types in `StartFrom`.
 pub mod start_from {
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -3434,7 +3282,6 @@ pub mod start_from {
         Datetime(::prost::alloc::string::String),
     }
 }
-
 #[derive(derive_builder::Builder)]
 #[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -3450,15 +3297,14 @@ pub struct OrderBy {
     /// Start from this value
     #[prost(message, optional, tag = "3")]
     #[builder(
-    setter(into, strip_option),
-    field(
-    ty = "Option<start_from::Value>",
-    build = "convert_option(&self.start_from)"
-    )
+        setter(into, strip_option),
+        field(
+            ty = "Option<start_from::Value>",
+            build = "convert_option(&self.start_from)"
+        )
     )]
     pub start_from: ::core::option::Option<StartFrom>,
 }
-
 #[derive(derive_builder::Builder)]
 #[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -3481,21 +3327,21 @@ pub struct ScrollPoints {
     /// Options for specifying which payload to include or not
     #[prost(message, optional, tag = "6")]
     #[builder(
-    setter(into, strip_option),
-    field(
-    ty = "Option<with_payload_selector::SelectorOptions>",
-    build = "convert_option(&self.with_payload)"
-    )
+        setter(into, strip_option),
+        field(
+            ty = "Option<with_payload_selector::SelectorOptions>",
+            build = "convert_option(&self.with_payload)"
+        )
     )]
     pub with_payload: ::core::option::Option<WithPayloadSelector>,
     /// Options for specifying which vectors to include into response
     #[prost(message, optional, tag = "7")]
     #[builder(
-    setter(into, strip_option),
-    field(
-    ty = "Option<with_vectors_selector::SelectorOptions>",
-    build = "convert_option(&self.with_vectors)"
-    )
+        setter(into, strip_option),
+        field(
+            ty = "Option<with_vectors_selector::SelectorOptions>",
+            build = "convert_option(&self.with_vectors)"
+        )
     )]
     pub with_vectors: ::core::option::Option<WithVectorsSelector>,
     /// Options for specifying read consistency guarantees
@@ -3511,7 +3357,6 @@ pub struct ScrollPoints {
     #[builder(default, setter(into, strip_option))]
     pub order_by: ::core::option::Option<OrderBy>,
 }
-
 #[derive(derive_builder::Builder)]
 #[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -3528,7 +3373,6 @@ pub struct LookupLocation {
     #[builder(default, setter(into, strip_option))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
-
 #[derive(derive_builder::Builder)]
 #[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -3553,11 +3397,11 @@ pub struct RecommendPoints {
     /// Options for specifying which payload to include or not
     #[prost(message, optional, tag = "7")]
     #[builder(
-    setter(into, strip_option),
-    field(
-    ty = "Option<with_payload_selector::SelectorOptions>",
-    build = "convert_option(&self.with_payload)"
-    )
+        setter(into, strip_option),
+        field(
+            ty = "Option<with_payload_selector::SelectorOptions>",
+            build = "convert_option(&self.with_payload)"
+        )
     )]
     pub with_payload: ::core::option::Option<WithPayloadSelector>,
     /// Search config
@@ -3579,14 +3423,13 @@ pub struct RecommendPoints {
     /// Options for specifying which vectors to include into response
     #[prost(message, optional, tag = "12")]
     #[builder(
-    setter(into, strip_option),
-    field(
-    ty = "Option<with_vectors_selector::SelectorOptions>",
-    build = "convert_option(&self.with_vectors)"
-    )
+        setter(into, strip_option),
+        field(
+            ty = "Option<with_vectors_selector::SelectorOptions>",
+            build = "convert_option(&self.with_vectors)"
+        )
     )]
     pub with_vectors: ::core::option::Option<WithVectorsSelector>,
-
     /// Name of the collection to use for points lookup, if not specified - use current collection
     #[prost(message, optional, tag = "13")]
     #[builder(default, setter(into, strip_option))]
@@ -3614,7 +3457,6 @@ pub struct RecommendPoints {
     #[builder(default, setter(into, strip_option))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RecommendBatchPoints {
@@ -3630,7 +3472,6 @@ pub struct RecommendBatchPoints {
     #[prost(uint64, optional, tag = "4")]
     pub timeout: ::core::option::Option<u64>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RecommendPointGroups {
@@ -3695,14 +3536,12 @@ pub struct RecommendPointGroups {
     #[prost(message, optional, tag = "21")]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct TargetVector {
     #[prost(oneof = "target_vector::Target", tags = "1")]
     pub target: ::core::option::Option<target_vector::Target>,
 }
-
 /// Nested message and enum types in `TargetVector`.
 pub mod target_vector {
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -3712,14 +3551,12 @@ pub mod target_vector {
         Single(super::VectorExample),
     }
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct VectorExample {
     #[prost(oneof = "vector_example::Example", tags = "1, 2")]
     pub example: ::core::option::Option<vector_example::Example>,
 }
-
 /// Nested message and enum types in `VectorExample`.
 pub mod vector_example {
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -3731,7 +3568,6 @@ pub mod vector_example {
         Vector(super::Vector),
     }
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ContextExamplePair {
@@ -3740,7 +3576,6 @@ pub struct ContextExamplePair {
     #[prost(message, optional, tag = "2")]
     pub negative: ::core::option::Option<VectorExample>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DiscoverPoints {
@@ -3787,7 +3622,6 @@ pub struct DiscoverPoints {
     #[prost(message, optional, tag = "14")]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DiscoverBatchPoints {
@@ -3803,7 +3637,6 @@ pub struct DiscoverBatchPoints {
     #[prost(uint64, optional, tag = "4")]
     pub timeout: ::core::option::Option<u64>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CountPoints {
@@ -3828,12 +3661,11 @@ pub struct CountPoints {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PointsUpdateOperation {
     #[prost(
-    oneof = "points_update_operation::Operation",
-    tags = "1, 2, 3, 4, 5, 6, 7, 8, 9, 10"
+        oneof = "points_update_operation::Operation",
+        tags = "1, 2, 3, 4, 5, 6, 7, 8, 9, 10"
     )]
     pub operation: ::core::option::Option<points_update_operation::Operation>,
 }
-
 /// Nested message and enum types in `PointsUpdateOperation`.
 pub mod points_update_operation {
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -3845,7 +3677,6 @@ pub mod points_update_operation {
         #[prost(message, optional, tag = "2")]
         pub shard_key_selector: ::core::option::Option<super::ShardKeySelector>,
     }
-
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct SetPayload {
@@ -3861,7 +3692,6 @@ pub mod points_update_operation {
         #[prost(string, optional, tag = "4")]
         pub key: ::core::option::Option<::prost::alloc::string::String>,
     }
-
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct DeletePayload {
@@ -3874,7 +3704,6 @@ pub mod points_update_operation {
         #[prost(message, optional, tag = "3")]
         pub shard_key_selector: ::core::option::Option<super::ShardKeySelector>,
     }
-
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct UpdateVectors {
@@ -3885,7 +3714,6 @@ pub mod points_update_operation {
         #[prost(message, optional, tag = "2")]
         pub shard_key_selector: ::core::option::Option<super::ShardKeySelector>,
     }
-
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct DeleteVectors {
@@ -3899,7 +3727,6 @@ pub mod points_update_operation {
         #[prost(message, optional, tag = "3")]
         pub shard_key_selector: ::core::option::Option<super::ShardKeySelector>,
     }
-
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct DeletePoints {
@@ -3910,7 +3737,6 @@ pub mod points_update_operation {
         #[prost(message, optional, tag = "2")]
         pub shard_key_selector: ::core::option::Option<super::ShardKeySelector>,
     }
-
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct ClearPayload {
@@ -3921,7 +3747,6 @@ pub mod points_update_operation {
         #[prost(message, optional, tag = "2")]
         pub shard_key_selector: ::core::option::Option<super::ShardKeySelector>,
     }
-
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Operation {
@@ -3947,7 +3772,6 @@ pub mod points_update_operation {
         ClearPayload(ClearPayload),
     }
 }
-
 #[derive(derive_builder::Builder)]
 #[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -3967,7 +3791,6 @@ pub struct UpdateBatchPoints {
     #[builder(default, setter(into, strip_option))]
     pub ordering: ::core::option::Option<WriteOrdering>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PointsOperationResponse {
@@ -3977,7 +3800,6 @@ pub struct PointsOperationResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpdateResult {
@@ -3988,7 +3810,6 @@ pub struct UpdateResult {
     #[prost(enumeration = "UpdateStatus", tag = "2")]
     pub status: i32,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ScoredPoint {
@@ -4011,14 +3832,12 @@ pub struct ScoredPoint {
     #[prost(message, optional, tag = "7")]
     pub shard_key: ::core::option::Option<ShardKey>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GroupId {
     #[prost(oneof = "group_id::Kind", tags = "1, 2, 3")]
     pub kind: ::core::option::Option<group_id::Kind>,
 }
-
 /// Nested message and enum types in `GroupId`.
 pub mod group_id {
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -4035,7 +3854,6 @@ pub mod group_id {
         StringValue(::prost::alloc::string::String),
     }
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PointGroup {
@@ -4049,7 +3867,6 @@ pub struct PointGroup {
     #[prost(message, optional, tag = "3")]
     pub lookup: ::core::option::Option<RetrievedPoint>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GroupsResult {
@@ -4057,7 +3874,6 @@ pub struct GroupsResult {
     #[prost(message, repeated, tag = "1")]
     pub groups: ::prost::alloc::vec::Vec<PointGroup>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SearchResponse {
@@ -4067,14 +3883,12 @@ pub struct SearchResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BatchResult {
     #[prost(message, repeated, tag = "1")]
     pub result: ::prost::alloc::vec::Vec<ScoredPoint>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SearchBatchResponse {
@@ -4084,7 +3898,6 @@ pub struct SearchBatchResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SearchGroupsResponse {
@@ -4094,7 +3907,6 @@ pub struct SearchGroupsResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CountResponse {
@@ -4104,7 +3916,6 @@ pub struct CountResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ScrollResponse {
@@ -4117,14 +3928,12 @@ pub struct ScrollResponse {
     #[prost(double, tag = "3")]
     pub time: f64,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CountResult {
     #[prost(uint64, tag = "1")]
     pub count: u64,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RetrievedPoint {
@@ -4138,7 +3947,6 @@ pub struct RetrievedPoint {
     #[prost(message, optional, tag = "5")]
     pub shard_key: ::core::option::Option<ShardKey>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GetResponse {
@@ -4148,7 +3956,6 @@ pub struct GetResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RecommendResponse {
@@ -4158,7 +3965,6 @@ pub struct RecommendResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RecommendBatchResponse {
@@ -4168,7 +3974,6 @@ pub struct RecommendBatchResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DiscoverResponse {
@@ -4178,7 +3983,6 @@ pub struct DiscoverResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DiscoverBatchResponse {
@@ -4188,7 +3992,6 @@ pub struct DiscoverBatchResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RecommendGroupsResponse {
@@ -4198,7 +4001,6 @@ pub struct RecommendGroupsResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpdateBatchResponse {
@@ -4208,7 +4010,6 @@ pub struct UpdateBatchResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Filter {
@@ -4225,7 +4026,6 @@ pub struct Filter {
     #[prost(message, optional, tag = "4")]
     pub min_should: ::core::option::Option<MinShould>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct MinShould {
@@ -4234,14 +4034,12 @@ pub struct MinShould {
     #[prost(uint64, tag = "2")]
     pub min_count: u64,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Condition {
     #[prost(oneof = "condition::ConditionOneOf", tags = "1, 2, 3, 4, 5, 6")]
     pub condition_one_of: ::core::option::Option<condition::ConditionOneOf>,
 }
-
 /// Nested message and enum types in `Condition`.
 pub mod condition {
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -4261,28 +4059,24 @@ pub mod condition {
         Nested(super::NestedCondition),
     }
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct IsEmptyCondition {
     #[prost(string, tag = "1")]
     pub key: ::prost::alloc::string::String,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct IsNullCondition {
     #[prost(string, tag = "1")]
     pub key: ::prost::alloc::string::String,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct HasIdCondition {
     #[prost(message, repeated, tag = "1")]
     pub has_id: ::prost::alloc::vec::Vec<PointId>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct NestedCondition {
@@ -4293,7 +4087,6 @@ pub struct NestedCondition {
     #[prost(message, optional, tag = "2")]
     pub filter: ::core::option::Option<Filter>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct FieldCondition {
@@ -4321,14 +4114,12 @@ pub struct FieldCondition {
     #[prost(message, optional, tag = "8")]
     pub datetime_range: ::core::option::Option<DatetimeRange>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Match {
     #[prost(oneof = "r#match::MatchValue", tags = "1, 2, 3, 4, 5, 6, 7, 8")]
     pub match_value: ::core::option::Option<r#match::MatchValue>,
 }
-
 /// Nested message and enum types in `Match`.
 pub mod r#match {
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -4360,21 +4151,18 @@ pub mod r#match {
         ExceptKeywords(super::RepeatedStrings),
     }
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RepeatedStrings {
     #[prost(string, repeated, tag = "1")]
     pub strings: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RepeatedIntegers {
     #[prost(int64, repeated, tag = "1")]
     pub integers: ::prost::alloc::vec::Vec<i64>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Range {
@@ -4387,7 +4175,6 @@ pub struct Range {
     #[prost(double, optional, tag = "4")]
     pub lte: ::core::option::Option<f64>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DatetimeRange {
@@ -4400,7 +4187,6 @@ pub struct DatetimeRange {
     #[prost(message, optional, tag = "4")]
     pub lte: ::core::option::Option<::prost_types::Timestamp>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GeoBoundingBox {
@@ -4411,7 +4197,6 @@ pub struct GeoBoundingBox {
     #[prost(message, optional, tag = "2")]
     pub bottom_right: ::core::option::Option<GeoPoint>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GeoRadius {
@@ -4422,7 +4207,6 @@ pub struct GeoRadius {
     #[prost(float, tag = "2")]
     pub radius: f32,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GeoLineString {
@@ -4430,7 +4214,6 @@ pub struct GeoLineString {
     #[prost(message, repeated, tag = "1")]
     pub points: ::prost::alloc::vec::Vec<GeoPoint>,
 }
-
 /// For a valid GeoPolygon, both the exterior and interior GeoLineStrings must consist of a minimum of 4 points.
 /// Additionally, the first and last points of each GeoLineString must be the same.
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -4443,7 +4226,6 @@ pub struct GeoPolygon {
     #[prost(message, repeated, tag = "2")]
     pub interiors: ::prost::alloc::vec::Vec<GeoLineString>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ValuesCount {
@@ -4456,14 +4238,12 @@ pub struct ValuesCount {
     #[prost(uint64, optional, tag = "4")]
     pub lte: ::core::option::Option<u64>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PointsSelector {
     #[prost(oneof = "points_selector::PointsSelectorOneOf", tags = "1, 2")]
     pub points_selector_one_of: ::core::option::Option<points_selector::PointsSelectorOneOf>,
 }
-
 /// Nested message and enum types in `PointsSelector`.
 pub mod points_selector {
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -4475,14 +4255,12 @@ pub mod points_selector {
         Filter(super::Filter),
     }
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PointsIdsList {
     #[prost(message, repeated, tag = "1")]
     pub ids: ::prost::alloc::vec::Vec<PointId>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PointStruct {
@@ -4493,7 +4271,6 @@ pub struct PointStruct {
     #[prost(message, optional, tag = "4")]
     pub vectors: ::core::option::Option<Vectors>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GeoPoint {
@@ -4502,7 +4279,6 @@ pub struct GeoPoint {
     #[prost(double, tag = "2")]
     pub lat: f64,
 }
-
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
 pub enum WriteOrderingType {
@@ -4513,7 +4289,6 @@ pub enum WriteOrderingType {
     /// Write operations go through the permanent leader, consistent, but may be unavailable if leader is down
     Strong = 2,
 }
-
 impl WriteOrderingType {
     /// String value of the enum field names used in the ProtoBuf definition.
     ///
@@ -4536,7 +4311,6 @@ impl WriteOrderingType {
         }
     }
 }
-
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
 pub enum ReadConsistencyType {
@@ -4547,7 +4321,6 @@ pub enum ReadConsistencyType {
     /// Send requests to half + 1 nodes, return points which are present on all of them
     Quorum = 2,
 }
-
 impl ReadConsistencyType {
     /// String value of the enum field names used in the ProtoBuf definition.
     ///
@@ -4570,7 +4343,6 @@ impl ReadConsistencyType {
         }
     }
 }
-
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
 pub enum FieldType {
@@ -4582,7 +4354,6 @@ pub enum FieldType {
     Bool = 5,
     Datetime = 6,
 }
-
 impl FieldType {
     /// String value of the enum field names used in the ProtoBuf definition.
     ///
@@ -4613,14 +4384,12 @@ impl FieldType {
         }
     }
 }
-
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
 pub enum Direction {
     Asc = 0,
     Desc = 1,
 }
-
 impl Direction {
     /// String value of the enum field names used in the ProtoBuf definition.
     ///
@@ -4641,7 +4410,6 @@ impl Direction {
         }
     }
 }
-
 /// How to use positive and negative vectors to find the results, default is `AverageVector`:
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
@@ -4654,7 +4422,6 @@ pub enum RecommendStrategy {
     /// If the `max_neg_score` is chosen then it is squared and negated.
     BestScore = 1,
 }
-
 impl RecommendStrategy {
     /// String value of the enum field names used in the ProtoBuf definition.
     ///
@@ -4675,7 +4442,6 @@ impl RecommendStrategy {
         }
     }
 }
-
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
 pub enum UpdateStatus {
@@ -4687,7 +4453,6 @@ pub enum UpdateStatus {
     /// Internal: update is rejected due to an outdated clock
     ClockRejected = 3,
 }
-
 impl UpdateStatus {
     /// String value of the enum field names used in the ProtoBuf definition.
     ///
@@ -4712,37 +4477,32 @@ impl UpdateStatus {
         }
     }
 }
-
 /// Generated client implementations.
 pub mod points_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
-
     use tonic::codegen::http::Uri;
     use tonic::codegen::*;
-
     #[derive(Debug, Clone)]
     pub struct PointsClient<T> {
         inner: tonic::client::Grpc<T>,
     }
-
     impl PointsClient<tonic::transport::Channel> {
         /// Attempt to create a new client by connecting to a given endpoint.
         pub async fn connect<D>(dst: D) -> Result<Self, tonic::transport::Error>
-            where
-                D: TryInto<tonic::transport::Endpoint>,
-                D::Error: Into<StdError>,
+        where
+            D: TryInto<tonic::transport::Endpoint>,
+            D::Error: Into<StdError>,
         {
             let conn = tonic::transport::Endpoint::new(dst)?.connect().await?;
             Ok(Self::new(conn))
         }
     }
-
     impl<T> PointsClient<T>
-        where
-            T: tonic::client::GrpcService<tonic::body::BoxBody>,
-            T::Error: Into<StdError>,
-            T::ResponseBody: Body<Data=Bytes> + Send + 'static,
-            <T::ResponseBody as Body>::Error: Into<StdError> + Send,
+    where
+        T: tonic::client::GrpcService<tonic::body::BoxBody>,
+        T::Error: Into<StdError>,
+        T::ResponseBody: Body<Data = Bytes> + Send + 'static,
+        <T::ResponseBody as Body>::Error: Into<StdError> + Send,
     {
         pub fn new(inner: T) -> Self {
             let inner = tonic::client::Grpc::new(inner);
@@ -4756,16 +4516,16 @@ pub mod points_client {
             inner: T,
             interceptor: F,
         ) -> PointsClient<InterceptedService<T, F>>
-            where
-                F: tonic::service::Interceptor,
-                T::ResponseBody: Default,
-                T: tonic::codegen::Service<
-                    http::Request<tonic::body::BoxBody>,
-                    Response=http::Response<
-                        <T as tonic::client::GrpcService<tonic::body::BoxBody>>::ResponseBody,
-                    >,
+        where
+            F: tonic::service::Interceptor,
+            T::ResponseBody: Default,
+            T: tonic::codegen::Service<
+                http::Request<tonic::body::BoxBody>,
+                Response = http::Response<
+                    <T as tonic::client::GrpcService<tonic::body::BoxBody>>::ResponseBody,
                 >,
-                <T as tonic::codegen::Service<http::Request<tonic::body::BoxBody>>>::Error:
+            >,
+            <T as tonic::codegen::Service<http::Request<tonic::body::BoxBody>>>::Error:
                 Into<StdError> + Send + Sync,
         {
             PointsClient::new(InterceptedService::new(inner, interceptor))
@@ -5251,13 +5011,10 @@ pub mod points_client {
         }
     }
 }
-
 /// Generated server implementations.
 pub mod points_server {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
-
     use tonic::codegen::*;
-
     /// Generated trait containing gRPC methods that should be implemented for use with PointsServer.
     #[async_trait]
     pub trait Points: Send + Sync + 'static {
@@ -5408,7 +5165,6 @@ pub mod points_server {
             request: tonic::Request<super::UpdateBatchPoints>,
         ) -> std::result::Result<tonic::Response<super::UpdateBatchResponse>, tonic::Status>;
     }
-
     #[derive(Debug)]
     pub struct PointsServer<T: Points> {
         inner: _Inner<T>,
@@ -5417,9 +5173,7 @@ pub mod points_server {
         max_decoding_message_size: Option<usize>,
         max_encoding_message_size: Option<usize>,
     }
-
     struct _Inner<T>(Arc<T>);
-
     impl<T: Points> PointsServer<T> {
         pub fn new(inner: T) -> Self {
             Self::from_arc(Arc::new(inner))
@@ -5435,8 +5189,8 @@ pub mod points_server {
             }
         }
         pub fn with_interceptor<F>(inner: T, interceptor: F) -> InterceptedService<Self, F>
-            where
-                F: tonic::service::Interceptor,
+        where
+            F: tonic::service::Interceptor,
         {
             InterceptedService::new(Self::new(inner), interceptor)
         }
@@ -5469,12 +5223,11 @@ pub mod points_server {
             self
         }
     }
-
     impl<T, B> tonic::codegen::Service<http::Request<B>> for PointsServer<T>
-        where
-            T: Points,
-            B: Body + Send + 'static,
-            B::Error: Into<StdError> + Send + 'static,
+    where
+        T: Points,
+        B: Body + Send + 'static,
+        B::Error: Into<StdError> + Send + 'static,
     {
         type Response = http::Response<tonic::body::BoxBody>;
         type Error = std::convert::Infallible;
@@ -5841,7 +5594,7 @@ pub mod points_server {
                     #[allow(non_camel_case_types)]
                     struct CreateFieldIndexSvc<T: Points>(pub Arc<T>);
                     impl<T: Points> tonic::server::UnaryService<super::CreateFieldIndexCollection>
-                    for CreateFieldIndexSvc<T>
+                        for CreateFieldIndexSvc<T>
                     {
                         type Response = super::PointsOperationResponse;
                         type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
@@ -5883,7 +5636,7 @@ pub mod points_server {
                     #[allow(non_camel_case_types)]
                     struct DeleteFieldIndexSvc<T: Points>(pub Arc<T>);
                     impl<T: Points> tonic::server::UnaryService<super::DeleteFieldIndexCollection>
-                    for DeleteFieldIndexSvc<T>
+                        for DeleteFieldIndexSvc<T>
                     {
                         type Response = super::PointsOperationResponse;
                         type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
@@ -6359,7 +6112,6 @@ pub mod points_server {
             }
         }
     }
-
     impl<T: Points> Clone for PointsServer<T> {
         fn clone(&self) -> Self {
             let inner = self.inner.clone();
@@ -6372,32 +6124,26 @@ pub mod points_server {
             }
         }
     }
-
     impl<T: Points> Clone for _Inner<T> {
         fn clone(&self) -> Self {
             Self(Arc::clone(&self.0))
         }
     }
-
     impl<T: std::fmt::Debug> std::fmt::Debug for _Inner<T> {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
             write!(f, "{:?}", self.0)
         }
     }
-
     impl<T: Points> tonic::server::NamedService for PointsServer<T> {
         const NAME: &'static str = "qdrant.Points";
     }
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateFullSnapshotRequest {}
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListFullSnapshotsRequest {}
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeleteFullSnapshotRequest {
@@ -6405,7 +6151,6 @@ pub struct DeleteFullSnapshotRequest {
     #[prost(string, tag = "1")]
     pub snapshot_name: ::prost::alloc::string::String,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateSnapshotRequest {
@@ -6413,7 +6158,6 @@ pub struct CreateSnapshotRequest {
     #[prost(string, tag = "1")]
     pub collection_name: ::prost::alloc::string::String,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListSnapshotsRequest {
@@ -6421,7 +6165,6 @@ pub struct ListSnapshotsRequest {
     #[prost(string, tag = "1")]
     pub collection_name: ::prost::alloc::string::String,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeleteSnapshotRequest {
@@ -6432,7 +6175,6 @@ pub struct DeleteSnapshotRequest {
     #[prost(string, tag = "2")]
     pub snapshot_name: ::prost::alloc::string::String,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SnapshotDescription {
@@ -6449,7 +6191,6 @@ pub struct SnapshotDescription {
     #[prost(string, optional, tag = "4")]
     pub checksum: ::core::option::Option<::prost::alloc::string::String>,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateSnapshotResponse {
@@ -6459,7 +6200,6 @@ pub struct CreateSnapshotResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListSnapshotsResponse {
@@ -6469,7 +6209,6 @@ pub struct ListSnapshotsResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeleteSnapshotResponse {
@@ -6477,37 +6216,32 @@ pub struct DeleteSnapshotResponse {
     #[prost(double, tag = "1")]
     pub time: f64,
 }
-
 /// Generated client implementations.
 pub mod snapshots_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
-
     use tonic::codegen::http::Uri;
     use tonic::codegen::*;
-
     #[derive(Debug, Clone)]
     pub struct SnapshotsClient<T> {
         inner: tonic::client::Grpc<T>,
     }
-
     impl SnapshotsClient<tonic::transport::Channel> {
         /// Attempt to create a new client by connecting to a given endpoint.
         pub async fn connect<D>(dst: D) -> Result<Self, tonic::transport::Error>
-            where
-                D: TryInto<tonic::transport::Endpoint>,
-                D::Error: Into<StdError>,
+        where
+            D: TryInto<tonic::transport::Endpoint>,
+            D::Error: Into<StdError>,
         {
             let conn = tonic::transport::Endpoint::new(dst)?.connect().await?;
             Ok(Self::new(conn))
         }
     }
-
     impl<T> SnapshotsClient<T>
-        where
-            T: tonic::client::GrpcService<tonic::body::BoxBody>,
-            T::Error: Into<StdError>,
-            T::ResponseBody: Body<Data=Bytes> + Send + 'static,
-            <T::ResponseBody as Body>::Error: Into<StdError> + Send,
+    where
+        T: tonic::client::GrpcService<tonic::body::BoxBody>,
+        T::Error: Into<StdError>,
+        T::ResponseBody: Body<Data = Bytes> + Send + 'static,
+        <T::ResponseBody as Body>::Error: Into<StdError> + Send,
     {
         pub fn new(inner: T) -> Self {
             let inner = tonic::client::Grpc::new(inner);
@@ -6521,16 +6255,16 @@ pub mod snapshots_client {
             inner: T,
             interceptor: F,
         ) -> SnapshotsClient<InterceptedService<T, F>>
-            where
-                F: tonic::service::Interceptor,
-                T::ResponseBody: Default,
-                T: tonic::codegen::Service<
-                    http::Request<tonic::body::BoxBody>,
-                    Response=http::Response<
-                        <T as tonic::client::GrpcService<tonic::body::BoxBody>>::ResponseBody,
-                    >,
+        where
+            F: tonic::service::Interceptor,
+            T::ResponseBody: Default,
+            T: tonic::codegen::Service<
+                http::Request<tonic::body::BoxBody>,
+                Response = http::Response<
+                    <T as tonic::client::GrpcService<tonic::body::BoxBody>>::ResponseBody,
                 >,
-                <T as tonic::codegen::Service<http::Request<tonic::body::BoxBody>>>::Error:
+            >,
+            <T as tonic::codegen::Service<http::Request<tonic::body::BoxBody>>>::Error:
                 Into<StdError> + Send + Sync,
         {
             SnapshotsClient::new(InterceptedService::new(inner, interceptor))
@@ -6688,13 +6422,10 @@ pub mod snapshots_client {
         }
     }
 }
-
 /// Generated server implementations.
 pub mod snapshots_server {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
-
     use tonic::codegen::*;
-
     /// Generated trait containing gRPC methods that should be implemented for use with SnapshotsServer.
     #[async_trait]
     pub trait Snapshots: Send + Sync + 'static {
@@ -6735,7 +6466,6 @@ pub mod snapshots_server {
             request: tonic::Request<super::DeleteFullSnapshotRequest>,
         ) -> std::result::Result<tonic::Response<super::DeleteSnapshotResponse>, tonic::Status>;
     }
-
     #[derive(Debug)]
     pub struct SnapshotsServer<T: Snapshots> {
         inner: _Inner<T>,
@@ -6744,9 +6474,7 @@ pub mod snapshots_server {
         max_decoding_message_size: Option<usize>,
         max_encoding_message_size: Option<usize>,
     }
-
     struct _Inner<T>(Arc<T>);
-
     impl<T: Snapshots> SnapshotsServer<T> {
         pub fn new(inner: T) -> Self {
             Self::from_arc(Arc::new(inner))
@@ -6762,8 +6490,8 @@ pub mod snapshots_server {
             }
         }
         pub fn with_interceptor<F>(inner: T, interceptor: F) -> InterceptedService<Self, F>
-            where
-                F: tonic::service::Interceptor,
+        where
+            F: tonic::service::Interceptor,
         {
             InterceptedService::new(Self::new(inner), interceptor)
         }
@@ -6796,12 +6524,11 @@ pub mod snapshots_server {
             self
         }
     }
-
     impl<T, B> tonic::codegen::Service<http::Request<B>> for SnapshotsServer<T>
-        where
-            T: Snapshots,
-            B: Body + Send + 'static,
-            B::Error: Into<StdError> + Send + 'static,
+    where
+        T: Snapshots,
+        B: Body + Send + 'static,
+        B::Error: Into<StdError> + Send + 'static,
     {
         type Response = http::Response<tonic::body::BoxBody>;
         type Error = std::convert::Infallible;
@@ -6935,7 +6662,7 @@ pub mod snapshots_server {
                     #[allow(non_camel_case_types)]
                     struct CreateFullSvc<T: Snapshots>(pub Arc<T>);
                     impl<T: Snapshots> tonic::server::UnaryService<super::CreateFullSnapshotRequest>
-                    for CreateFullSvc<T>
+                        for CreateFullSvc<T>
                     {
                         type Response = super::CreateSnapshotResponse;
                         type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
@@ -7015,7 +6742,7 @@ pub mod snapshots_server {
                     #[allow(non_camel_case_types)]
                     struct DeleteFullSvc<T: Snapshots>(pub Arc<T>);
                     impl<T: Snapshots> tonic::server::UnaryService<super::DeleteFullSnapshotRequest>
-                    for DeleteFullSvc<T>
+                        for DeleteFullSvc<T>
                     {
                         type Response = super::DeleteSnapshotResponse;
                         type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
@@ -7063,7 +6790,6 @@ pub mod snapshots_server {
             }
         }
     }
-
     impl<T: Snapshots> Clone for SnapshotsServer<T> {
         fn clone(&self) -> Self {
             let inner = self.inner.clone();
@@ -7076,28 +6802,23 @@ pub mod snapshots_server {
             }
         }
     }
-
     impl<T: Snapshots> Clone for _Inner<T> {
         fn clone(&self) -> Self {
             Self(Arc::clone(&self.0))
         }
     }
-
     impl<T: std::fmt::Debug> std::fmt::Debug for _Inner<T> {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
             write!(f, "{:?}", self.0)
         }
     }
-
     impl<T: Snapshots> tonic::server::NamedService for SnapshotsServer<T> {
         const NAME: &'static str = "qdrant.Snapshots";
     }
 }
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct HealthCheckRequest {}
-
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct HealthCheckReply {
@@ -7108,37 +6829,32 @@ pub struct HealthCheckReply {
     #[prost(string, optional, tag = "3")]
     pub commit: ::core::option::Option<::prost::alloc::string::String>,
 }
-
 /// Generated client implementations.
 pub mod qdrant_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
-
     use tonic::codegen::http::Uri;
     use tonic::codegen::*;
-
     #[derive(Debug, Clone)]
     pub struct QdrantClient<T> {
         inner: tonic::client::Grpc<T>,
     }
-
     impl QdrantClient<tonic::transport::Channel> {
         /// Attempt to create a new client by connecting to a given endpoint.
         pub async fn connect<D>(dst: D) -> Result<Self, tonic::transport::Error>
-            where
-                D: TryInto<tonic::transport::Endpoint>,
-                D::Error: Into<StdError>,
+        where
+            D: TryInto<tonic::transport::Endpoint>,
+            D::Error: Into<StdError>,
         {
             let conn = tonic::transport::Endpoint::new(dst)?.connect().await?;
             Ok(Self::new(conn))
         }
     }
-
     impl<T> QdrantClient<T>
-        where
-            T: tonic::client::GrpcService<tonic::body::BoxBody>,
-            T::Error: Into<StdError>,
-            T::ResponseBody: Body<Data=Bytes> + Send + 'static,
-            <T::ResponseBody as Body>::Error: Into<StdError> + Send,
+    where
+        T: tonic::client::GrpcService<tonic::body::BoxBody>,
+        T::Error: Into<StdError>,
+        T::ResponseBody: Body<Data = Bytes> + Send + 'static,
+        <T::ResponseBody as Body>::Error: Into<StdError> + Send,
     {
         pub fn new(inner: T) -> Self {
             let inner = tonic::client::Grpc::new(inner);
@@ -7152,16 +6868,16 @@ pub mod qdrant_client {
             inner: T,
             interceptor: F,
         ) -> QdrantClient<InterceptedService<T, F>>
-            where
-                F: tonic::service::Interceptor,
-                T::ResponseBody: Default,
-                T: tonic::codegen::Service<
-                    http::Request<tonic::body::BoxBody>,
-                    Response=http::Response<
-                        <T as tonic::client::GrpcService<tonic::body::BoxBody>>::ResponseBody,
-                    >,
+        where
+            F: tonic::service::Interceptor,
+            T::ResponseBody: Default,
+            T: tonic::codegen::Service<
+                http::Request<tonic::body::BoxBody>,
+                Response = http::Response<
+                    <T as tonic::client::GrpcService<tonic::body::BoxBody>>::ResponseBody,
                 >,
-                <T as tonic::codegen::Service<http::Request<tonic::body::BoxBody>>>::Error:
+            >,
+            <T as tonic::codegen::Service<http::Request<tonic::body::BoxBody>>>::Error:
                 Into<StdError> + Send + Sync,
         {
             QdrantClient::new(InterceptedService::new(inner, interceptor))
@@ -7216,13 +6932,10 @@ pub mod qdrant_client {
         }
     }
 }
-
 /// Generated server implementations.
 pub mod qdrant_server {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
-
     use tonic::codegen::*;
-
     /// Generated trait containing gRPC methods that should be implemented for use with QdrantServer.
     #[async_trait]
     pub trait Qdrant: Send + Sync + 'static {
@@ -7231,7 +6944,6 @@ pub mod qdrant_server {
             request: tonic::Request<super::HealthCheckRequest>,
         ) -> std::result::Result<tonic::Response<super::HealthCheckReply>, tonic::Status>;
     }
-
     #[derive(Debug)]
     pub struct QdrantServer<T: Qdrant> {
         inner: _Inner<T>,
@@ -7240,9 +6952,7 @@ pub mod qdrant_server {
         max_decoding_message_size: Option<usize>,
         max_encoding_message_size: Option<usize>,
     }
-
     struct _Inner<T>(Arc<T>);
-
     impl<T: Qdrant> QdrantServer<T> {
         pub fn new(inner: T) -> Self {
             Self::from_arc(Arc::new(inner))
@@ -7258,8 +6968,8 @@ pub mod qdrant_server {
             }
         }
         pub fn with_interceptor<F>(inner: T, interceptor: F) -> InterceptedService<Self, F>
-            where
-                F: tonic::service::Interceptor,
+        where
+            F: tonic::service::Interceptor,
         {
             InterceptedService::new(Self::new(inner), interceptor)
         }
@@ -7292,12 +7002,11 @@ pub mod qdrant_server {
             self
         }
     }
-
     impl<T, B> tonic::codegen::Service<http::Request<B>> for QdrantServer<T>
-        where
-            T: Qdrant,
-            B: Body + Send + 'static,
-            B::Error: Into<StdError> + Send + 'static,
+    where
+        T: Qdrant,
+        B: Body + Send + 'static,
+        B::Error: Into<StdError> + Send + 'static,
     {
         type Response = http::Response<tonic::body::BoxBody>;
         type Error = std::convert::Infallible;
@@ -7361,7 +7070,6 @@ pub mod qdrant_server {
             }
         }
     }
-
     impl<T: Qdrant> Clone for QdrantServer<T> {
         fn clone(&self) -> Self {
             let inner = self.inner.clone();
@@ -7374,19 +7082,16 @@ pub mod qdrant_server {
             }
         }
     }
-
     impl<T: Qdrant> Clone for _Inner<T> {
         fn clone(&self) -> Self {
             Self(Arc::clone(&self.0))
         }
     }
-
     impl<T: std::fmt::Debug> std::fmt::Debug for _Inner<T> {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
             write!(f, "{:?}", self.0)
         }
     }
-
     impl<T: Qdrant> tonic::server::NamedService for QdrantServer<T> {
         const NAME: &'static str = "qdrant.Qdrant";
     }
@@ -7425,9 +7130,9 @@ macro_rules! builder_type_conversions {
 
 /// Helper function to convert from &Option<T> to Option<U> if U: From<T> is satisfied.
 fn convert_option<T, U>(input: &Option<T>) -> Option<U>
-    where
-        U: From<T>,
-        T: Clone,
+where
+    U: From<T>,
+    T: Clone,
 {
     let input = input.as_ref()?;
     Some(input.clone().into())
