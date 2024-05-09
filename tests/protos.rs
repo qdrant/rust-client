@@ -439,6 +439,23 @@ fn configure_builder(builder: Builder) -> Builder {
             // DeleteFieldIndexCollection
             ("DeleteFieldIndexCollection.wait", DEFAULT_OPTION),
             ("DeleteFieldIndexCollection.ordering", DEFAULT_OPTION),
+            // UpdateCollectionClusterSetupRequest
+            (
+                "UpdateCollectionClusterSetupRequest.timeout",
+                DEFAULT_OPTION,
+            ),
+            (
+                "UpdateCollectionClusterSetupRequest.operation",
+                DEFAULT_OPTION_INTO,
+            ),
+            // CreateShardKeyRequest
+            ("CreateShardKeyRequest.request", DEFAULT_OPTION_INTO),
+            ("CreateShardKeyRequest.timeout", DEFAULT_OPTION),
+            // DeleteShardKeyRequest
+            ("DeleteShardKeyRequest.request", DEFAULT_OPTION_INTO),
+            ("DeleteShardKeyRequest.timeout", DEFAULT_OPTION),
+            // DeleteCollection
+            ("DeleteCollection.timeout", DEFAULT_OPTION),
         ],
         builder_derive_options(),
     )
@@ -547,6 +564,22 @@ fn builder_derive_options() -> &'static [BuildDeriveOptions] {
             NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
             false,
         ),
+        (
+            "UpdateCollectionClusterSetupRequest",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            true,
+        ),
+        (
+            "CreateShardKeyRequest",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            true,
+        ),
+        (
+            "DeleteShardKeyRequest",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            true,
+        ),
+        ("DeleteCollection", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
     ]
 }
 

@@ -513,6 +513,8 @@ pub struct UpdateCollection {
     #[builder(default, setter(into, strip_option))]
     pub sparse_vectors_config: ::core::option::Option<SparseVectorConfig>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeleteCollection {
@@ -521,6 +523,7 @@ pub struct DeleteCollection {
     pub collection_name: ::prost::alloc::string::String,
     /// Wait timeout for operation commit in seconds, if not specified - default value will be supplied
     #[prost(uint64, optional, tag = "2")]
+    #[builder(default, setter(strip_option))]
     pub timeout: ::core::option::Option<u64>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -940,6 +943,8 @@ pub struct DeleteShardKey {
     #[prost(message, optional, tag = "1")]
     pub shard_key: ::core::option::Option<ShardKey>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpdateCollectionClusterSetupRequest {
@@ -948,11 +953,13 @@ pub struct UpdateCollectionClusterSetupRequest {
     pub collection_name: ::prost::alloc::string::String,
     /// Wait timeout for operation commit in seconds, if not specified - default value will be supplied
     #[prost(uint64, optional, tag = "6")]
+    #[builder(default, setter(strip_option))]
     pub timeout: ::core::option::Option<u64>,
     #[prost(
         oneof = "update_collection_cluster_setup_request::Operation",
         tags = "2, 3, 4, 5, 7, 8, 9"
     )]
+    #[builder(default, setter(into, strip_option))]
     pub operation: ::core::option::Option<update_collection_cluster_setup_request::Operation>,
 }
 /// Nested message and enum types in `UpdateCollectionClusterSetupRequest`.
@@ -982,6 +989,8 @@ pub struct UpdateCollectionClusterSetupResponse {
     #[prost(bool, tag = "1")]
     pub result: bool,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateShardKeyRequest {
@@ -990,11 +999,15 @@ pub struct CreateShardKeyRequest {
     pub collection_name: ::prost::alloc::string::String,
     /// Request to create shard key
     #[prost(message, optional, tag = "2")]
+    #[builder(default, setter(into, strip_option))]
     pub request: ::core::option::Option<CreateShardKey>,
     /// Wait timeout for operation commit in seconds, if not specified - default value will be supplied
     #[prost(uint64, optional, tag = "3")]
+    #[builder(default, setter(strip_option))]
     pub timeout: ::core::option::Option<u64>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeleteShardKeyRequest {
@@ -1003,9 +1016,11 @@ pub struct DeleteShardKeyRequest {
     pub collection_name: ::prost::alloc::string::String,
     /// Request to delete shard key
     #[prost(message, optional, tag = "2")]
+    #[builder(default, setter(into, strip_option))]
     pub request: ::core::option::Option<DeleteShardKey>,
     /// Wait timeout for operation commit in seconds, if not specified - default value will be supplied
     #[prost(uint64, optional, tag = "3")]
+    #[builder(default, setter(strip_option))]
     pub timeout: ::core::option::Option<u64>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -7307,6 +7322,13 @@ builder_type_conversions!(
     DeleteFieldIndexCollection,
     DeleteFieldIndexCollectionBuilder
 );
+builder_type_conversions!(
+    UpdateCollectionClusterSetupRequest,
+    UpdateCollectionClusterSetupRequestBuilder
+);
+builder_type_conversions!(CreateShardKeyRequest, CreateShardKeyRequestBuilder);
+builder_type_conversions!(DeleteShardKeyRequest, DeleteShardKeyRequestBuilder);
+builder_type_conversions!(DeleteCollection, DeleteCollectionBuilder);
 
 // import our manual builder here so all builder come from the same module in the end user API.
 pub use crate::manual_builder::*;
@@ -7603,6 +7625,38 @@ impl DeleteFieldIndexCollectionBuilder {
         let mut builder = Self::create_empty();
         builder.collection_name = Some(collection_name.into());
         builder.field_name = Some(field_name.into());
+        builder
+    }
+}
+
+impl UpdateCollectionClusterSetupRequestBuilder {
+    pub fn new(collection_name: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder
+    }
+}
+
+impl CreateShardKeyRequestBuilder {
+    pub fn new(collection_name: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder
+    }
+}
+
+impl DeleteShardKeyRequestBuilder {
+    pub fn new(collection_name: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder
+    }
+}
+
+impl DeleteCollectionBuilder {
+    pub fn new(collection_name: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
         builder
     }
 }

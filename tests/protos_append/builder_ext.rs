@@ -296,3 +296,35 @@ impl DeleteFieldIndexCollectionBuilder {
         builder
     }
 }
+
+impl UpdateCollectionClusterSetupRequestBuilder {
+    pub fn new(collection_name: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder
+    }
+}
+
+impl CreateShardKeyRequestBuilder {
+    pub fn new(collection_name: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder
+    }
+}
+
+impl DeleteShardKeyRequestBuilder {
+    pub fn new(collection_name: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder
+    }
+}
+
+impl DeleteCollectionBuilder {
+    pub fn new(collection_name: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder
+    }
+}

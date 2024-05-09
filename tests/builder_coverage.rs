@@ -8,7 +8,8 @@ use qdrant_client::qdrant::{
     RecommendPointGroupsBuilder, RecommendPointsBuilder, ScalarQuantizationBuilder,
     ScrollPointsBuilder, SearchBatchPointsBuilder, SearchPointGroupsBuilder, SearchPointsBuilder,
     SetPayloadPointsBuilder, UpdateBatchPointsBuilder, UpdateCollectionBuilder,
-    UpdatePointVectorsBuilder, UpsertPointsBuilder, VectorParamsBuilder, WithLookupBuilder,
+    UpdateCollectionClusterSetupRequestBuilder, UpdatePointVectorsBuilder, UpsertPointsBuilder,
+    VectorParamsBuilder, WithLookupBuilder,
 };
 use std::collections::HashMap;
 
@@ -54,4 +55,5 @@ fn builder_coverage() {
     UpsertPointsBuilder::new("mycollection", []).build();
     CreateFieldIndexCollectionBuilder::new("mycollection", " myfield").build();
     DeleteFieldIndexCollectionBuilder::new("mycollection", " myfield").build();
+    UpdateCollectionClusterSetupRequestBuilder::new("mycollection").build();
 }
