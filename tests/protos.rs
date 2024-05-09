@@ -284,6 +284,82 @@ fn configure_builder(builder: Builder) -> Builder {
                 builder_custom_into!(read_consistency::Value, self.read_consistency),
             ),
             ("SearchBatchPoints.timeout", DEFAULT_OPTION),
+            // SearchPointGroups
+            ("SearchPointGroups.filter", DEFAULT_OPTION_INTO),
+            (
+                "SearchPointGroups.with_payload",
+                builder_custom_into!(with_payload_selector::SelectorOptions, self.with_payload),
+            ),
+            ("SearchPointGroups.params", DEFAULT_OPTION_INTO),
+            ("SearchPointGroups.score_threshold", DEFAULT_OPTION_INTO),
+            ("SearchPointGroups.vector_name", DEFAULT_OPTION_INTO),
+            (
+                "SearchPointGroups.with_vectors",
+                builder_custom_into!(with_vectors_selector::SelectorOptions, self.with_vectors),
+            ),
+            (
+                "SearchPointGroups.read_consistency",
+                builder_custom_into!(read_consistency::Value, self.read_consistency),
+            ),
+            ("SearchPointGroups.with_lookup", DEFAULT_OPTION_INTO),
+            ("SearchPointGroups.timeout", DEFAULT_OPTION_INTO),
+            ("SearchPointGroups.shard_key_selector", DEFAULT_OPTION_INTO),
+            ("SearchPointGroups.sparse_indices", DEFAULT_OPTION_INTO),
+            // WithLookup
+            (
+                "WithLookup.with_payload",
+                builder_custom_into!(with_payload_selector::SelectorOptions, self.with_payload),
+            ),
+            (
+                "WithLookup.with_vectors",
+                builder_custom_into!(with_vectors_selector::SelectorOptions, self.with_vectors),
+            ),
+            // DeletePoints
+            // DeletePoints exists twice in qdrant.rs. This interfers with this hook.
+            // TODO: Find a way to build or manually implement for DeletePoints
+            /*
+            ("DeletePoints.wait", DEFAULT_OPTION),
+            (
+                "DeletePoints.points",
+                builder_custom_into!(points_selector::PointsSelectorOneOf, self.points),
+            ),
+            ("DeletePoints.ordering", DEFAULT_OPTION_INTO),
+            ("DeletePoints.shard_key_selector", DEFAULT_OPTION_INTO),
+             */
+            // DeletePointVectors
+            ("DeletePointVectors.wait", DEFAULT_OPTION),
+            (
+                "DeletePointVectors.points_selector",
+                builder_custom_into!(points_selector::PointsSelectorOneOf, self.points_selector),
+            ),
+            ("DeletePointVectors.vectors", DEFAULT_OPTION_INTO),
+            ("DeletePointVectors.ordering", DEFAULT_OPTION_INTO),
+            ("DeletePointVectors.shard_key_selector", DEFAULT_OPTION_INTO),
+            // UpdatePointVectors
+            ("UpdatePointVectors.wait", DEFAULT_OPTION),
+            ("UpdatePointVectors.ordering", DEFAULT_OPTION_INTO),
+            ("UpdatePointVectors.shard_key_selector", DEFAULT_OPTION_INTO),
+            // ScorllPoints
+            ("ScrollPoints.filter", DEFAULT_OPTION_INTO),
+            ("ScrollPoints.offset", DEFAULT_OPTION_INTO),
+            ("ScrollPoints.limit", DEFAULT_OPTION),
+            (
+                "ScrollPoints.with_payload",
+                builder_custom_into!(with_payload_selector::SelectorOptions, self.with_payload),
+            ),
+            (
+                "ScrollPoints.with_vectors",
+                builder_custom_into!(with_vectors_selector::SelectorOptions, self.with_vectors),
+            ),
+            ("ScrollPoints.read_consistency", DEFAULT_OPTION_INTO),
+            ("ScrollPoints.shard_key_selector", DEFAULT_OPTION_INTO),
+            ("ScrollPoints.order_by", DEFAULT_OPTION_INTO),
+            // OrderBy
+            ("OrderBy.direction", DEFAULT_OPTION),
+            (
+                "OrderBy.start_from",
+                builder_custom_into!(start_from::Value, self.start_from),
+            ),
         ],
         builder_derive_options(),
     )
@@ -342,9 +418,22 @@ fn builder_derive_options() -> &'static [BuildDeriveOptions] {
             NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
             true,
         ),
-        // GetPoints
         ("GetPoints", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
         ("SearchBatchPoints", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
+        ("SearchPointGroups", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
+        ("WithLookup", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
+        (
+            "DeletePointVectors",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            true,
+        ),
+        (
+            "UpdatePointVectors",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            true,
+        ),
+        ("ScrollPoints", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
+        ("OrderBy", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
     ]
 }
 

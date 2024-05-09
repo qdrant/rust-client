@@ -116,3 +116,72 @@ impl SearchBatchPointsBuilder {
         builder
     }
 }
+
+impl SearchPointGroupsBuilder {
+    pub fn new(
+        collection_name: impl Into<String>,
+        vector: impl Into<Vec<f32>>,
+        limit: u32,
+        group_by: impl Into<String>,
+        group_size: u32,
+    ) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder.vector = Some(vector.into());
+        builder.limit = Some(limit);
+        builder.group_by = Some(group_by.into());
+        builder.group_size = Some(group_size);
+        builder
+    }
+}
+
+impl WithLookupBuilder {
+    pub fn new(collection: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection = Some(collection.into());
+        builder
+    }
+}
+
+/*
+impl DeletePointsBuilder {
+    pub fn new(collection_name: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder
+    }
+}
+*/
+
+impl DeletePointVectorsBuilder {
+    pub fn new(collection_name: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder
+    }
+}
+
+impl UpdatePointVectorsBuilder {
+    pub fn new(collection_name: impl Into<String>, points: impl Into<Vec<PointVectors>>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder.points = Some(points.into());
+        builder
+    }
+}
+
+impl ScrollPointsBuilder {
+    pub fn new(collection_name: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder
+    }
+}
+
+impl OrderByBuilder {
+    pub fn new(key: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.key = Some(key.into());
+        builder
+    }
+}
