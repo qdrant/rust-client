@@ -456,6 +456,32 @@ fn configure_builder(builder: Builder) -> Builder {
             ("DeleteShardKeyRequest.timeout", DEFAULT_OPTION),
             // DeleteCollection
             ("DeleteCollection.timeout", DEFAULT_OPTION),
+            // CollectionParamsDiff
+            ("CollectionParamsDiff.replication_factor", DEFAULT_OPTION),
+            (
+                "CollectionParamsDiff.write_consistency_factor",
+                DEFAULT_OPTION,
+            ),
+            ("CollectionParamsDiff.on_disk_payload", DEFAULT_OPTION),
+            ("CollectionParamsDiff.read_fan_out_factor", DEFAULT_OPTION),
+            // VectorParamsDiff
+            ("VectorParamsDiff.hnsw_config", DEFAULT_OPTION_INTO),
+            ("VectorParamsDiff.quantization_config", DEFAULT_OPTION_INTO),
+            ("VectorParamsDiff.on_disk", DEFAULT_OPTION),
+            // SparseVectorParams
+            ("SparseVectorParams.index", DEFAULT_OPTION_INTO),
+            ("SparseVectorParams.modifier", DEFAULT_OPTION_INTO),
+            // SparseIndexConfig
+            ("SparseIndexConfig.full_scan_threshold", DEFAULT_OPTION_INTO),
+            ("SparseIndexConfig.on_disk", DEFAULT_OPTION),
+            // CreateShardKey
+            ("CreateShardKey.shard_key", DEFAULT_OPTION_INTO),
+            ("CreateShardKey.shards_number", DEFAULT_OPTION),
+            ("CreateShardKey.replication_factor", DEFAULT_OPTION),
+            ("CreateShardKey.placement", DEFAULT_OPTION),
+            // ContextExamplePair
+            ("ContextExamplePair.positive", DEFAULT_OPTION_INTO),
+            ("ContextExamplePair.negative", DEFAULT_OPTION_INTO),
         ],
         builder_derive_options(),
     )
@@ -580,6 +606,12 @@ fn builder_derive_options() -> &'static [BuildDeriveOptions] {
             true,
         ),
         ("DeleteCollection", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
+        ("CollectionParamsDiff", DEFAULT_BUILDER_DERIVE_OPTIONS, true),
+        ("VectorParamsDiff", DEFAULT_BUILDER_DERIVE_OPTIONS, true),
+        ("SparseVectorParams", DEFAULT_BUILDER_DERIVE_OPTIONS, true),
+        ("SparseIndexConfig", DEFAULT_BUILDER_DERIVE_OPTIONS, true),
+        ("CreateShardKey", DEFAULT_BUILDER_DERIVE_OPTIONS, true),
+        ("ContextExamplePair", DEFAULT_BUILDER_DERIVE_OPTIONS, true),
     ]
 }
 

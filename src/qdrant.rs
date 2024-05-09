@@ -35,17 +35,22 @@ pub struct VectorParams {
     #[builder(default, setter(into, strip_option))]
     pub datatype: ::core::option::Option<i32>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, error = "std::convert::Infallible", name = "build_inner"))]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct VectorParamsDiff {
     /// Update params for HNSW index. If empty object - it will be unset
     #[prost(message, optional, tag = "1")]
+    #[builder(default, setter(into, strip_option))]
     pub hnsw_config: ::core::option::Option<HnswConfigDiff>,
     /// Update quantization params. If none - it is left unchanged.
     #[prost(message, optional, tag = "2")]
+    #[builder(default, setter(into, strip_option))]
     pub quantization_config: ::core::option::Option<QuantizationConfigDiff>,
     /// If true - serve vectors from disk. If set to false, the vectors will be loaded in RAM.
     #[prost(bool, optional, tag = "3")]
+    #[builder(default, setter(strip_option))]
     pub on_disk: ::core::option::Option<bool>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -94,14 +99,18 @@ pub mod vectors_config_diff {
         ParamsMap(super::VectorParamsDiffMap),
     }
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, error = "std::convert::Infallible", name = "build_inner"))]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SparseVectorParams {
     /// Configuration of sparse index
     #[prost(message, optional, tag = "1")]
+    #[builder(default, setter(into, strip_option))]
     pub index: ::core::option::Option<SparseIndexConfig>,
     /// If set - apply modifier to the vector values
     #[prost(enumeration = "Modifier", optional, tag = "2")]
+    #[builder(default, setter(into, strip_option))]
     pub modifier: ::core::option::Option<i32>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -216,6 +225,8 @@ pub struct HnswConfigDiff {
     #[builder(default, setter(strip_option))]
     pub payload_m: ::core::option::Option<u64>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, error = "std::convert::Infallible", name = "build_inner"))]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SparseIndexConfig {
@@ -223,10 +234,12 @@ pub struct SparseIndexConfig {
     /// Prefer a full scan search upto (excluding) this number of vectors.
     /// Note: this is number of vectors, not KiloBytes.
     #[prost(uint64, optional, tag = "1")]
+    #[builder(default, setter(into, strip_option))]
     pub full_scan_threshold: ::core::option::Option<u64>,
     ///
     /// Store inverted index on disk. If set to false, the index will be stored in RAM.
     #[prost(bool, optional, tag = "2")]
+    #[builder(default, setter(strip_option))]
     pub on_disk: ::core::option::Option<bool>,
 }
 #[derive(derive_builder::Builder)]
@@ -564,20 +577,26 @@ pub struct CollectionParams {
     #[prost(message, optional, tag = "10")]
     pub sparse_vectors_config: ::core::option::Option<SparseVectorConfig>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, error = "std::convert::Infallible", name = "build_inner"))]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CollectionParamsDiff {
     /// Number of replicas of each shard that network tries to maintain
     #[prost(uint32, optional, tag = "1")]
+    #[builder(default, setter(strip_option))]
     pub replication_factor: ::core::option::Option<u32>,
     /// How many replicas should apply the operation for us to consider it successful
     #[prost(uint32, optional, tag = "2")]
+    #[builder(default, setter(strip_option))]
     pub write_consistency_factor: ::core::option::Option<u32>,
     /// If true - point's payload will not be stored in memory
     #[prost(bool, optional, tag = "3")]
+    #[builder(default, setter(strip_option))]
     pub on_disk_payload: ::core::option::Option<bool>,
     /// Fan-out every read request to these many additional remote nodes (and return first available response)
     #[prost(uint32, optional, tag = "4")]
+    #[builder(default, setter(strip_option))]
     pub read_fan_out_factor: ::core::option::Option<u32>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -920,20 +939,26 @@ pub struct Replica {
     #[prost(uint64, tag = "2")]
     pub peer_id: u64,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, error = "std::convert::Infallible", name = "build_inner"))]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateShardKey {
     /// User-defined shard key
     #[prost(message, optional, tag = "1")]
+    #[builder(default, setter(into, strip_option))]
     pub shard_key: ::core::option::Option<ShardKey>,
     /// Number of shards to create per shard key
     #[prost(uint32, optional, tag = "2")]
+    #[builder(default, setter(strip_option))]
     pub shards_number: ::core::option::Option<u32>,
     /// Number of replicas of each shard to create
     #[prost(uint32, optional, tag = "3")]
+    #[builder(default, setter(strip_option))]
     pub replication_factor: ::core::option::Option<u32>,
     /// List of peer ids, allowed to create shards. If empty - all peers are allowed
     #[prost(uint64, repeated, tag = "4")]
+    #[builder(default, setter(strip_option))]
     pub placement: ::prost::alloc::vec::Vec<u64>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -3674,12 +3699,16 @@ pub mod vector_example {
         Vector(super::Vector),
     }
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, error = "std::convert::Infallible", name = "build_inner"))]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ContextExamplePair {
     #[prost(message, optional, tag = "1")]
+    #[builder(default, setter(into, strip_option))]
     pub positive: ::core::option::Option<VectorExample>,
     #[prost(message, optional, tag = "2")]
+    #[builder(default, setter(into, strip_option))]
     pub negative: ::core::option::Option<VectorExample>,
 }
 #[derive(derive_builder::Builder)]
@@ -7329,6 +7358,12 @@ builder_type_conversions!(
 builder_type_conversions!(CreateShardKeyRequest, CreateShardKeyRequestBuilder);
 builder_type_conversions!(DeleteShardKeyRequest, DeleteShardKeyRequestBuilder);
 builder_type_conversions!(DeleteCollection, DeleteCollectionBuilder);
+builder_type_conversions!(CollectionParamsDiff, CollectionParamsDiffBuilder);
+builder_type_conversions!(VectorParamsDiff, VectorParamsDiffBuilder);
+builder_type_conversions!(SparseVectorParams, SparseVectorParamsBuilder);
+builder_type_conversions!(SparseIndexConfig, SparseIndexConfigBuilder);
+builder_type_conversions!(CreateShardKey, CreateShardKeyBuilder);
+builder_type_conversions!(ContextExamplePair, ContextExamplePairBuilder);
 
 // import our manual builder here so all builder come from the same module in the end user API.
 pub use crate::manual_builder::*;
