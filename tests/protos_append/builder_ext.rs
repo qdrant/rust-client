@@ -1,3 +1,6 @@
+// import our manual builder here so all builder come from the same module in the end user API.
+pub use crate::manual_builder::*;
+
 use std::collections::HashMap;
 
 impl VectorParamsBuilder {

@@ -100,6 +100,9 @@ pub struct SparseVectorParams {
     /// Configuration of sparse index
     #[prost(message, optional, tag = "1")]
     pub index: ::core::option::Option<SparseIndexConfig>,
+    /// If set - apply modifier to the vector values
+    #[prost(enumeration = "Modifier", optional, tag = "2")]
+    pub modifier: ::core::option::Option<i32>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -871,6 +874,19 @@ pub struct MoveShard {
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct ReplicateShard {
+    /// Local shard id
+    #[prost(uint32, tag = "1")]
+    pub shard_id: u32,
+    #[prost(uint64, tag = "2")]
+    pub from_peer_id: u64,
+    #[prost(uint64, tag = "3")]
+    pub to_peer_id: u64,
+    #[prost(enumeration = "ShardTransferMethod", optional, tag = "4")]
+    pub method: ::core::option::Option<i32>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct AbortShardTransfer {
     /// Local shard id
     #[prost(uint32, tag = "1")]
@@ -947,7 +963,7 @@ pub mod update_collection_cluster_setup_request {
         #[prost(message, tag = "2")]
         MoveShard(super::MoveShard),
         #[prost(message, tag = "3")]
-        ReplicateShard(super::MoveShard),
+        ReplicateShard(super::ReplicateShard),
         #[prost(message, tag = "4")]
         AbortTransfer(super::AbortShardTransfer),
         #[prost(message, tag = "5")]
@@ -1029,6 +1045,33 @@ impl Datatype {
             "Default" => Some(Self::Default),
             "Float32" => Some(Self::Float32),
             "Uint8" => Some(Self::Uint8),
+            _ => None,
+        }
+    }
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+#[repr(i32)]
+pub enum Modifier {
+    None = 0,
+    /// Apply Inverse Document Frequency
+    Idf = 1,
+}
+impl Modifier {
+    /// String value of the enum field names used in the ProtoBuf definition.
+    ///
+    /// The values are not transformed in any way and thus are considered stable
+    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+    pub fn as_str_name(&self) -> &'static str {
+        match self {
+            Modifier::None => "None",
+            Modifier::Idf => "Idf",
+        }
+    }
+    /// Creates an enum from field names used in the ProtoBuf definition.
+    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+        match value {
+            "None" => Some(Self::None),
+            "Idf" => Some(Self::Idf),
             _ => None,
         }
     }
@@ -3752,6 +3795,21 @@ pub mod points_update_operation {
     }
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
+    pub struct OverwritePayload {
+        #[prost(map = "string, message", tag = "1")]
+        pub payload: ::std::collections::HashMap<::prost::alloc::string::String, super::Value>,
+        /// Affected points
+        #[prost(message, optional, tag = "2")]
+        pub points_selector: ::core::option::Option<super::PointsSelector>,
+        /// Option for custom sharding to specify used shard keys
+        #[prost(message, optional, tag = "3")]
+        pub shard_key_selector: ::core::option::Option<super::ShardKeySelector>,
+        /// Option for indicate property of payload
+        #[prost(string, optional, tag = "4")]
+        pub key: ::core::option::Option<::prost::alloc::string::String>,
+    }
+    #[allow(clippy::derive_partial_eq_without_eq)]
+    #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct DeletePayload {
         #[prost(string, repeated, tag = "1")]
         pub keys: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
@@ -3815,7 +3873,7 @@ pub mod points_update_operation {
         #[prost(message, tag = "3")]
         SetPayload(SetPayload),
         #[prost(message, tag = "4")]
-        OverwritePayload(SetPayload),
+        OverwritePayload(OverwritePayload),
         #[prost(message, tag = "5")]
         DeletePayload(DeletePayload),
         #[prost(message, tag = "6")]
@@ -7185,6 +7243,7 @@ macro_rules! builder_type_conversions {
         builder_type_conversions!($main_type, $builder_type, build_inner);
     };
 }
+pub(crate) use builder_type_conversions;
 
 /// Helper function to convert from &Option<T> to Option<U> if U: From<T> is satisfied.
 fn convert_option<T, U>(input: &Option<T>) -> Option<U>
@@ -7236,6 +7295,9 @@ builder_type_conversions!(
     DeleteFieldIndexCollection,
     DeleteFieldIndexCollectionBuilder
 );
+
+// import our manual builder here so all builder come from the same module in the end user API.
+pub use crate::manual_builder::*;
 
 use std::collections::HashMap;
 
