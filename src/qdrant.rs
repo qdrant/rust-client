@@ -2678,6 +2678,8 @@ pub struct UpsertPoints {
     #[builder(default, setter(into, strip_option))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeletePoints {
@@ -2686,15 +2688,25 @@ pub struct DeletePoints {
     pub collection_name: ::prost::alloc::string::String,
     /// Wait until the changes have been applied?
     #[prost(bool, optional, tag = "2")]
+    #[builder(default, setter(strip_option))]
     pub wait: ::core::option::Option<bool>,
     /// Affected points
     #[prost(message, optional, tag = "3")]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<points_selector::PointsSelectorOneOf>",
+            build = "convert_option(&self.points)"
+        )
+    )]
     pub points: ::core::option::Option<PointsSelector>,
     /// Write ordering guarantees
     #[prost(message, optional, tag = "4")]
+    #[builder(default, setter(into, strip_option))]
     pub ordering: ::core::option::Option<WriteOrdering>,
     /// Option for custom sharding to specify used shard keys
     #[prost(message, optional, tag = "5")]
+    #[builder(default, setter(into, strip_option))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
 #[derive(derive_builder::Builder)]

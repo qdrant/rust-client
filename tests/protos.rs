@@ -315,17 +315,16 @@ fn configure_builder(builder: Builder) -> Builder {
                 builder_custom_into!(with_vectors_selector::SelectorOptions, self.with_vectors),
             ),
             // DeletePoints
-            // DeletePoints exists twice in qdrant.rs. This interfers with this hook.
-            // TODO: Find a way to build or manually implement for DeletePoints
-            /*
-            ("DeletePoints.wait", DEFAULT_OPTION),
+            ("qdrant.DeletePoints.wait", DEFAULT_OPTION),
             (
-                "DeletePoints.points",
+                "qdrant.DeletePoints.points",
                 builder_custom_into!(points_selector::PointsSelectorOneOf, self.points),
             ),
-            ("DeletePoints.ordering", DEFAULT_OPTION_INTO),
-            ("DeletePoints.shard_key_selector", DEFAULT_OPTION_INTO),
-             */
+            ("qdrant.DeletePoints.ordering", DEFAULT_OPTION_INTO),
+            (
+                "qdrant.DeletePoints.shard_key_selector",
+                DEFAULT_OPTION_INTO,
+            ),
             // DeletePointVectors
             ("DeletePointVectors.wait", DEFAULT_OPTION),
             (
@@ -543,6 +542,11 @@ fn builder_derive_options() -> &'static [BuildDeriveOptions] {
             NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
             true,
         ),
+        (
+            "qdrant.DeletePoints",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            false,
+        ),
     ]
 }
 
@@ -553,7 +557,12 @@ where
 {
     let mut derives = paths
         .into_iter()
-        .map(|field| field.split_once('.').unwrap().0)
+        .map(|field| {
+            // Types themselves can also be specified directly with a path, separated by '.'.
+            // The last element is the fields name. We want to only strip the fields name and preserve
+            // the whole path to also identify types specified using one.
+            field.rsplit_once('.').unwrap().0
+        })
         .collect::<Vec<&str>>();
     derives.extend(extra);
     derives.sort_unstable();
