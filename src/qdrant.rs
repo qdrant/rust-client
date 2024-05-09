@@ -3357,6 +3357,8 @@ pub struct ScrollPoints {
     #[builder(default, setter(into, strip_option))]
     pub order_by: ::core::option::Option<OrderBy>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct LookupLocation {
@@ -3364,11 +3366,15 @@ pub struct LookupLocation {
     pub collection_name: ::prost::alloc::string::String,
     /// Which vector to use for search, if not specified - use default vector
     #[prost(string, optional, tag = "2")]
+    #[builder(default, setter(into, strip_option))]
     pub vector_name: ::core::option::Option<::prost::alloc::string::String>,
     /// Specify in which shards to look for the points, if not specified - look in all shards
     #[prost(message, optional, tag = "3")]
+    #[builder(default, setter(into, strip_option))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RecommendPoints {
@@ -3377,56 +3383,86 @@ pub struct RecommendPoints {
     pub collection_name: ::prost::alloc::string::String,
     /// Look for vectors closest to the vectors from these points
     #[prost(message, repeated, tag = "2")]
+    #[builder(default, setter(into, strip_option))]
     pub positive: ::prost::alloc::vec::Vec<PointId>,
     /// Try to avoid vectors like the vector from these points
     #[prost(message, repeated, tag = "3")]
+    #[builder(default, setter(into, strip_option))]
     pub negative: ::prost::alloc::vec::Vec<PointId>,
     /// Filter conditions - return only those points that satisfy the specified conditions
     #[prost(message, optional, tag = "4")]
+    #[builder(default, setter(into, strip_option))]
     pub filter: ::core::option::Option<Filter>,
     /// Max number of result
     #[prost(uint64, tag = "5")]
     pub limit: u64,
     /// Options for specifying which payload to include or not
     #[prost(message, optional, tag = "7")]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<with_payload_selector::SelectorOptions>",
+            build = "convert_option(&self.with_payload)"
+        )
+    )]
     pub with_payload: ::core::option::Option<WithPayloadSelector>,
     /// Search config
     #[prost(message, optional, tag = "8")]
+    #[builder(default, setter(into, strip_option))]
     pub params: ::core::option::Option<SearchParams>,
     /// If provided - cut off results with worse scores
     #[prost(float, optional, tag = "9")]
+    #[builder(default, setter(strip_option))]
     pub score_threshold: ::core::option::Option<f32>,
     /// Offset of the result
     #[prost(uint64, optional, tag = "10")]
+    #[builder(default, setter(strip_option))]
     pub offset: ::core::option::Option<u64>,
     /// Define which vector to use for recommendation, if not specified - default vector
     #[prost(string, optional, tag = "11")]
+    #[builder(default, setter(into, strip_option))]
     pub using: ::core::option::Option<::prost::alloc::string::String>,
     /// Options for specifying which vectors to include into response
     #[prost(message, optional, tag = "12")]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<with_vectors_selector::SelectorOptions>",
+            build = "convert_option(&self.with_vectors)"
+        )
+    )]
     pub with_vectors: ::core::option::Option<WithVectorsSelector>,
     /// Name of the collection to use for points lookup, if not specified - use current collection
     #[prost(message, optional, tag = "13")]
+    #[builder(default, setter(into, strip_option))]
     pub lookup_from: ::core::option::Option<LookupLocation>,
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "14")]
+    #[builder(default, setter(into, strip_option))]
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// How to use the example vectors to find the results
     #[prost(enumeration = "RecommendStrategy", optional, tag = "16")]
+    #[builder(default, setter(into, strip_option))]
     pub strategy: ::core::option::Option<i32>,
     /// Look for vectors closest to those
     #[prost(message, repeated, tag = "17")]
+    #[builder(default, setter(into, strip_option))]
     pub positive_vectors: ::prost::alloc::vec::Vec<Vector>,
     /// Try to avoid vectors like this
     #[prost(message, repeated, tag = "18")]
+    #[builder(default, setter(into, strip_option))]
     pub negative_vectors: ::prost::alloc::vec::Vec<Vector>,
     /// If set, overrides global timeout setting for this request. Unit is seconds.
     #[prost(uint64, optional, tag = "19")]
+    #[builder(default, setter(strip_option))]
     pub timeout: ::core::option::Option<u64>,
     /// Specify in which shards to look for the points, if not specified - look in all shards
     #[prost(message, optional, tag = "20")]
+    #[builder(default, setter(into, strip_option))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RecommendBatchPoints {
@@ -3437,11 +3473,15 @@ pub struct RecommendBatchPoints {
     pub recommend_points: ::prost::alloc::vec::Vec<RecommendPoints>,
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "3")]
+    #[builder(default, setter(into, strip_option))]
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// If set, overrides global timeout setting for this request. Unit is seconds.
     #[prost(uint64, optional, tag = "4")]
+    #[builder(default, setter(strip_option))]
     pub timeout: ::core::option::Option<u64>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RecommendPointGroups {
@@ -3450,33 +3490,42 @@ pub struct RecommendPointGroups {
     pub collection_name: ::prost::alloc::string::String,
     /// Look for vectors closest to the vectors from these points
     #[prost(message, repeated, tag = "2")]
+    #[builder(default, setter(into, strip_option))]
     pub positive: ::prost::alloc::vec::Vec<PointId>,
     /// Try to avoid vectors like the vector from these points
     #[prost(message, repeated, tag = "3")]
+    #[builder(default, setter(into, strip_option))]
     pub negative: ::prost::alloc::vec::Vec<PointId>,
     /// Filter conditions - return only those points that satisfy the specified conditions
     #[prost(message, optional, tag = "4")]
+    #[builder(default, setter(into, strip_option))]
     pub filter: ::core::option::Option<Filter>,
     /// Max number of groups in result
     #[prost(uint32, tag = "5")]
     pub limit: u32,
     /// Options for specifying which payload to include or not
     #[prost(message, optional, tag = "6")]
+    #[builder(default, setter(into, strip_option))]
     pub with_payload: ::core::option::Option<WithPayloadSelector>,
     /// Search config
     #[prost(message, optional, tag = "7")]
+    #[builder(default, setter(into, strip_option))]
     pub params: ::core::option::Option<SearchParams>,
     /// If provided - cut off results with worse scores
     #[prost(float, optional, tag = "8")]
+    #[builder(default, setter(strip_option))]
     pub score_threshold: ::core::option::Option<f32>,
     /// Define which vector to use for recommendation, if not specified - default vector
     #[prost(string, optional, tag = "9")]
+    #[builder(default, setter(into, strip_option))]
     pub using: ::core::option::Option<::prost::alloc::string::String>,
     /// Options for specifying which vectors to include into response
     #[prost(message, optional, tag = "10")]
+    #[builder(default, setter(into, strip_option))]
     pub with_vectors: ::core::option::Option<WithVectorsSelector>,
     /// Name of the collection to use for points lookup, if not specified - use current collection
     #[prost(message, optional, tag = "11")]
+    #[builder(default, setter(into, strip_option))]
     pub lookup_from: ::core::option::Option<LookupLocation>,
     /// Payload field to group by, must be a string or number field. If there are multiple values for the field, all of them will be used. One point can be in multiple groups.
     #[prost(string, tag = "12")]
@@ -3486,24 +3535,31 @@ pub struct RecommendPointGroups {
     pub group_size: u32,
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "14")]
+    #[builder(default, setter(into, strip_option))]
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// Options for specifying how to use the group id to lookup points in another collection
     #[prost(message, optional, tag = "15")]
+    #[builder(default, setter(into, strip_option))]
     pub with_lookup: ::core::option::Option<WithLookup>,
     /// How to use the example vectors to find the results
     #[prost(enumeration = "RecommendStrategy", optional, tag = "17")]
+    #[builder(default, setter(into, strip_option))]
     pub strategy: ::core::option::Option<i32>,
     /// Look for vectors closest to those
     #[prost(message, repeated, tag = "18")]
+    #[builder(default, setter(into, strip_option))]
     pub positive_vectors: ::prost::alloc::vec::Vec<Vector>,
     /// Try to avoid vectors like this
     #[prost(message, repeated, tag = "19")]
+    #[builder(default, setter(into, strip_option))]
     pub negative_vectors: ::prost::alloc::vec::Vec<Vector>,
     /// If set, overrides global timeout setting for this request. Unit is seconds.
     #[prost(uint64, optional, tag = "20")]
+    #[builder(default, setter(strip_option))]
     pub timeout: ::core::option::Option<u64>,
     /// Specify in which shards to look for the points, if not specified - look in all shards
     #[prost(message, optional, tag = "21")]
+    #[builder(default, setter(into, strip_option))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -7132,6 +7188,10 @@ builder_type_conversions!(DeletePointVectors, DeletePointVectorsBuilder);
 builder_type_conversions!(UpdatePointVectors, UpdatePointVectorsBuilder);
 builder_type_conversions!(ScrollPoints, ScrollPointsBuilder);
 builder_type_conversions!(OrderBy, OrderByBuilder);
+builder_type_conversions!(RecommendPoints, RecommendPointsBuilder);
+builder_type_conversions!(LookupLocation, LookupLocationBuilder);
+builder_type_conversions!(RecommendBatchPoints, RecommendBatchPointsBuilder);
+builder_type_conversions!(RecommendPointGroups, RecommendPointGroupsBuilder);
 
 use std::collections::HashMap;
 
@@ -7317,6 +7377,51 @@ impl OrderByBuilder {
     pub fn new(key: impl Into<String>) -> Self {
         let mut builder = Self::create_empty();
         builder.key = Some(key.into());
+        builder
+    }
+}
+
+impl RecommendPointsBuilder {
+    pub fn new(collection_name: impl Into<String>, limit: u64) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder.limit = Some(limit);
+        builder
+    }
+}
+
+impl LookupLocationBuilder {
+    pub fn new(collection_name: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder
+    }
+}
+
+impl RecommendBatchPointsBuilder {
+    pub fn new(
+        collection_name: impl Into<String>,
+        recommend_points: impl Into<Vec<RecommendPoints>>,
+    ) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder.recommend_points = Some(recommend_points.into());
+        builder
+    }
+}
+
+impl RecommendPointGroupsBuilder {
+    pub fn new(
+        collection_name: impl Into<String>,
+        group_by: impl Into<String>,
+        group_size: u32,
+        limit: u32,
+    ) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder.group_by = Some(group_by.into());
+        builder.group_size = Some(group_size);
+        builder.limit = Some(limit);
         builder
     }
 }
