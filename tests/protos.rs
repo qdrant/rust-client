@@ -409,6 +409,37 @@ fn configure_builder(builder: Builder) -> Builder {
                 "RecommendPointGroups.shard_key_selector",
                 DEFAULT_OPTION_INTO,
             ),
+            // DiscoverPoints
+            ("DiscoverPoints.target", DEFAULT_OPTION_INTO),
+            ("DiscoverPoints.filter", DEFAULT_OPTION_INTO),
+            ("DiscoverPoints.with_payload", DEFAULT_OPTION_INTO),
+            ("DiscoverPoints.params", DEFAULT_OPTION_INTO),
+            ("DiscoverPoints.offset", DEFAULT_OPTION),
+            ("DiscoverPoints.using", DEFAULT_OPTION_INTO),
+            ("DiscoverPoints.with_vectors", DEFAULT_OPTION_INTO),
+            ("DiscoverPoints.lookup_from", DEFAULT_OPTION_INTO),
+            ("DiscoverPoints.read_consistency", DEFAULT_OPTION_INTO),
+            ("DiscoverPoints.timeout", DEFAULT_OPTION),
+            ("DiscoverPoints.shard_key_selector", DEFAULT_OPTION_INTO),
+            // DiscoverBatchPoints
+            ("DiscoverBatchPoints.read_consistency", DEFAULT_OPTION_INTO),
+            ("DiscoverBatchPoints.timeout", DEFAULT_OPTION),
+            // CountPoints
+            ("CountPoints.filter", DEFAULT_OPTION_INTO),
+            ("CountPoints.exact", DEFAULT_OPTION),
+            ("CountPoints.read_consistency", DEFAULT_OPTION_INTO),
+            ("CountPoints.shard_key_selector", DEFAULT_OPTION_INTO),
+            // CreateFieldIndexCollection
+            ("CreateFieldIndexCollection.wait", DEFAULT_OPTION),
+            ("CreateFieldIndexCollection.field_type", DEFAULT_OPTION),
+            (
+                "CreateFieldIndexCollection.field_index_params",
+                DEFAULT_OPTION_INTO,
+            ),
+            ("CreateFieldIndexCollection.ordering", DEFAULT_OPTION_INTO),
+            // DeleteFieldIndexCollection
+            ("DeleteFieldIndexCollection.wait", DEFAULT_OPTION),
+            ("DeleteFieldIndexCollection.ordering", DEFAULT_OPTION),
         ],
         builder_derive_options(),
     )
@@ -492,6 +523,23 @@ fn builder_derive_options() -> &'static [BuildDeriveOptions] {
         ),
         (
             "RecommendPointGroups",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            true,
+        ),
+        ("DiscoverPoints", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
+        (
+            "DiscoverBatchPoints",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            true,
+        ),
+        ("CountPoints", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
+        (
+            "CreateFieldIndexCollection",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            true,
+        ),
+        (
+            "DeleteFieldIndexCollection",
             NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
             true,
         ),

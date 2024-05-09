@@ -375,7 +375,10 @@ impl From<VectorParamsDiffMap> for vectors_config_diff::Config {
 
 impl From<SparseIndexConfig> for SparseVectorParams {
     fn from(value: SparseIndexConfig) -> Self {
-        Self { index: Some(value) }
+        Self {
+            index: Some(value),
+            modifier: None,
+        }
     }
 }
 
@@ -818,5 +821,53 @@ impl From<BinaryQuantizationBuilder> for quantization_config::Quantization {
 impl From<&mut BinaryQuantizationBuilder> for quantization_config::Quantization {
     fn from(value: &mut BinaryQuantizationBuilder) -> Self {
         Self::Binary(value.build())
+    }
+}
+
+impl From<points_update_operation::PointStructList> for points_update_operation::Operation {
+    fn from(value: points_update_operation::PointStructList) -> Self {
+        Self::Upsert(value)
+    }
+}
+
+impl From<points_update_operation::SetPayload> for points_update_operation::Operation {
+    fn from(value: points_update_operation::SetPayload) -> Self {
+        Self::SetPayload(value)
+    }
+}
+
+impl From<points_update_operation::OverwritePayload> for points_update_operation::Operation {
+    fn from(value: points_update_operation::OverwritePayload) -> Self {
+        Self::OverwritePayload(value)
+    }
+}
+
+impl From<points_update_operation::DeletePayload> for points_update_operation::Operation {
+    fn from(value: points_update_operation::DeletePayload) -> Self {
+        Self::DeletePayload(value)
+    }
+}
+
+impl From<points_update_operation::UpdateVectors> for points_update_operation::Operation {
+    fn from(value: points_update_operation::UpdateVectors) -> Self {
+        Self::UpdateVectors(value)
+    }
+}
+
+impl From<points_update_operation::DeleteVectors> for points_update_operation::Operation {
+    fn from(value: points_update_operation::DeleteVectors) -> Self {
+        Self::DeleteVectors(value)
+    }
+}
+
+impl From<points_update_operation::DeletePoints> for points_update_operation::Operation {
+    fn from(value: points_update_operation::DeletePoints) -> Self {
+        Self::DeletePoints(value)
+    }
+}
+
+impl From<points_update_operation::ClearPayload> for points_update_operation::Operation {
+    fn from(value: points_update_operation::ClearPayload) -> Self {
+        Self::ClearPayload(value)
     }
 }

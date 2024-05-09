@@ -29,6 +29,7 @@ macro_rules! builder_type_conversions {
         builder_type_conversions!($main_type, $builder_type, build_inner);
     };
 }
+pub(crate) use builder_type_conversions;
 
 /// Helper function to convert from &Option<T> to Option<U> if U: From<T> is satisfied.
 fn convert_option<T, U>(input: &Option<T>) -> Option<U>
