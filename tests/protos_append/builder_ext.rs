@@ -185,3 +185,48 @@ impl OrderByBuilder {
         builder
     }
 }
+
+impl RecommendPointsBuilder {
+    pub fn new(collection_name: impl Into<String>, limit: u64) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder.limit = Some(limit);
+        builder
+    }
+}
+
+impl LookupLocationBuilder {
+    pub fn new(collection_name: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder
+    }
+}
+
+impl RecommendBatchPointsBuilder {
+    pub fn new(
+        collection_name: impl Into<String>,
+        recommend_points: impl Into<Vec<RecommendPoints>>,
+    ) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder.recommend_points = Some(recommend_points.into());
+        builder
+    }
+}
+
+impl RecommendPointGroupsBuilder {
+    pub fn new(
+        collection_name: impl Into<String>,
+        group_by: impl Into<String>,
+        group_size: u32,
+        limit: u32,
+    ) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder.group_by = Some(group_by.into());
+        builder.group_size = Some(group_size);
+        builder.limit = Some(limit);
+        builder
+    }
+}
