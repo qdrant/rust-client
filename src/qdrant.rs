@@ -3383,9 +3383,11 @@ pub struct RecommendPoints {
     pub collection_name: ::prost::alloc::string::String,
     /// Look for vectors closest to the vectors from these points
     #[prost(message, repeated, tag = "2")]
+    #[builder(default, setter(into, strip_option))]
     pub positive: ::prost::alloc::vec::Vec<PointId>,
     /// Try to avoid vectors like the vector from these points
     #[prost(message, repeated, tag = "3")]
+    #[builder(default, setter(into, strip_option))]
     pub negative: ::prost::alloc::vec::Vec<PointId>,
     /// Filter conditions - return only those points that satisfy the specified conditions
     #[prost(message, optional, tag = "4")]
@@ -3444,9 +3446,11 @@ pub struct RecommendPoints {
     pub strategy: ::core::option::Option<i32>,
     /// Look for vectors closest to those
     #[prost(message, repeated, tag = "17")]
+    #[builder(default, setter(into, strip_option))]
     pub positive_vectors: ::prost::alloc::vec::Vec<Vector>,
     /// Try to avoid vectors like this
     #[prost(message, repeated, tag = "18")]
+    #[builder(default, setter(into, strip_option))]
     pub negative_vectors: ::prost::alloc::vec::Vec<Vector>,
     /// If set, overrides global timeout setting for this request. Unit is seconds.
     #[prost(uint64, optional, tag = "19")]
@@ -3486,9 +3490,11 @@ pub struct RecommendPointGroups {
     pub collection_name: ::prost::alloc::string::String,
     /// Look for vectors closest to the vectors from these points
     #[prost(message, repeated, tag = "2")]
+    #[builder(default, setter(into, strip_option))]
     pub positive: ::prost::alloc::vec::Vec<PointId>,
     /// Try to avoid vectors like the vector from these points
     #[prost(message, repeated, tag = "3")]
+    #[builder(default, setter(into, strip_option))]
     pub negative: ::prost::alloc::vec::Vec<PointId>,
     /// Filter conditions - return only those points that satisfy the specified conditions
     #[prost(message, optional, tag = "4")]
@@ -3541,9 +3547,11 @@ pub struct RecommendPointGroups {
     pub strategy: ::core::option::Option<i32>,
     /// Look for vectors closest to those
     #[prost(message, repeated, tag = "18")]
+    #[builder(default, setter(into, strip_option))]
     pub positive_vectors: ::prost::alloc::vec::Vec<Vector>,
     /// Try to avoid vectors like this
     #[prost(message, repeated, tag = "19")]
+    #[builder(default, setter(into, strip_option))]
     pub negative_vectors: ::prost::alloc::vec::Vec<Vector>,
     /// If set, overrides global timeout setting for this request. Unit is seconds.
     #[prost(uint64, optional, tag = "20")]
@@ -7374,20 +7382,9 @@ impl OrderByBuilder {
 }
 
 impl RecommendPointsBuilder {
-    pub fn new(
-        collection_name: impl Into<String>,
-        positive: impl Into<Vec<PointId>>,
-        negative: impl Into<Vec<PointId>>,
-        positive_vectors: impl Into<Vec<Vector>>,
-        negative_vectors: impl Into<Vec<Vector>>,
-        limit: u64,
-    ) -> Self {
+    pub fn new(collection_name: impl Into<String>, limit: u64) -> Self {
         let mut builder = Self::create_empty();
         builder.collection_name = Some(collection_name.into());
-        builder.positive = Some(positive.into());
-        builder.negative = Some(negative.into());
-        builder.positive_vectors = Some(positive_vectors.into());
-        builder.negative_vectors = Some(negative_vectors.into());
         builder.limit = Some(limit);
         builder
     }
@@ -7416,20 +7413,12 @@ impl RecommendBatchPointsBuilder {
 impl RecommendPointGroupsBuilder {
     pub fn new(
         collection_name: impl Into<String>,
-        positive: impl Into<Vec<PointId>>,
-        negative: impl Into<Vec<PointId>>,
-        positive_vectors: impl Into<Vec<Vector>>,
-        negative_vectors: impl Into<Vec<Vector>>,
         group_by: impl Into<String>,
         group_size: u32,
         limit: u32,
     ) -> Self {
         let mut builder = Self::create_empty();
         builder.collection_name = Some(collection_name.into());
-        builder.positive = Some(positive.into());
-        builder.negative = Some(negative.into());
-        builder.positive_vectors = Some(positive_vectors.into());
-        builder.negative_vectors = Some(negative_vectors.into());
         builder.group_by = Some(group_by.into());
         builder.group_size = Some(group_size);
         builder.limit = Some(limit);

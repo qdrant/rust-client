@@ -41,8 +41,8 @@ fn builder_coverage() {
     UpdatePointVectorsBuilder::new("mycollection", []).build();
     ScrollPointsBuilder::new("mycollection").build();
     OrderByBuilder::new("key").build();
-    RecommendPointsBuilder::new("mycollection", [], [], [], [], 10).build();
+    RecommendPointsBuilder::new("mycollection", 10).build();
     LookupLocationBuilder::new("mycollection").build();
     RecommendBatchPointsBuilder::new("mycollection", []).build();
-    RecommendPointGroupsBuilder::new("mycollection", [], [], [], [], "group", 10, 10).build();
+    RecommendPointGroupsBuilder::new("mycollection", "group", 10, 10).build();
 }
