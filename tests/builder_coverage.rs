@@ -2,9 +2,9 @@ use qdrant_client::prelude::Distance;
 use qdrant_client::qdrant::{
     BinaryQuantizationBuilder, ClearPayloadPointsBuilder, CountPointsBuilder,
     CreateFieldIndexCollectionBuilder, DeleteFieldIndexCollectionBuilder,
-    DeletePayloadPointsBuilder, DeletePointVectorsBuilder, DiscoverBatchPointsBuilder,
-    DiscoverPointsBuilder, GetPointsBuilder, LookupLocationBuilder, OrderByBuilder,
-    ProductQuantizationBuilder, QuantizationType, RecommendBatchPointsBuilder,
+    DeletePayloadPointsBuilder, DeletePointVectorsBuilder, DeletePointsBuilder,
+    DiscoverBatchPointsBuilder, DiscoverPointsBuilder, GetPointsBuilder, LookupLocationBuilder,
+    OrderByBuilder, ProductQuantizationBuilder, QuantizationType, RecommendBatchPointsBuilder,
     RecommendPointGroupsBuilder, RecommendPointsBuilder, ScalarQuantizationBuilder,
     ScrollPointsBuilder, SearchBatchPointsBuilder, SearchPointGroupsBuilder, SearchPointsBuilder,
     SetPayloadPointsBuilder, UpdateBatchPointsBuilder, UpdateCollectionBuilder,
@@ -39,6 +39,7 @@ fn builder_coverage() {
     SearchBatchPointsBuilder::new("mycollection", []).build();
     SearchPointGroupsBuilder::new("mycollection", [11.; 5], 10, "mygroup", 5).build();
     WithLookupBuilder::new("mycollection").build();
+    DeletePointsBuilder::new("mycollection").build();
     DeletePointVectorsBuilder::new("mycollection").build();
     UpdatePointVectorsBuilder::new("mycollection", []).build();
     ScrollPointsBuilder::new("mycollection").build();
