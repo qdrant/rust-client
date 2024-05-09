@@ -2700,6 +2700,8 @@ pub struct GetPoints {
     #[builder(default, setter(into, strip_option))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpdatePointVectors {
@@ -2708,15 +2710,18 @@ pub struct UpdatePointVectors {
     pub collection_name: ::prost::alloc::string::String,
     /// Wait until the changes have been applied?
     #[prost(bool, optional, tag = "2")]
+    #[builder(default, setter(strip_option))]
     pub wait: ::core::option::Option<bool>,
     /// List of points and vectors to update
     #[prost(message, repeated, tag = "3")]
     pub points: ::prost::alloc::vec::Vec<PointVectors>,
     /// Write ordering guarantees
     #[prost(message, optional, tag = "4")]
+    #[builder(default, setter(into, strip_option))]
     pub ordering: ::core::option::Option<WriteOrdering>,
     /// Option for custom sharding to specify used shard keys
     #[prost(message, optional, tag = "5")]
+    #[builder(default, setter(into, strip_option))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -2729,6 +2734,8 @@ pub struct PointVectors {
     #[prost(message, optional, tag = "2")]
     pub vectors: ::core::option::Option<Vectors>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeletePointVectors {
@@ -2737,18 +2744,29 @@ pub struct DeletePointVectors {
     pub collection_name: ::prost::alloc::string::String,
     /// Wait until the changes have been applied?
     #[prost(bool, optional, tag = "2")]
+    #[builder(default, setter(strip_option))]
     pub wait: ::core::option::Option<bool>,
     /// Affected points
     #[prost(message, optional, tag = "3")]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<points_selector::PointsSelectorOneOf>",
+            build = "convert_option(&self.points_selector)"
+        )
+    )]
     pub points_selector: ::core::option::Option<PointsSelector>,
     /// List of vector names to delete
     #[prost(message, optional, tag = "4")]
+    #[builder(default, setter(into, strip_option))]
     pub vectors: ::core::option::Option<VectorsSelector>,
     /// Write ordering guarantees
     #[prost(message, optional, tag = "5")]
+    #[builder(default, setter(into, strip_option))]
     pub ordering: ::core::option::Option<WriteOrdering>,
     /// Option for custom sharding to specify used shard keys
     #[prost(message, optional, tag = "6")]
+    #[builder(default, setter(into, strip_option))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
 #[derive(derive_builder::Builder)]
@@ -3132,6 +3150,8 @@ pub struct SearchBatchPoints {
     #[builder(default, setter(strip_option))]
     pub timeout: ::core::option::Option<u64>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct WithLookup {
@@ -3140,12 +3160,27 @@ pub struct WithLookup {
     pub collection: ::prost::alloc::string::String,
     /// Options for specifying which payload to include (or not)
     #[prost(message, optional, tag = "2")]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<with_payload_selector::SelectorOptions>",
+            build = "convert_option(&self.with_payload)"
+        )
+    )]
     pub with_payload: ::core::option::Option<WithPayloadSelector>,
     /// Options for specifying which vectors to include (or not)
     #[prost(message, optional, tag = "3")]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<with_vectors_selector::SelectorOptions>",
+            build = "convert_option(&self.with_vectors)"
+        )
+    )]
     pub with_vectors: ::core::option::Option<WithVectorsSelector>,
 }
-
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SearchPointGroups {
@@ -3157,24 +3192,42 @@ pub struct SearchPointGroups {
     pub vector: ::prost::alloc::vec::Vec<f32>,
     /// Filter conditions - return only those points that satisfy the specified conditions
     #[prost(message, optional, tag = "3")]
+    #[builder(default, setter(into, strip_option))]
     pub filter: ::core::option::Option<Filter>,
     /// Max number of result
     #[prost(uint32, tag = "4")]
     pub limit: u32,
     /// Options for specifying which payload to include or not
     #[prost(message, optional, tag = "5")]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<with_payload_selector::SelectorOptions>",
+            build = "convert_option(&self.with_payload)"
+        )
+    )]
     pub with_payload: ::core::option::Option<WithPayloadSelector>,
     /// Search config
     #[prost(message, optional, tag = "6")]
+    #[builder(default, setter(into, strip_option))]
     pub params: ::core::option::Option<SearchParams>,
     /// If provided - cut off results with worse scores
     #[prost(float, optional, tag = "7")]
+    #[builder(default, setter(into, strip_option))]
     pub score_threshold: ::core::option::Option<f32>,
     /// Which vector to use for search, if not specified - use default vector
     #[prost(string, optional, tag = "8")]
+    #[builder(default, setter(into, strip_option))]
     pub vector_name: ::core::option::Option<::prost::alloc::string::String>,
     /// Options for specifying which vectors to include into response
     #[prost(message, optional, tag = "9")]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<with_vectors_selector::SelectorOptions>",
+            build = "convert_option(&self.with_vectors)"
+        )
+    )]
     pub with_vectors: ::core::option::Option<WithVectorsSelector>,
     /// Payload field to group by, must be a string or number field. If there are multiple values for the field, all of them will be used. One point can be in multiple groups.
     #[prost(string, tag = "10")]
@@ -3184,17 +3237,28 @@ pub struct SearchPointGroups {
     pub group_size: u32,
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "12")]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<read_consistency::Value>",
+            build = "convert_option(&self.read_consistency)"
+        )
+    )]
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// Options for specifying how to use the group id to lookup points in another collection
     #[prost(message, optional, tag = "13")]
+    #[builder(default, setter(into, strip_option))]
     pub with_lookup: ::core::option::Option<WithLookup>,
     /// If set, overrides global timeout setting for this request. Unit is seconds.
     #[prost(uint64, optional, tag = "14")]
+    #[builder(default, setter(into, strip_option))]
     pub timeout: ::core::option::Option<u64>,
     /// Specify in which shards to look for the points, if not specified - look in all shards
     #[prost(message, optional, tag = "15")]
+    #[builder(default, setter(into, strip_option))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
     #[prost(message, optional, tag = "16")]
+    #[builder(default, setter(into, strip_option))]
     pub sparse_indices: ::core::option::Option<SparseIndices>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -3218,6 +3282,8 @@ pub mod start_from {
         Datetime(::prost::alloc::string::String),
     }
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct OrderBy {
@@ -3226,11 +3292,21 @@ pub struct OrderBy {
     pub key: ::prost::alloc::string::String,
     /// Ascending or descending order
     #[prost(enumeration = "Direction", optional, tag = "2")]
+    #[builder(default, setter(strip_option))]
     pub direction: ::core::option::Option<i32>,
     /// Start from this value
     #[prost(message, optional, tag = "3")]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<start_from::Value>",
+            build = "convert_option(&self.start_from)"
+        )
+    )]
     pub start_from: ::core::option::Option<StartFrom>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ScrollPoints {
@@ -3238,27 +3314,47 @@ pub struct ScrollPoints {
     pub collection_name: ::prost::alloc::string::String,
     /// Filter conditions - return only those points that satisfy the specified conditions
     #[prost(message, optional, tag = "2")]
+    #[builder(default, setter(into, strip_option))]
     pub filter: ::core::option::Option<Filter>,
     /// Start with this ID
     #[prost(message, optional, tag = "3")]
+    #[builder(default, setter(into, strip_option))]
     pub offset: ::core::option::Option<PointId>,
     /// Max number of result
     #[prost(uint32, optional, tag = "4")]
+    #[builder(default, setter(strip_option))]
     pub limit: ::core::option::Option<u32>,
     /// Options for specifying which payload to include or not
     #[prost(message, optional, tag = "6")]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<with_payload_selector::SelectorOptions>",
+            build = "convert_option(&self.with_payload)"
+        )
+    )]
     pub with_payload: ::core::option::Option<WithPayloadSelector>,
     /// Options for specifying which vectors to include into response
     #[prost(message, optional, tag = "7")]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<with_vectors_selector::SelectorOptions>",
+            build = "convert_option(&self.with_vectors)"
+        )
+    )]
     pub with_vectors: ::core::option::Option<WithVectorsSelector>,
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "8")]
+    #[builder(default, setter(into, strip_option))]
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// Specify in which shards to look for the points, if not specified - look in all shards
     #[prost(message, optional, tag = "9")]
+    #[builder(default, setter(into, strip_option))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
     /// Order the records by a payload field
     #[prost(message, optional, tag = "10")]
+    #[builder(default, setter(into, strip_option))]
     pub order_by: ::core::option::Option<OrderBy>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -7030,6 +7126,12 @@ builder_type_conversions!(DeletePayloadPoints, DeletePayloadPointsBuilder);
 builder_type_conversions!(ClearPayloadPoints, ClearPayloadPointsBuilder);
 builder_type_conversions!(GetPoints, GetPointsBuilder);
 builder_type_conversions!(SearchBatchPoints, SearchBatchPointsBuilder);
+builder_type_conversions!(SearchPointGroups, SearchPointGroupsBuilder);
+builder_type_conversions!(WithLookup, WithLookupBuilder);
+builder_type_conversions!(DeletePointVectors, DeletePointVectorsBuilder);
+builder_type_conversions!(UpdatePointVectors, UpdatePointVectorsBuilder);
+builder_type_conversions!(ScrollPoints, ScrollPointsBuilder);
+builder_type_conversions!(OrderBy, OrderByBuilder);
 
 use std::collections::HashMap;
 
@@ -7146,6 +7248,75 @@ impl SearchBatchPointsBuilder {
         let mut builder = Self::create_empty();
         builder.collection_name = Some(collection_name.into());
         builder.search_points = Some(search_points.into());
+        builder
+    }
+}
+
+impl SearchPointGroupsBuilder {
+    pub fn new(
+        collection_name: impl Into<String>,
+        vector: impl Into<Vec<f32>>,
+        limit: u32,
+        group_by: impl Into<String>,
+        group_size: u32,
+    ) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder.vector = Some(vector.into());
+        builder.limit = Some(limit);
+        builder.group_by = Some(group_by.into());
+        builder.group_size = Some(group_size);
+        builder
+    }
+}
+
+impl WithLookupBuilder {
+    pub fn new(collection: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection = Some(collection.into());
+        builder
+    }
+}
+
+/*
+impl DeletePointsBuilder {
+    pub fn new(collection_name: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder
+    }
+}
+*/
+
+impl DeletePointVectorsBuilder {
+    pub fn new(collection_name: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder
+    }
+}
+
+impl UpdatePointVectorsBuilder {
+    pub fn new(collection_name: impl Into<String>, points: impl Into<Vec<PointVectors>>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder.points = Some(points.into());
+        builder
+    }
+}
+
+impl ScrollPointsBuilder {
+    pub fn new(collection_name: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder
+    }
+}
+
+impl OrderByBuilder {
+    pub fn new(key: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.key = Some(key.into());
         builder
     }
 }
