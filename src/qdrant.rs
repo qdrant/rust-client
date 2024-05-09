@@ -7311,6 +7311,10 @@ builder_type_conversions!(
 // import our manual builder here so all builder come from the same module in the end user API.
 pub use crate::manual_builder::*;
 
+// Needs special treatment as we can't generate this because DeletePoints is specified using a path and not
+// only by it's identifyer.
+builder_type_conversions!(DeletePoints, DeletePointsBuilder);
+
 use std::collections::HashMap;
 
 impl VectorParamsBuilder {
@@ -7456,7 +7460,6 @@ impl WithLookupBuilder {
     }
 }
 
-/*
 impl DeletePointsBuilder {
     pub fn new(collection_name: impl Into<String>) -> Self {
         let mut builder = Self::create_empty();
@@ -7464,7 +7467,6 @@ impl DeletePointsBuilder {
         builder
     }
 }
-*/
 
 impl DeletePointVectorsBuilder {
     pub fn new(collection_name: impl Into<String>) -> Self {
