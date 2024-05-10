@@ -296,3 +296,67 @@ impl DeleteFieldIndexCollectionBuilder {
         builder
     }
 }
+
+impl UpdateCollectionClusterSetupRequestBuilder {
+    pub fn new(collection_name: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder
+    }
+}
+
+impl CreateShardKeyRequestBuilder {
+    pub fn new(collection_name: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder
+    }
+}
+
+impl DeleteShardKeyRequestBuilder {
+    pub fn new(collection_name: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder
+    }
+}
+
+impl DeleteCollectionBuilder {
+    pub fn new(collection_name: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder
+    }
+}
+
+impl TextIndexParamsBuilder {
+    pub fn new(tokenizer: TokenizerType) -> Self {
+        let mut builder = Self::create_empty();
+        builder.tokenizer = Some(tokenizer.into());
+        builder
+    }
+}
+
+impl PayloadIncludeSelector {
+    pub fn new(fileds: impl Into<Vec<String>>) -> Self {
+        Self {
+            fields: fileds.into(),
+        }
+    }
+}
+
+impl PayloadExcludeSelector {
+    pub fn new(fileds: impl Into<Vec<String>>) -> Self {
+        Self {
+            fields: fileds.into(),
+        }
+    }
+}
+
+impl VectorsSelector {
+    pub fn new(names: impl Into<Vec<String>>) -> Self {
+        Self {
+            names: names.into(),
+        }
+    }
+}
