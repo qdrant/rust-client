@@ -358,6 +358,10 @@ fn configure_builder(builder: Builder) -> Builder {
                 "ScrollPoints.with_vectors",
                 builder_custom_into!(with_vectors_selector::SelectorOptions, self.with_vectors),
             ),
+            (
+                "ScrollPoints.read_consistency",
+                builder_custom_into!(read_consistency::Value, self.read_consistency),
+            ),
             ("ScrollPoints.shard_key_selector", DEFAULT_OPTION_INTO),
             ("ScrollPoints.order_by", DEFAULT_OPTION_INTO),
             // OrderBy

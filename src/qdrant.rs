@@ -3473,6 +3473,13 @@ pub struct ScrollPoints {
     pub with_vectors: ::core::option::Option<WithVectorsSelector>,
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "8")]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<read_consistency::Value>",
+            build = "convert_option(&self.read_consistency)"
+        )
+    )]
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// Specify in which shards to look for the points, if not specified - look in all shards
     #[prost(message, optional, tag = "9")]
