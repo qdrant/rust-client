@@ -222,8 +222,17 @@ fn configure_builder(builder: Builder) -> Builder {
             ("UpdateCollection.timeout", DEFAULT_OPTION),
             ("UpdateCollection.params", DEFAULT_OPTION_INTO),
             ("UpdateCollection.hnsw_config", DEFAULT_OPTION_INTO),
-            ("UpdateCollection.vectors_config", DEFAULT_OPTION_INTO),
-            ("UpdateCollection.quantization_config", DEFAULT_OPTION_INTO),
+            (
+                "UpdateCollection.vectors_config",
+                builder_custom_into!(vectors_config_diff::Config, self.vectors_config),
+            ),
+            (
+                "UpdateCollection.quantization_config",
+                builder_custom_into!(
+                    quantization_config_diff::Quantization,
+                    self.quantization_config
+                ),
+            ),
             (
                 "UpdateCollection.sparse_vectors_config",
                 DEFAULT_OPTION_INTO,
@@ -239,7 +248,6 @@ fn configure_builder(builder: Builder) -> Builder {
             ("SetPayloadPoints.key", DEFAULT_OPTION_INTO),
             // UpsertPoints
             ("UpsertPoints.wait", DEFAULT_OPTION),
-            ("UpsertPoints.points", DEFAULT_OPTION_INTO),
             ("UpsertPoints.ordering", DEFAULT_OPTION_INTO),
             ("UpsertPoints.shard_key_selector", DEFAULT_OPTION_INTO),
             // UpdateBatchPoints
@@ -350,7 +358,6 @@ fn configure_builder(builder: Builder) -> Builder {
                 "ScrollPoints.with_vectors",
                 builder_custom_into!(with_vectors_selector::SelectorOptions, self.with_vectors),
             ),
-            ("ScrollPoints.read_consistency", DEFAULT_OPTION_INTO),
             ("ScrollPoints.shard_key_selector", DEFAULT_OPTION_INTO),
             ("ScrollPoints.order_by", DEFAULT_OPTION_INTO),
             // OrderBy
@@ -378,7 +385,10 @@ fn configure_builder(builder: Builder) -> Builder {
             ("RecommendPoints.negative", DEFAULT_OPTION_INTO),
             ("RecommendPoints.positive_vectors", DEFAULT_OPTION_INTO),
             ("RecommendPoints.negative_vectors", DEFAULT_OPTION_INTO),
-            ("RecommendPoints.read_consistency", DEFAULT_OPTION_INTO),
+            (
+                "RecommendPoints.read_consistency",
+                builder_custom_into!(read_consistency::Value, self.read_consistency),
+            ),
             ("RecommendPoints.strategy", DEFAULT_OPTION_INTO),
             ("RecommendPoints.timeout", DEFAULT_OPTION),
             ("RecommendPoints.shard_key_selector", DEFAULT_OPTION_INTO),
@@ -386,21 +396,33 @@ fn configure_builder(builder: Builder) -> Builder {
             ("LookupLocation.vector_name", DEFAULT_OPTION_INTO),
             ("LookupLocation.shard_key_selector", DEFAULT_OPTION_INTO),
             // RecommendBatchPoints
-            ("RecommendBatchPoints.read_consistency", DEFAULT_OPTION_INTO),
+            (
+                "RecommendBatchPoints.read_consistency",
+                builder_custom_into!(read_consistency::Value, self.read_consistency),
+            ),
             ("RecommendBatchPoints.timeout", DEFAULT_OPTION),
             // RecommendPointGroups
             ("RecommendPointGroups.filter", DEFAULT_OPTION_INTO),
-            ("RecommendPointGroups.with_payload", DEFAULT_OPTION_INTO),
+            (
+                "RecommendPointGroups.with_payload",
+                builder_custom_into!(with_payload_selector::SelectorOptions, self.with_payload),
+            ),
             ("RecommendPointGroups.params", DEFAULT_OPTION_INTO),
             ("RecommendPointGroups.score_threshold", DEFAULT_OPTION),
             ("RecommendPointGroups.using", DEFAULT_OPTION_INTO),
-            ("RecommendPointGroups.with_vectors", DEFAULT_OPTION_INTO),
+            (
+                "RecommendPointGroups.with_vectors",
+                builder_custom_into!(with_vectors_selector::SelectorOptions, self.with_vectors),
+            ),
             ("RecommendPointGroups.positive", DEFAULT_OPTION_INTO),
             ("RecommendPointGroups.negative", DEFAULT_OPTION_INTO),
             ("RecommendPointGroups.positive_vectors", DEFAULT_OPTION_INTO),
             ("RecommendPointGroups.negative_vectors", DEFAULT_OPTION_INTO),
             ("RecommendPointGroups.lookup_from", DEFAULT_OPTION_INTO),
-            ("RecommendPointGroups.read_consistency", DEFAULT_OPTION_INTO),
+            (
+                "RecommendPointGroups.read_consistency",
+                builder_custom_into!(read_consistency::Value, self.read_consistency),
+            ),
             ("RecommendPointGroups.with_lookup", DEFAULT_OPTION_INTO),
             ("RecommendPointGroups.strategy", DEFAULT_OPTION_INTO),
             ("RecommendPointGroups.timeout", DEFAULT_OPTION),
@@ -411,22 +433,37 @@ fn configure_builder(builder: Builder) -> Builder {
             // DiscoverPoints
             ("DiscoverPoints.target", DEFAULT_OPTION_INTO),
             ("DiscoverPoints.filter", DEFAULT_OPTION_INTO),
-            ("DiscoverPoints.with_payload", DEFAULT_OPTION_INTO),
+            (
+                "DiscoverPoints.with_payload",
+                builder_custom_into!(with_payload_selector::SelectorOptions, self.with_payload),
+            ),
             ("DiscoverPoints.params", DEFAULT_OPTION_INTO),
             ("DiscoverPoints.offset", DEFAULT_OPTION),
             ("DiscoverPoints.using", DEFAULT_OPTION_INTO),
-            ("DiscoverPoints.with_vectors", DEFAULT_OPTION_INTO),
+            (
+                "DiscoverPoints.with_vectors",
+                builder_custom_into!(with_vectors_selector::SelectorOptions, self.with_vectors),
+            ),
             ("DiscoverPoints.lookup_from", DEFAULT_OPTION_INTO),
-            ("DiscoverPoints.read_consistency", DEFAULT_OPTION_INTO),
+            (
+                "DiscoverPoints.read_consistency",
+                builder_custom_into!(read_consistency::Value, self.read_consistency),
+            ),
             ("DiscoverPoints.timeout", DEFAULT_OPTION),
             ("DiscoverPoints.shard_key_selector", DEFAULT_OPTION_INTO),
             // DiscoverBatchPoints
-            ("DiscoverBatchPoints.read_consistency", DEFAULT_OPTION_INTO),
+            (
+                "DiscoverBatchPoints.read_consistency",
+                builder_custom_into!(read_consistency::Value, self.read_consistency),
+            ),
             ("DiscoverBatchPoints.timeout", DEFAULT_OPTION),
             // CountPoints
             ("CountPoints.filter", DEFAULT_OPTION_INTO),
             ("CountPoints.exact", DEFAULT_OPTION),
-            ("CountPoints.read_consistency", DEFAULT_OPTION_INTO),
+            (
+                "CountPoints.read_consistency",
+                builder_custom_into!(read_consistency::Value, self.read_consistency),
+            ),
             ("CountPoints.shard_key_selector", DEFAULT_OPTION_INTO),
             // CreateFieldIndexCollection
             ("CreateFieldIndexCollection.wait", DEFAULT_OPTION),
@@ -466,7 +503,13 @@ fn configure_builder(builder: Builder) -> Builder {
             ("CollectionParamsDiff.read_fan_out_factor", DEFAULT_OPTION),
             // VectorParamsDiff
             ("VectorParamsDiff.hnsw_config", DEFAULT_OPTION_INTO),
-            ("VectorParamsDiff.quantization_config", DEFAULT_OPTION_INTO),
+            (
+                "VectorParamsDiff.quantization_config",
+                builder_custom_into!(
+                    quantization_config_diff::Quantization,
+                    self.quantization_config
+                ),
+            ),
             ("VectorParamsDiff.on_disk", DEFAULT_OPTION),
             // SparseVectorParams
             ("SparseVectorParams.index", DEFAULT_OPTION_INTO),
@@ -482,6 +525,10 @@ fn configure_builder(builder: Builder) -> Builder {
             // ContextExamplePair
             ("ContextExamplePair.positive", DEFAULT_OPTION_INTO),
             ("ContextExamplePair.negative", DEFAULT_OPTION_INTO),
+            // TextIndexParams
+            ("TextIndexParams.lowercase", DEFAULT_OPTION),
+            ("TextIndexParams.min_token_len", DEFAULT_OPTION),
+            ("TextIndexParams.max_token_len", DEFAULT_OPTION),
         ],
         builder_derive_options(),
     )
@@ -612,6 +659,7 @@ fn builder_derive_options() -> &'static [BuildDeriveOptions] {
         ("SparseIndexConfig", DEFAULT_BUILDER_DERIVE_OPTIONS, true),
         ("CreateShardKey", DEFAULT_BUILDER_DERIVE_OPTIONS, true),
         ("ContextExamplePair", DEFAULT_BUILDER_DERIVE_OPTIONS, true),
+        ("TextIndexParams", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
     ]
 }
 

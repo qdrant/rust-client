@@ -46,7 +46,13 @@ pub struct VectorParamsDiff {
     pub hnsw_config: ::core::option::Option<HnswConfigDiff>,
     /// Update quantization params. If none - it is left unchanged.
     #[prost(message, optional, tag = "2")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<quantization_config_diff::Quantization>",
+            build = "convert_option(&self.quantization_config)"
+        )
+    )]
     pub quantization_config: ::core::option::Option<QuantizationConfigDiff>,
     /// If true - serve vectors from disk. If set to false, the vectors will be loaded in RAM.
     #[prost(bool, optional, tag = "3")]
@@ -515,11 +521,23 @@ pub struct UpdateCollection {
     pub hnsw_config: ::core::option::Option<HnswConfigDiff>,
     /// New vector parameters
     #[prost(message, optional, tag = "6")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<vectors_config_diff::Config>",
+            build = "convert_option(&self.vectors_config)"
+        )
+    )]
     pub vectors_config: ::core::option::Option<VectorsConfigDiff>,
     /// Quantization configuration of vector
     #[prost(message, optional, tag = "7")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<quantization_config_diff::Quantization>",
+            build = "convert_option(&self.quantization_config)"
+        )
+    )]
     pub quantization_config: ::core::option::Option<QuantizationConfigDiff>,
     /// New sparse vector parameters
     #[prost(message, optional, tag = "8")]
@@ -618,6 +636,8 @@ pub struct CollectionConfig {
     #[prost(message, optional, tag = "5")]
     pub quantization_config: ::core::option::Option<QuantizationConfig>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct TextIndexParams {
@@ -626,12 +646,15 @@ pub struct TextIndexParams {
     pub tokenizer: i32,
     /// If true - all tokens will be lowercase
     #[prost(bool, optional, tag = "2")]
+    #[builder(default, setter(strip_option))]
     pub lowercase: ::core::option::Option<bool>,
     /// Minimal token length
     #[prost(uint64, optional, tag = "3")]
+    #[builder(default, setter(strip_option))]
     pub min_token_len: ::core::option::Option<u64>,
     /// Maximal token length
     #[prost(uint64, optional, tag = "4")]
+    #[builder(default, setter(strip_option))]
     pub max_token_len: ::core::option::Option<u64>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -2707,7 +2730,6 @@ pub struct UpsertPoints {
     #[builder(default, setter(strip_option))]
     pub wait: ::core::option::Option<bool>,
     #[prost(message, repeated, tag = "3")]
-    #[builder(default, setter(into, strip_option))]
     pub points: ::prost::alloc::vec::Vec<PointStruct>,
     /// Write ordering guarantees
     #[prost(message, optional, tag = "4")]
@@ -3451,7 +3473,6 @@ pub struct ScrollPoints {
     pub with_vectors: ::core::option::Option<WithVectorsSelector>,
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "8")]
-    #[builder(default, setter(into, strip_option))]
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// Specify in which shards to look for the points, if not specified - look in all shards
     #[prost(message, optional, tag = "9")]
@@ -3543,7 +3564,13 @@ pub struct RecommendPoints {
     pub lookup_from: ::core::option::Option<LookupLocation>,
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "14")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<read_consistency::Value>",
+            build = "convert_option(&self.read_consistency)"
+        )
+    )]
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// How to use the example vectors to find the results
     #[prost(enumeration = "RecommendStrategy", optional, tag = "16")]
@@ -3578,7 +3605,13 @@ pub struct RecommendBatchPoints {
     pub recommend_points: ::prost::alloc::vec::Vec<RecommendPoints>,
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "3")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<read_consistency::Value>",
+            build = "convert_option(&self.read_consistency)"
+        )
+    )]
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// If set, overrides global timeout setting for this request. Unit is seconds.
     #[prost(uint64, optional, tag = "4")]
@@ -3610,7 +3643,13 @@ pub struct RecommendPointGroups {
     pub limit: u32,
     /// Options for specifying which payload to include or not
     #[prost(message, optional, tag = "6")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<with_payload_selector::SelectorOptions>",
+            build = "convert_option(&self.with_payload)"
+        )
+    )]
     pub with_payload: ::core::option::Option<WithPayloadSelector>,
     /// Search config
     #[prost(message, optional, tag = "7")]
@@ -3626,7 +3665,13 @@ pub struct RecommendPointGroups {
     pub using: ::core::option::Option<::prost::alloc::string::String>,
     /// Options for specifying which vectors to include into response
     #[prost(message, optional, tag = "10")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<with_vectors_selector::SelectorOptions>",
+            build = "convert_option(&self.with_vectors)"
+        )
+    )]
     pub with_vectors: ::core::option::Option<WithVectorsSelector>,
     /// Name of the collection to use for points lookup, if not specified - use current collection
     #[prost(message, optional, tag = "11")]
@@ -3640,7 +3685,13 @@ pub struct RecommendPointGroups {
     pub group_size: u32,
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "14")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<read_consistency::Value>",
+            build = "convert_option(&self.read_consistency)"
+        )
+    )]
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// Options for specifying how to use the group id to lookup points in another collection
     #[prost(message, optional, tag = "15")]
@@ -3735,7 +3786,13 @@ pub struct DiscoverPoints {
     pub limit: u64,
     /// Options for specifying which payload to include or not
     #[prost(message, optional, tag = "6")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<with_payload_selector::SelectorOptions>",
+            build = "convert_option(&self.with_payload)"
+        )
+    )]
     pub with_payload: ::core::option::Option<WithPayloadSelector>,
     /// Search config
     #[prost(message, optional, tag = "7")]
@@ -3751,7 +3808,13 @@ pub struct DiscoverPoints {
     pub using: ::core::option::Option<::prost::alloc::string::String>,
     /// Options for specifying which vectors to include into response
     #[prost(message, optional, tag = "10")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<with_vectors_selector::SelectorOptions>",
+            build = "convert_option(&self.with_vectors)"
+        )
+    )]
     pub with_vectors: ::core::option::Option<WithVectorsSelector>,
     /// Name of the collection to use for points lookup, if not specified - use current collection
     #[prost(message, optional, tag = "11")]
@@ -3759,7 +3822,13 @@ pub struct DiscoverPoints {
     pub lookup_from: ::core::option::Option<LookupLocation>,
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "12")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<read_consistency::Value>",
+            build = "convert_option(&self.read_consistency)"
+        )
+    )]
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// If set, overrides global timeout setting for this request. Unit is seconds.
     #[prost(uint64, optional, tag = "13")]
@@ -3782,7 +3851,13 @@ pub struct DiscoverBatchPoints {
     pub discover_points: ::prost::alloc::vec::Vec<DiscoverPoints>,
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "3")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<read_consistency::Value>",
+            build = "convert_option(&self.read_consistency)"
+        )
+    )]
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// If set, overrides global timeout setting for this request. Unit is seconds.
     #[prost(uint64, optional, tag = "4")]
@@ -3807,7 +3882,13 @@ pub struct CountPoints {
     pub exact: ::core::option::Option<bool>,
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "4")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<read_consistency::Value>",
+            build = "convert_option(&self.read_consistency)"
+        )
+    )]
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// Specify in which shards to look for the points, if not specified - look in all shards
     #[prost(message, optional, tag = "5")]
@@ -7364,6 +7445,7 @@ builder_type_conversions!(SparseVectorParams, SparseVectorParamsBuilder);
 builder_type_conversions!(SparseIndexConfig, SparseIndexConfigBuilder);
 builder_type_conversions!(CreateShardKey, CreateShardKeyBuilder);
 builder_type_conversions!(ContextExamplePair, ContextExamplePairBuilder);
+builder_type_conversions!(TextIndexParams, TextIndexParamsBuilder);
 
 // import our manual builder here so all builder come from the same module in the end user API.
 pub use crate::manual_builder::*;
@@ -7693,5 +7775,37 @@ impl DeleteCollectionBuilder {
         let mut builder = Self::create_empty();
         builder.collection_name = Some(collection_name.into());
         builder
+    }
+}
+
+impl TextIndexParamsBuilder {
+    pub fn new(tokenizer: TokenizerType) -> Self {
+        let mut builder = Self::create_empty();
+        builder.tokenizer = Some(tokenizer.into());
+        builder
+    }
+}
+
+impl PayloadIncludeSelector {
+    pub fn new(fileds: impl Into<Vec<String>>) -> Self {
+        Self {
+            fields: fileds.into(),
+        }
+    }
+}
+
+impl PayloadExcludeSelector {
+    pub fn new(fileds: impl Into<Vec<String>>) -> Self {
+        Self {
+            fields: fileds.into(),
+        }
+    }
+}
+
+impl VectorsSelector {
+    pub fn new(names: impl Into<Vec<String>>) -> Self {
+        Self {
+            names: names.into(),
+        }
     }
 }

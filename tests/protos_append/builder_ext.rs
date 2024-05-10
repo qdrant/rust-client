@@ -328,3 +328,35 @@ impl DeleteCollectionBuilder {
         builder
     }
 }
+
+impl TextIndexParamsBuilder {
+    pub fn new(tokenizer: TokenizerType) -> Self {
+        let mut builder = Self::create_empty();
+        builder.tokenizer = Some(tokenizer.into());
+        builder
+    }
+}
+
+impl PayloadIncludeSelector {
+    pub fn new(fileds: impl Into<Vec<String>>) -> Self {
+        Self {
+            fields: fileds.into(),
+        }
+    }
+}
+
+impl PayloadExcludeSelector {
+    pub fn new(fileds: impl Into<Vec<String>>) -> Self {
+        Self {
+            fields: fileds.into(),
+        }
+    }
+}
+
+impl VectorsSelector {
+    pub fn new(names: impl Into<Vec<String>>) -> Self {
+        Self {
+            names: names.into(),
+        }
+    }
+}
