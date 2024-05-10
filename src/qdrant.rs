@@ -35,17 +35,28 @@ pub struct VectorParams {
     #[builder(default, setter(into, strip_option))]
     pub datatype: ::core::option::Option<i32>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, error = "std::convert::Infallible", name = "build_inner"))]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct VectorParamsDiff {
     /// Update params for HNSW index. If empty object - it will be unset
     #[prost(message, optional, tag = "1")]
+    #[builder(default, setter(into, strip_option))]
     pub hnsw_config: ::core::option::Option<HnswConfigDiff>,
     /// Update quantization params. If none - it is left unchanged.
     #[prost(message, optional, tag = "2")]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<quantization_config_diff::Quantization>",
+            build = "convert_option(&self.quantization_config)"
+        )
+    )]
     pub quantization_config: ::core::option::Option<QuantizationConfigDiff>,
     /// If true - serve vectors from disk. If set to false, the vectors will be loaded in RAM.
     #[prost(bool, optional, tag = "3")]
+    #[builder(default, setter(strip_option))]
     pub on_disk: ::core::option::Option<bool>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -94,14 +105,18 @@ pub mod vectors_config_diff {
         ParamsMap(super::VectorParamsDiffMap),
     }
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, error = "std::convert::Infallible", name = "build_inner"))]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SparseVectorParams {
     /// Configuration of sparse index
     #[prost(message, optional, tag = "1")]
+    #[builder(default, setter(into, strip_option))]
     pub index: ::core::option::Option<SparseIndexConfig>,
     /// If set - apply modifier to the vector values
     #[prost(enumeration = "Modifier", optional, tag = "2")]
+    #[builder(default, setter(into, strip_option))]
     pub modifier: ::core::option::Option<i32>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -216,6 +231,8 @@ pub struct HnswConfigDiff {
     #[builder(default, setter(strip_option))]
     pub payload_m: ::core::option::Option<u64>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, error = "std::convert::Infallible", name = "build_inner"))]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SparseIndexConfig {
@@ -223,10 +240,12 @@ pub struct SparseIndexConfig {
     /// Prefer a full scan search upto (excluding) this number of vectors.
     /// Note: this is number of vectors, not KiloBytes.
     #[prost(uint64, optional, tag = "1")]
+    #[builder(default, setter(into, strip_option))]
     pub full_scan_threshold: ::core::option::Option<u64>,
     ///
     /// Store inverted index on disk. If set to false, the index will be stored in RAM.
     #[prost(bool, optional, tag = "2")]
+    #[builder(default, setter(strip_option))]
     pub on_disk: ::core::option::Option<bool>,
 }
 #[derive(derive_builder::Builder)]
@@ -502,17 +521,31 @@ pub struct UpdateCollection {
     pub hnsw_config: ::core::option::Option<HnswConfigDiff>,
     /// New vector parameters
     #[prost(message, optional, tag = "6")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<vectors_config_diff::Config>",
+            build = "convert_option(&self.vectors_config)"
+        )
+    )]
     pub vectors_config: ::core::option::Option<VectorsConfigDiff>,
     /// Quantization configuration of vector
     #[prost(message, optional, tag = "7")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<quantization_config_diff::Quantization>",
+            build = "convert_option(&self.quantization_config)"
+        )
+    )]
     pub quantization_config: ::core::option::Option<QuantizationConfigDiff>,
     /// New sparse vector parameters
     #[prost(message, optional, tag = "8")]
     #[builder(default, setter(into, strip_option))]
     pub sparse_vectors_config: ::core::option::Option<SparseVectorConfig>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeleteCollection {
@@ -521,6 +554,7 @@ pub struct DeleteCollection {
     pub collection_name: ::prost::alloc::string::String,
     /// Wait timeout for operation commit in seconds, if not specified - default value will be supplied
     #[prost(uint64, optional, tag = "2")]
+    #[builder(default, setter(strip_option))]
     pub timeout: ::core::option::Option<u64>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -561,20 +595,26 @@ pub struct CollectionParams {
     #[prost(message, optional, tag = "10")]
     pub sparse_vectors_config: ::core::option::Option<SparseVectorConfig>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, error = "std::convert::Infallible", name = "build_inner"))]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CollectionParamsDiff {
     /// Number of replicas of each shard that network tries to maintain
     #[prost(uint32, optional, tag = "1")]
+    #[builder(default, setter(strip_option))]
     pub replication_factor: ::core::option::Option<u32>,
     /// How many replicas should apply the operation for us to consider it successful
     #[prost(uint32, optional, tag = "2")]
+    #[builder(default, setter(strip_option))]
     pub write_consistency_factor: ::core::option::Option<u32>,
     /// If true - point's payload will not be stored in memory
     #[prost(bool, optional, tag = "3")]
+    #[builder(default, setter(strip_option))]
     pub on_disk_payload: ::core::option::Option<bool>,
     /// Fan-out every read request to these many additional remote nodes (and return first available response)
     #[prost(uint32, optional, tag = "4")]
+    #[builder(default, setter(strip_option))]
     pub read_fan_out_factor: ::core::option::Option<u32>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -596,6 +636,8 @@ pub struct CollectionConfig {
     #[prost(message, optional, tag = "5")]
     pub quantization_config: ::core::option::Option<QuantizationConfig>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct TextIndexParams {
@@ -604,12 +646,15 @@ pub struct TextIndexParams {
     pub tokenizer: i32,
     /// If true - all tokens will be lowercase
     #[prost(bool, optional, tag = "2")]
+    #[builder(default, setter(strip_option))]
     pub lowercase: ::core::option::Option<bool>,
     /// Minimal token length
     #[prost(uint64, optional, tag = "3")]
+    #[builder(default, setter(strip_option))]
     pub min_token_len: ::core::option::Option<u64>,
     /// Maximal token length
     #[prost(uint64, optional, tag = "4")]
+    #[builder(default, setter(strip_option))]
     pub max_token_len: ::core::option::Option<u64>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -917,20 +962,26 @@ pub struct Replica {
     #[prost(uint64, tag = "2")]
     pub peer_id: u64,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, error = "std::convert::Infallible", name = "build_inner"))]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateShardKey {
     /// User-defined shard key
     #[prost(message, optional, tag = "1")]
+    #[builder(default, setter(into, strip_option))]
     pub shard_key: ::core::option::Option<ShardKey>,
     /// Number of shards to create per shard key
     #[prost(uint32, optional, tag = "2")]
+    #[builder(default, setter(strip_option))]
     pub shards_number: ::core::option::Option<u32>,
     /// Number of replicas of each shard to create
     #[prost(uint32, optional, tag = "3")]
+    #[builder(default, setter(strip_option))]
     pub replication_factor: ::core::option::Option<u32>,
     /// List of peer ids, allowed to create shards. If empty - all peers are allowed
     #[prost(uint64, repeated, tag = "4")]
+    #[builder(default, setter(strip_option))]
     pub placement: ::prost::alloc::vec::Vec<u64>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -940,6 +991,8 @@ pub struct DeleteShardKey {
     #[prost(message, optional, tag = "1")]
     pub shard_key: ::core::option::Option<ShardKey>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpdateCollectionClusterSetupRequest {
@@ -948,11 +1001,13 @@ pub struct UpdateCollectionClusterSetupRequest {
     pub collection_name: ::prost::alloc::string::String,
     /// Wait timeout for operation commit in seconds, if not specified - default value will be supplied
     #[prost(uint64, optional, tag = "6")]
+    #[builder(default, setter(strip_option))]
     pub timeout: ::core::option::Option<u64>,
     #[prost(
         oneof = "update_collection_cluster_setup_request::Operation",
         tags = "2, 3, 4, 5, 7, 8, 9"
     )]
+    #[builder(default, setter(into, strip_option))]
     pub operation: ::core::option::Option<update_collection_cluster_setup_request::Operation>,
 }
 /// Nested message and enum types in `UpdateCollectionClusterSetupRequest`.
@@ -982,6 +1037,8 @@ pub struct UpdateCollectionClusterSetupResponse {
     #[prost(bool, tag = "1")]
     pub result: bool,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateShardKeyRequest {
@@ -990,11 +1047,15 @@ pub struct CreateShardKeyRequest {
     pub collection_name: ::prost::alloc::string::String,
     /// Request to create shard key
     #[prost(message, optional, tag = "2")]
+    #[builder(default, setter(into, strip_option))]
     pub request: ::core::option::Option<CreateShardKey>,
     /// Wait timeout for operation commit in seconds, if not specified - default value will be supplied
     #[prost(uint64, optional, tag = "3")]
+    #[builder(default, setter(strip_option))]
     pub timeout: ::core::option::Option<u64>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, name = "build_inner"), custom_constructor)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeleteShardKeyRequest {
@@ -1003,9 +1064,11 @@ pub struct DeleteShardKeyRequest {
     pub collection_name: ::prost::alloc::string::String,
     /// Request to delete shard key
     #[prost(message, optional, tag = "2")]
+    #[builder(default, setter(into, strip_option))]
     pub request: ::core::option::Option<DeleteShardKey>,
     /// Wait timeout for operation commit in seconds, if not specified - default value will be supplied
     #[prost(uint64, optional, tag = "3")]
+    #[builder(default, setter(strip_option))]
     pub timeout: ::core::option::Option<u64>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -2667,7 +2730,6 @@ pub struct UpsertPoints {
     #[builder(default, setter(strip_option))]
     pub wait: ::core::option::Option<bool>,
     #[prost(message, repeated, tag = "3")]
-    #[builder(default, setter(into, strip_option))]
     pub points: ::prost::alloc::vec::Vec<PointStruct>,
     /// Write ordering guarantees
     #[prost(message, optional, tag = "4")]
@@ -3411,7 +3473,13 @@ pub struct ScrollPoints {
     pub with_vectors: ::core::option::Option<WithVectorsSelector>,
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "8")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<read_consistency::Value>",
+            build = "convert_option(&self.read_consistency)"
+        )
+    )]
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// Specify in which shards to look for the points, if not specified - look in all shards
     #[prost(message, optional, tag = "9")]
@@ -3503,7 +3571,13 @@ pub struct RecommendPoints {
     pub lookup_from: ::core::option::Option<LookupLocation>,
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "14")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<read_consistency::Value>",
+            build = "convert_option(&self.read_consistency)"
+        )
+    )]
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// How to use the example vectors to find the results
     #[prost(enumeration = "RecommendStrategy", optional, tag = "16")]
@@ -3538,7 +3612,13 @@ pub struct RecommendBatchPoints {
     pub recommend_points: ::prost::alloc::vec::Vec<RecommendPoints>,
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "3")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<read_consistency::Value>",
+            build = "convert_option(&self.read_consistency)"
+        )
+    )]
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// If set, overrides global timeout setting for this request. Unit is seconds.
     #[prost(uint64, optional, tag = "4")]
@@ -3570,7 +3650,13 @@ pub struct RecommendPointGroups {
     pub limit: u32,
     /// Options for specifying which payload to include or not
     #[prost(message, optional, tag = "6")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<with_payload_selector::SelectorOptions>",
+            build = "convert_option(&self.with_payload)"
+        )
+    )]
     pub with_payload: ::core::option::Option<WithPayloadSelector>,
     /// Search config
     #[prost(message, optional, tag = "7")]
@@ -3586,7 +3672,13 @@ pub struct RecommendPointGroups {
     pub using: ::core::option::Option<::prost::alloc::string::String>,
     /// Options for specifying which vectors to include into response
     #[prost(message, optional, tag = "10")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<with_vectors_selector::SelectorOptions>",
+            build = "convert_option(&self.with_vectors)"
+        )
+    )]
     pub with_vectors: ::core::option::Option<WithVectorsSelector>,
     /// Name of the collection to use for points lookup, if not specified - use current collection
     #[prost(message, optional, tag = "11")]
@@ -3600,7 +3692,13 @@ pub struct RecommendPointGroups {
     pub group_size: u32,
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "14")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<read_consistency::Value>",
+            build = "convert_option(&self.read_consistency)"
+        )
+    )]
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// Options for specifying how to use the group id to lookup points in another collection
     #[prost(message, optional, tag = "15")]
@@ -3659,12 +3757,16 @@ pub mod vector_example {
         Vector(super::Vector),
     }
 }
+#[derive(derive_builder::Builder)]
+#[builder(build_fn(private, error = "std::convert::Infallible", name = "build_inner"))]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ContextExamplePair {
     #[prost(message, optional, tag = "1")]
+    #[builder(default, setter(into, strip_option))]
     pub positive: ::core::option::Option<VectorExample>,
     #[prost(message, optional, tag = "2")]
+    #[builder(default, setter(into, strip_option))]
     pub negative: ::core::option::Option<VectorExample>,
 }
 #[derive(derive_builder::Builder)]
@@ -3691,7 +3793,13 @@ pub struct DiscoverPoints {
     pub limit: u64,
     /// Options for specifying which payload to include or not
     #[prost(message, optional, tag = "6")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<with_payload_selector::SelectorOptions>",
+            build = "convert_option(&self.with_payload)"
+        )
+    )]
     pub with_payload: ::core::option::Option<WithPayloadSelector>,
     /// Search config
     #[prost(message, optional, tag = "7")]
@@ -3707,7 +3815,13 @@ pub struct DiscoverPoints {
     pub using: ::core::option::Option<::prost::alloc::string::String>,
     /// Options for specifying which vectors to include into response
     #[prost(message, optional, tag = "10")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<with_vectors_selector::SelectorOptions>",
+            build = "convert_option(&self.with_vectors)"
+        )
+    )]
     pub with_vectors: ::core::option::Option<WithVectorsSelector>,
     /// Name of the collection to use for points lookup, if not specified - use current collection
     #[prost(message, optional, tag = "11")]
@@ -3715,7 +3829,13 @@ pub struct DiscoverPoints {
     pub lookup_from: ::core::option::Option<LookupLocation>,
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "12")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<read_consistency::Value>",
+            build = "convert_option(&self.read_consistency)"
+        )
+    )]
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// If set, overrides global timeout setting for this request. Unit is seconds.
     #[prost(uint64, optional, tag = "13")]
@@ -3738,7 +3858,13 @@ pub struct DiscoverBatchPoints {
     pub discover_points: ::prost::alloc::vec::Vec<DiscoverPoints>,
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "3")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<read_consistency::Value>",
+            build = "convert_option(&self.read_consistency)"
+        )
+    )]
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// If set, overrides global timeout setting for this request. Unit is seconds.
     #[prost(uint64, optional, tag = "4")]
@@ -3763,7 +3889,13 @@ pub struct CountPoints {
     pub exact: ::core::option::Option<bool>,
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "4")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<read_consistency::Value>",
+            build = "convert_option(&self.read_consistency)"
+        )
+    )]
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// Specify in which shards to look for the points, if not specified - look in all shards
     #[prost(message, optional, tag = "5")]
@@ -7307,6 +7439,20 @@ builder_type_conversions!(
     DeleteFieldIndexCollection,
     DeleteFieldIndexCollectionBuilder
 );
+builder_type_conversions!(
+    UpdateCollectionClusterSetupRequest,
+    UpdateCollectionClusterSetupRequestBuilder
+);
+builder_type_conversions!(CreateShardKeyRequest, CreateShardKeyRequestBuilder);
+builder_type_conversions!(DeleteShardKeyRequest, DeleteShardKeyRequestBuilder);
+builder_type_conversions!(DeleteCollection, DeleteCollectionBuilder);
+builder_type_conversions!(CollectionParamsDiff, CollectionParamsDiffBuilder);
+builder_type_conversions!(VectorParamsDiff, VectorParamsDiffBuilder);
+builder_type_conversions!(SparseVectorParams, SparseVectorParamsBuilder);
+builder_type_conversions!(SparseIndexConfig, SparseIndexConfigBuilder);
+builder_type_conversions!(CreateShardKey, CreateShardKeyBuilder);
+builder_type_conversions!(ContextExamplePair, ContextExamplePairBuilder);
+builder_type_conversions!(TextIndexParams, TextIndexParamsBuilder);
 
 // import our manual builder here so all builder come from the same module in the end user API.
 pub use crate::manual_builder::*;
@@ -7604,5 +7750,69 @@ impl DeleteFieldIndexCollectionBuilder {
         builder.collection_name = Some(collection_name.into());
         builder.field_name = Some(field_name.into());
         builder
+    }
+}
+
+impl UpdateCollectionClusterSetupRequestBuilder {
+    pub fn new(collection_name: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder
+    }
+}
+
+impl CreateShardKeyRequestBuilder {
+    pub fn new(collection_name: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder
+    }
+}
+
+impl DeleteShardKeyRequestBuilder {
+    pub fn new(collection_name: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder
+    }
+}
+
+impl DeleteCollectionBuilder {
+    pub fn new(collection_name: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.collection_name = Some(collection_name.into());
+        builder
+    }
+}
+
+impl TextIndexParamsBuilder {
+    pub fn new(tokenizer: TokenizerType) -> Self {
+        let mut builder = Self::create_empty();
+        builder.tokenizer = Some(tokenizer.into());
+        builder
+    }
+}
+
+impl PayloadIncludeSelector {
+    pub fn new(fileds: impl Into<Vec<String>>) -> Self {
+        Self {
+            fields: fileds.into(),
+        }
+    }
+}
+
+impl PayloadExcludeSelector {
+    pub fn new(fileds: impl Into<Vec<String>>) -> Self {
+        Self {
+            fields: fileds.into(),
+        }
+    }
+}
+
+impl VectorsSelector {
+    pub fn new(names: impl Into<Vec<String>>) -> Self {
+        Self {
+            names: names.into(),
+        }
     }
 }

@@ -1,14 +1,16 @@
 use qdrant_client::prelude::Distance;
 use qdrant_client::qdrant::{
     BinaryQuantizationBuilder, ClearPayloadPointsBuilder, CountPointsBuilder,
-    CreateFieldIndexCollectionBuilder, DeleteFieldIndexCollectionBuilder,
-    DeletePayloadPointsBuilder, DeletePointVectorsBuilder, DeletePointsBuilder,
-    DiscoverBatchPointsBuilder, DiscoverPointsBuilder, GetPointsBuilder, LookupLocationBuilder,
-    OrderByBuilder, ProductQuantizationBuilder, QuantizationType, RecommendBatchPointsBuilder,
+    CreateFieldIndexCollectionBuilder, CreateShardKeyRequestBuilder, DeleteCollectionBuilder,
+    DeleteFieldIndexCollectionBuilder, DeletePayloadPointsBuilder, DeletePointVectorsBuilder,
+    DeletePointsBuilder, DeleteShardKeyRequestBuilder, DiscoverBatchPointsBuilder,
+    DiscoverPointsBuilder, GetPointsBuilder, LookupLocationBuilder, OrderByBuilder,
+    ProductQuantizationBuilder, QuantizationType, RecommendBatchPointsBuilder,
     RecommendPointGroupsBuilder, RecommendPointsBuilder, ScalarQuantizationBuilder,
     ScrollPointsBuilder, SearchBatchPointsBuilder, SearchPointGroupsBuilder, SearchPointsBuilder,
-    SetPayloadPointsBuilder, UpdateBatchPointsBuilder, UpdateCollectionBuilder,
-    UpdatePointVectorsBuilder, UpsertPointsBuilder, VectorParamsBuilder, WithLookupBuilder,
+    SetPayloadPointsBuilder, TextIndexParamsBuilder, TokenizerType, UpdateBatchPointsBuilder,
+    UpdateCollectionBuilder, UpdateCollectionClusterSetupRequestBuilder, UpdatePointVectorsBuilder,
+    UpsertPointsBuilder, VectorParamsBuilder, WithLookupBuilder,
 };
 use std::collections::HashMap;
 
@@ -54,4 +56,9 @@ fn builder_coverage() {
     UpsertPointsBuilder::new("mycollection", []).build();
     CreateFieldIndexCollectionBuilder::new("mycollection", " myfield").build();
     DeleteFieldIndexCollectionBuilder::new("mycollection", " myfield").build();
+    UpdateCollectionClusterSetupRequestBuilder::new("mycollection").build();
+    CreateShardKeyRequestBuilder::new("mycollection").build();
+    DeleteShardKeyRequestBuilder::new("mycollection").build();
+    DeleteCollectionBuilder::new("mycollection").build();
+    TextIndexParamsBuilder::new(TokenizerType::Word).build();
 }
