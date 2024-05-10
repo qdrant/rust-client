@@ -3516,11 +3516,11 @@ pub struct RecommendPoints {
     pub collection_name: ::prost::alloc::string::String,
     /// Look for vectors closest to the vectors from these points
     #[prost(message, repeated, tag = "2")]
-    #[builder(setter(custom))]
+    #[builder(default, setter(custom))]
     pub positive: ::prost::alloc::vec::Vec<PointId>,
     /// Try to avoid vectors like the vector from these points
     #[prost(message, repeated, tag = "3")]
-    #[builder(setter(custom))]
+    #[builder(default, setter(custom))]
     pub negative: ::prost::alloc::vec::Vec<PointId>,
     /// Filter conditions - return only those points that satisfy the specified conditions
     #[prost(message, optional, tag = "4")]
@@ -3585,11 +3585,11 @@ pub struct RecommendPoints {
     pub strategy: ::core::option::Option<i32>,
     /// Look for vectors closest to those
     #[prost(message, repeated, tag = "17")]
-    #[builder(setter(custom))]
+    #[builder(default, setter(custom))]
     pub positive_vectors: ::prost::alloc::vec::Vec<Vector>,
     /// Try to avoid vectors like this
     #[prost(message, repeated, tag = "18")]
-    #[builder(setter(custom))]
+    #[builder(default, setter(custom))]
     pub negative_vectors: ::prost::alloc::vec::Vec<Vector>,
     /// If set, overrides global timeout setting for this request. Unit is seconds.
     #[prost(uint64, optional, tag = "19")]
@@ -3635,11 +3635,11 @@ pub struct RecommendPointGroups {
     pub collection_name: ::prost::alloc::string::String,
     /// Look for vectors closest to the vectors from these points
     #[prost(message, repeated, tag = "2")]
-    #[builder(setter(custom))]
+    #[builder(default, setter(custom))]
     pub positive: ::prost::alloc::vec::Vec<PointId>,
     /// Try to avoid vectors like the vector from these points
     #[prost(message, repeated, tag = "3")]
-    #[builder(setter(custom))]
+    #[builder(default, setter(custom))]
     pub negative: ::prost::alloc::vec::Vec<PointId>,
     /// Filter conditions - return only those points that satisfy the specified conditions
     #[prost(message, optional, tag = "4")]
@@ -3710,11 +3710,11 @@ pub struct RecommendPointGroups {
     pub strategy: ::core::option::Option<i32>,
     /// Look for vectors closest to those
     #[prost(message, repeated, tag = "18")]
-    #[builder(setter(custom))]
+    #[builder(default, setter(custom))]
     pub positive_vectors: ::prost::alloc::vec::Vec<Vector>,
     /// Try to avoid vectors like this
     #[prost(message, repeated, tag = "19")]
-    #[builder(setter(custom))]
+    #[builder(default, setter(custom))]
     pub negative_vectors: ::prost::alloc::vec::Vec<Vector>,
     /// If set, overrides global timeout setting for this request. Unit is seconds.
     #[prost(uint64, optional, tag = "20")]

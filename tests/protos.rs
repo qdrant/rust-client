@@ -112,7 +112,7 @@ fn configure_builder(builder: Builder) -> Builder {
     const DEFAULT_OPTION_INTO: &str = "default, setter(into, strip_option)";
     const DEFAULT: &str = "default";
     const DEFAULT_INTO: &str = "default, setter(into)";
-    const CUSTOM_SETTER: &str = "setter(custom)";
+    const CUSTOM_SETTER: &str = "default, setter(custom)";
 
     builder.derive_builders(
         &[
