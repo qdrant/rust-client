@@ -633,9 +633,9 @@ fn builder_derive_options() -> &'static [BuildDeriveOptions] {
     // For this we rename and make the automatically generated build function private.
     // Infallible allows secure unwrapping and compiler errors on missing fields.
     const DEFAULT_BUILDER_DERIVE_OPTIONS: &str =
-        "build_fn(private, error = \"std::convert::Infallible\", name = \"build_inner\")";
+        "build_fn(private, error = \"std::convert::Infallible\", name = \"build_inner\"), pattern = \"owned\"";
     const NO_DEFAULT_BUILDER_DERIVE_OPTIONS: &str =
-        "build_fn(private, name = \"build_inner\"), custom_constructor";
+        "build_fn(private, name = \"build_inner\"), pattern = \"owned\", custom_constructor";
 
     // Tuple structure: (Path, build attributes, 'from' macro generation enabled)
     &[

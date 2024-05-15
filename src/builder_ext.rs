@@ -1,12 +1,12 @@
 use crate::builder_types::RecommendExample;
 use crate::qdrant::{
     BinaryQuantizationBuilder, ClearPayloadPointsBuilder, ContextExamplePair, CountPointsBuilder,
-    CreateFieldIndexCollectionBuilder, CreateShardKeyRequestBuilder, DeleteCollectionBuilder,
-    DeleteFieldIndexCollectionBuilder, DeletePayloadPointsBuilder, DeletePointVectorsBuilder,
-    DeletePointsBuilder, DeleteShardKeyRequestBuilder, DiscoverBatchPointsBuilder, DiscoverPoints,
-    DiscoverPointsBuilder, Distance, GetPointsBuilder, LookupLocationBuilder, OrderByBuilder,
-    PayloadExcludeSelector, PayloadIncludeSelector, PointId, PointStruct, PointVectors,
-    PointsUpdateOperation, ProductQuantizationBuilder, QuantizationType,
+    CreateCollectionBuilder, CreateFieldIndexCollectionBuilder, CreateShardKeyRequestBuilder,
+    DeleteCollectionBuilder, DeleteFieldIndexCollectionBuilder, DeletePayloadPointsBuilder,
+    DeletePointVectorsBuilder, DeletePointsBuilder, DeleteShardKeyRequestBuilder,
+    DiscoverBatchPointsBuilder, DiscoverPoints, DiscoverPointsBuilder, Distance, GetPointsBuilder,
+    LookupLocationBuilder, OrderByBuilder, PayloadExcludeSelector, PayloadIncludeSelector, PointId,
+    PointStruct, PointVectors, PointsUpdateOperation, ProductQuantizationBuilder, QuantizationType,
     RecommendBatchPointsBuilder, RecommendPointGroups, RecommendPointGroupsBuilder,
     RecommendPoints, RecommendPointsBuilder, ScalarQuantizationBuilder, ScrollPointsBuilder,
     SearchBatchPointsBuilder, SearchPointGroupsBuilder, SearchPoints, SearchPointsBuilder,
@@ -372,7 +372,7 @@ impl VectorsSelector {
 
 impl RecommendPointsBuilder {
     /// Look for vectors closest to the vectors from these points or vectors
-    pub fn positive(&mut self, recommend_example: impl Into<RecommendExample>) -> &mut Self {
+    pub fn positive(mut self, recommend_example: impl Into<RecommendExample>) -> Self {
         let recommend_example = recommend_example.into();
         match recommend_example {
             RecommendExample::PointId(point_id) => {
@@ -388,7 +388,7 @@ impl RecommendPointsBuilder {
     }
 
     /// Try to avoid vectors like the vector from these points or vectors
-    pub fn negative(&mut self, recommend_example: impl Into<RecommendExample>) -> &mut Self {
+    pub fn negative(mut self, recommend_example: impl Into<RecommendExample>) -> Self {
         let recommend_example = recommend_example.into();
         match recommend_example {
             RecommendExample::PointId(point_id) => {
@@ -406,7 +406,7 @@ impl RecommendPointsBuilder {
 
 impl RecommendPointGroups {
     /// Look for vectors closest to the vectors from these points or vectors
-    pub fn positive(&mut self, recommend_example: impl Into<RecommendExample>) -> &mut Self {
+    pub fn positive(mut self, recommend_example: impl Into<RecommendExample>) -> Self {
         let recommend_example = recommend_example.into();
         match recommend_example {
             RecommendExample::PointId(point_id) => {
@@ -420,7 +420,7 @@ impl RecommendPointGroups {
     }
 
     /// Try to avoid vectors like the vector from these points or vectors
-    pub fn negative(&mut self, recommend_example: impl Into<RecommendExample>) -> &mut Self {
+    pub fn negative(mut self, recommend_example: impl Into<RecommendExample>) -> Self {
         let recommend_example = recommend_example.into();
         match recommend_example {
             RecommendExample::PointId(point_id) => {
@@ -431,5 +431,11 @@ impl RecommendPointGroups {
             }
         }
         self
+    }
+}
+
+impl CreateCollectionBuilder {
+    pub fn new(collection_name: impl Into<String>) -> Self {
+        Self::default().collection_name(collection_name)
     }
 }

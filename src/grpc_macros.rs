@@ -22,15 +22,9 @@ macro_rules! builder_type_conversions {
             }
         }
 
-        impl From<&mut $builder_type> for $main_type {
-            fn from(value: &mut $builder_type) -> Self {
-                value.clone().$build_fn().unwrap()
-            }
-        }
-
         impl $builder_type {
             /// Builds the desired type. Can often be omitted.
-            pub fn build(&self) -> $main_type {
+            pub fn build(self) -> $main_type {
                 self.$build_fn().unwrap()
             }
         }

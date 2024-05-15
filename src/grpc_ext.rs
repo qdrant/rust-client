@@ -1,4 +1,5 @@
 use crate::client::Payload;
+use crate::prelude::DeleteCollection;
 use crate::qdrant::payload_index_params::IndexParams;
 use crate::qdrant::point_id::PointIdOptions;
 use crate::qdrant::points_selector::PointsSelectorOneOf;
@@ -10,18 +11,18 @@ use crate::qdrant::{
     update_collection_cluster_setup_request, vector_example, vectors_config, vectors_config_diff,
     with_payload_selector, with_vectors_selector, AbortShardTransfer, AliasOperations,
     BinaryQuantization, BinaryQuantizationBuilder, Condition, CreateAlias, CreateShardKey,
-    DeleteAlias, DeleteShardKey, Disabled, FieldCondition, Filter, GeoLineString, GeoPoint,
-    GroupId, HasIdCondition, IntegerIndexParams, IsEmptyCondition, IsNullCondition, ListValue,
-    Match, MoveShard, NamedVectors, NestedCondition, PayloadExcludeSelector,
-    PayloadIncludeSelector, PayloadIndexParams, PointId, PointStruct, PointsIdsList,
-    PointsSelector, PointsUpdateOperation, ProductQuantization, ProductQuantizationBuilder,
-    QuantizationConfig, QuantizationConfigDiff, ReadConsistency, RenameAlias, RepeatedIntegers,
-    RepeatedStrings, Replica, ReplicateShard, RestartTransfer, ScalarQuantization,
-    ScalarQuantizationBuilder, ShardKey, ShardKeySelector, SparseIndexConfig, SparseIndices,
-    SparseVectorConfig, SparseVectorParams, StartFrom, Struct, TargetVector, TextIndexParams,
-    Value, Vector, VectorExample, VectorParams, VectorParamsBuilder, VectorParamsDiff,
-    VectorParamsDiffBuilder, VectorParamsDiffMap, VectorParamsMap, Vectors, VectorsConfig,
-    VectorsConfigDiff, VectorsSelector, WithPayloadSelector, WithVectorsSelector,
+    DeleteAlias, DeleteCollectionBuilder, DeleteShardKey, Disabled, FieldCondition, Filter,
+    GeoLineString, GeoPoint, GroupId, HasIdCondition, IntegerIndexParams, IsEmptyCondition,
+    IsNullCondition, ListValue, Match, MoveShard, NamedVectors, NestedCondition,
+    PayloadExcludeSelector, PayloadIncludeSelector, PayloadIndexParams, PointId, PointStruct,
+    PointsIdsList, PointsSelector, PointsUpdateOperation, ProductQuantization,
+    ProductQuantizationBuilder, QuantizationConfig, QuantizationConfigDiff, ReadConsistency,
+    RenameAlias, RepeatedIntegers, RepeatedStrings, Replica, ReplicateShard, RestartTransfer,
+    ScalarQuantization, ScalarQuantizationBuilder, ShardKey, ShardKeySelector, SparseIndexConfig,
+    SparseIndices, SparseVectorConfig, SparseVectorParams, StartFrom, Struct, TargetVector,
+    TextIndexParams, Value, Vector, VectorExample, VectorParams, VectorParamsBuilder,
+    VectorParamsDiff, VectorParamsDiffBuilder, VectorParamsDiffMap, VectorParamsMap, Vectors,
+    VectorsConfig, VectorsConfigDiff, VectorsSelector, WithPayloadSelector, WithVectorsSelector,
 };
 use std::collections::HashMap;
 
@@ -784,20 +785,8 @@ impl From<VectorParamsDiffBuilder> for vectors_config_diff::Config {
     }
 }
 
-impl From<&mut VectorParamsDiffBuilder> for vectors_config_diff::Config {
-    fn from(value: &mut VectorParamsDiffBuilder) -> Self {
-        value.build().into()
-    }
-}
-
 impl From<VectorParamsBuilder> for vectors_config::Config {
     fn from(value: VectorParamsBuilder) -> Self {
-        value.build().into()
-    }
-}
-
-impl From<&mut VectorParamsBuilder> for vectors_config::Config {
-    fn from(value: &mut VectorParamsBuilder) -> Self {
         value.build().into()
     }
 }
@@ -808,20 +797,8 @@ impl From<ScalarQuantizationBuilder> for quantization_config_diff::Quantization 
     }
 }
 
-impl From<&mut ScalarQuantizationBuilder> for quantization_config_diff::Quantization {
-    fn from(value: &mut ScalarQuantizationBuilder) -> Self {
-        Self::Scalar(value.build())
-    }
-}
-
 impl From<ProductQuantizationBuilder> for quantization_config_diff::Quantization {
     fn from(value: ProductQuantizationBuilder) -> Self {
-        Self::Product(value.build())
-    }
-}
-
-impl From<&mut ProductQuantizationBuilder> for quantization_config_diff::Quantization {
-    fn from(value: &mut ProductQuantizationBuilder) -> Self {
         Self::Product(value.build())
     }
 }
@@ -832,20 +809,8 @@ impl From<BinaryQuantizationBuilder> for quantization_config_diff::Quantization 
     }
 }
 
-impl From<&mut BinaryQuantizationBuilder> for quantization_config_diff::Quantization {
-    fn from(value: &mut BinaryQuantizationBuilder) -> Self {
-        Self::Binary(value.build())
-    }
-}
-
 impl From<ScalarQuantizationBuilder> for quantization_config::Quantization {
     fn from(value: ScalarQuantizationBuilder) -> Self {
-        Self::Scalar(value.build())
-    }
-}
-
-impl From<&mut ScalarQuantizationBuilder> for quantization_config::Quantization {
-    fn from(value: &mut ScalarQuantizationBuilder) -> Self {
         Self::Scalar(value.build())
     }
 }
@@ -856,20 +821,8 @@ impl From<ProductQuantizationBuilder> for quantization_config::Quantization {
     }
 }
 
-impl From<&mut ProductQuantizationBuilder> for quantization_config::Quantization {
-    fn from(value: &mut ProductQuantizationBuilder) -> Self {
-        Self::Product(value.build())
-    }
-}
-
 impl From<BinaryQuantizationBuilder> for quantization_config::Quantization {
     fn from(value: BinaryQuantizationBuilder) -> Self {
-        Self::Binary(value.build())
-    }
-}
-
-impl From<&mut BinaryQuantizationBuilder> for quantization_config::Quantization {
-    fn from(value: &mut BinaryQuantizationBuilder) -> Self {
         Self::Binary(value.build())
     }
 }
@@ -961,5 +914,11 @@ impl From<DeleteShardKey> for update_collection_cluster_setup_request::Operation
 impl From<RestartTransfer> for update_collection_cluster_setup_request::Operation {
     fn from(value: RestartTransfer) -> Self {
         Self::RestartTransfer(value)
+    }
+}
+
+impl<S: Into<String>> From<S> for DeleteCollection {
+    fn from(value: S) -> Self {
+        DeleteCollectionBuilder::new(value).build()
     }
 }
