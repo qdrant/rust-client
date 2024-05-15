@@ -15,7 +15,6 @@ impl From<tonic::Status> for QdrantError {
     }
 }
 
-
 impl From<InvalidUri> for QdrantError {
     fn from(err: InvalidUri) -> Self {
         QdrantError::InvalidUri(err)

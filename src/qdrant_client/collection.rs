@@ -12,7 +12,7 @@ use crate::qdrant_client::errors::QdrantError;
 use crate::qdrant_client::Qdrant;
 
 impl Qdrant {
-    async fn with_collections_client<T, O: Future<Output=Result<T, Status>>>(
+    async fn with_collections_client<T, O: Future<Output = Result<T, Status>>>(
         &self,
         f: impl Fn(CollectionsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
     ) -> Result<T, QdrantError> {
@@ -42,14 +42,11 @@ impl Qdrant {
     ) -> Result<CollectionOperationResponse, QdrantError> {
         let delete_collection = &request.into();
 
-        self
-            .with_collections_client(|mut collection_api| async move {
-                let result = collection_api
-                    .delete(delete_collection.clone())
-                    .await?;
-                Ok(result.into_inner())
-            })
-            .await
+        self.with_collections_client(|mut collection_api| async move {
+            let result = collection_api.delete(delete_collection.clone()).await?;
+            Ok(result.into_inner())
+        })
+        .await
     }
 
     pub async fn create_collection(
@@ -62,7 +59,7 @@ impl Qdrant {
             let result = collection_api.create(create_collection_ref.clone()).await?;
             Ok(result.into_inner())
         })
-            .await
+        .await
     }
 }
 

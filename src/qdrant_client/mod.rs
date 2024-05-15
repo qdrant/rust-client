@@ -22,7 +22,6 @@ pub struct Qdrant {
     pub cfg: QdrantClientConfig,
 }
 
-
 impl Qdrant {
     /// Create a builder to setup the client
     pub fn from_url(url: &str) -> QdrantClientBuilder {
@@ -51,11 +50,12 @@ impl Qdrant {
     }
 
     // Access to raw root qdrant API
-    async fn with_root_qdrant_client<T, O: Future<Output=Result<T, Status>>>(
+    async fn with_root_qdrant_client<T, O: Future<Output = Result<T, Status>>>(
         &self,
         f: impl Fn(qdrant_client::QdrantClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
     ) -> Result<T, QdrantError> {
-        let result = self.channel
+        let result = self
+            .channel
             .with_channel(
                 |channel| {
                     let service = self.with_api_key(channel);
@@ -75,11 +75,10 @@ impl Qdrant {
     }
 
     pub async fn health_check(&self) -> Result<HealthCheckReply, QdrantError> {
-        self
-            .with_root_qdrant_client(|mut qdrant_api| async move {
-                let result = qdrant_api.health_check(HealthCheckRequest {}).await?;
-                Ok(result.into_inner())
-            })
-            .await
+        self.with_root_qdrant_client(|mut qdrant_api| async move {
+            let result = qdrant_api.health_check(HealthCheckRequest {}).await?;
+            Ok(result.into_inner())
+        })
+        .await
     }
 }
