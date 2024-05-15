@@ -119,6 +119,7 @@ pub mod grpc_ext;
 pub(crate) mod grpc_macros;
 mod manual_builder;
 pub mod payload;
+pub mod qdrant_client;
 #[cfg(feature = "serde")]
 pub mod serde;
 

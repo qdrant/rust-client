@@ -433,3 +433,9 @@ impl RecommendPointGroups {
         self
     }
 }
+
+impl CreateCollectionBuilder {
+    pub fn new(collection_name: impl Into<String>) -> Self {
+        return Self::default().create_collection(collection_name);
+    }
+}
