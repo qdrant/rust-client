@@ -1,3 +1,4 @@
+mod api_callable;
 pub mod collection;
 pub mod points;
 pub mod snapshot;
@@ -11,6 +12,7 @@ use tonic::transport::{Channel, Uri};
 use tonic::Status;
 
 pub use crate::auth::TokenInterceptor;
+use crate::client::api_callable::ApiCallable;
 pub use crate::config::{AsTimeout, CompressionEncoding, MaybeApiKey, QdrantClientConfig};
 pub use crate::payload::Payload;
 
@@ -79,5 +81,46 @@ impl QdrantClient {
                 Ok(result.into_inner())
             })
             .await?)
+    }
+
+    /// Executes the passed API request and returns it's result. This is the same as calling
+    /// request.exe(&mut client).
+    pub async fn exec<R, A>(&mut self, request: A) -> Result<R>
+    where
+        A: ApiCallable<Response = R>,
+    {
+        request.exec(self).await
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::prelude::Distance;
+    use crate::qdrant::{CreateCollectionBuilder, HnswConfigDiffBuilder, VectorParamsBuilder};
+
+    const TEST_COLLECTION: &str = "my_test_collection_1234";
+
+    #[tokio::test]
+    async fn create_collection() -> Result<()> {
+        let config = QdrantClientConfig::from_url("http://localhost:6334");
+        let mut client = QdrantClient::new(Some(config))?;
+
+        if client.collection_exists(TEST_COLLECTION).await? {
+            client.delete_collection(TEST_COLLECTION).await?;
+        }
+
+        let create_collection = CreateCollectionBuilder::default()
+            .collection_name(TEST_COLLECTION)
+            .vectors_config(
+                VectorParamsBuilder::new(768, Distance::Cosine)
+                    .hnsw_config(HnswConfigDiffBuilder::default().on_disk(true)),
+            )
+            .build();
+
+        create_collection.exec(&mut client).await?;
+        // client.exec(create_collection).await?;  <= works too
+
+        Ok(())
     }
 }
