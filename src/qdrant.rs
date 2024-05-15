@@ -6,15 +6,15 @@
 pub struct VectorParams {
     /// Size of the vectors
     #[prost(uint64, tag = "1")]
-    #[builder(default)]
+    #[builder(default, field(vis = "pub(crate)"))]
     pub size: u64,
     /// Distance function used for comparing vectors
     #[prost(enumeration = "Distance", tag = "2")]
-    #[builder(default, setter(into))]
+    #[builder(default, setter(into), field(vis = "pub(crate)"))]
     pub distance: i32,
     /// Configuration of vector HNSW graph. If omitted - the collection configuration will be used
     #[prost(message, optional, tag = "3")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub hnsw_config: ::core::option::Option<HnswConfigDiff>,
     /// Configuration of vector quantization config. If omitted - the collection configuration will be used
     #[prost(message, optional, tag = "4")]
@@ -28,11 +28,11 @@ pub struct VectorParams {
     pub quantization_config: ::core::option::Option<QuantizationConfig>,
     /// If true - serve vectors from disk. If set to false, the vectors will be loaded in RAM.
     #[prost(bool, optional, tag = "5")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub on_disk: ::core::option::Option<bool>,
     /// Data type of the vectors
     #[prost(enumeration = "Datatype", optional, tag = "6")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub datatype: ::core::option::Option<i32>,
 }
 #[derive(derive_builder::Builder)]
@@ -42,7 +42,7 @@ pub struct VectorParams {
 pub struct VectorParamsDiff {
     /// Update params for HNSW index. If empty object - it will be unset
     #[prost(message, optional, tag = "1")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub hnsw_config: ::core::option::Option<HnswConfigDiff>,
     /// Update quantization params. If none - it is left unchanged.
     #[prost(message, optional, tag = "2")]
@@ -56,7 +56,7 @@ pub struct VectorParamsDiff {
     pub quantization_config: ::core::option::Option<QuantizationConfigDiff>,
     /// If true - serve vectors from disk. If set to false, the vectors will be loaded in RAM.
     #[prost(bool, optional, tag = "3")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub on_disk: ::core::option::Option<bool>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -112,11 +112,11 @@ pub mod vectors_config_diff {
 pub struct SparseVectorParams {
     /// Configuration of sparse index
     #[prost(message, optional, tag = "1")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub index: ::core::option::Option<SparseIndexConfig>,
     /// If set - apply modifier to the vector values
     #[prost(enumeration = "Modifier", optional, tag = "2")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub modifier: ::core::option::Option<i32>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -197,12 +197,12 @@ pub struct HnswConfigDiff {
     ///
     /// Number of edges per node in the index graph. Larger the value - more accurate the search, more space required.
     #[prost(uint64, optional, tag = "1")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub m: ::core::option::Option<u64>,
     ///
     /// Number of neighbours to consider during the index building. Larger the value - more accurate the search, more time required to build the index.
     #[prost(uint64, optional, tag = "2")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub ef_construct: ::core::option::Option<u64>,
     ///
     /// Minimal size (in KiloBytes) of vectors for additional payload-based indexing.
@@ -210,7 +210,7 @@ pub struct HnswConfigDiff {
     /// in this case full-scan search should be preferred by query planner and additional indexing is not required.
     /// Note: 1 Kb = 1 vector of size 256
     #[prost(uint64, optional, tag = "3")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub full_scan_threshold: ::core::option::Option<u64>,
     ///
     /// Number of parallel threads used for background index building.
@@ -218,17 +218,17 @@ pub struct HnswConfigDiff {
     /// Best to keep between 8 and 16 to prevent likelihood of building broken/inefficient HNSW graphs.
     /// On small CPUs, less threads are used.
     #[prost(uint64, optional, tag = "4")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub max_indexing_threads: ::core::option::Option<u64>,
     ///
     /// Store HNSW index on disk. If set to false, the index will be stored in RAM.
     #[prost(bool, optional, tag = "5")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub on_disk: ::core::option::Option<bool>,
     ///
     /// Number of additional payload-aware links per node in the index graph. If not set - regular M parameter will be used.
     #[prost(uint64, optional, tag = "6")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub payload_m: ::core::option::Option<u64>,
 }
 #[derive(derive_builder::Builder)]
@@ -240,12 +240,12 @@ pub struct SparseIndexConfig {
     /// Prefer a full scan search upto (excluding) this number of vectors.
     /// Note: this is number of vectors, not KiloBytes.
     #[prost(uint64, optional, tag = "1")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub full_scan_threshold: ::core::option::Option<u64>,
     ///
     /// Store inverted index on disk. If set to false, the index will be stored in RAM.
     #[prost(bool, optional, tag = "2")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub on_disk: ::core::option::Option<bool>,
 }
 #[derive(derive_builder::Builder)]
@@ -255,11 +255,11 @@ pub struct SparseIndexConfig {
 pub struct WalConfigDiff {
     /// Size of a single WAL block file
     #[prost(uint64, optional, tag = "1")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub wal_capacity_mb: ::core::option::Option<u64>,
     /// Number of segments to create in advance
     #[prost(uint64, optional, tag = "2")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub wal_segments_ahead: ::core::option::Option<u64>,
 }
 #[derive(derive_builder::Builder)]
@@ -270,12 +270,12 @@ pub struct OptimizersConfigDiff {
     ///
     /// The minimal fraction of deleted vectors in a segment, required to perform segment optimization
     #[prost(double, optional, tag = "1")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub deleted_threshold: ::core::option::Option<f64>,
     ///
     /// The minimal number of vectors in a segment, required to perform segment optimization
     #[prost(uint64, optional, tag = "2")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub vacuum_min_vector_number: ::core::option::Option<u64>,
     ///
     /// Target amount of segments the optimizer will try to keep.
@@ -287,7 +287,7 @@ pub struct OptimizersConfigDiff {
     /// It is recommended to select the default number of segments as a factor of the number of search threads,
     /// so that each segment would be handled evenly by one of the threads.
     #[prost(uint64, optional, tag = "3")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub default_segment_number: ::core::option::Option<u64>,
     ///
     /// Do not create segments larger this size (in kilobytes).
@@ -299,7 +299,7 @@ pub struct OptimizersConfigDiff {
     /// Note: 1Kb = 1 vector of size 256
     /// If not set, will be automatically selected considering the number of available CPUs.
     #[prost(uint64, optional, tag = "4")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub max_segment_size: ::core::option::Option<u64>,
     ///
     /// Maximum size (in kilobytes) of vectors to store in-memory per segment.
@@ -311,7 +311,7 @@ pub struct OptimizersConfigDiff {
     ///
     /// Note: 1Kb = 1 vector of size 256
     #[prost(uint64, optional, tag = "5")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub memmap_threshold: ::core::option::Option<u64>,
     ///
     /// Maximum size (in kilobytes) of vectors allowed for plain index, exceeding this threshold will enable vector indexing
@@ -322,12 +322,12 @@ pub struct OptimizersConfigDiff {
     ///
     /// Note: 1kB = 1 vector of size 256.
     #[prost(uint64, optional, tag = "6")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub indexing_threshold: ::core::option::Option<u64>,
     ///
     /// Interval between forced flushes.
     #[prost(uint64, optional, tag = "7")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub flush_interval_sec: ::core::option::Option<u64>,
     ///
     /// Max number of threads (jobs) for running optimizations per shard.
@@ -335,7 +335,7 @@ pub struct OptimizersConfigDiff {
     /// If null - have no limit and choose dynamically to saturate CPU.
     /// If 0 - no optimization threads, optimizations will be disabled.
     #[prost(uint64, optional, tag = "8")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub max_optimization_threads: ::core::option::Option<u64>,
 }
 #[derive(derive_builder::Builder)]
@@ -345,14 +345,15 @@ pub struct OptimizersConfigDiff {
 pub struct ScalarQuantization {
     /// Type of quantization
     #[prost(enumeration = "QuantizationType", tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub r#type: i32,
     /// Number of bits to use for quantization
     #[prost(float, optional, tag = "2")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub quantile: ::core::option::Option<f32>,
     /// If true - quantized vectors always will be stored in RAM, ignoring the config of main storage
     #[prost(bool, optional, tag = "3")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub always_ram: ::core::option::Option<bool>,
 }
 #[derive(derive_builder::Builder)]
@@ -362,10 +363,11 @@ pub struct ScalarQuantization {
 pub struct ProductQuantization {
     /// Compression ratio
     #[prost(enumeration = "CompressionRatio", tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub compression: i32,
     /// If true - quantized vectors always will be stored in RAM, ignoring the config of main storage
     #[prost(bool, optional, tag = "2")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub always_ram: ::core::option::Option<bool>,
 }
 #[derive(derive_builder::Builder)]
@@ -375,7 +377,7 @@ pub struct ProductQuantization {
 pub struct BinaryQuantization {
     /// If true - quantized vectors always will be stored in RAM, ignoring the config of main storage
     #[prost(bool, optional, tag = "1")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub always_ram: ::core::option::Option<bool>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -428,31 +430,31 @@ pub mod quantization_config_diff {
 pub struct CreateCollection {
     /// Name of the collection
     #[prost(string, tag = "1")]
-    #[builder(default, setter(into))]
+    #[builder(default, setter(into), field(vis = "pub(crate)"))]
     pub collection_name: ::prost::alloc::string::String,
     /// Configuration of vector index
     #[prost(message, optional, tag = "4")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub hnsw_config: ::core::option::Option<HnswConfigDiff>,
     /// Configuration of the Write-Ahead-Log
     #[prost(message, optional, tag = "5")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub wal_config: ::core::option::Option<WalConfigDiff>,
     /// Configuration of the optimizers
     #[prost(message, optional, tag = "6")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub optimizers_config: ::core::option::Option<OptimizersConfigDiff>,
     /// Number of shards in the collection, default is 1 for standalone, otherwise equal to the number of nodes. Minimum is 1
     #[prost(uint32, optional, tag = "7")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub shard_number: ::core::option::Option<u32>,
     /// If true - point's payload will not be stored in memory
     #[prost(bool, optional, tag = "8")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub on_disk_payload: ::core::option::Option<bool>,
     /// Wait timeout for operation commit in seconds, if not specified - default value will be supplied
     #[prost(uint64, optional, tag = "9")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub timeout: ::core::option::Option<u64>,
     /// Configuration for vectors
     #[prost(message, optional, tag = "10")]
@@ -466,15 +468,15 @@ pub struct CreateCollection {
     pub vectors_config: ::core::option::Option<VectorsConfig>,
     /// Number of replicas of each shard that network tries to maintain, default = 1
     #[prost(uint32, optional, tag = "11")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub replication_factor: ::core::option::Option<u32>,
     /// How many replicas should apply the operation for us to consider it successful, default = 1
     #[prost(uint32, optional, tag = "12")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub write_consistency_factor: ::core::option::Option<u32>,
     /// Specify name of the other collection to copy data from
     #[prost(string, optional, tag = "13")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub init_from_collection: ::core::option::Option<::prost::alloc::string::String>,
     /// Quantization configuration of vector
     #[prost(message, optional, tag = "14")]
@@ -488,11 +490,11 @@ pub struct CreateCollection {
     pub quantization_config: ::core::option::Option<QuantizationConfig>,
     /// Sharding method
     #[prost(enumeration = "ShardingMethod", optional, tag = "15")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub sharding_method: ::core::option::Option<i32>,
     /// Configuration for sparse vectors
     #[prost(message, optional, tag = "16")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub sparse_vectors_config: ::core::option::Option<SparseVectorConfig>,
 }
 #[derive(derive_builder::Builder)]
@@ -502,22 +504,23 @@ pub struct CreateCollection {
 pub struct UpdateCollection {
     /// Name of the collection
     #[prost(string, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub collection_name: ::prost::alloc::string::String,
     /// New configuration parameters for the collection. This operation is blocking, it will only proceed once all current optimizations are complete
     #[prost(message, optional, tag = "2")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub optimizers_config: ::core::option::Option<OptimizersConfigDiff>,
     /// Wait timeout for operation commit in seconds if blocking, if not specified - default value will be supplied
     #[prost(uint64, optional, tag = "3")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub timeout: ::core::option::Option<u64>,
     /// New configuration parameters for the collection
     #[prost(message, optional, tag = "4")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub params: ::core::option::Option<CollectionParamsDiff>,
     /// New HNSW parameters for the collection index
     #[prost(message, optional, tag = "5")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub hnsw_config: ::core::option::Option<HnswConfigDiff>,
     /// New vector parameters
     #[prost(message, optional, tag = "6")]
@@ -541,7 +544,7 @@ pub struct UpdateCollection {
     pub quantization_config: ::core::option::Option<QuantizationConfigDiff>,
     /// New sparse vector parameters
     #[prost(message, optional, tag = "8")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub sparse_vectors_config: ::core::option::Option<SparseVectorConfig>,
 }
 #[derive(derive_builder::Builder)]
@@ -551,10 +554,11 @@ pub struct UpdateCollection {
 pub struct DeleteCollection {
     /// Name of the collection
     #[prost(string, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub collection_name: ::prost::alloc::string::String,
     /// Wait timeout for operation commit in seconds, if not specified - default value will be supplied
     #[prost(uint64, optional, tag = "2")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub timeout: ::core::option::Option<u64>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -602,19 +606,19 @@ pub struct CollectionParams {
 pub struct CollectionParamsDiff {
     /// Number of replicas of each shard that network tries to maintain
     #[prost(uint32, optional, tag = "1")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub replication_factor: ::core::option::Option<u32>,
     /// How many replicas should apply the operation for us to consider it successful
     #[prost(uint32, optional, tag = "2")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub write_consistency_factor: ::core::option::Option<u32>,
     /// If true - point's payload will not be stored in memory
     #[prost(bool, optional, tag = "3")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub on_disk_payload: ::core::option::Option<bool>,
     /// Fan-out every read request to these many additional remote nodes (and return first available response)
     #[prost(uint32, optional, tag = "4")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub read_fan_out_factor: ::core::option::Option<u32>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -643,18 +647,19 @@ pub struct CollectionConfig {
 pub struct TextIndexParams {
     /// Tokenizer type
     #[prost(enumeration = "TokenizerType", tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub tokenizer: i32,
     /// If true - all tokens will be lowercase
     #[prost(bool, optional, tag = "2")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub lowercase: ::core::option::Option<bool>,
     /// Minimal token length
     #[prost(uint64, optional, tag = "3")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub min_token_len: ::core::option::Option<u64>,
     /// Maximal token length
     #[prost(uint64, optional, tag = "4")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub max_token_len: ::core::option::Option<u64>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -969,19 +974,19 @@ pub struct Replica {
 pub struct CreateShardKey {
     /// User-defined shard key
     #[prost(message, optional, tag = "1")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub shard_key: ::core::option::Option<ShardKey>,
     /// Number of shards to create per shard key
     #[prost(uint32, optional, tag = "2")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub shards_number: ::core::option::Option<u32>,
     /// Number of replicas of each shard to create
     #[prost(uint32, optional, tag = "3")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub replication_factor: ::core::option::Option<u32>,
     /// List of peer ids, allowed to create shards. If empty - all peers are allowed
     #[prost(uint64, repeated, tag = "4")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub placement: ::prost::alloc::vec::Vec<u64>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -998,16 +1003,17 @@ pub struct DeleteShardKey {
 pub struct UpdateCollectionClusterSetupRequest {
     /// Name of the collection
     #[prost(string, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub collection_name: ::prost::alloc::string::String,
     /// Wait timeout for operation commit in seconds, if not specified - default value will be supplied
     #[prost(uint64, optional, tag = "6")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub timeout: ::core::option::Option<u64>,
     #[prost(
         oneof = "update_collection_cluster_setup_request::Operation",
         tags = "2, 3, 4, 5, 7, 8, 9"
     )]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub operation: ::core::option::Option<update_collection_cluster_setup_request::Operation>,
 }
 /// Nested message and enum types in `UpdateCollectionClusterSetupRequest`.
@@ -1044,14 +1050,15 @@ pub struct UpdateCollectionClusterSetupResponse {
 pub struct CreateShardKeyRequest {
     /// Name of the collection
     #[prost(string, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub collection_name: ::prost::alloc::string::String,
     /// Request to create shard key
     #[prost(message, optional, tag = "2")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub request: ::core::option::Option<CreateShardKey>,
     /// Wait timeout for operation commit in seconds, if not specified - default value will be supplied
     #[prost(uint64, optional, tag = "3")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub timeout: ::core::option::Option<u64>,
 }
 #[derive(derive_builder::Builder)]
@@ -1061,14 +1068,15 @@ pub struct CreateShardKeyRequest {
 pub struct DeleteShardKeyRequest {
     /// Name of the collection
     #[prost(string, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub collection_name: ::prost::alloc::string::String,
     /// Request to delete shard key
     #[prost(message, optional, tag = "2")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub request: ::core::option::Option<DeleteShardKey>,
     /// Wait timeout for operation commit in seconds, if not specified - default value will be supplied
     #[prost(uint64, optional, tag = "3")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub timeout: ::core::option::Option<u64>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -2724,20 +2732,22 @@ pub struct ShardKeySelector {
 pub struct UpsertPoints {
     /// name of the collection
     #[prost(string, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub collection_name: ::prost::alloc::string::String,
     /// Wait until the changes have been applied?
     #[prost(bool, optional, tag = "2")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub wait: ::core::option::Option<bool>,
     #[prost(message, repeated, tag = "3")]
+    #[builder(field(vis = "pub(crate)"))]
     pub points: ::prost::alloc::vec::Vec<PointStruct>,
     /// Write ordering guarantees
     #[prost(message, optional, tag = "4")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub ordering: ::core::option::Option<WriteOrdering>,
     /// Option for custom sharding to specify used shard keys
     #[prost(message, optional, tag = "5")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
 #[derive(derive_builder::Builder)]
@@ -2747,10 +2757,11 @@ pub struct UpsertPoints {
 pub struct DeletePoints {
     /// name of the collection
     #[prost(string, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub collection_name: ::prost::alloc::string::String,
     /// Wait until the changes have been applied?
     #[prost(bool, optional, tag = "2")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub wait: ::core::option::Option<bool>,
     /// Affected points
     #[prost(message, optional, tag = "3")]
@@ -2764,11 +2775,11 @@ pub struct DeletePoints {
     pub points: ::core::option::Option<PointsSelector>,
     /// Write ordering guarantees
     #[prost(message, optional, tag = "4")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub ordering: ::core::option::Option<WriteOrdering>,
     /// Option for custom sharding to specify used shard keys
     #[prost(message, optional, tag = "5")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
 #[derive(derive_builder::Builder)]
@@ -2778,9 +2789,11 @@ pub struct DeletePoints {
 pub struct GetPoints {
     /// name of the collection
     #[prost(string, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub collection_name: ::prost::alloc::string::String,
     /// List of points to retrieve
     #[prost(message, repeated, tag = "2")]
+    #[builder(field(vis = "pub(crate)"))]
     pub ids: ::prost::alloc::vec::Vec<PointId>,
     /// Options for specifying which payload to include or not
     #[prost(message, optional, tag = "4")]
@@ -2814,7 +2827,7 @@ pub struct GetPoints {
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// Specify in which shards to look for the points, if not specified - look in all shards
     #[prost(message, optional, tag = "7")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
 #[derive(derive_builder::Builder)]
@@ -2824,21 +2837,23 @@ pub struct GetPoints {
 pub struct UpdatePointVectors {
     /// name of the collection
     #[prost(string, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub collection_name: ::prost::alloc::string::String,
     /// Wait until the changes have been applied?
     #[prost(bool, optional, tag = "2")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub wait: ::core::option::Option<bool>,
     /// List of points and vectors to update
     #[prost(message, repeated, tag = "3")]
+    #[builder(field(vis = "pub(crate)"))]
     pub points: ::prost::alloc::vec::Vec<PointVectors>,
     /// Write ordering guarantees
     #[prost(message, optional, tag = "4")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub ordering: ::core::option::Option<WriteOrdering>,
     /// Option for custom sharding to specify used shard keys
     #[prost(message, optional, tag = "5")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -2858,10 +2873,11 @@ pub struct PointVectors {
 pub struct DeletePointVectors {
     /// name of the collection
     #[prost(string, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub collection_name: ::prost::alloc::string::String,
     /// Wait until the changes have been applied?
     #[prost(bool, optional, tag = "2")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub wait: ::core::option::Option<bool>,
     /// Affected points
     #[prost(message, optional, tag = "3")]
@@ -2875,15 +2891,15 @@ pub struct DeletePointVectors {
     pub points_selector: ::core::option::Option<PointsSelector>,
     /// List of vector names to delete
     #[prost(message, optional, tag = "4")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub vectors: ::core::option::Option<VectorsSelector>,
     /// Write ordering guarantees
     #[prost(message, optional, tag = "5")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub ordering: ::core::option::Option<WriteOrdering>,
     /// Option for custom sharding to specify used shard keys
     #[prost(message, optional, tag = "6")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
 #[derive(derive_builder::Builder)]
@@ -2893,13 +2909,15 @@ pub struct DeletePointVectors {
 pub struct SetPayloadPoints {
     /// name of the collection
     #[prost(string, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub collection_name: ::prost::alloc::string::String,
     /// Wait until the changes have been applied?
     #[prost(bool, optional, tag = "2")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub wait: ::core::option::Option<bool>,
     /// New payload values
     #[prost(map = "string, message", tag = "3")]
+    #[builder(field(vis = "pub(crate)"))]
     pub payload: ::std::collections::HashMap<::prost::alloc::string::String, Value>,
     /// Affected points
     #[prost(message, optional, tag = "5")]
@@ -2913,15 +2931,15 @@ pub struct SetPayloadPoints {
     pub points_selector: ::core::option::Option<PointsSelector>,
     /// Write ordering guarantees
     #[prost(message, optional, tag = "6")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub ordering: ::core::option::Option<WriteOrdering>,
     /// Option for custom sharding to specify used shard keys
     #[prost(message, optional, tag = "7")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
     /// Option for indicate property of payload
     #[prost(string, optional, tag = "8")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub key: ::core::option::Option<::prost::alloc::string::String>,
 }
 #[derive(derive_builder::Builder)]
@@ -2931,13 +2949,15 @@ pub struct SetPayloadPoints {
 pub struct DeletePayloadPoints {
     /// name of the collection
     #[prost(string, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub collection_name: ::prost::alloc::string::String,
     /// Wait until the changes have been applied?
     #[prost(bool, optional, tag = "2")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub wait: ::core::option::Option<bool>,
     /// List of keys to delete
     #[prost(string, repeated, tag = "3")]
+    #[builder(field(vis = "pub(crate)"))]
     pub keys: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
     /// Affected points
     #[prost(message, optional, tag = "5")]
@@ -2951,11 +2971,11 @@ pub struct DeletePayloadPoints {
     pub points_selector: ::core::option::Option<PointsSelector>,
     /// Write ordering guarantees
     #[prost(message, optional, tag = "6")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub ordering: ::core::option::Option<WriteOrdering>,
     /// Option for custom sharding to specify used shard keys
     #[prost(message, optional, tag = "7")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
 #[derive(derive_builder::Builder)]
@@ -2965,10 +2985,11 @@ pub struct DeletePayloadPoints {
 pub struct ClearPayloadPoints {
     /// name of the collection
     #[prost(string, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub collection_name: ::prost::alloc::string::String,
     /// Wait until the changes have been applied?
     #[prost(bool, optional, tag = "2")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub wait: ::core::option::Option<bool>,
     /// Affected points
     #[prost(message, optional, tag = "3")]
@@ -2982,11 +3003,11 @@ pub struct ClearPayloadPoints {
     pub points: ::core::option::Option<PointsSelector>,
     /// Write ordering guarantees
     #[prost(message, optional, tag = "4")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub ordering: ::core::option::Option<WriteOrdering>,
     /// Option for custom sharding to specify used shard keys
     #[prost(message, optional, tag = "5")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
 #[derive(derive_builder::Builder)]
@@ -2996,25 +3017,27 @@ pub struct ClearPayloadPoints {
 pub struct CreateFieldIndexCollection {
     /// name of the collection
     #[prost(string, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub collection_name: ::prost::alloc::string::String,
     /// Wait until the changes have been applied?
     #[prost(bool, optional, tag = "2")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub wait: ::core::option::Option<bool>,
     /// Field name to index
     #[prost(string, tag = "3")]
+    #[builder(field(vis = "pub(crate)"))]
     pub field_name: ::prost::alloc::string::String,
     /// Field type.
     #[prost(enumeration = "FieldType", optional, tag = "4")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub field_type: ::core::option::Option<i32>,
     /// Payload index params.
     #[prost(message, optional, tag = "5")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub field_index_params: ::core::option::Option<PayloadIndexParams>,
     /// Write ordering guarantees
     #[prost(message, optional, tag = "6")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub ordering: ::core::option::Option<WriteOrdering>,
 }
 #[derive(derive_builder::Builder)]
@@ -3024,17 +3047,19 @@ pub struct CreateFieldIndexCollection {
 pub struct DeleteFieldIndexCollection {
     /// name of the collection
     #[prost(string, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub collection_name: ::prost::alloc::string::String,
     /// Wait until the changes have been applied?
     #[prost(bool, optional, tag = "2")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub wait: ::core::option::Option<bool>,
     /// Field name to delete
     #[prost(string, tag = "3")]
+    #[builder(field(vis = "pub(crate)"))]
     pub field_name: ::prost::alloc::string::String,
     /// Write ordering guarantees
     #[prost(message, optional, tag = "4")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub ordering: ::core::option::Option<WriteOrdering>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -3128,12 +3153,12 @@ pub struct QuantizationSearchParams {
     ///
     /// If set to true, search will ignore quantized vector data
     #[prost(bool, optional, tag = "1")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub ignore: ::core::option::Option<bool>,
     ///
     /// If true, use original vectors to re-score top-k results. If ignored, qdrant decides automatically does rescore enabled or not.
     #[prost(bool, optional, tag = "2")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub rescore: ::core::option::Option<bool>,
     ///
     /// Oversampling factor for quantization.
@@ -3144,7 +3169,7 @@ pub struct QuantizationSearchParams {
     /// For example, if `oversampling` is 2.4 and `limit` is 100, then 240 vectors will be pre-selected using quantized index,
     /// and then top-100 will be returned after re-scoring.
     #[prost(double, optional, tag = "3")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub oversampling: ::core::option::Option<f64>,
 }
 #[derive(derive_builder::Builder)]
@@ -3156,24 +3181,24 @@ pub struct SearchParams {
     /// Params relevant to HNSW index. Size of the beam in a beam-search.
     /// Larger the value - more accurate the result, more time required for search.
     #[prost(uint64, optional, tag = "1")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub hnsw_ef: ::core::option::Option<u64>,
     ///
     /// Search without approximation. If set to true, search may run long but with exact results.
     #[prost(bool, optional, tag = "2")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub exact: ::core::option::Option<bool>,
     ///
     /// If set to true, search will ignore quantized vector data
     #[prost(message, optional, tag = "3")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub quantization: ::core::option::Option<QuantizationSearchParams>,
     ///
     /// If enabled, the engine will only perform search among indexed or small segments.
     /// Using this option prevents slow searches in case of delayed index, but does not
     /// guarantee that all uploaded vectors will be included in search results
     #[prost(bool, optional, tag = "4")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub indexed_only: ::core::option::Option<bool>,
 }
 #[derive(derive_builder::Builder)]
@@ -3183,16 +3208,19 @@ pub struct SearchParams {
 pub struct SearchPoints {
     /// name of the collection
     #[prost(string, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub collection_name: ::prost::alloc::string::String,
     /// vector
     #[prost(float, repeated, tag = "2")]
+    #[builder(field(vis = "pub(crate)"))]
     pub vector: ::prost::alloc::vec::Vec<f32>,
     /// Filter conditions - return only those points that satisfy the specified conditions
     #[prost(message, optional, tag = "3")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub filter: ::core::option::Option<Filter>,
     /// Max number of result
     #[prost(uint64, tag = "4")]
+    #[builder(field(vis = "pub(crate)"))]
     pub limit: u64,
     /// Options for specifying which payload to include or not
     #[prost(message, optional, tag = "6")]
@@ -3206,19 +3234,19 @@ pub struct SearchPoints {
     pub with_payload: ::core::option::Option<WithPayloadSelector>,
     /// Search config
     #[prost(message, optional, tag = "7")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub params: ::core::option::Option<SearchParams>,
     /// If provided - cut off results with worse scores
     #[prost(float, optional, tag = "8")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub score_threshold: ::core::option::Option<f32>,
     /// Offset of the result
     #[prost(uint64, optional, tag = "9")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub offset: ::core::option::Option<u64>,
     /// Which vector to use for search, if not specified - use default vector
     #[prost(string, optional, tag = "10")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub vector_name: ::core::option::Option<::prost::alloc::string::String>,
     /// Options for specifying which vectors to include into response
     #[prost(message, optional, tag = "11")]
@@ -3242,14 +3270,14 @@ pub struct SearchPoints {
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// If set, overrides global timeout setting for this request. Unit is seconds.
     #[prost(uint64, optional, tag = "13")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub timeout: ::core::option::Option<u64>,
     /// Specify in which shards to look for the points, if not specified - look in all shards
     #[prost(message, optional, tag = "14")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
     #[prost(message, optional, tag = "15")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub sparse_indices: ::core::option::Option<SparseIndices>,
 }
 #[derive(derive_builder::Builder)]
@@ -3259,8 +3287,10 @@ pub struct SearchPoints {
 pub struct SearchBatchPoints {
     /// Name of the collection
     #[prost(string, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub collection_name: ::prost::alloc::string::String,
     #[prost(message, repeated, tag = "2")]
+    #[builder(field(vis = "pub(crate)"))]
     pub search_points: ::prost::alloc::vec::Vec<SearchPoints>,
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "3")]
@@ -3274,7 +3304,7 @@ pub struct SearchBatchPoints {
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// If set, overrides global timeout setting for this request. Unit is seconds.
     #[prost(uint64, optional, tag = "4")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub timeout: ::core::option::Option<u64>,
 }
 #[derive(derive_builder::Builder)]
@@ -3284,6 +3314,7 @@ pub struct SearchBatchPoints {
 pub struct WithLookup {
     /// Name of the collection to use for points lookup
     #[prost(string, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub collection: ::prost::alloc::string::String,
     /// Options for specifying which payload to include (or not)
     #[prost(message, optional, tag = "2")]
@@ -3313,16 +3344,19 @@ pub struct WithLookup {
 pub struct SearchPointGroups {
     /// Name of the collection
     #[prost(string, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub collection_name: ::prost::alloc::string::String,
     /// Vector to compare against
     #[prost(float, repeated, tag = "2")]
+    #[builder(field(vis = "pub(crate)"))]
     pub vector: ::prost::alloc::vec::Vec<f32>,
     /// Filter conditions - return only those points that satisfy the specified conditions
     #[prost(message, optional, tag = "3")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub filter: ::core::option::Option<Filter>,
     /// Max number of result
     #[prost(uint32, tag = "4")]
+    #[builder(field(vis = "pub(crate)"))]
     pub limit: u32,
     /// Options for specifying which payload to include or not
     #[prost(message, optional, tag = "5")]
@@ -3336,15 +3370,15 @@ pub struct SearchPointGroups {
     pub with_payload: ::core::option::Option<WithPayloadSelector>,
     /// Search config
     #[prost(message, optional, tag = "6")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub params: ::core::option::Option<SearchParams>,
     /// If provided - cut off results with worse scores
     #[prost(float, optional, tag = "7")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub score_threshold: ::core::option::Option<f32>,
     /// Which vector to use for search, if not specified - use default vector
     #[prost(string, optional, tag = "8")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub vector_name: ::core::option::Option<::prost::alloc::string::String>,
     /// Options for specifying which vectors to include into response
     #[prost(message, optional, tag = "9")]
@@ -3358,9 +3392,11 @@ pub struct SearchPointGroups {
     pub with_vectors: ::core::option::Option<WithVectorsSelector>,
     /// Payload field to group by, must be a string or number field. If there are multiple values for the field, all of them will be used. One point can be in multiple groups.
     #[prost(string, tag = "10")]
+    #[builder(field(vis = "pub(crate)"))]
     pub group_by: ::prost::alloc::string::String,
     /// Maximum amount of points to return per group
     #[prost(uint32, tag = "11")]
+    #[builder(field(vis = "pub(crate)"))]
     pub group_size: u32,
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "12")]
@@ -3374,18 +3410,18 @@ pub struct SearchPointGroups {
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// Options for specifying how to use the group id to lookup points in another collection
     #[prost(message, optional, tag = "13")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub with_lookup: ::core::option::Option<WithLookup>,
     /// If set, overrides global timeout setting for this request. Unit is seconds.
     #[prost(uint64, optional, tag = "14")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub timeout: ::core::option::Option<u64>,
     /// Specify in which shards to look for the points, if not specified - look in all shards
     #[prost(message, optional, tag = "15")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
     #[prost(message, optional, tag = "16")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub sparse_indices: ::core::option::Option<SparseIndices>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -3416,10 +3452,11 @@ pub mod start_from {
 pub struct OrderBy {
     /// Payload key to order by
     #[prost(string, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub key: ::prost::alloc::string::String,
     /// Ascending or descending order
     #[prost(enumeration = "Direction", optional, tag = "2")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub direction: ::core::option::Option<i32>,
     /// Start from this value
     #[prost(message, optional, tag = "3")]
@@ -3438,18 +3475,19 @@ pub struct OrderBy {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ScrollPoints {
     #[prost(string, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub collection_name: ::prost::alloc::string::String,
     /// Filter conditions - return only those points that satisfy the specified conditions
     #[prost(message, optional, tag = "2")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub filter: ::core::option::Option<Filter>,
     /// Start with this ID
     #[prost(message, optional, tag = "3")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub offset: ::core::option::Option<PointId>,
     /// Max number of result
     #[prost(uint32, optional, tag = "4")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub limit: ::core::option::Option<u32>,
     /// Options for specifying which payload to include or not
     #[prost(message, optional, tag = "6")]
@@ -3483,11 +3521,11 @@ pub struct ScrollPoints {
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// Specify in which shards to look for the points, if not specified - look in all shards
     #[prost(message, optional, tag = "9")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
     /// Order the records by a payload field
     #[prost(message, optional, tag = "10")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub order_by: ::core::option::Option<OrderBy>,
 }
 #[derive(derive_builder::Builder)]
@@ -3496,14 +3534,15 @@ pub struct ScrollPoints {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct LookupLocation {
     #[prost(string, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub collection_name: ::prost::alloc::string::String,
     /// Which vector to use for search, if not specified - use default vector
     #[prost(string, optional, tag = "2")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub vector_name: ::core::option::Option<::prost::alloc::string::String>,
     /// Specify in which shards to look for the points, if not specified - look in all shards
     #[prost(message, optional, tag = "3")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
 #[derive(derive_builder::Builder)]
@@ -3513,21 +3552,23 @@ pub struct LookupLocation {
 pub struct RecommendPoints {
     /// name of the collection
     #[prost(string, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub collection_name: ::prost::alloc::string::String,
     /// Look for vectors closest to the vectors from these points
     #[prost(message, repeated, tag = "2")]
-    #[builder(default, setter(custom))]
+    #[builder(default, setter(custom), field(vis = "pub(crate)"))]
     pub positive: ::prost::alloc::vec::Vec<PointId>,
     /// Try to avoid vectors like the vector from these points
     #[prost(message, repeated, tag = "3")]
-    #[builder(default, setter(custom))]
+    #[builder(default, setter(custom), field(vis = "pub(crate)"))]
     pub negative: ::prost::alloc::vec::Vec<PointId>,
     /// Filter conditions - return only those points that satisfy the specified conditions
     #[prost(message, optional, tag = "4")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub filter: ::core::option::Option<Filter>,
     /// Max number of result
     #[prost(uint64, tag = "5")]
+    #[builder(field(vis = "pub(crate)"))]
     pub limit: u64,
     /// Options for specifying which payload to include or not
     #[prost(message, optional, tag = "7")]
@@ -3541,19 +3582,19 @@ pub struct RecommendPoints {
     pub with_payload: ::core::option::Option<WithPayloadSelector>,
     /// Search config
     #[prost(message, optional, tag = "8")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub params: ::core::option::Option<SearchParams>,
     /// If provided - cut off results with worse scores
     #[prost(float, optional, tag = "9")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub score_threshold: ::core::option::Option<f32>,
     /// Offset of the result
     #[prost(uint64, optional, tag = "10")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub offset: ::core::option::Option<u64>,
     /// Define which vector to use for recommendation, if not specified - default vector
     #[prost(string, optional, tag = "11")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub using: ::core::option::Option<::prost::alloc::string::String>,
     /// Options for specifying which vectors to include into response
     #[prost(message, optional, tag = "12")]
@@ -3567,7 +3608,7 @@ pub struct RecommendPoints {
     pub with_vectors: ::core::option::Option<WithVectorsSelector>,
     /// Name of the collection to use for points lookup, if not specified - use current collection
     #[prost(message, optional, tag = "13")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub lookup_from: ::core::option::Option<LookupLocation>,
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "14")]
@@ -3581,23 +3622,23 @@ pub struct RecommendPoints {
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// How to use the example vectors to find the results
     #[prost(enumeration = "RecommendStrategy", optional, tag = "16")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub strategy: ::core::option::Option<i32>,
     /// Look for vectors closest to those
     #[prost(message, repeated, tag = "17")]
-    #[builder(default, setter(custom))]
+    #[builder(default, setter(custom), field(vis = "pub(crate)"))]
     pub positive_vectors: ::prost::alloc::vec::Vec<Vector>,
     /// Try to avoid vectors like this
     #[prost(message, repeated, tag = "18")]
-    #[builder(default, setter(custom))]
+    #[builder(default, setter(custom), field(vis = "pub(crate)"))]
     pub negative_vectors: ::prost::alloc::vec::Vec<Vector>,
     /// If set, overrides global timeout setting for this request. Unit is seconds.
     #[prost(uint64, optional, tag = "19")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub timeout: ::core::option::Option<u64>,
     /// Specify in which shards to look for the points, if not specified - look in all shards
     #[prost(message, optional, tag = "20")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
 #[derive(derive_builder::Builder)]
@@ -3607,8 +3648,10 @@ pub struct RecommendPoints {
 pub struct RecommendBatchPoints {
     /// Name of the collection
     #[prost(string, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub collection_name: ::prost::alloc::string::String,
     #[prost(message, repeated, tag = "2")]
+    #[builder(field(vis = "pub(crate)"))]
     pub recommend_points: ::prost::alloc::vec::Vec<RecommendPoints>,
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "3")]
@@ -3622,7 +3665,7 @@ pub struct RecommendBatchPoints {
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// If set, overrides global timeout setting for this request. Unit is seconds.
     #[prost(uint64, optional, tag = "4")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub timeout: ::core::option::Option<u64>,
 }
 #[derive(derive_builder::Builder)]
@@ -3632,21 +3675,23 @@ pub struct RecommendBatchPoints {
 pub struct RecommendPointGroups {
     /// Name of the collection
     #[prost(string, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub collection_name: ::prost::alloc::string::String,
     /// Look for vectors closest to the vectors from these points
     #[prost(message, repeated, tag = "2")]
-    #[builder(default, setter(custom))]
+    #[builder(default, setter(custom), field(vis = "pub(crate)"))]
     pub positive: ::prost::alloc::vec::Vec<PointId>,
     /// Try to avoid vectors like the vector from these points
     #[prost(message, repeated, tag = "3")]
-    #[builder(default, setter(custom))]
+    #[builder(default, setter(custom), field(vis = "pub(crate)"))]
     pub negative: ::prost::alloc::vec::Vec<PointId>,
     /// Filter conditions - return only those points that satisfy the specified conditions
     #[prost(message, optional, tag = "4")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub filter: ::core::option::Option<Filter>,
     /// Max number of groups in result
     #[prost(uint32, tag = "5")]
+    #[builder(field(vis = "pub(crate)"))]
     pub limit: u32,
     /// Options for specifying which payload to include or not
     #[prost(message, optional, tag = "6")]
@@ -3660,15 +3705,15 @@ pub struct RecommendPointGroups {
     pub with_payload: ::core::option::Option<WithPayloadSelector>,
     /// Search config
     #[prost(message, optional, tag = "7")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub params: ::core::option::Option<SearchParams>,
     /// If provided - cut off results with worse scores
     #[prost(float, optional, tag = "8")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub score_threshold: ::core::option::Option<f32>,
     /// Define which vector to use for recommendation, if not specified - default vector
     #[prost(string, optional, tag = "9")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub using: ::core::option::Option<::prost::alloc::string::String>,
     /// Options for specifying which vectors to include into response
     #[prost(message, optional, tag = "10")]
@@ -3682,13 +3727,15 @@ pub struct RecommendPointGroups {
     pub with_vectors: ::core::option::Option<WithVectorsSelector>,
     /// Name of the collection to use for points lookup, if not specified - use current collection
     #[prost(message, optional, tag = "11")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub lookup_from: ::core::option::Option<LookupLocation>,
     /// Payload field to group by, must be a string or number field. If there are multiple values for the field, all of them will be used. One point can be in multiple groups.
     #[prost(string, tag = "12")]
+    #[builder(field(vis = "pub(crate)"))]
     pub group_by: ::prost::alloc::string::String,
     /// Maximum amount of points to return per group
     #[prost(uint32, tag = "13")]
+    #[builder(field(vis = "pub(crate)"))]
     pub group_size: u32,
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "14")]
@@ -3702,27 +3749,27 @@ pub struct RecommendPointGroups {
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// Options for specifying how to use the group id to lookup points in another collection
     #[prost(message, optional, tag = "15")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub with_lookup: ::core::option::Option<WithLookup>,
     /// How to use the example vectors to find the results
     #[prost(enumeration = "RecommendStrategy", optional, tag = "17")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub strategy: ::core::option::Option<i32>,
     /// Look for vectors closest to those
     #[prost(message, repeated, tag = "18")]
-    #[builder(default, setter(custom))]
+    #[builder(default, setter(custom), field(vis = "pub(crate)"))]
     pub positive_vectors: ::prost::alloc::vec::Vec<Vector>,
     /// Try to avoid vectors like this
     #[prost(message, repeated, tag = "19")]
-    #[builder(default, setter(custom))]
+    #[builder(default, setter(custom), field(vis = "pub(crate)"))]
     pub negative_vectors: ::prost::alloc::vec::Vec<Vector>,
     /// If set, overrides global timeout setting for this request. Unit is seconds.
     #[prost(uint64, optional, tag = "20")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub timeout: ::core::option::Option<u64>,
     /// Specify in which shards to look for the points, if not specified - look in all shards
     #[prost(message, optional, tag = "21")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -3763,10 +3810,10 @@ pub mod vector_example {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ContextExamplePair {
     #[prost(message, optional, tag = "1")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub positive: ::core::option::Option<VectorExample>,
     #[prost(message, optional, tag = "2")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub negative: ::core::option::Option<VectorExample>,
 }
 #[derive(derive_builder::Builder)]
@@ -3776,20 +3823,23 @@ pub struct ContextExamplePair {
 pub struct DiscoverPoints {
     /// name of the collection
     #[prost(string, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub collection_name: ::prost::alloc::string::String,
     /// Use this as the primary search objective
     #[prost(message, optional, tag = "2")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub target: ::core::option::Option<TargetVector>,
     /// Search will be constrained by these pairs of examples
     #[prost(message, repeated, tag = "3")]
+    #[builder(field(vis = "pub(crate)"))]
     pub context: ::prost::alloc::vec::Vec<ContextExamplePair>,
     /// Filter conditions - return only those points that satisfy the specified conditions
     #[prost(message, optional, tag = "4")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub filter: ::core::option::Option<Filter>,
     /// Max number of result
     #[prost(uint64, tag = "5")]
+    #[builder(field(vis = "pub(crate)"))]
     pub limit: u64,
     /// Options for specifying which payload to include or not
     #[prost(message, optional, tag = "6")]
@@ -3803,15 +3853,15 @@ pub struct DiscoverPoints {
     pub with_payload: ::core::option::Option<WithPayloadSelector>,
     /// Search config
     #[prost(message, optional, tag = "7")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub params: ::core::option::Option<SearchParams>,
     /// Offset of the result
     #[prost(uint64, optional, tag = "8")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub offset: ::core::option::Option<u64>,
     /// Define which vector to use for recommendation, if not specified - default vector
     #[prost(string, optional, tag = "9")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub using: ::core::option::Option<::prost::alloc::string::String>,
     /// Options for specifying which vectors to include into response
     #[prost(message, optional, tag = "10")]
@@ -3825,7 +3875,7 @@ pub struct DiscoverPoints {
     pub with_vectors: ::core::option::Option<WithVectorsSelector>,
     /// Name of the collection to use for points lookup, if not specified - use current collection
     #[prost(message, optional, tag = "11")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub lookup_from: ::core::option::Option<LookupLocation>,
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "12")]
@@ -3839,11 +3889,11 @@ pub struct DiscoverPoints {
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// If set, overrides global timeout setting for this request. Unit is seconds.
     #[prost(uint64, optional, tag = "13")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub timeout: ::core::option::Option<u64>,
     /// Specify in which shards to look for the points, if not specified - look in all shards
     #[prost(message, optional, tag = "14")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
 #[derive(derive_builder::Builder)]
@@ -3853,8 +3903,10 @@ pub struct DiscoverPoints {
 pub struct DiscoverBatchPoints {
     /// Name of the collection
     #[prost(string, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub collection_name: ::prost::alloc::string::String,
     #[prost(message, repeated, tag = "2")]
+    #[builder(field(vis = "pub(crate)"))]
     pub discover_points: ::prost::alloc::vec::Vec<DiscoverPoints>,
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "3")]
@@ -3868,7 +3920,7 @@ pub struct DiscoverBatchPoints {
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// If set, overrides global timeout setting for this request. Unit is seconds.
     #[prost(uint64, optional, tag = "4")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub timeout: ::core::option::Option<u64>,
 }
 #[derive(derive_builder::Builder)]
@@ -3878,14 +3930,15 @@ pub struct DiscoverBatchPoints {
 pub struct CountPoints {
     /// name of the collection
     #[prost(string, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub collection_name: ::prost::alloc::string::String,
     /// Filter conditions - return only those points that satisfy the specified conditions
     #[prost(message, optional, tag = "2")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub filter: ::core::option::Option<Filter>,
     /// If `true` - return exact count, if `false` - return approximate count
     #[prost(bool, optional, tag = "3")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub exact: ::core::option::Option<bool>,
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "4")]
@@ -3899,7 +3952,7 @@ pub struct CountPoints {
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// Specify in which shards to look for the points, if not specified - look in all shards
     #[prost(message, optional, tag = "5")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -4039,16 +4092,18 @@ pub mod points_update_operation {
 pub struct UpdateBatchPoints {
     /// name of the collection
     #[prost(string, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub collection_name: ::prost::alloc::string::String,
     /// Wait until the changes have been applied?
     #[prost(bool, optional, tag = "2")]
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub wait: ::core::option::Option<bool>,
     #[prost(message, repeated, tag = "3")]
+    #[builder(field(vis = "pub(crate)"))]
     pub operations: ::prost::alloc::vec::Vec<PointsUpdateOperation>,
     /// Write ordering guarantees
     #[prost(message, optional, tag = "4")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub ordering: ::core::option::Option<WriteOrdering>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -7356,528 +7411,64 @@ pub mod qdrant_server {
         const NAME: &'static str = "qdrant.Qdrant";
     }
 }
-/// Default type conversions between builders and their built types. This allows us not writing .build() all the time, especially if we use builders within buliders.
-///
-/// This also adds a build() function for all builders. The build() function automatically generated by derive_builder returns
-/// a Result which is ugly to have to unwrap() all the time, especially because they can't fail in our case.
-macro_rules! builder_type_conversions {
-    ($main_type:ident,$builder_type:ident,$build_fn:ident) => {
-        impl From<$builder_type> for $main_type {
-            fn from(value: $builder_type) -> Self {
-                value.$build_fn().unwrap()
-            }
-        }
-
-        impl From<&mut $builder_type> for $main_type {
-            fn from(value: &mut $builder_type) -> Self {
-                value.clone().$build_fn().unwrap()
-            }
-        }
-
-        impl $builder_type {
-            /// Builds the desired type. Can often be omitted.
-            pub fn build(&self) -> $main_type {
-                self.$build_fn().unwrap()
-            }
-        }
-    };
-
-    // Small shortcut so we don't have to write build_inner for most of the types.
-    ($main_type:ident,$builder_type:ident) => {
-        builder_type_conversions!($main_type, $builder_type, build_inner);
-    };
-}
-pub(crate) use builder_type_conversions;
-
-/// Helper function to convert from &Option<T> to Option<U> if U: From<T> is satisfied.
-fn convert_option<T, U>(input: &Option<T>) -> Option<U>
-where
-    U: From<T>,
-    T: Clone,
-{
-    let input = input.as_ref()?;
-    Some(input.clone().into())
-}
-
+use crate::grpc_macros::*;
 builder_type_conversions!(CreateCollection, CreateCollectionBuilder);
-builder_type_conversions!(VectorParams, VectorParamsBuilder);
+builder_type_conversions!(VectorParams, VectorParamsBuilder, true);
 builder_type_conversions!(HnswConfigDiff, HnswConfigDiffBuilder);
-builder_type_conversions!(ScalarQuantization, ScalarQuantizationBuilder);
-builder_type_conversions!(ProductQuantization, ProductQuantizationBuilder);
-builder_type_conversions!(BinaryQuantization, BinaryQuantizationBuilder);
+builder_type_conversions!(ScalarQuantization, ScalarQuantizationBuilder, true);
+builder_type_conversions!(ProductQuantization, ProductQuantizationBuilder, true);
+builder_type_conversions!(BinaryQuantization, BinaryQuantizationBuilder, true);
 builder_type_conversions!(OptimizersConfigDiff, OptimizersConfigDiffBuilder);
 builder_type_conversions!(WalConfigDiff, WalConfigDiffBuilder);
-builder_type_conversions!(SearchPoints, SearchPointsBuilder);
+builder_type_conversions!(SearchPoints, SearchPointsBuilder, true);
 builder_type_conversions!(SearchParams, SearchParamsBuilder);
 builder_type_conversions!(QuantizationSearchParams, QuantizationSearchParamsBuilder);
-builder_type_conversions!(UpdateCollection, UpdateCollectionBuilder);
-builder_type_conversions!(SetPayloadPoints, SetPayloadPointsBuilder);
-builder_type_conversions!(UpsertPoints, UpsertPointsBuilder);
-builder_type_conversions!(UpdateBatchPoints, UpdateBatchPointsBuilder);
-builder_type_conversions!(DeletePayloadPoints, DeletePayloadPointsBuilder);
-builder_type_conversions!(ClearPayloadPoints, ClearPayloadPointsBuilder);
-builder_type_conversions!(GetPoints, GetPointsBuilder);
-builder_type_conversions!(SearchBatchPoints, SearchBatchPointsBuilder);
-builder_type_conversions!(SearchPointGroups, SearchPointGroupsBuilder);
-builder_type_conversions!(WithLookup, WithLookupBuilder);
-builder_type_conversions!(DeletePointVectors, DeletePointVectorsBuilder);
-builder_type_conversions!(UpdatePointVectors, UpdatePointVectorsBuilder);
-builder_type_conversions!(ScrollPoints, ScrollPointsBuilder);
-builder_type_conversions!(OrderBy, OrderByBuilder);
-builder_type_conversions!(RecommendPoints, RecommendPointsBuilder);
-builder_type_conversions!(LookupLocation, LookupLocationBuilder);
-builder_type_conversions!(RecommendBatchPoints, RecommendBatchPointsBuilder);
-builder_type_conversions!(RecommendPointGroups, RecommendPointGroupsBuilder);
-builder_type_conversions!(DiscoverPoints, DiscoverPointsBuilder);
-builder_type_conversions!(DiscoverBatchPoints, DiscoverBatchPointsBuilder);
-builder_type_conversions!(CountPoints, CountPointsBuilder);
+builder_type_conversions!(UpdateCollection, UpdateCollectionBuilder, true);
+builder_type_conversions!(SetPayloadPoints, SetPayloadPointsBuilder, true);
+builder_type_conversions!(UpsertPoints, UpsertPointsBuilder, true);
+builder_type_conversions!(UpdateBatchPoints, UpdateBatchPointsBuilder, true);
+builder_type_conversions!(DeletePayloadPoints, DeletePayloadPointsBuilder, true);
+builder_type_conversions!(ClearPayloadPoints, ClearPayloadPointsBuilder, true);
+builder_type_conversions!(GetPoints, GetPointsBuilder, true);
+builder_type_conversions!(SearchBatchPoints, SearchBatchPointsBuilder, true);
+builder_type_conversions!(SearchPointGroups, SearchPointGroupsBuilder, true);
+builder_type_conversions!(WithLookup, WithLookupBuilder, true);
+builder_type_conversions!(DeletePointVectors, DeletePointVectorsBuilder, true);
+builder_type_conversions!(UpdatePointVectors, UpdatePointVectorsBuilder, true);
+builder_type_conversions!(ScrollPoints, ScrollPointsBuilder, true);
+builder_type_conversions!(OrderBy, OrderByBuilder, true);
+builder_type_conversions!(RecommendPoints, RecommendPointsBuilder, true);
+builder_type_conversions!(LookupLocation, LookupLocationBuilder, true);
+builder_type_conversions!(RecommendBatchPoints, RecommendBatchPointsBuilder, true);
+builder_type_conversions!(RecommendPointGroups, RecommendPointGroupsBuilder, true);
+builder_type_conversions!(DiscoverPoints, DiscoverPointsBuilder, true);
+builder_type_conversions!(DiscoverBatchPoints, DiscoverBatchPointsBuilder, true);
+builder_type_conversions!(CountPoints, CountPointsBuilder, true);
 builder_type_conversions!(
     CreateFieldIndexCollection,
-    CreateFieldIndexCollectionBuilder
+    CreateFieldIndexCollectionBuilder,
+    true
 );
 builder_type_conversions!(
     DeleteFieldIndexCollection,
-    DeleteFieldIndexCollectionBuilder
+    DeleteFieldIndexCollectionBuilder,
+    true
 );
 builder_type_conversions!(
     UpdateCollectionClusterSetupRequest,
-    UpdateCollectionClusterSetupRequestBuilder
+    UpdateCollectionClusterSetupRequestBuilder,
+    true
 );
-builder_type_conversions!(CreateShardKeyRequest, CreateShardKeyRequestBuilder);
-builder_type_conversions!(DeleteShardKeyRequest, DeleteShardKeyRequestBuilder);
-builder_type_conversions!(DeleteCollection, DeleteCollectionBuilder);
+builder_type_conversions!(CreateShardKeyRequest, CreateShardKeyRequestBuilder, true);
+builder_type_conversions!(DeleteShardKeyRequest, DeleteShardKeyRequestBuilder, true);
+builder_type_conversions!(DeleteCollection, DeleteCollectionBuilder, true);
 builder_type_conversions!(CollectionParamsDiff, CollectionParamsDiffBuilder);
 builder_type_conversions!(VectorParamsDiff, VectorParamsDiffBuilder);
 builder_type_conversions!(SparseVectorParams, SparseVectorParamsBuilder);
 builder_type_conversions!(SparseIndexConfig, SparseIndexConfigBuilder);
 builder_type_conversions!(CreateShardKey, CreateShardKeyBuilder);
 builder_type_conversions!(ContextExamplePair, ContextExamplePairBuilder);
-builder_type_conversions!(TextIndexParams, TextIndexParamsBuilder);
+builder_type_conversions!(TextIndexParams, TextIndexParamsBuilder, true);
+builder_type_conversions!(DeletePoints, DeletePointsBuilder, true);
 
-// import our manual builder here so all builder come from the same module in the end user API.
-use crate::builder_types::RecommendExample;
 pub use crate::manual_builder::*;
-
-// Needs special treatment as we can't generate this because DeletePoints is specified using a path and not
-// only by it's identifyer.
-builder_type_conversions!(DeletePoints, DeletePointsBuilder);
-
-use std::collections::HashMap;
-
-impl VectorParamsBuilder {
-    pub fn new(size: u64, distance: Distance) -> Self {
-        let mut builder = Self::create_empty();
-        builder.size = Some(size);
-        builder.distance = Some(distance.into());
-        builder
-    }
-}
-
-impl ScalarQuantizationBuilder {
-    pub fn new(r#type: QuantizationType) -> Self {
-        let mut builder = Self::create_empty();
-        builder.r#type = Some(r#type.into());
-        builder
-    }
-}
-
-impl ProductQuantizationBuilder {
-    pub fn new(compression: i32) -> Self {
-        let mut builder = Self::create_empty();
-        builder.compression = Some(compression);
-        builder
-    }
-}
-
-impl BinaryQuantizationBuilder {
-    pub fn new(always_ram: bool) -> Self {
-        let mut builder = Self::create_empty();
-        builder.always_ram = Some(Some(always_ram));
-        builder
-    }
-}
-
-impl SearchPointsBuilder {
-    pub fn new(
-        collection_name: impl Into<String>,
-        vector: impl Into<Vec<f32>>,
-        limit: u64,
-    ) -> Self {
-        let mut builder = Self::create_empty();
-        builder.collection_name = Some(collection_name.into());
-        builder.vector = Some(vector.into());
-        builder.limit = Some(limit);
-        builder
-    }
-}
-
-impl UpdateCollectionBuilder {
-    pub fn new(collection_name: impl Into<String>) -> Self {
-        let mut builder = Self::create_empty();
-        builder.collection_name = Some(collection_name.into());
-        builder
-    }
-}
-
-impl SetPayloadPointsBuilder {
-    pub fn new(
-        collection_name: impl Into<String>,
-        payload: impl Into<HashMap<String, Value>>,
-    ) -> Self {
-        let mut builder = Self::create_empty();
-        builder.collection_name = Some(collection_name.into());
-        builder.payload = Some(payload.into());
-        builder
-    }
-}
-
-impl UpdateBatchPointsBuilder {
-    pub fn new(
-        collection_name: impl Into<String>,
-        operations: impl Into<Vec<PointsUpdateOperation>>,
-    ) -> Self {
-        let mut builder = Self::create_empty();
-        builder.collection_name = Some(collection_name.into());
-        builder.operations = Some(operations.into());
-        builder
-    }
-}
-
-impl DeletePayloadPointsBuilder {
-    pub fn new(collection_name: impl Into<String>, keys: impl Into<Vec<String>>) -> Self {
-        let mut builder = Self::create_empty();
-        builder.collection_name = Some(collection_name.into());
-        builder.keys = Some(keys.into());
-        builder
-    }
-}
-
-impl ClearPayloadPointsBuilder {
-    pub fn new(collection_name: impl Into<String>) -> Self {
-        let mut builder = Self::create_empty();
-        builder.collection_name = Some(collection_name.into());
-        builder
-    }
-}
-
-impl GetPointsBuilder {
-    pub fn new(collection_name: impl Into<String>, ids: impl Into<Vec<PointId>>) -> Self {
-        let mut builder = Self::create_empty();
-        builder.collection_name = Some(collection_name.into());
-        builder.ids = Some(ids.into());
-        builder
-    }
-}
-
-impl SearchBatchPointsBuilder {
-    pub fn new(
-        collection_name: impl Into<String>,
-        search_points: impl Into<Vec<SearchPoints>>,
-    ) -> Self {
-        let mut builder = Self::create_empty();
-        builder.collection_name = Some(collection_name.into());
-        builder.search_points = Some(search_points.into());
-        builder
-    }
-}
-
-impl SearchPointGroupsBuilder {
-    pub fn new(
-        collection_name: impl Into<String>,
-        vector: impl Into<Vec<f32>>,
-        limit: u32,
-        group_by: impl Into<String>,
-        group_size: u32,
-    ) -> Self {
-        let mut builder = Self::create_empty();
-        builder.collection_name = Some(collection_name.into());
-        builder.vector = Some(vector.into());
-        builder.limit = Some(limit);
-        builder.group_by = Some(group_by.into());
-        builder.group_size = Some(group_size);
-        builder
-    }
-}
-
-impl WithLookupBuilder {
-    pub fn new(collection: impl Into<String>) -> Self {
-        let mut builder = Self::create_empty();
-        builder.collection = Some(collection.into());
-        builder
-    }
-}
-
-impl DeletePointsBuilder {
-    pub fn new(collection_name: impl Into<String>) -> Self {
-        let mut builder = Self::create_empty();
-        builder.collection_name = Some(collection_name.into());
-        builder
-    }
-}
-
-impl DeletePointVectorsBuilder {
-    pub fn new(collection_name: impl Into<String>) -> Self {
-        let mut builder = Self::create_empty();
-        builder.collection_name = Some(collection_name.into());
-        builder
-    }
-}
-
-impl UpdatePointVectorsBuilder {
-    pub fn new(collection_name: impl Into<String>, points: impl Into<Vec<PointVectors>>) -> Self {
-        let mut builder = Self::create_empty();
-        builder.collection_name = Some(collection_name.into());
-        builder.points = Some(points.into());
-        builder
-    }
-}
-
-impl ScrollPointsBuilder {
-    pub fn new(collection_name: impl Into<String>) -> Self {
-        let mut builder = Self::create_empty();
-        builder.collection_name = Some(collection_name.into());
-        builder
-    }
-}
-
-impl OrderByBuilder {
-    pub fn new(key: impl Into<String>) -> Self {
-        let mut builder = Self::create_empty();
-        builder.key = Some(key.into());
-        builder
-    }
-}
-
-impl RecommendPointsBuilder {
-    pub fn new(collection_name: impl Into<String>, limit: u64) -> Self {
-        let mut builder = Self::create_empty();
-        builder.collection_name = Some(collection_name.into());
-        builder.limit = Some(limit);
-        builder
-    }
-}
-
-impl LookupLocationBuilder {
-    pub fn new(collection_name: impl Into<String>) -> Self {
-        let mut builder = Self::create_empty();
-        builder.collection_name = Some(collection_name.into());
-        builder
-    }
-}
-
-impl RecommendBatchPointsBuilder {
-    pub fn new(
-        collection_name: impl Into<String>,
-        recommend_points: impl Into<Vec<RecommendPoints>>,
-    ) -> Self {
-        let mut builder = Self::create_empty();
-        builder.collection_name = Some(collection_name.into());
-        builder.recommend_points = Some(recommend_points.into());
-        builder
-    }
-}
-
-impl RecommendPointGroupsBuilder {
-    pub fn new(
-        collection_name: impl Into<String>,
-        group_by: impl Into<String>,
-        group_size: u32,
-        limit: u32,
-    ) -> Self {
-        let mut builder = Self::create_empty();
-        builder.collection_name = Some(collection_name.into());
-        builder.group_by = Some(group_by.into());
-        builder.group_size = Some(group_size);
-        builder.limit = Some(limit);
-        builder
-    }
-}
-
-impl DiscoverPointsBuilder {
-    pub fn new(
-        collection_name: impl Into<String>,
-        context: impl Into<Vec<ContextExamplePair>>,
-        limit: u64,
-    ) -> Self {
-        let mut builder = Self::create_empty();
-        builder.collection_name = Some(collection_name.into());
-        builder.context = Some(context.into());
-        builder.limit = Some(limit);
-        builder
-    }
-}
-
-impl DiscoverBatchPointsBuilder {
-    pub fn new(
-        collection_name: impl Into<String>,
-        discover_points: impl Into<Vec<DiscoverPoints>>,
-    ) -> Self {
-        let mut builder = Self::create_empty();
-        builder.collection_name = Some(collection_name.into());
-        builder.discover_points = Some(discover_points.into());
-        builder
-    }
-}
-
-impl CountPointsBuilder {
-    pub fn new(collection_name: impl Into<String>) -> Self {
-        let mut builder = Self::create_empty();
-        builder.collection_name = Some(collection_name.into());
-        builder
-    }
-}
-
-impl UpsertPointsBuilder {
-    pub fn new(collection_name: impl Into<String>, points: impl Into<Vec<PointStruct>>) -> Self {
-        let mut builder = Self::create_empty();
-        builder.collection_name = Some(collection_name.into());
-        builder.points = Some(points.into());
-        builder
-    }
-}
-
-impl CreateFieldIndexCollectionBuilder {
-    pub fn new(collection_name: impl Into<String>, field_name: impl Into<String>) -> Self {
-        let mut builder = Self::create_empty();
-        builder.collection_name = Some(collection_name.into());
-        builder.field_name = Some(field_name.into());
-        builder
-    }
-}
-
-impl DeleteFieldIndexCollectionBuilder {
-    pub fn new(collection_name: impl Into<String>, field_name: impl Into<String>) -> Self {
-        let mut builder = Self::create_empty();
-        builder.collection_name = Some(collection_name.into());
-        builder.field_name = Some(field_name.into());
-        builder
-    }
-}
-
-impl UpdateCollectionClusterSetupRequestBuilder {
-    pub fn new(collection_name: impl Into<String>) -> Self {
-        let mut builder = Self::create_empty();
-        builder.collection_name = Some(collection_name.into());
-        builder
-    }
-}
-
-impl CreateShardKeyRequestBuilder {
-    pub fn new(collection_name: impl Into<String>) -> Self {
-        let mut builder = Self::create_empty();
-        builder.collection_name = Some(collection_name.into());
-        builder
-    }
-}
-
-impl DeleteShardKeyRequestBuilder {
-    pub fn new(collection_name: impl Into<String>) -> Self {
-        let mut builder = Self::create_empty();
-        builder.collection_name = Some(collection_name.into());
-        builder
-    }
-}
-
-impl DeleteCollectionBuilder {
-    pub fn new(collection_name: impl Into<String>) -> Self {
-        let mut builder = Self::create_empty();
-        builder.collection_name = Some(collection_name.into());
-        builder
-    }
-}
-
-impl TextIndexParamsBuilder {
-    pub fn new(tokenizer: TokenizerType) -> Self {
-        let mut builder = Self::create_empty();
-        builder.tokenizer = Some(tokenizer.into());
-        builder
-    }
-}
-
-impl PayloadIncludeSelector {
-    pub fn new(fileds: impl Into<Vec<String>>) -> Self {
-        Self {
-            fields: fileds.into(),
-        }
-    }
-}
-
-impl PayloadExcludeSelector {
-    pub fn new(fileds: impl Into<Vec<String>>) -> Self {
-        Self {
-            fields: fileds.into(),
-        }
-    }
-}
-
-impl VectorsSelector {
-    pub fn new(names: impl Into<Vec<String>>) -> Self {
-        Self {
-            names: names.into(),
-        }
-    }
-}
-
-impl RecommendPointsBuilder {
-    /// Look for vectors closest to the vectors from these points or vectors
-    pub fn positive(&mut self, recommend_example: impl Into<RecommendExample>) -> &mut Self {
-        let recommend_example = recommend_example.into();
-        match recommend_example {
-            RecommendExample::PointId(point_id) => {
-                self.positive.get_or_insert_with(Vec::new).push(point_id);
-            }
-            RecommendExample::Vector(vector) => {
-                self.positive_vectors
-                    .get_or_insert_with(Vec::new)
-                    .push(vector);
-            }
-        }
-        self
-    }
-
-    /// Try to avoid vectors like the vector from these points or vectors
-    pub fn negative(&mut self, recommend_example: impl Into<RecommendExample>) -> &mut Self {
-        let recommend_example = recommend_example.into();
-        match recommend_example {
-            RecommendExample::PointId(point_id) => {
-                self.negative.get_or_insert_with(Vec::new).push(point_id);
-            }
-            RecommendExample::Vector(vector) => {
-                self.negative_vectors
-                    .get_or_insert_with(Vec::new)
-                    .push(vector);
-            }
-        }
-        self
-    }
-}
-
-impl RecommendPointGroups {
-    /// Look for vectors closest to the vectors from these points or vectors
-    pub fn positive(&mut self, recommend_example: impl Into<RecommendExample>) -> &mut Self {
-        let recommend_example = recommend_example.into();
-        match recommend_example {
-            RecommendExample::PointId(point_id) => {
-                self.positive.push(point_id);
-            }
-            RecommendExample::Vector(vector) => {
-                self.positive_vectors.push(vector);
-            }
-        }
-        self
-    }
-
-    /// Try to avoid vectors like the vector from these points or vectors
-    pub fn negative(&mut self, recommend_example: impl Into<RecommendExample>) -> &mut Self {
-        let recommend_example = recommend_example.into();
-        match recommend_example {
-            RecommendExample::PointId(point_id) => {
-                self.negative.push(point_id);
-            }
-            RecommendExample::Vector(vector) => {
-                self.negative_vectors.push(vector);
-            }
-        }
-        self
-    }
-}

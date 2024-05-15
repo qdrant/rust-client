@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use tonic_build::Builder;
 
 fn timestamp(f: impl AsRef<std::path::Path>) -> std::time::SystemTime {
@@ -12,7 +13,6 @@ fn protos() {
     let mut protos = std::fs::read_dir("proto").unwrap();
     if !protos.any(|d| timestamp(d.unwrap().path()) > out_time)
         && timestamp("tests/protos.rs") <= out_time
-        && timestamp("tests/protos_append/builder_ext.rs") <= out_time
     {
         return;
     }
@@ -26,17 +26,36 @@ fn protos() {
         )
         .unwrap();
 
-    // Append macro definition and calls required for builder implementations.
-    append_file_to_file(GRPC_OUTPUT_FILE, "./tests/protos_append/grpc_macros.rs");
-    add_builder_macro_impls(GRPC_OUTPUT_FILE, builder_derive_options());
+    append_to_file(GRPC_OUTPUT_FILE, "use crate::grpc_macros::*;");
 
-    append_file_to_file(GRPC_OUTPUT_FILE, "./tests/protos_append/builder_ext.rs");
+    add_builder_macro_impls(
+        GRPC_OUTPUT_FILE,
+        builder_derive_options(),
+        additional_builder_derive_options(),
+    );
+
+    // import our manual builder here so all builder come from the same module in the end user API.
+    append_to_file(GRPC_OUTPUT_FILE, "pub use crate::manual_builder::*;");
 
     panic!("proto definitions changed. Stubs recompiled. Please commit the changes.")
 }
 
 /// Derive options for structs. (Path, build attributes, 'from' macro generation enabled)
-type BuildDeriveOptions = (&'static str, &'static str, bool);
+type BuildDeriveOptions = (&'static str, &'static str, MacroConfig);
+
+/// Configures how/which macros should be implemented for each builder.
+enum MacroConfig {
+    /// No macro call should be implemented
+    NoMacro,
+
+    /// Default implementation including `From<Builder>` and `build()`.
+    DefaultImpl,
+
+    /// All implementations from `DefaultImpl` and additionally a `pub(super) empty()` function
+    /// that allows creating an empty builder from within this crate. This can be helpful for
+    /// builder that don't implement `Default` due to some required parameters.
+    WithDefaultFn,
+}
 
 /// Extension to [`Builder`] to configure builder attributes.
 trait BuilderExt {
@@ -58,6 +77,15 @@ impl BuilderExt for Builder {
         derive_options: &[BuildDeriveOptions],
     ) -> Self {
         let structs = unique_structs_from_paths(paths.iter().map(|i| i.0), &[]);
+
+        // Check we don't specify the same filed twice.
+        let mut seen = HashSet::new();
+        for (field, _) in paths.iter() {
+            if seen.contains(field) {
+                panic!("Field specified twice!");
+            }
+            seen.insert(field);
+        }
 
         let derives = structs.into_iter().fold(self, |c, path| {
             let derive_options = derive_options.iter().find(|i| i.0 == path).map(|i| i.1);
@@ -108,11 +136,13 @@ macro_rules! builder_custom_into {
 }
 
 fn configure_builder(builder: Builder) -> Builder {
-    const DEFAULT_OPTION: &str = "default, setter(strip_option)";
-    const DEFAULT_OPTION_INTO: &str = "default, setter(into, strip_option)";
-    const DEFAULT: &str = "default";
-    const DEFAULT_INTO: &str = "default, setter(into)";
-    const CUSTOM_SETTER: &str = "default, setter(custom)";
+    const DEFAULT_OPTION: &str = "default, setter(strip_option), field(vis=\"pub(crate)\")";
+    const DEFAULT_OPTION_INTO: &str =
+        "default, setter(into, strip_option), field(vis=\"pub(crate)\")";
+    const DEFAULT: &str = "default, field(vis=\"pub(crate)\")";
+    const DEFAULT_INTO: &str = "default, setter(into), field(vis=\"pub(crate)\")";
+    const CUSTOM_SETTER: &str = "default, setter(custom), field(vis=\"pub(crate)\")";
+    const PUBLIC_ONLY: &str = r#"field(vis = "pub(crate)")"#;
 
     builder.derive_builders(
         &[
@@ -161,9 +191,11 @@ fn configure_builder(builder: Builder) -> Builder {
             ("HnswConfigDiff.on_disk", DEFAULT_OPTION),
             ("HnswConfigDiff.payload_m", DEFAULT_OPTION),
             // ScalarQuantization
+            ("ScalarQuantization.type", PUBLIC_ONLY),
             ("ScalarQuantization.quantile", DEFAULT_OPTION),
             ("ScalarQuantization.always_ram", DEFAULT_OPTION),
             // ProductQuantization
+            ("ProductQuantization.compression", PUBLIC_ONLY),
             ("ProductQuantization.always_ram", DEFAULT_OPTION),
             // BinaryQuantization
             ("BinaryQuantization.always_ram", DEFAULT_OPTION),
@@ -189,6 +221,9 @@ fn configure_builder(builder: Builder) -> Builder {
             ("WalConfigDiff.wal_capacity_mb", DEFAULT_OPTION),
             ("WalConfigDiff.wal_segments_ahead", DEFAULT_OPTION),
             // SearchPoints
+            ("SearchPoints.collection_name", PUBLIC_ONLY),
+            ("SearchPoints.vector", PUBLIC_ONLY),
+            ("SearchPoints.limit", PUBLIC_ONLY),
             ("SearchPoints.filter", DEFAULT_OPTION_INTO),
             (
                 "SearchPoints.with_payload",
@@ -219,6 +254,7 @@ fn configure_builder(builder: Builder) -> Builder {
             ("QuantizationSearchParams.rescore", DEFAULT_OPTION),
             ("QuantizationSearchParams.oversampling", DEFAULT_OPTION),
             // UpdateCollection
+            ("UpdateCollection.collection_name", PUBLIC_ONLY),
             ("UpdateCollection.optimizers_config", DEFAULT_OPTION_INTO),
             ("UpdateCollection.timeout", DEFAULT_OPTION),
             ("UpdateCollection.params", DEFAULT_OPTION_INTO),
@@ -239,6 +275,8 @@ fn configure_builder(builder: Builder) -> Builder {
                 DEFAULT_OPTION_INTO,
             ),
             // SetPayloadPoints
+            ("SetPayloadPoints.collection_name", PUBLIC_ONLY),
+            ("SetPayloadPoints.payload", PUBLIC_ONLY),
             ("SetPayloadPoints.wait", DEFAULT_OPTION),
             (
                 "SetPayloadPoints.points_selector",
@@ -248,13 +286,19 @@ fn configure_builder(builder: Builder) -> Builder {
             ("SetPayloadPoints.shard_key_selector", DEFAULT_OPTION_INTO),
             ("SetPayloadPoints.key", DEFAULT_OPTION_INTO),
             // UpsertPoints
+            ("UpsertPoints.collection_name", PUBLIC_ONLY),
+            ("UpsertPoints.points", PUBLIC_ONLY),
             ("UpsertPoints.wait", DEFAULT_OPTION),
             ("UpsertPoints.ordering", DEFAULT_OPTION_INTO),
             ("UpsertPoints.shard_key_selector", DEFAULT_OPTION_INTO),
             // UpdateBatchPoints
+            ("UpdateBatchPoints.collection_name", PUBLIC_ONLY),
+            ("UpdateBatchPoints.operations", PUBLIC_ONLY),
             ("UpdateBatchPoints.wait", DEFAULT_OPTION),
             ("UpdateBatchPoints.ordering", DEFAULT_OPTION_INTO),
             // DeletePayloadPoints
+            ("DeletePayloadPoints.collection_name", PUBLIC_ONLY),
+            ("DeletePayloadPoints.keys", PUBLIC_ONLY),
             ("DeletePayloadPoints.wait", DEFAULT_OPTION),
             (
                 "DeletePayloadPoints.points_selector",
@@ -266,6 +310,7 @@ fn configure_builder(builder: Builder) -> Builder {
                 DEFAULT_OPTION_INTO,
             ),
             // ClearPayloadPoints
+            ("ClearPayloadPoints.collection_name", PUBLIC_ONLY),
             ("ClearPayloadPoints.wait", DEFAULT_OPTION),
             (
                 "ClearPayloadPoints.points",
@@ -274,6 +319,8 @@ fn configure_builder(builder: Builder) -> Builder {
             ("ClearPayloadPoints.ordering", DEFAULT_OPTION_INTO),
             ("ClearPayloadPoints.shard_key_selector", DEFAULT_OPTION_INTO),
             // GetPoints
+            ("GetPoints.collection_name", PUBLIC_ONLY),
+            ("GetPoints.ids", PUBLIC_ONLY),
             (
                 "GetPoints.with_payload",
                 builder_custom_into!(with_payload_selector::SelectorOptions, self.with_payload),
@@ -288,12 +335,19 @@ fn configure_builder(builder: Builder) -> Builder {
             ),
             ("GetPoints.shard_key_selector", DEFAULT_OPTION_INTO),
             // SearchBatchPoints
+            ("SearchBatchPoints.collection_name", PUBLIC_ONLY),
+            ("SearchBatchPoints.search_points", PUBLIC_ONLY),
             (
                 "SearchBatchPoints.read_consistency",
                 builder_custom_into!(read_consistency::Value, self.read_consistency),
             ),
             ("SearchBatchPoints.timeout", DEFAULT_OPTION),
             // SearchPointGroups
+            ("SearchPointGroups.collection_name", PUBLIC_ONLY),
+            ("SearchPointGroups.vector", PUBLIC_ONLY),
+            ("SearchPointGroups.limit", PUBLIC_ONLY),
+            ("SearchPointGroups.group_by", PUBLIC_ONLY),
+            ("SearchPointGroups.group_size", PUBLIC_ONLY),
             ("SearchPointGroups.filter", DEFAULT_OPTION_INTO),
             (
                 "SearchPointGroups.with_payload",
@@ -315,6 +369,7 @@ fn configure_builder(builder: Builder) -> Builder {
             ("SearchPointGroups.shard_key_selector", DEFAULT_OPTION_INTO),
             ("SearchPointGroups.sparse_indices", DEFAULT_OPTION_INTO),
             // WithLookup
+            ("WithLookup.collection", PUBLIC_ONLY),
             (
                 "WithLookup.with_payload",
                 builder_custom_into!(with_payload_selector::SelectorOptions, self.with_payload),
@@ -324,6 +379,7 @@ fn configure_builder(builder: Builder) -> Builder {
                 builder_custom_into!(with_vectors_selector::SelectorOptions, self.with_vectors),
             ),
             // DeletePoints
+            ("qdrant.DeletePoints.collection_name", PUBLIC_ONLY),
             ("qdrant.DeletePoints.wait", DEFAULT_OPTION),
             (
                 "qdrant.DeletePoints.points",
@@ -335,6 +391,7 @@ fn configure_builder(builder: Builder) -> Builder {
                 DEFAULT_OPTION_INTO,
             ),
             // DeletePointVectors
+            ("DeletePointVectors.collection_name", PUBLIC_ONLY),
             ("DeletePointVectors.wait", DEFAULT_OPTION),
             (
                 "DeletePointVectors.points_selector",
@@ -344,10 +401,13 @@ fn configure_builder(builder: Builder) -> Builder {
             ("DeletePointVectors.ordering", DEFAULT_OPTION_INTO),
             ("DeletePointVectors.shard_key_selector", DEFAULT_OPTION_INTO),
             // UpdatePointVectors
+            ("UpdatePointVectors.collection_name", PUBLIC_ONLY),
+            ("UpdatePointVectors.points", PUBLIC_ONLY),
             ("UpdatePointVectors.wait", DEFAULT_OPTION),
             ("UpdatePointVectors.ordering", DEFAULT_OPTION_INTO),
             ("UpdatePointVectors.shard_key_selector", DEFAULT_OPTION_INTO),
-            // ScorllPoints
+            // ScrollPoints
+            ("ScrollPoints.collection_name", PUBLIC_ONLY),
             ("ScrollPoints.filter", DEFAULT_OPTION_INTO),
             ("ScrollPoints.offset", DEFAULT_OPTION_INTO),
             ("ScrollPoints.limit", DEFAULT_OPTION),
@@ -366,12 +426,15 @@ fn configure_builder(builder: Builder) -> Builder {
             ("ScrollPoints.shard_key_selector", DEFAULT_OPTION_INTO),
             ("ScrollPoints.order_by", DEFAULT_OPTION_INTO),
             // OrderBy
+            ("OrderBy.key", PUBLIC_ONLY),
             ("OrderBy.direction", DEFAULT_OPTION),
             (
                 "OrderBy.start_from",
                 builder_custom_into!(start_from::Value, self.start_from),
             ),
             // RecommendPoints
+            ("RecommendPoints.collection_name", PUBLIC_ONLY),
+            ("RecommendPoints.limit", PUBLIC_ONLY),
             ("RecommendPoints.filter", DEFAULT_OPTION_INTO),
             (
                 "RecommendPoints.with_payload",
@@ -398,15 +461,22 @@ fn configure_builder(builder: Builder) -> Builder {
             ("RecommendPoints.timeout", DEFAULT_OPTION),
             ("RecommendPoints.shard_key_selector", DEFAULT_OPTION_INTO),
             // LookupLocation
+            ("LookupLocation.collection_name", PUBLIC_ONLY),
             ("LookupLocation.vector_name", DEFAULT_OPTION_INTO),
             ("LookupLocation.shard_key_selector", DEFAULT_OPTION_INTO),
             // RecommendBatchPoints
+            ("RecommendBatchPoints.collection_name", PUBLIC_ONLY),
+            ("RecommendBatchPoints.recommend_points", PUBLIC_ONLY),
             (
                 "RecommendBatchPoints.read_consistency",
                 builder_custom_into!(read_consistency::Value, self.read_consistency),
             ),
             ("RecommendBatchPoints.timeout", DEFAULT_OPTION),
             // RecommendPointGroups
+            ("RecommendPointGroups.collection_name", PUBLIC_ONLY),
+            ("RecommendPointGroups.group_by", PUBLIC_ONLY),
+            ("RecommendPointGroups.group_size", PUBLIC_ONLY),
+            ("RecommendPointGroups.limit", PUBLIC_ONLY),
             ("RecommendPointGroups.filter", DEFAULT_OPTION_INTO),
             (
                 "RecommendPointGroups.with_payload",
@@ -436,6 +506,9 @@ fn configure_builder(builder: Builder) -> Builder {
                 DEFAULT_OPTION_INTO,
             ),
             // DiscoverPoints
+            ("DiscoverPoints.collection_name", PUBLIC_ONLY),
+            ("DiscoverPoints.context", PUBLIC_ONLY),
+            ("DiscoverPoints.limit", PUBLIC_ONLY),
             ("DiscoverPoints.target", DEFAULT_OPTION_INTO),
             ("DiscoverPoints.filter", DEFAULT_OPTION_INTO),
             (
@@ -457,12 +530,15 @@ fn configure_builder(builder: Builder) -> Builder {
             ("DiscoverPoints.timeout", DEFAULT_OPTION),
             ("DiscoverPoints.shard_key_selector", DEFAULT_OPTION_INTO),
             // DiscoverBatchPoints
+            ("DiscoverBatchPoints.collection_name", PUBLIC_ONLY),
+            ("DiscoverBatchPoints.discover_points", PUBLIC_ONLY),
             (
                 "DiscoverBatchPoints.read_consistency",
                 builder_custom_into!(read_consistency::Value, self.read_consistency),
             ),
             ("DiscoverBatchPoints.timeout", DEFAULT_OPTION),
             // CountPoints
+            ("CountPoints.collection_name", PUBLIC_ONLY),
             ("CountPoints.filter", DEFAULT_OPTION_INTO),
             ("CountPoints.exact", DEFAULT_OPTION),
             (
@@ -471,6 +547,8 @@ fn configure_builder(builder: Builder) -> Builder {
             ),
             ("CountPoints.shard_key_selector", DEFAULT_OPTION_INTO),
             // CreateFieldIndexCollection
+            ("CreateFieldIndexCollection.collection_name", PUBLIC_ONLY),
+            ("CreateFieldIndexCollection.field_name", PUBLIC_ONLY),
             ("CreateFieldIndexCollection.wait", DEFAULT_OPTION),
             ("CreateFieldIndexCollection.field_type", DEFAULT_OPTION),
             (
@@ -479,9 +557,15 @@ fn configure_builder(builder: Builder) -> Builder {
             ),
             ("CreateFieldIndexCollection.ordering", DEFAULT_OPTION_INTO),
             // DeleteFieldIndexCollection
+            ("DeleteFieldIndexCollection.collection_name", PUBLIC_ONLY),
+            ("DeleteFieldIndexCollection.field_name", PUBLIC_ONLY),
             ("DeleteFieldIndexCollection.wait", DEFAULT_OPTION),
             ("DeleteFieldIndexCollection.ordering", DEFAULT_OPTION),
             // UpdateCollectionClusterSetupRequest
+            (
+                "UpdateCollectionClusterSetupRequest.collection_name",
+                PUBLIC_ONLY,
+            ),
             (
                 "UpdateCollectionClusterSetupRequest.timeout",
                 DEFAULT_OPTION,
@@ -491,12 +575,15 @@ fn configure_builder(builder: Builder) -> Builder {
                 DEFAULT_OPTION_INTO,
             ),
             // CreateShardKeyRequest
+            ("CreateShardKeyRequest.collection_name", PUBLIC_ONLY),
             ("CreateShardKeyRequest.request", DEFAULT_OPTION_INTO),
             ("CreateShardKeyRequest.timeout", DEFAULT_OPTION),
             // DeleteShardKeyRequest
+            ("DeleteShardKeyRequest.collection_name", PUBLIC_ONLY),
             ("DeleteShardKeyRequest.request", DEFAULT_OPTION_INTO),
             ("DeleteShardKeyRequest.timeout", DEFAULT_OPTION),
             // DeleteCollection
+            ("DeleteCollection.collection_name", PUBLIC_ONLY),
             ("DeleteCollection.timeout", DEFAULT_OPTION),
             // CollectionParamsDiff
             ("CollectionParamsDiff.replication_factor", DEFAULT_OPTION),
@@ -531,6 +618,7 @@ fn configure_builder(builder: Builder) -> Builder {
             ("ContextExamplePair.positive", DEFAULT_OPTION_INTO),
             ("ContextExamplePair.negative", DEFAULT_OPTION_INTO),
             // TextIndexParams
+            ("TextIndexParams.tokenizer", PUBLIC_ONLY),
             ("TextIndexParams.lowercase", DEFAULT_OPTION),
             ("TextIndexParams.min_token_len", DEFAULT_OPTION),
             ("TextIndexParams.max_token_len", DEFAULT_OPTION),
@@ -551,121 +639,241 @@ fn builder_derive_options() -> &'static [BuildDeriveOptions] {
 
     // Tuple structure: (Path, build attributes, 'from' macro generation enabled)
     &[
-        ("CreateCollection", DEFAULT_BUILDER_DERIVE_OPTIONS, true),
-        ("VectorParams", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
-        ("HnswConfigDiff", DEFAULT_BUILDER_DERIVE_OPTIONS, true),
+        (
+            "CreateCollection",
+            DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::DefaultImpl,
+        ),
+        (
+            "VectorParams",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::WithDefaultFn,
+        ),
+        (
+            "HnswConfigDiff",
+            DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::DefaultImpl,
+        ),
         (
             "ScalarQuantization",
             NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
-            true,
+            MacroConfig::WithDefaultFn,
         ),
         (
             "ProductQuantization",
             NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
-            true,
+            MacroConfig::WithDefaultFn,
         ),
         (
             "BinaryQuantization",
             NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
-            true,
+            MacroConfig::WithDefaultFn,
         ),
-        ("OptimizersConfigDiff", DEFAULT_BUILDER_DERIVE_OPTIONS, true),
-        ("WalConfigDiff", DEFAULT_BUILDER_DERIVE_OPTIONS, true),
-        ("SearchPoints", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
-        ("SearchParams", DEFAULT_BUILDER_DERIVE_OPTIONS, true),
+        (
+            "OptimizersConfigDiff",
+            DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::DefaultImpl,
+        ),
+        (
+            "WalConfigDiff",
+            DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::DefaultImpl,
+        ),
+        (
+            "SearchPoints",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::WithDefaultFn,
+        ),
+        (
+            "SearchParams",
+            DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::DefaultImpl,
+        ),
         (
             "QuantizationSearchParams",
             DEFAULT_BUILDER_DERIVE_OPTIONS,
-            true,
+            MacroConfig::DefaultImpl,
         ),
-        ("UpdateCollection", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
-        ("SetPayloadPoints", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
-        ("UpsertPoints", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
-        ("UpdateBatchPoints", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
+        (
+            "UpdateCollection",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::WithDefaultFn,
+        ),
+        (
+            "SetPayloadPoints",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::WithDefaultFn,
+        ),
+        (
+            "UpsertPoints",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::WithDefaultFn,
+        ),
+        (
+            "UpdateBatchPoints",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::WithDefaultFn,
+        ),
         (
             "DeletePayloadPoints",
             NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
-            true,
+            MacroConfig::WithDefaultFn,
         ),
         (
             "ClearPayloadPoints",
             NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
-            true,
+            MacroConfig::WithDefaultFn,
         ),
-        ("GetPoints", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
-        ("SearchBatchPoints", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
-        ("SearchPointGroups", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
-        ("WithLookup", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
+        (
+            "GetPoints",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::WithDefaultFn,
+        ),
+        (
+            "SearchBatchPoints",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::WithDefaultFn,
+        ),
+        (
+            "SearchPointGroups",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::WithDefaultFn,
+        ),
+        (
+            "WithLookup",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::WithDefaultFn,
+        ),
         (
             "DeletePointVectors",
             NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
-            true,
+            MacroConfig::WithDefaultFn,
         ),
         (
             "UpdatePointVectors",
             NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
-            true,
+            MacroConfig::WithDefaultFn,
         ),
-        ("ScrollPoints", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
-        ("OrderBy", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
-        ("RecommendPoints", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
-        ("LookupLocation", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
+        (
+            "ScrollPoints",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::WithDefaultFn,
+        ),
+        (
+            "OrderBy",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::WithDefaultFn,
+        ),
+        (
+            "RecommendPoints",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::WithDefaultFn,
+        ),
+        (
+            "LookupLocation",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::WithDefaultFn,
+        ),
         (
             "RecommendBatchPoints",
             NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
-            true,
+            MacroConfig::WithDefaultFn,
         ),
         (
             "RecommendPointGroups",
             NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
-            true,
+            MacroConfig::WithDefaultFn,
         ),
-        ("DiscoverPoints", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
+        (
+            "DiscoverPoints",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::WithDefaultFn,
+        ),
         (
             "DiscoverBatchPoints",
             NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
-            true,
+            MacroConfig::WithDefaultFn,
         ),
-        ("CountPoints", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
+        (
+            "CountPoints",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::WithDefaultFn,
+        ),
         (
             "CreateFieldIndexCollection",
             NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
-            true,
+            MacroConfig::WithDefaultFn,
         ),
         (
             "DeleteFieldIndexCollection",
             NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
-            true,
+            MacroConfig::WithDefaultFn,
         ),
         (
             "qdrant.DeletePoints",
             NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
-            false,
+            MacroConfig::NoMacro,
         ),
         (
             "UpdateCollectionClusterSetupRequest",
             NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
-            true,
+            MacroConfig::WithDefaultFn,
         ),
         (
             "CreateShardKeyRequest",
             NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
-            true,
+            MacroConfig::WithDefaultFn,
         ),
         (
             "DeleteShardKeyRequest",
             NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
-            true,
+            MacroConfig::WithDefaultFn,
         ),
-        ("DeleteCollection", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
-        ("CollectionParamsDiff", DEFAULT_BUILDER_DERIVE_OPTIONS, true),
-        ("VectorParamsDiff", DEFAULT_BUILDER_DERIVE_OPTIONS, true),
-        ("SparseVectorParams", DEFAULT_BUILDER_DERIVE_OPTIONS, true),
-        ("SparseIndexConfig", DEFAULT_BUILDER_DERIVE_OPTIONS, true),
-        ("CreateShardKey", DEFAULT_BUILDER_DERIVE_OPTIONS, true),
-        ("ContextExamplePair", DEFAULT_BUILDER_DERIVE_OPTIONS, true),
-        ("TextIndexParams", NO_DEFAULT_BUILDER_DERIVE_OPTIONS, true),
+        (
+            "DeleteCollection",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::WithDefaultFn,
+        ),
+        (
+            "CollectionParamsDiff",
+            DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::DefaultImpl,
+        ),
+        (
+            "VectorParamsDiff",
+            DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::DefaultImpl,
+        ),
+        (
+            "SparseVectorParams",
+            DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::DefaultImpl,
+        ),
+        (
+            "SparseIndexConfig",
+            DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::DefaultImpl,
+        ),
+        (
+            "CreateShardKey",
+            DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::DefaultImpl,
+        ),
+        (
+            "ContextExamplePair",
+            DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::DefaultImpl,
+        ),
+        (
+            "TextIndexParams",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::WithDefaultFn,
+        ),
     ]
+}
+
+fn additional_builder_derive_options() -> &'static [BuildDeriveOptions] {
+    &[("DeletePoints", "", MacroConfig::WithDefaultFn)]
 }
 
 /// Returns a list of all unique structs that appear in a list of paths.
@@ -698,17 +906,30 @@ fn append_to_file(path: &str, line: &str) {
     .unwrap()
 }
 
-fn append_file_to_file(output: &str, input: &str) {
-    let src = std::fs::read_to_string(input).unwrap();
-    append_to_file(output, &src);
-}
-
 /// Generates all necessary macro calls for builders who should have them.
-fn add_builder_macro_impls(file: &str, derive_options: &[BuildDeriveOptions]) {
+fn add_builder_macro_impls(
+    file: &str,
+    derive_options: &[BuildDeriveOptions],
+    additional: &[BuildDeriveOptions],
+) {
     let to_append = derive_options
         .iter()
-        .filter_map(|i| i.2.then_some(i.0))
-        .map(|i| format!("builder_type_conversions!({i}, {i}Builder);\n"))
+        .chain(additional)
+        .filter_map(|(type_name, _, macro_config)| {
+            let macro_call = match macro_config {
+                MacroConfig::NoMacro => {
+                    return None;
+                }
+                MacroConfig::DefaultImpl => {
+                    format!("builder_type_conversions!({type_name}, {type_name}Builder);\n")
+                }
+                MacroConfig::WithDefaultFn => {
+                    format!("builder_type_conversions!({type_name}, {type_name}Builder, true);\n")
+                }
+            };
+
+            Some(macro_call)
+        })
         .fold(String::new(), |mut s, line| {
             s.push_str(&line);
             s
