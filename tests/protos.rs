@@ -112,6 +112,7 @@ fn configure_builder(builder: Builder) -> Builder {
     const DEFAULT_OPTION_INTO: &str = "default, setter(into, strip_option)";
     const DEFAULT: &str = "default";
     const DEFAULT_INTO: &str = "default, setter(into)";
+    const CUSTOM_SETTER: &str = "default, setter(custom)";
 
     builder.derive_builders(
         &[
@@ -385,10 +386,10 @@ fn configure_builder(builder: Builder) -> Builder {
                 builder_custom_into!(with_vectors_selector::SelectorOptions, self.with_vectors),
             ),
             ("RecommendPoints.lookup_from", DEFAULT_OPTION_INTO),
-            ("RecommendPoints.positive", DEFAULT_OPTION_INTO),
-            ("RecommendPoints.negative", DEFAULT_OPTION_INTO),
-            ("RecommendPoints.positive_vectors", DEFAULT_OPTION_INTO),
-            ("RecommendPoints.negative_vectors", DEFAULT_OPTION_INTO),
+            ("RecommendPoints.positive", CUSTOM_SETTER),
+            ("RecommendPoints.negative", CUSTOM_SETTER),
+            ("RecommendPoints.positive_vectors", CUSTOM_SETTER),
+            ("RecommendPoints.negative_vectors", CUSTOM_SETTER),
             (
                 "RecommendPoints.read_consistency",
                 builder_custom_into!(read_consistency::Value, self.read_consistency),
@@ -418,10 +419,10 @@ fn configure_builder(builder: Builder) -> Builder {
                 "RecommendPointGroups.with_vectors",
                 builder_custom_into!(with_vectors_selector::SelectorOptions, self.with_vectors),
             ),
-            ("RecommendPointGroups.positive", DEFAULT_OPTION_INTO),
-            ("RecommendPointGroups.negative", DEFAULT_OPTION_INTO),
-            ("RecommendPointGroups.positive_vectors", DEFAULT_OPTION_INTO),
-            ("RecommendPointGroups.negative_vectors", DEFAULT_OPTION_INTO),
+            ("RecommendPointGroups.positive", CUSTOM_SETTER),
+            ("RecommendPointGroups.negative", CUSTOM_SETTER),
+            ("RecommendPointGroups.positive_vectors", CUSTOM_SETTER),
+            ("RecommendPointGroups.negative_vectors", CUSTOM_SETTER),
             ("RecommendPointGroups.lookup_from", DEFAULT_OPTION_INTO),
             (
                 "RecommendPointGroups.read_consistency",

@@ -3516,11 +3516,11 @@ pub struct RecommendPoints {
     pub collection_name: ::prost::alloc::string::String,
     /// Look for vectors closest to the vectors from these points
     #[prost(message, repeated, tag = "2")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(custom))]
     pub positive: ::prost::alloc::vec::Vec<PointId>,
     /// Try to avoid vectors like the vector from these points
     #[prost(message, repeated, tag = "3")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(custom))]
     pub negative: ::prost::alloc::vec::Vec<PointId>,
     /// Filter conditions - return only those points that satisfy the specified conditions
     #[prost(message, optional, tag = "4")]
@@ -3585,11 +3585,11 @@ pub struct RecommendPoints {
     pub strategy: ::core::option::Option<i32>,
     /// Look for vectors closest to those
     #[prost(message, repeated, tag = "17")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(custom))]
     pub positive_vectors: ::prost::alloc::vec::Vec<Vector>,
     /// Try to avoid vectors like this
     #[prost(message, repeated, tag = "18")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(custom))]
     pub negative_vectors: ::prost::alloc::vec::Vec<Vector>,
     /// If set, overrides global timeout setting for this request. Unit is seconds.
     #[prost(uint64, optional, tag = "19")]
@@ -3635,11 +3635,11 @@ pub struct RecommendPointGroups {
     pub collection_name: ::prost::alloc::string::String,
     /// Look for vectors closest to the vectors from these points
     #[prost(message, repeated, tag = "2")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(custom))]
     pub positive: ::prost::alloc::vec::Vec<PointId>,
     /// Try to avoid vectors like the vector from these points
     #[prost(message, repeated, tag = "3")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(custom))]
     pub negative: ::prost::alloc::vec::Vec<PointId>,
     /// Filter conditions - return only those points that satisfy the specified conditions
     #[prost(message, optional, tag = "4")]
@@ -3710,11 +3710,11 @@ pub struct RecommendPointGroups {
     pub strategy: ::core::option::Option<i32>,
     /// Look for vectors closest to those
     #[prost(message, repeated, tag = "18")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(custom))]
     pub positive_vectors: ::prost::alloc::vec::Vec<Vector>,
     /// Try to avoid vectors like this
     #[prost(message, repeated, tag = "19")]
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(custom))]
     pub negative_vectors: ::prost::alloc::vec::Vec<Vector>,
     /// If set, overrides global timeout setting for this request. Unit is seconds.
     #[prost(uint64, optional, tag = "20")]
@@ -7455,6 +7455,7 @@ builder_type_conversions!(ContextExamplePair, ContextExamplePairBuilder);
 builder_type_conversions!(TextIndexParams, TextIndexParamsBuilder);
 
 // import our manual builder here so all builder come from the same module in the end user API.
+use crate::builder_types::RecommendExample;
 pub use crate::manual_builder::*;
 
 // Needs special treatment as we can't generate this because DeletePoints is specified using a path and not
@@ -7814,5 +7815,69 @@ impl VectorsSelector {
         Self {
             names: names.into(),
         }
+    }
+}
+
+impl RecommendPointsBuilder {
+    /// Look for vectors closest to the vectors from these points or vectors
+    pub fn positive(&mut self, recommend_example: impl Into<RecommendExample>) -> &mut Self {
+        let recommend_example = recommend_example.into();
+        match recommend_example {
+            RecommendExample::PointId(point_id) => {
+                self.positive.get_or_insert_with(Vec::new).push(point_id);
+            }
+            RecommendExample::Vector(vector) => {
+                self.positive_vectors
+                    .get_or_insert_with(Vec::new)
+                    .push(vector);
+            }
+        }
+        self
+    }
+
+    /// Try to avoid vectors like the vector from these points or vectors
+    pub fn negative(&mut self, recommend_example: impl Into<RecommendExample>) -> &mut Self {
+        let recommend_example = recommend_example.into();
+        match recommend_example {
+            RecommendExample::PointId(point_id) => {
+                self.negative.get_or_insert_with(Vec::new).push(point_id);
+            }
+            RecommendExample::Vector(vector) => {
+                self.negative_vectors
+                    .get_or_insert_with(Vec::new)
+                    .push(vector);
+            }
+        }
+        self
+    }
+}
+
+impl RecommendPointGroups {
+    /// Look for vectors closest to the vectors from these points or vectors
+    pub fn positive(&mut self, recommend_example: impl Into<RecommendExample>) -> &mut Self {
+        let recommend_example = recommend_example.into();
+        match recommend_example {
+            RecommendExample::PointId(point_id) => {
+                self.positive.push(point_id);
+            }
+            RecommendExample::Vector(vector) => {
+                self.positive_vectors.push(vector);
+            }
+        }
+        self
+    }
+
+    /// Try to avoid vectors like the vector from these points or vectors
+    pub fn negative(&mut self, recommend_example: impl Into<RecommendExample>) -> &mut Self {
+        let recommend_example = recommend_example.into();
+        match recommend_example {
+            RecommendExample::PointId(point_id) => {
+                self.negative.push(point_id);
+            }
+            RecommendExample::Vector(vector) => {
+                self.negative_vectors.push(vector);
+            }
+        }
+        self
     }
 }

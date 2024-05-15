@@ -110,6 +110,7 @@ pub mod prelude;
 #[rustfmt::skip]
 pub mod qdrant;
 pub mod auth;
+pub mod builder_types;
 pub mod config;
 pub mod error;
 pub mod filters;
