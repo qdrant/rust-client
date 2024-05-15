@@ -1,4 +1,4 @@
-mod api_callable;
+pub mod api_callable;
 pub mod collection;
 pub mod points;
 pub mod snapshot;
@@ -96,8 +96,9 @@ impl QdrantClient {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::prelude::Distance;
-    use crate::qdrant::{CreateCollectionBuilder, HnswConfigDiffBuilder, VectorParamsBuilder};
+    use crate::qdrant::{
+        CreateCollectionBuilder, Distance, HnswConfigDiffBuilder, VectorParamsBuilder,
+    };
 
     const TEST_COLLECTION: &str = "my_test_collection_1234";
 
