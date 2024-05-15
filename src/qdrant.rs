@@ -7824,14 +7824,12 @@ impl RecommendPointsBuilder {
         let recommend_example = recommend_example.into();
         match recommend_example {
             RecommendExample::PointId(point_id) => {
-                let mut vec = self.positive.take().unwrap_or_default();
-                vec.push(point_id);
-                self.positive = Some(vec);
+                self.positive.get_or_insert_with(Vec::new).push(point_id);
             }
             RecommendExample::Vector(vector) => {
-                let mut vec = self.positive_vectors.take().unwrap_or_default();
-                vec.push(vector);
-                self.positive_vectors = Some(vec);
+                self.positive_vectors
+                    .get_or_insert_with(Vec::new)
+                    .push(vector);
             }
         }
         self
@@ -7842,14 +7840,12 @@ impl RecommendPointsBuilder {
         let recommend_example = recommend_example.into();
         match recommend_example {
             RecommendExample::PointId(point_id) => {
-                let mut vec = self.negative.take().unwrap_or_default();
-                vec.push(point_id);
-                self.negative = Some(vec);
+                self.negative.get_or_insert_with(Vec::new).push(point_id);
             }
             RecommendExample::Vector(vector) => {
-                let mut vec = self.negative_vectors.take().unwrap_or_default();
-                vec.push(vector);
-                self.negative_vectors = Some(vec);
+                self.negative_vectors
+                    .get_or_insert_with(Vec::new)
+                    .push(vector);
             }
         }
         self
