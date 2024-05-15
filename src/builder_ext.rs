@@ -1,16 +1,24 @@
-// import our manual builder here so all builder come from the same module in the end user API.
 use crate::builder_types::RecommendExample;
-pub use crate::manual_builder::*;
-
-// Needs special treatment as we can't generate this because DeletePoints is specified using a path and not
-// only by it's identifyer.
-builder_type_conversions!(DeletePoints, DeletePointsBuilder);
-
+use crate::qdrant::{
+    BinaryQuantizationBuilder, ClearPayloadPointsBuilder, ContextExamplePair, CountPointsBuilder,
+    CreateFieldIndexCollectionBuilder, CreateShardKeyRequestBuilder, DeleteCollectionBuilder,
+    DeleteFieldIndexCollectionBuilder, DeletePayloadPointsBuilder, DeletePointVectorsBuilder,
+    DeletePointsBuilder, DeleteShardKeyRequestBuilder, DiscoverBatchPointsBuilder, DiscoverPoints,
+    DiscoverPointsBuilder, Distance, GetPointsBuilder, LookupLocationBuilder, OrderByBuilder,
+    PayloadExcludeSelector, PayloadIncludeSelector, PointId, PointStruct, PointVectors,
+    PointsUpdateOperation, ProductQuantizationBuilder, QuantizationType,
+    RecommendBatchPointsBuilder, RecommendPointGroups, RecommendPointGroupsBuilder,
+    RecommendPoints, RecommendPointsBuilder, ScalarQuantizationBuilder, ScrollPointsBuilder,
+    SearchBatchPointsBuilder, SearchPointGroupsBuilder, SearchPoints, SearchPointsBuilder,
+    SetPayloadPointsBuilder, TextIndexParamsBuilder, TokenizerType, UpdateBatchPointsBuilder,
+    UpdateCollectionBuilder, UpdateCollectionClusterSetupRequestBuilder, UpdatePointVectorsBuilder,
+    UpsertPointsBuilder, Value, VectorParamsBuilder, VectorsSelector, WithLookupBuilder,
+};
 use std::collections::HashMap;
 
 impl VectorParamsBuilder {
     pub fn new(size: u64, distance: Distance) -> Self {
-        let mut builder = Self::create_empty();
+        let mut builder = Self::empty();
         builder.size = Some(size);
         builder.distance = Some(distance.into());
         builder
@@ -19,7 +27,7 @@ impl VectorParamsBuilder {
 
 impl ScalarQuantizationBuilder {
     pub fn new(r#type: QuantizationType) -> Self {
-        let mut builder = Self::create_empty();
+        let mut builder = Self::empty();
         builder.r#type = Some(r#type.into());
         builder
     }
@@ -27,7 +35,7 @@ impl ScalarQuantizationBuilder {
 
 impl ProductQuantizationBuilder {
     pub fn new(compression: i32) -> Self {
-        let mut builder = Self::create_empty();
+        let mut builder = Self::empty();
         builder.compression = Some(compression);
         builder
     }
@@ -35,7 +43,7 @@ impl ProductQuantizationBuilder {
 
 impl BinaryQuantizationBuilder {
     pub fn new(always_ram: bool) -> Self {
-        let mut builder = Self::create_empty();
+        let mut builder = Self::empty();
         builder.always_ram = Some(Some(always_ram));
         builder
     }
@@ -47,7 +55,7 @@ impl SearchPointsBuilder {
         vector: impl Into<Vec<f32>>,
         limit: u64,
     ) -> Self {
-        let mut builder = Self::create_empty();
+        let mut builder = Self::empty();
         builder.collection_name = Some(collection_name.into());
         builder.vector = Some(vector.into());
         builder.limit = Some(limit);
@@ -57,7 +65,7 @@ impl SearchPointsBuilder {
 
 impl UpdateCollectionBuilder {
     pub fn new(collection_name: impl Into<String>) -> Self {
-        let mut builder = Self::create_empty();
+        let mut builder = Self::empty();
         builder.collection_name = Some(collection_name.into());
         builder
     }
@@ -68,7 +76,7 @@ impl SetPayloadPointsBuilder {
         collection_name: impl Into<String>,
         payload: impl Into<HashMap<String, Value>>,
     ) -> Self {
-        let mut builder = Self::create_empty();
+        let mut builder = Self::empty();
         builder.collection_name = Some(collection_name.into());
         builder.payload = Some(payload.into());
         builder
@@ -80,7 +88,7 @@ impl UpdateBatchPointsBuilder {
         collection_name: impl Into<String>,
         operations: impl Into<Vec<PointsUpdateOperation>>,
     ) -> Self {
-        let mut builder = Self::create_empty();
+        let mut builder = Self::empty();
         builder.collection_name = Some(collection_name.into());
         builder.operations = Some(operations.into());
         builder
@@ -89,7 +97,7 @@ impl UpdateBatchPointsBuilder {
 
 impl DeletePayloadPointsBuilder {
     pub fn new(collection_name: impl Into<String>, keys: impl Into<Vec<String>>) -> Self {
-        let mut builder = Self::create_empty();
+        let mut builder = Self::empty();
         builder.collection_name = Some(collection_name.into());
         builder.keys = Some(keys.into());
         builder
@@ -98,7 +106,7 @@ impl DeletePayloadPointsBuilder {
 
 impl ClearPayloadPointsBuilder {
     pub fn new(collection_name: impl Into<String>) -> Self {
-        let mut builder = Self::create_empty();
+        let mut builder = Self::empty();
         builder.collection_name = Some(collection_name.into());
         builder
     }
@@ -106,7 +114,7 @@ impl ClearPayloadPointsBuilder {
 
 impl GetPointsBuilder {
     pub fn new(collection_name: impl Into<String>, ids: impl Into<Vec<PointId>>) -> Self {
-        let mut builder = Self::create_empty();
+        let mut builder = Self::empty();
         builder.collection_name = Some(collection_name.into());
         builder.ids = Some(ids.into());
         builder
@@ -118,7 +126,7 @@ impl SearchBatchPointsBuilder {
         collection_name: impl Into<String>,
         search_points: impl Into<Vec<SearchPoints>>,
     ) -> Self {
-        let mut builder = Self::create_empty();
+        let mut builder = Self::empty();
         builder.collection_name = Some(collection_name.into());
         builder.search_points = Some(search_points.into());
         builder
@@ -133,7 +141,7 @@ impl SearchPointGroupsBuilder {
         group_by: impl Into<String>,
         group_size: u32,
     ) -> Self {
-        let mut builder = Self::create_empty();
+        let mut builder = Self::empty();
         builder.collection_name = Some(collection_name.into());
         builder.vector = Some(vector.into());
         builder.limit = Some(limit);
@@ -145,7 +153,7 @@ impl SearchPointGroupsBuilder {
 
 impl WithLookupBuilder {
     pub fn new(collection: impl Into<String>) -> Self {
-        let mut builder = Self::create_empty();
+        let mut builder = Self::empty();
         builder.collection = Some(collection.into());
         builder
     }
@@ -153,7 +161,7 @@ impl WithLookupBuilder {
 
 impl DeletePointsBuilder {
     pub fn new(collection_name: impl Into<String>) -> Self {
-        let mut builder = Self::create_empty();
+        let mut builder = Self::empty();
         builder.collection_name = Some(collection_name.into());
         builder
     }
@@ -161,7 +169,7 @@ impl DeletePointsBuilder {
 
 impl DeletePointVectorsBuilder {
     pub fn new(collection_name: impl Into<String>) -> Self {
-        let mut builder = Self::create_empty();
+        let mut builder = Self::empty();
         builder.collection_name = Some(collection_name.into());
         builder
     }
@@ -169,7 +177,7 @@ impl DeletePointVectorsBuilder {
 
 impl UpdatePointVectorsBuilder {
     pub fn new(collection_name: impl Into<String>, points: impl Into<Vec<PointVectors>>) -> Self {
-        let mut builder = Self::create_empty();
+        let mut builder = Self::empty();
         builder.collection_name = Some(collection_name.into());
         builder.points = Some(points.into());
         builder
@@ -178,7 +186,7 @@ impl UpdatePointVectorsBuilder {
 
 impl ScrollPointsBuilder {
     pub fn new(collection_name: impl Into<String>) -> Self {
-        let mut builder = Self::create_empty();
+        let mut builder = Self::empty();
         builder.collection_name = Some(collection_name.into());
         builder
     }
@@ -186,7 +194,7 @@ impl ScrollPointsBuilder {
 
 impl OrderByBuilder {
     pub fn new(key: impl Into<String>) -> Self {
-        let mut builder = Self::create_empty();
+        let mut builder = Self::empty();
         builder.key = Some(key.into());
         builder
     }
@@ -194,7 +202,7 @@ impl OrderByBuilder {
 
 impl RecommendPointsBuilder {
     pub fn new(collection_name: impl Into<String>, limit: u64) -> Self {
-        let mut builder = Self::create_empty();
+        let mut builder = Self::empty();
         builder.collection_name = Some(collection_name.into());
         builder.limit = Some(limit);
         builder
@@ -203,7 +211,7 @@ impl RecommendPointsBuilder {
 
 impl LookupLocationBuilder {
     pub fn new(collection_name: impl Into<String>) -> Self {
-        let mut builder = Self::create_empty();
+        let mut builder = Self::empty();
         builder.collection_name = Some(collection_name.into());
         builder
     }
@@ -214,7 +222,7 @@ impl RecommendBatchPointsBuilder {
         collection_name: impl Into<String>,
         recommend_points: impl Into<Vec<RecommendPoints>>,
     ) -> Self {
-        let mut builder = Self::create_empty();
+        let mut builder = Self::empty();
         builder.collection_name = Some(collection_name.into());
         builder.recommend_points = Some(recommend_points.into());
         builder
@@ -228,7 +236,7 @@ impl RecommendPointGroupsBuilder {
         group_size: u32,
         limit: u32,
     ) -> Self {
-        let mut builder = Self::create_empty();
+        let mut builder = Self::empty();
         builder.collection_name = Some(collection_name.into());
         builder.group_by = Some(group_by.into());
         builder.group_size = Some(group_size);
@@ -243,7 +251,7 @@ impl DiscoverPointsBuilder {
         context: impl Into<Vec<ContextExamplePair>>,
         limit: u64,
     ) -> Self {
-        let mut builder = Self::create_empty();
+        let mut builder = Self::empty();
         builder.collection_name = Some(collection_name.into());
         builder.context = Some(context.into());
         builder.limit = Some(limit);
@@ -256,7 +264,7 @@ impl DiscoverBatchPointsBuilder {
         collection_name: impl Into<String>,
         discover_points: impl Into<Vec<DiscoverPoints>>,
     ) -> Self {
-        let mut builder = Self::create_empty();
+        let mut builder = Self::empty();
         builder.collection_name = Some(collection_name.into());
         builder.discover_points = Some(discover_points.into());
         builder
@@ -265,7 +273,7 @@ impl DiscoverBatchPointsBuilder {
 
 impl CountPointsBuilder {
     pub fn new(collection_name: impl Into<String>) -> Self {
-        let mut builder = Self::create_empty();
+        let mut builder = Self::empty();
         builder.collection_name = Some(collection_name.into());
         builder
     }
@@ -273,7 +281,7 @@ impl CountPointsBuilder {
 
 impl UpsertPointsBuilder {
     pub fn new(collection_name: impl Into<String>, points: impl Into<Vec<PointStruct>>) -> Self {
-        let mut builder = Self::create_empty();
+        let mut builder = Self::empty();
         builder.collection_name = Some(collection_name.into());
         builder.points = Some(points.into());
         builder
@@ -282,7 +290,7 @@ impl UpsertPointsBuilder {
 
 impl CreateFieldIndexCollectionBuilder {
     pub fn new(collection_name: impl Into<String>, field_name: impl Into<String>) -> Self {
-        let mut builder = Self::create_empty();
+        let mut builder = Self::empty();
         builder.collection_name = Some(collection_name.into());
         builder.field_name = Some(field_name.into());
         builder
@@ -291,7 +299,7 @@ impl CreateFieldIndexCollectionBuilder {
 
 impl DeleteFieldIndexCollectionBuilder {
     pub fn new(collection_name: impl Into<String>, field_name: impl Into<String>) -> Self {
-        let mut builder = Self::create_empty();
+        let mut builder = Self::empty();
         builder.collection_name = Some(collection_name.into());
         builder.field_name = Some(field_name.into());
         builder
@@ -300,7 +308,7 @@ impl DeleteFieldIndexCollectionBuilder {
 
 impl UpdateCollectionClusterSetupRequestBuilder {
     pub fn new(collection_name: impl Into<String>) -> Self {
-        let mut builder = Self::create_empty();
+        let mut builder = Self::empty();
         builder.collection_name = Some(collection_name.into());
         builder
     }
@@ -308,7 +316,7 @@ impl UpdateCollectionClusterSetupRequestBuilder {
 
 impl CreateShardKeyRequestBuilder {
     pub fn new(collection_name: impl Into<String>) -> Self {
-        let mut builder = Self::create_empty();
+        let mut builder = Self::empty();
         builder.collection_name = Some(collection_name.into());
         builder
     }
@@ -316,7 +324,7 @@ impl CreateShardKeyRequestBuilder {
 
 impl DeleteShardKeyRequestBuilder {
     pub fn new(collection_name: impl Into<String>) -> Self {
-        let mut builder = Self::create_empty();
+        let mut builder = Self::empty();
         builder.collection_name = Some(collection_name.into());
         builder
     }
@@ -324,7 +332,7 @@ impl DeleteShardKeyRequestBuilder {
 
 impl DeleteCollectionBuilder {
     pub fn new(collection_name: impl Into<String>) -> Self {
-        let mut builder = Self::create_empty();
+        let mut builder = Self::empty();
         builder.collection_name = Some(collection_name.into());
         builder
     }
@@ -332,7 +340,7 @@ impl DeleteCollectionBuilder {
 
 impl TextIndexParamsBuilder {
     pub fn new(tokenizer: TokenizerType) -> Self {
-        let mut builder = Self::create_empty();
+        let mut builder = Self::empty();
         builder.tokenizer = Some(tokenizer.into());
         builder
     }

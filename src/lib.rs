@@ -110,11 +110,13 @@ pub mod prelude;
 #[rustfmt::skip]
 pub mod qdrant;
 pub mod auth;
+pub mod builder_ext;
 pub mod builder_types;
 pub mod config;
 pub mod error;
 pub mod filters;
 pub mod grpc_ext;
+pub(crate) mod grpc_macros;
 mod manual_builder;
 pub mod payload;
 #[cfg(feature = "serde")]

@@ -3,13 +3,14 @@
 //! private but for custom type conversions, build() function and constructor with required values we
 //! need access to those private fields. For this reason we introduce a few manually created builder here.
 
+use crate::grpc_macros::builder_type_conversions;
 use crate::qdrant::points_update_operation::{
     ClearPayload, DeletePayload, DeletePoints, DeleteVectors, OverwritePayload, PointStructList,
     SetPayload, UpdateVectors,
 };
 use crate::qdrant::{
-    builder_type_conversions, points_selector, PointStruct, PointVectors, PointsSelector,
-    ShardKeySelector, Value, VectorsSelector,
+    points_selector, PointStruct, PointVectors, PointsSelector, ShardKeySelector, Value,
+    VectorsSelector,
 };
 use std::collections::HashMap;
 
