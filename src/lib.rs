@@ -115,7 +115,7 @@ pub mod builder_types;
 pub mod config;
 pub mod error;
 pub mod filters;
-pub mod grpc_ext;
+pub mod grpc_conversions;
 pub(crate) mod grpc_macros;
 mod manual_builder;
 pub mod payload;
