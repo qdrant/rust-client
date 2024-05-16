@@ -16,13 +16,16 @@ use crate::qdrant::{
     UpdateCollectionClusterSetupResponse,
 };
 use crate::qdrant_client::errors::QdrantError;
-use crate::qdrant_client::Qdrant;
+use crate::qdrant_client::{Qdrant, Result};
 
 impl Qdrant {
-    pub(crate) async fn with_collections_client<T, O: Future<Output = Result<T, Status>>>(
+    pub(crate) async fn with_collections_client<
+        T,
+        O: Future<Output = std::result::Result<T, Status>>,
+    >(
         &self,
         f: impl Fn(CollectionsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
-    ) -> Result<T, QdrantError> {
+    ) -> std::result::Result<T, QdrantError> {
         let result = self
             .channel
             .with_channel(
@@ -46,7 +49,7 @@ impl Qdrant {
     pub async fn delete_collection(
         &self,
         request: impl Into<DeleteCollection>,
-    ) -> Result<CollectionOperationResponse, QdrantError> {
+    ) -> Result<CollectionOperationResponse> {
         let delete_collection = &request.into();
 
         self.with_collections_client(|mut collection_api| async move {
@@ -59,7 +62,7 @@ impl Qdrant {
     pub async fn create_collection(
         &self,
         request: impl Into<CreateCollection>,
-    ) -> Result<CollectionOperationResponse, QdrantError> {
+    ) -> Result<CollectionOperationResponse> {
         let create_collection = request.into();
         let create_collection_ref = &create_collection;
         self.with_collections_client(|mut collection_api| async move {
@@ -69,7 +72,7 @@ impl Qdrant {
         .await
     }
 
-    pub async fn list_collections(&self) -> anyhow::Result<ListCollectionsResponse> {
+    pub async fn list_collections(&self) -> Result<ListCollectionsResponse> {
         Ok(self
             .with_collections_client(|mut collection_api| async move {
                 let result = collection_api.list(ListCollectionsRequest {}).await?;
@@ -81,7 +84,7 @@ impl Qdrant {
     pub async fn collection_exists(
         &self,
         request: impl Into<CollectionExistsRequest>,
-    ) -> anyhow::Result<bool> {
+    ) -> Result<bool> {
         let request = &request.into();
         Ok(self
             .with_collections_client(|mut collection_api| async move {
@@ -98,7 +101,7 @@ impl Qdrant {
     pub async fn update_collection(
         &self,
         request: impl Into<UpdateCollection>,
-    ) -> anyhow::Result<CollectionOperationResponse> {
+    ) -> Result<CollectionOperationResponse> {
         let request = &request.into();
 
         Ok(self
@@ -112,7 +115,7 @@ impl Qdrant {
     pub async fn collection_info(
         &self,
         request: impl Into<GetCollectionInfoRequest>,
-    ) -> anyhow::Result<GetCollectionInfoResponse> {
+    ) -> Result<GetCollectionInfoResponse> {
         let request = &request.into();
         Ok(self
             .with_collections_client(|mut collection_api| async move {
@@ -125,28 +128,28 @@ impl Qdrant {
     pub async fn create_alias(
         &self,
         request: impl Into<CreateAlias>,
-    ) -> anyhow::Result<CollectionOperationResponse> {
+    ) -> Result<CollectionOperationResponse> {
         self.update_aliases(request.into()).await
     }
 
     pub async fn delete_alias(
         &self,
         request: impl Into<DeleteAlias>,
-    ) -> anyhow::Result<CollectionOperationResponse> {
+    ) -> Result<CollectionOperationResponse> {
         self.update_aliases(request.into()).await
     }
 
     pub async fn rename_alias(
         &self,
         request: impl Into<RenameAlias>,
-    ) -> anyhow::Result<CollectionOperationResponse> {
+    ) -> Result<CollectionOperationResponse> {
         self.update_aliases(request.into()).await
     }
 
     pub async fn update_aliases(
         &self,
         change_aliases: impl Into<alias_operations::Action> + Clone,
-    ) -> anyhow::Result<CollectionOperationResponse> {
+    ) -> Result<CollectionOperationResponse> {
         let action = change_aliases.into();
         let change = &ChangeAliases {
             actions: vec![AliasOperations {
@@ -165,7 +168,7 @@ impl Qdrant {
     pub async fn list_collection_aliases(
         &self,
         request: impl Into<ListCollectionAliasesRequest>,
-    ) -> anyhow::Result<ListAliasesResponse> {
+    ) -> Result<ListAliasesResponse> {
         let request = &request.into();
         Ok(self
             .with_collections_client(|mut collection_api| async move {
@@ -177,7 +180,7 @@ impl Qdrant {
             .await?)
     }
 
-    pub async fn list_aliases(&self) -> anyhow::Result<ListAliasesResponse> {
+    pub async fn list_aliases(&self) -> Result<ListAliasesResponse> {
         Ok(self
             .with_collections_client(|mut collection_api| async move {
                 let result = collection_api.list_aliases(ListAliasesRequest {}).await?;
@@ -189,7 +192,7 @@ impl Qdrant {
     pub async fn collection_cluster_info(
         &self,
         request: impl Into<CollectionClusterInfoRequest>,
-    ) -> anyhow::Result<CollectionClusterInfoResponse> {
+    ) -> Result<CollectionClusterInfoResponse> {
         let request = &request.into();
         Ok(self
             .with_collections_client(|mut collection_api| async move {
@@ -204,7 +207,7 @@ impl Qdrant {
     pub async fn update_collection_cluster_setup(
         &self,
         request: impl Into<UpdateCollectionClusterSetupRequest>,
-    ) -> anyhow::Result<UpdateCollectionClusterSetupResponse> {
+    ) -> Result<UpdateCollectionClusterSetupResponse> {
         let request = &request.into();
         Ok(self
             .with_collections_client(|mut collection_api| async move {
