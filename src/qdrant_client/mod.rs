@@ -56,7 +56,7 @@ impl Qdrant {
     async fn with_root_qdrant_client<T, O: Future<Output = std::result::Result<T, Status>>>(
         &self,
         f: impl Fn(qdrant_client::QdrantClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
-    ) -> std::result::Result<T, QdrantError> {
+    ) -> Result<T> {
         let result = self
             .channel
             .with_channel(

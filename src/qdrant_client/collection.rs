@@ -15,7 +15,6 @@ use crate::qdrant::{
     ListCollectionsResponse, RenameAlias, UpdateCollection, UpdateCollectionClusterSetupRequest,
     UpdateCollectionClusterSetupResponse,
 };
-use crate::qdrant_client::errors::QdrantError;
 use crate::qdrant_client::{Qdrant, Result};
 
 impl Qdrant {
@@ -25,7 +24,7 @@ impl Qdrant {
     >(
         &self,
         f: impl Fn(CollectionsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
-    ) -> std::result::Result<T, QdrantError> {
+    ) -> Result<T> {
         let result = self
             .channel
             .with_channel(
@@ -73,12 +72,11 @@ impl Qdrant {
     }
 
     pub async fn list_collections(&self) -> Result<ListCollectionsResponse> {
-        Ok(self
-            .with_collections_client(|mut collection_api| async move {
-                let result = collection_api.list(ListCollectionsRequest {}).await?;
-                Ok(result.into_inner())
-            })
-            .await?)
+        self.with_collections_client(|mut collection_api| async move {
+            let result = collection_api.list(ListCollectionsRequest {}).await?;
+            Ok(result.into_inner())
+        })
+        .await
     }
 
     pub async fn collection_exists(
@@ -86,16 +84,15 @@ impl Qdrant {
         request: impl Into<CollectionExistsRequest>,
     ) -> Result<bool> {
         let request = &request.into();
-        Ok(self
-            .with_collections_client(|mut collection_api| async move {
-                let result = collection_api.collection_exists(request.clone()).await?;
-                Ok(result
-                    .into_inner()
-                    .result
-                    .map(|r| r.exists)
-                    .unwrap_or(false))
-            })
-            .await?)
+        self.with_collections_client(|mut collection_api| async move {
+            let result = collection_api.collection_exists(request.clone()).await?;
+            Ok(result
+                .into_inner()
+                .result
+                .map(|r| r.exists)
+                .unwrap_or(false))
+        })
+        .await
     }
 
     pub async fn update_collection(
@@ -104,12 +101,11 @@ impl Qdrant {
     ) -> Result<CollectionOperationResponse> {
         let request = &request.into();
 
-        Ok(self
-            .with_collections_client(|mut collection_api| async move {
-                let result = collection_api.update(request.clone()).await?;
-                Ok(result.into_inner())
-            })
-            .await?)
+        self.with_collections_client(|mut collection_api| async move {
+            let result = collection_api.update(request.clone()).await?;
+            Ok(result.into_inner())
+        })
+        .await
     }
 
     pub async fn collection_info(
@@ -117,12 +113,11 @@ impl Qdrant {
         request: impl Into<GetCollectionInfoRequest>,
     ) -> Result<GetCollectionInfoResponse> {
         let request = &request.into();
-        Ok(self
-            .with_collections_client(|mut collection_api| async move {
-                let result = collection_api.get(request.clone()).await?;
-                Ok(result.into_inner())
-            })
-            .await?)
+        self.with_collections_client(|mut collection_api| async move {
+            let result = collection_api.get(request.clone()).await?;
+            Ok(result.into_inner())
+        })
+        .await
     }
 
     pub async fn create_alias(
@@ -157,12 +152,11 @@ impl Qdrant {
             }],
             timeout: None,
         };
-        Ok(self
-            .with_collections_client(|mut collection_api| async move {
-                let result = collection_api.update_aliases(change.clone()).await?;
-                Ok(result.into_inner())
-            })
-            .await?)
+        self.with_collections_client(|mut collection_api| async move {
+            let result = collection_api.update_aliases(change.clone()).await?;
+            Ok(result.into_inner())
+        })
+        .await
     }
 
     pub async fn list_collection_aliases(
@@ -170,23 +164,21 @@ impl Qdrant {
         request: impl Into<ListCollectionAliasesRequest>,
     ) -> Result<ListAliasesResponse> {
         let request = &request.into();
-        Ok(self
-            .with_collections_client(|mut collection_api| async move {
-                let result = collection_api
-                    .list_collection_aliases(request.clone())
-                    .await?;
-                Ok(result.into_inner())
-            })
-            .await?)
+        self.with_collections_client(|mut collection_api| async move {
+            let result = collection_api
+                .list_collection_aliases(request.clone())
+                .await?;
+            Ok(result.into_inner())
+        })
+        .await
     }
 
     pub async fn list_aliases(&self) -> Result<ListAliasesResponse> {
-        Ok(self
-            .with_collections_client(|mut collection_api| async move {
-                let result = collection_api.list_aliases(ListAliasesRequest {}).await?;
-                Ok(result.into_inner())
-            })
-            .await?)
+        self.with_collections_client(|mut collection_api| async move {
+            let result = collection_api.list_aliases(ListAliasesRequest {}).await?;
+            Ok(result.into_inner())
+        })
+        .await
     }
 
     pub async fn collection_cluster_info(
@@ -194,14 +186,13 @@ impl Qdrant {
         request: impl Into<CollectionClusterInfoRequest>,
     ) -> Result<CollectionClusterInfoResponse> {
         let request = &request.into();
-        Ok(self
-            .with_collections_client(|mut collection_api| async move {
-                let result = collection_api
-                    .collection_cluster_info(request.clone())
-                    .await?;
-                Ok(result.into_inner())
-            })
-            .await?)
+        self.with_collections_client(|mut collection_api| async move {
+            let result = collection_api
+                .collection_cluster_info(request.clone())
+                .await?;
+            Ok(result.into_inner())
+        })
+        .await
     }
 
     pub async fn update_collection_cluster_setup(
@@ -209,14 +200,13 @@ impl Qdrant {
         request: impl Into<UpdateCollectionClusterSetupRequest>,
     ) -> Result<UpdateCollectionClusterSetupResponse> {
         let request = &request.into();
-        Ok(self
-            .with_collections_client(|mut collection_api| async move {
-                let result = collection_api
-                    .update_collection_cluster_setup(request.clone())
-                    .await?;
-                Ok(result.into_inner())
-            })
-            .await?)
+        self.with_collections_client(|mut collection_api| async move {
+            let result = collection_api
+                .update_collection_cluster_setup(request.clone())
+                .await?;
+            Ok(result.into_inner())
+        })
+        .await
     }
 }
 

@@ -8,14 +8,13 @@ use crate::auth::TokenInterceptor;
 use crate::prelude::SearchPoints;
 use crate::qdrant::points_client::PointsClient;
 use crate::qdrant::SearchResponse;
-use crate::qdrant_client::errors::QdrantError;
 use crate::qdrant_client::{Qdrant, Result};
 
 impl Qdrant {
     async fn with_points_client<T, O: Future<Output = std::result::Result<T, Status>>>(
         &self,
         f: impl Fn(PointsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
-    ) -> std::result::Result<T, QdrantError> {
+    ) -> Result<T> {
         let result = self
             .channel
             .with_channel(
