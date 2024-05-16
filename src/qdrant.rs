@@ -1155,7 +1155,7 @@ pub struct DeleteShardKeyRequest {
     pub collection_name: ::prost::alloc::string::String,
     /// Request to delete shard key
     #[prost(message, optional, tag = "2")]
-    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
+    #[builder(default, setter(custom), field(vis = "pub(crate)"))]
     pub request: ::core::option::Option<DeleteShardKey>,
     /// Wait timeout for operation commit in seconds, if not specified - default value will be supplied
     #[prost(uint64, optional, tag = "3")]

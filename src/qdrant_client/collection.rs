@@ -12,7 +12,8 @@ use crate::qdrant::{
     CollectionClusterInfoResponse, CollectionExistsRequest, CollectionOperationResponse,
     CreateAlias, DeleteAlias, GetCollectionInfoRequest, GetCollectionInfoResponse,
     ListAliasesRequest, ListAliasesResponse, ListCollectionAliasesRequest, ListCollectionsRequest,
-    ListCollectionsResponse, RenameAlias, UpdateCollection,
+    ListCollectionsResponse, RenameAlias, UpdateCollection, UpdateCollectionClusterSetupRequest,
+    UpdateCollectionClusterSetupResponse,
 };
 use crate::qdrant_client::errors::QdrantError;
 use crate::qdrant_client::Qdrant;
@@ -194,6 +195,21 @@ impl Qdrant {
             .with_collections_client(|mut collection_api| async move {
                 let result = collection_api
                     .collection_cluster_info(request.clone())
+                    .await?;
+                Ok(result.into_inner())
+            })
+            .await?)
+    }
+
+    pub async fn update_collection_cluster_setup(
+        &self,
+        request: impl Into<UpdateCollectionClusterSetupRequest>,
+    ) -> anyhow::Result<UpdateCollectionClusterSetupResponse> {
+        let request = &request.into();
+        Ok(self
+            .with_collections_client(|mut collection_api| async move {
+                let result = collection_api
+                    .update_collection_cluster_setup(request.clone())
                     .await?;
                 Ok(result.into_inner())
             })

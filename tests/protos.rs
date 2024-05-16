@@ -580,7 +580,7 @@ fn configure_builder(builder: Builder) -> Builder {
             ("CreateShardKeyRequest.timeout", DEFAULT_OPTION),
             // DeleteShardKeyRequest
             ("DeleteShardKeyRequest.collection_name", PUBLIC_ONLY),
-            ("DeleteShardKeyRequest.request", DEFAULT_OPTION_INTO),
+            ("DeleteShardKeyRequest.request", CUSTOM_SETTER),
             ("DeleteShardKeyRequest.timeout", DEFAULT_OPTION),
             // DeleteCollection
             ("DeleteCollection.collection_name", PUBLIC_ONLY),
