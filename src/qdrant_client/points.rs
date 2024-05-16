@@ -247,8 +247,6 @@ impl Qdrant {
         .await
     }
 
-    //
-
     pub async fn scroll(&self, request: impl Into<ScrollPoints>) -> Result<ScrollResponse> {
         let request = &request.into();
 

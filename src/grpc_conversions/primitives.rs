@@ -4,11 +4,12 @@ use crate::qdrant::value::Kind;
 use crate::qdrant::vectors::VectorsOptions;
 use crate::qdrant::{
     shard_key, with_payload_selector, with_vectors_selector, CollectionClusterInfoRequest,
-    CollectionExistsRequest, DeleteAlias, DeleteCollectionBuilder, GetCollectionInfoRequest,
-    IsEmptyCondition, IsNullCondition, ListCollectionAliasesRequest, NamedVectors,
-    PayloadExcludeSelector, PayloadIncludeSelector, PointId, RepeatedIntegers, RepeatedStrings,
-    ShardKeySelector, SparseIndices, SparseVectorConfig, SparseVectorParams, Struct, Vector,
-    VectorParams, VectorParamsDiff, VectorParamsDiffMap, VectorParamsMap, Vectors, VectorsSelector,
+    CollectionExistsRequest, CreateSnapshotRequest, DeleteAlias, DeleteCollectionBuilder,
+    DeleteFullSnapshotRequest, GetCollectionInfoRequest, IsEmptyCondition, IsNullCondition,
+    ListCollectionAliasesRequest, ListSnapshotsRequest, NamedVectors, PayloadExcludeSelector,
+    PayloadIncludeSelector, PointId, RepeatedIntegers, RepeatedStrings, ShardKeySelector,
+    SparseIndices, SparseVectorConfig, SparseVectorParams, Struct, Vector, VectorParams,
+    VectorParamsDiff, VectorParamsDiffMap, VectorParamsMap, Vectors, VectorsSelector,
     WithPayloadSelector, WithVectorsSelector,
 };
 use std::collections::HashMap;
@@ -364,6 +365,30 @@ impl<S: Into<String>> From<S> for CollectionClusterInfoRequest {
     fn from(value: S) -> Self {
         Self {
             collection_name: value.into(),
+        }
+    }
+}
+
+impl<S: Into<String>> From<S> for CreateSnapshotRequest {
+    fn from(value: S) -> Self {
+        Self {
+            collection_name: value.into(),
+        }
+    }
+}
+
+impl<S: Into<String>> From<S> for ListSnapshotsRequest {
+    fn from(value: S) -> Self {
+        Self {
+            collection_name: value.into(),
+        }
+    }
+}
+
+impl<S: Into<String>> From<S> for DeleteFullSnapshotRequest {
+    fn from(value: S) -> Self {
+        Self {
+            snapshot_name: value.into(),
         }
     }
 }
