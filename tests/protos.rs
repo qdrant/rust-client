@@ -622,6 +622,12 @@ fn configure_builder(builder: Builder) -> Builder {
             ("TextIndexParams.lowercase", DEFAULT_OPTION),
             ("TextIndexParams.min_token_len", DEFAULT_OPTION),
             ("TextIndexParams.max_token_len", DEFAULT_OPTION),
+            // CreateAlias
+            ("CreateAlias.collection_name", PUBLIC_ONLY),
+            ("CreateAlias.alias_name", PUBLIC_ONLY),
+            // RenameAlias
+            ("RenameAlias.old_alias_name", PUBLIC_ONLY),
+            ("RenameAlias.new_alias_name", PUBLIC_ONLY),
         ],
         builder_derive_options(),
     )
@@ -866,6 +872,16 @@ fn builder_derive_options() -> &'static [BuildDeriveOptions] {
         ),
         (
             "TextIndexParams",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::WithDefaultFn,
+        ),
+        (
+            "CreateAlias",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::WithDefaultFn,
+        ),
+        (
+            "RenameAlias",
             NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
             MacroConfig::WithDefaultFn,
         ),

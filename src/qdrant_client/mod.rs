@@ -1,6 +1,7 @@
 pub mod collection;
 pub mod errors;
 mod points;
+pub mod sharding_keys;
 
 use crate::channel_pool::ChannelPool;
 use crate::qdrant::{qdrant_client, HealthCheckReply, HealthCheckRequest};

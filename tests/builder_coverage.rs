@@ -1,16 +1,17 @@
 use qdrant_client::prelude::Distance;
 use qdrant_client::qdrant::{
-    BinaryQuantizationBuilder, ClearPayloadPointsBuilder, CountPointsBuilder,
+    BinaryQuantizationBuilder, ClearPayloadPointsBuilder, CountPointsBuilder, CreateAliasBuilder,
     CreateFieldIndexCollectionBuilder, CreateShardKeyRequestBuilder, DeleteCollectionBuilder,
     DeleteFieldIndexCollectionBuilder, DeletePayloadPointsBuilder, DeletePointVectorsBuilder,
     DeletePointsBuilder, DeleteShardKeyRequestBuilder, DiscoverBatchPointsBuilder,
     DiscoverPointsBuilder, GetPointsBuilder, LookupLocationBuilder, OrderByBuilder,
     ProductQuantizationBuilder, QuantizationType, RecommendBatchPointsBuilder,
-    RecommendPointGroupsBuilder, RecommendPointsBuilder, ScalarQuantizationBuilder,
-    ScrollPointsBuilder, SearchBatchPointsBuilder, SearchPointGroupsBuilder, SearchPointsBuilder,
-    SetPayloadPointsBuilder, TextIndexParamsBuilder, TokenizerType, UpdateBatchPointsBuilder,
-    UpdateCollectionBuilder, UpdateCollectionClusterSetupRequestBuilder, UpdatePointVectorsBuilder,
-    UpsertPointsBuilder, VectorParamsBuilder, WithLookupBuilder,
+    RecommendPointGroupsBuilder, RecommendPointsBuilder, RenameAliasBuilder,
+    ScalarQuantizationBuilder, ScrollPointsBuilder, SearchBatchPointsBuilder,
+    SearchPointGroupsBuilder, SearchPointsBuilder, SetPayloadPointsBuilder, TextIndexParamsBuilder,
+    TokenizerType, UpdateBatchPointsBuilder, UpdateCollectionBuilder,
+    UpdateCollectionClusterSetupRequestBuilder, UpdatePointVectorsBuilder, UpsertPointsBuilder,
+    VectorParamsBuilder, WithLookupBuilder,
 };
 use std::collections::HashMap;
 
@@ -61,4 +62,6 @@ fn builder_coverage() {
     DeleteShardKeyRequestBuilder::new("mycollection").build();
     DeleteCollectionBuilder::new("mycollection").build();
     TextIndexParamsBuilder::new(TokenizerType::Word).build();
+    CreateAliasBuilder::new("", "").build();
+    RenameAliasBuilder::new("", "").build();
 }
