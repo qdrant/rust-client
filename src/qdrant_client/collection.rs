@@ -7,15 +7,24 @@ use tonic::Status;
 use crate::auth::TokenInterceptor;
 use crate::prelude::{CreateCollection, DeleteCollection};
 use crate::qdrant::collections_client::CollectionsClient;
-use crate::qdrant::CollectionOperationResponse;
-use crate::qdrant_client::errors::QdrantError;
-use crate::qdrant_client::Qdrant;
+use crate::qdrant::{
+    alias_operations, AliasOperations, ChangeAliases, CollectionClusterInfoRequest,
+    CollectionClusterInfoResponse, CollectionExistsRequest, CollectionOperationResponse,
+    CreateAlias, DeleteAlias, GetCollectionInfoRequest, GetCollectionInfoResponse,
+    ListAliasesRequest, ListAliasesResponse, ListCollectionAliasesRequest, ListCollectionsRequest,
+    ListCollectionsResponse, RenameAlias, UpdateCollection, UpdateCollectionClusterSetupRequest,
+    UpdateCollectionClusterSetupResponse,
+};
+use crate::qdrant_client::{Qdrant, Result};
 
 impl Qdrant {
-    async fn with_collections_client<T, O: Future<Output = Result<T, Status>>>(
+    pub(crate) async fn with_collections_client<
+        T,
+        O: Future<Output = std::result::Result<T, Status>>,
+    >(
         &self,
         f: impl Fn(CollectionsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
-    ) -> Result<T, QdrantError> {
+    ) -> Result<T> {
         let result = self
             .channel
             .with_channel(
@@ -39,7 +48,7 @@ impl Qdrant {
     pub async fn delete_collection(
         &self,
         request: impl Into<DeleteCollection>,
-    ) -> Result<CollectionOperationResponse, QdrantError> {
+    ) -> Result<CollectionOperationResponse> {
         let delete_collection = &request.into();
 
         self.with_collections_client(|mut collection_api| async move {
@@ -52,11 +61,149 @@ impl Qdrant {
     pub async fn create_collection(
         &self,
         request: impl Into<CreateCollection>,
-    ) -> Result<CollectionOperationResponse, QdrantError> {
+    ) -> Result<CollectionOperationResponse> {
         let create_collection = request.into();
         let create_collection_ref = &create_collection;
         self.with_collections_client(|mut collection_api| async move {
             let result = collection_api.create(create_collection_ref.clone()).await?;
+            Ok(result.into_inner())
+        })
+        .await
+    }
+
+    pub async fn list_collections(&self) -> Result<ListCollectionsResponse> {
+        self.with_collections_client(|mut collection_api| async move {
+            let result = collection_api.list(ListCollectionsRequest {}).await?;
+            Ok(result.into_inner())
+        })
+        .await
+    }
+
+    pub async fn collection_exists(
+        &self,
+        request: impl Into<CollectionExistsRequest>,
+    ) -> Result<bool> {
+        let request = &request.into();
+        self.with_collections_client(|mut collection_api| async move {
+            let result = collection_api.collection_exists(request.clone()).await?;
+            Ok(result
+                .into_inner()
+                .result
+                .map(|r| r.exists)
+                .unwrap_or(false))
+        })
+        .await
+    }
+
+    pub async fn update_collection(
+        &self,
+        request: impl Into<UpdateCollection>,
+    ) -> Result<CollectionOperationResponse> {
+        let request = &request.into();
+
+        self.with_collections_client(|mut collection_api| async move {
+            let result = collection_api.update(request.clone()).await?;
+            Ok(result.into_inner())
+        })
+        .await
+    }
+
+    pub async fn collection_info(
+        &self,
+        request: impl Into<GetCollectionInfoRequest>,
+    ) -> Result<GetCollectionInfoResponse> {
+        let request = &request.into();
+        self.with_collections_client(|mut collection_api| async move {
+            let result = collection_api.get(request.clone()).await?;
+            Ok(result.into_inner())
+        })
+        .await
+    }
+
+    pub async fn create_alias(
+        &self,
+        request: impl Into<CreateAlias>,
+    ) -> Result<CollectionOperationResponse> {
+        self.update_aliases(request.into()).await
+    }
+
+    pub async fn delete_alias(
+        &self,
+        request: impl Into<DeleteAlias>,
+    ) -> Result<CollectionOperationResponse> {
+        self.update_aliases(request.into()).await
+    }
+
+    pub async fn rename_alias(
+        &self,
+        request: impl Into<RenameAlias>,
+    ) -> Result<CollectionOperationResponse> {
+        self.update_aliases(request.into()).await
+    }
+
+    pub async fn update_aliases(
+        &self,
+        change_aliases: impl Into<alias_operations::Action> + Clone,
+    ) -> Result<CollectionOperationResponse> {
+        let action = change_aliases.into();
+        let change = &ChangeAliases {
+            actions: vec![AliasOperations {
+                action: Some(action),
+            }],
+            timeout: None,
+        };
+        self.with_collections_client(|mut collection_api| async move {
+            let result = collection_api.update_aliases(change.clone()).await?;
+            Ok(result.into_inner())
+        })
+        .await
+    }
+
+    pub async fn list_collection_aliases(
+        &self,
+        request: impl Into<ListCollectionAliasesRequest>,
+    ) -> Result<ListAliasesResponse> {
+        let request = &request.into();
+        self.with_collections_client(|mut collection_api| async move {
+            let result = collection_api
+                .list_collection_aliases(request.clone())
+                .await?;
+            Ok(result.into_inner())
+        })
+        .await
+    }
+
+    pub async fn list_aliases(&self) -> Result<ListAliasesResponse> {
+        self.with_collections_client(|mut collection_api| async move {
+            let result = collection_api.list_aliases(ListAliasesRequest {}).await?;
+            Ok(result.into_inner())
+        })
+        .await
+    }
+
+    pub async fn collection_cluster_info(
+        &self,
+        request: impl Into<CollectionClusterInfoRequest>,
+    ) -> Result<CollectionClusterInfoResponse> {
+        let request = &request.into();
+        self.with_collections_client(|mut collection_api| async move {
+            let result = collection_api
+                .collection_cluster_info(request.clone())
+                .await?;
+            Ok(result.into_inner())
+        })
+        .await
+    }
+
+    pub async fn update_collection_cluster_setup(
+        &self,
+        request: impl Into<UpdateCollectionClusterSetupRequest>,
+    ) -> Result<UpdateCollectionClusterSetupResponse> {
+        let request = &request.into();
+        self.with_collections_client(|mut collection_api| async move {
+            let result = collection_api
+                .update_collection_cluster_setup(request.clone())
+                .await?;
             Ok(result.into_inner())
         })
         .await

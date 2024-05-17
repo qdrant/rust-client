@@ -1,6 +1,7 @@
 pub mod collection;
 pub mod errors;
 mod points;
+pub mod sharding_keys;
 
 use crate::channel_pool::ChannelPool;
 use crate::qdrant::{qdrant_client, HealthCheckReply, HealthCheckRequest};
@@ -13,6 +14,8 @@ pub use crate::auth::TokenInterceptor;
 pub use crate::config::{AsTimeout, CompressionEncoding, MaybeApiKey, QdrantClientConfig};
 pub use crate::payload::Payload;
 use crate::qdrant_client::errors::QdrantError;
+
+pub type Result<T> = std::result::Result<T, QdrantError>;
 
 /// A builder type for `QdrantClient`s
 pub type QdrantClientBuilder = QdrantClientConfig;
@@ -28,7 +31,7 @@ impl Qdrant {
         QdrantClientBuilder::from_url(url)
     }
 
-    pub fn new(cfg: Option<QdrantClientConfig>) -> Result<Self, QdrantError> {
+    pub fn new(cfg: Option<QdrantClientConfig>) -> Result<Self> {
         let cfg = cfg.unwrap_or_default();
 
         let channel = ChannelPool::new(
@@ -50,10 +53,10 @@ impl Qdrant {
     }
 
     // Access to raw root qdrant API
-    async fn with_root_qdrant_client<T, O: Future<Output = Result<T, Status>>>(
+    async fn with_root_qdrant_client<T, O: Future<Output = std::result::Result<T, Status>>>(
         &self,
         f: impl Fn(qdrant_client::QdrantClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
-    ) -> Result<T, QdrantError> {
+    ) -> Result<T> {
         let result = self
             .channel
             .with_channel(
@@ -74,7 +77,7 @@ impl Qdrant {
         Ok(result)
     }
 
-    pub async fn health_check(&self) -> Result<HealthCheckReply, QdrantError> {
+    pub async fn health_check(&self) -> Result<HealthCheckReply> {
         self.with_root_qdrant_client(|mut qdrant_api| async move {
             let result = qdrant_api.health_check(HealthCheckRequest {}).await?;
             Ok(result.into_inner())
