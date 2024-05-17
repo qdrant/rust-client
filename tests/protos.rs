@@ -14,6 +14,7 @@ fn protos() {
     if !protos.any(|d| timestamp(d.unwrap().path()) > out_time)
         && timestamp("tests/protos.rs") <= out_time
     {
+        println!("protobuf files not changed. Exiting early!");
         return;
     }
 
