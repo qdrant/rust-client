@@ -3,11 +3,12 @@ use crate::prelude::{DeleteCollection, Value};
 use crate::qdrant::value::Kind;
 use crate::qdrant::vectors::VectorsOptions;
 use crate::qdrant::{
-    shard_key, with_payload_selector, with_vectors_selector, DeleteCollectionBuilder,
-    IsEmptyCondition, IsNullCondition, NamedVectors, PayloadExcludeSelector,
-    PayloadIncludeSelector, PointId, RepeatedIntegers, RepeatedStrings, ShardKeySelector,
-    SparseIndices, SparseVectorConfig, SparseVectorParams, Struct, Vector, VectorParams,
-    VectorParamsDiff, VectorParamsDiffMap, VectorParamsMap, Vectors, VectorsSelector,
+    shard_key, with_payload_selector, with_vectors_selector, CollectionClusterInfoRequest,
+    CollectionExistsRequest, DeleteAlias, DeleteCollectionBuilder, GetCollectionInfoRequest,
+    IsEmptyCondition, IsNullCondition, ListCollectionAliasesRequest, NamedVectors,
+    PayloadExcludeSelector, PayloadIncludeSelector, PointId, RepeatedIntegers, RepeatedStrings,
+    ShardKeySelector, SparseIndices, SparseVectorConfig, SparseVectorParams, Struct, Vector,
+    VectorParams, VectorParamsDiff, VectorParamsDiffMap, VectorParamsMap, Vectors, VectorsSelector,
     WithPayloadSelector, WithVectorsSelector,
 };
 use std::collections::HashMap;
@@ -297,12 +298,6 @@ impl From<Vec<i64>> for RepeatedIntegers {
     }
 }
 
-impl<S: Into<String>> From<S> for DeleteCollection {
-    fn from(value: S) -> Self {
-        DeleteCollectionBuilder::new(value).build()
-    }
-}
-
 impl From<HashMap<String, Value>> for Struct {
     fn from(value: HashMap<String, Value>) -> Self {
         Self { fields: value }
@@ -324,5 +319,51 @@ impl From<String> for IsEmptyCondition {
 impl From<String> for IsNullCondition {
     fn from(value: String) -> Self {
         Self { key: value }
+    }
+}
+
+impl<S: Into<String>> From<S> for DeleteCollection {
+    fn from(value: S) -> Self {
+        DeleteCollectionBuilder::new(value).build()
+    }
+}
+
+impl<S: Into<String>> From<S> for CollectionExistsRequest {
+    fn from(value: S) -> Self {
+        Self {
+            collection_name: value.into(),
+        }
+    }
+}
+
+impl<S: Into<String>> From<S> for GetCollectionInfoRequest {
+    fn from(value: S) -> Self {
+        Self {
+            collection_name: value.into(),
+        }
+    }
+}
+
+impl<S: Into<String>> From<S> for DeleteAlias {
+    fn from(value: S) -> Self {
+        Self {
+            alias_name: value.into(),
+        }
+    }
+}
+
+impl<S: Into<String>> From<S> for ListCollectionAliasesRequest {
+    fn from(value: S) -> Self {
+        Self {
+            collection_name: value.into(),
+        }
+    }
+}
+
+impl<S: Into<String>> From<S> for CollectionClusterInfoRequest {
+    fn from(value: S) -> Self {
+        Self {
+            collection_name: value.into(),
+        }
     }
 }

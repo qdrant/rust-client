@@ -814,24 +814,40 @@ pub mod alias_operations {
         DeleteAlias(super::DeleteAlias),
     }
 }
+#[derive(derive_builder::Builder)]
+#[builder(
+    build_fn(private, name = "build_inner"),
+    pattern = "owned",
+    custom_constructor
+)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateAlias {
     /// Name of the collection
     #[prost(string, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub collection_name: ::prost::alloc::string::String,
     /// New name of the alias
     #[prost(string, tag = "2")]
+    #[builder(field(vis = "pub(crate)"))]
     pub alias_name: ::prost::alloc::string::String,
 }
+#[derive(derive_builder::Builder)]
+#[builder(
+    build_fn(private, name = "build_inner"),
+    pattern = "owned",
+    custom_constructor
+)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RenameAlias {
     /// Name of the alias to rename
     #[prost(string, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub old_alias_name: ::prost::alloc::string::String,
     /// Name of the alias
     #[prost(string, tag = "2")]
+    #[builder(field(vis = "pub(crate)"))]
     pub new_alias_name: ::prost::alloc::string::String,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -1139,7 +1155,7 @@ pub struct DeleteShardKeyRequest {
     pub collection_name: ::prost::alloc::string::String,
     /// Request to delete shard key
     #[prost(message, optional, tag = "2")]
-    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
+    #[builder(default, setter(custom), field(vis = "pub(crate)"))]
     pub request: ::core::option::Option<DeleteShardKey>,
     /// Wait timeout for operation commit in seconds, if not specified - default value will be supplied
     #[prost(uint64, optional, tag = "3")]
@@ -7641,6 +7657,8 @@ builder_type_conversions!(SparseIndexConfig, SparseIndexConfigBuilder);
 builder_type_conversions!(CreateShardKey, CreateShardKeyBuilder);
 builder_type_conversions!(ContextExamplePair, ContextExamplePairBuilder);
 builder_type_conversions!(TextIndexParams, TextIndexParamsBuilder, true);
+builder_type_conversions!(CreateAlias, CreateAliasBuilder, true);
+builder_type_conversions!(RenameAlias, RenameAliasBuilder, true);
 builder_type_conversions!(DeletePoints, DeletePointsBuilder, true);
 
 pub use crate::manual_builder::*;
