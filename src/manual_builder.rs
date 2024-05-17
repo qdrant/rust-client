@@ -12,7 +12,9 @@ use crate::qdrant::{
     points_selector, PointStruct, PointVectors, PointsSelector, ShardKeySelector, Value,
     VectorsSelector,
 };
+use derive_builder::Builder;
 use std::collections::HashMap;
+use std::path::PathBuf;
 
 #[derive(Clone)]
 pub struct PointStructListBuilder {
@@ -381,3 +383,31 @@ impl ClearPayloadBuilder {
 }
 
 builder_type_conversions!(ClearPayload, ClearPayloadBuilder);
+
+#[derive(Builder)]
+#[builder(
+    build_fn(private, name = "build_inner"),
+    pattern = "owned",
+    custom_constructor
+)]
+pub struct SnapshotDownload {
+    pub out_path: PathBuf,
+    pub collection_name: String,
+    #[builder(default, setter(strip_option, into))]
+    pub snapshot_name: Option<String>,
+    #[builder(default, setter(strip_option, into))]
+    pub rest_api_uri: Option<String>,
+}
+
+impl SnapshotDownloadBuilder {
+    pub fn new(out_path: impl Into<PathBuf>, collection_name: impl Into<String>) -> Self {
+        let mut builder = Self::create_empty();
+        builder.out_path = Some(out_path.into());
+        builder.collection_name = Some(collection_name.into());
+        builder
+    }
+
+    pub fn build(self) -> SnapshotDownload {
+        self.build_inner().unwrap()
+    }
+}
