@@ -443,21 +443,29 @@ impl From<PointsSelectorOneOf> for PointsSelector {
     }
 }
 
-impl From<PointsIdsList> for PointsSelectorOneOf {
-    fn from(value: PointsIdsList) -> Self {
-        Self::Points(value)
-    }
-}
-
 impl From<Filter> for PointsSelectorOneOf {
     fn from(value: Filter) -> Self {
         Self::Filter(value)
     }
 }
 
-impl From<Vec<PointId>> for PointsIdsList {
-    fn from(value: Vec<PointId>) -> Self {
-        Self { ids: value }
+impl<I: Into<PointId>, const N: usize> From<[I; N]> for PointsIdsList {
+    fn from(value: [I; N]) -> Self {
+        let ids: Vec<_> = value.into_iter().map(|i| i.into()).collect();
+        Self { ids }
+    }
+}
+
+impl<I: Into<PointId>> From<Vec<I>> for PointsIdsList {
+    fn from(value: Vec<I>) -> Self {
+        let ids: Vec<_> = value.into_iter().map(|i| i.into()).collect();
+        Self { ids }
+    }
+}
+
+impl<I: Into<PointsIdsList>> From<I> for PointsSelectorOneOf {
+    fn from(value: I) -> Self {
+        Self::Points(value.into())
     }
 }
 
