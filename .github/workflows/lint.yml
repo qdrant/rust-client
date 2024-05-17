@@ -1,6 +1,6 @@
 name: Formatter and linter
 
-on: [push]
+on: [ push ]
 
 jobs:
   lint:
@@ -9,11 +9,8 @@ jobs:
 
     steps:
       - name: Install minimal stable
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
-          profile: minimal
-          toolchain: stable
-          override: true
           components: rustfmt, clippy
       - uses: actions/checkout@v3
       - name: Install dependencies
