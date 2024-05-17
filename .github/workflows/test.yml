@@ -1,6 +1,6 @@
 name: Test
 
-on: [push]
+on: [ push ]
 
 jobs:
   build:
@@ -13,7 +13,7 @@ jobs:
           toolchain: stable
       - uses: actions/checkout@v3
       - name: Install dependencies
-        run: sudo apt-get install protobuf-compiler
+        run: sudo apt update; sudo apt upgrade -y;sudo apt-get install protobuf-compiler
       - name: Run integration tests
         run: |
           ./tests/integration-tests.sh
