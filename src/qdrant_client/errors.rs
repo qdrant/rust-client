@@ -18,6 +18,11 @@ pub enum QdrantError {
     #[cfg(feature = "reqwest")]
     #[error("Reqwest error: {}", .0)]
     Reqwest(#[from] reqwest::Error),
+
+    /// An error for failed conversions (e.g. calling `String::try_from(v)`
+    /// on an integer [`Value`](Value))
+    #[error("Type mismatch. Expected \"{}\"", .0)]
+    TypeMismatch(String),
 }
 
 impl From<tonic::Status> for QdrantError {

@@ -113,7 +113,6 @@ pub mod auth;
 pub mod builder_ext;
 pub mod builder_types;
 pub mod config;
-pub mod error;
 pub mod filters;
 pub mod grpc_conversions;
 pub(crate) mod grpc_macros;
@@ -123,11 +122,12 @@ pub mod qdrant_client;
 #[cfg(feature = "serde")]
 pub mod serde;
 
-use error::NotA;
 use qdrant::{value::Kind::*, ListValue, RetrievedPoint, ScoredPoint, Struct, Value};
+use qdrant_client::Result;
 use std::fmt::{Display, Formatter};
 use std::hash::{Hash, Hasher};
 
+use crate::qdrant_client::errors::QdrantError;
 #[doc(no_inline)]
 pub use prost_types::Timestamp;
 
@@ -291,20 +291,20 @@ impl Display for Value {
 
 impl Value {
     /// try to get an iterator over the items of the contained list value, if any
-    pub fn iter_list(&self) -> Result<impl Iterator<Item = &Value>, NotA<ListValue>> {
+    pub fn iter_list(&self) -> Result<impl Iterator<Item = &Value>> {
         if let Some(ListValue(values)) = &self.kind {
             Ok(values.iter())
         } else {
-            Err(NotA::default())
+            Err(QdrantError::TypeMismatch("ListValue".to_string()))
         }
     }
 
     /// try to get a field from the struct if this value contains one
-    pub fn get_struct(&self, key: &str) -> Result<&Value, NotA<Struct>> {
+    pub fn get_struct(&self, key: &str) -> Result<&Value> {
         if let Some(StructValue(Struct { fields })) = &self.kind {
             Ok(fields.get(key).unwrap_or(&NULL_VALUE))
         } else {
-            Err(NotA::default())
+            Err(QdrantError::TypeMismatch("Struct".to_string()))
         }
     }
 }
