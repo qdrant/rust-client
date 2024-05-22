@@ -143,6 +143,14 @@ impl From<bool> for WithVectorsSelector {
     }
 }
 
+impl From<f32> for Value {
+    fn from(val: f32) -> Self {
+        Self {
+            kind: Some(Kind::DoubleValue(val as f64)),
+        }
+    }
+}
+
 impl From<f64> for Value {
     fn from(val: f64) -> Self {
         Self {
