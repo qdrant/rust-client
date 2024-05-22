@@ -25,7 +25,7 @@ impl PointStruct {
 }
 
 impl RetrievedPoint {
-    /// get a payload value for the specified key. If the key is not present,
+    /// Get a payload value for the specified key. If the key is not present,
     /// this will return a null value.
     ///
     /// # Examples:
@@ -40,7 +40,7 @@ impl RetrievedPoint {
 }
 
 impl ScoredPoint {
-    /// get a payload value for the specified key. If the key is not present,
+    /// Get a payload value for the specified key. If the key is not present,
     /// this will return a null value.
     ///
     /// # Examples:
