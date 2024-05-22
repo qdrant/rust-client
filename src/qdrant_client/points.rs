@@ -20,7 +20,10 @@ use crate::qdrant::{
 use crate::qdrant_client::{Qdrant, Result};
 
 impl Qdrant {
-    async fn with_points_client<T, O: Future<Output = std::result::Result<T, Status>>>(
+    pub(crate) async fn with_points_client<
+        T,
+        O: Future<Output = std::result::Result<T, Status>>,
+    >(
         &self,
         f: impl Fn(PointsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
     ) -> Result<T> {

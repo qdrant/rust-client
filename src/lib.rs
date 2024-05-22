@@ -360,11 +360,13 @@ impl Hash for qdrant::RetrievedPoint {
 mod tests {
     use crate::prelude::*;
     use crate::qdrant::value::Kind::*;
-    use crate::qdrant::vectors_config::Config;
     use crate::qdrant::{
-        Condition, CreateFieldIndexCollection, FieldType, Filter, ListValue, Struct, Value,
-        VectorParams, VectorsConfig,
+        Condition, CreateCollectionBuilder, CreateFieldIndexCollection, DeletePayloadPointsBuilder,
+        DeletePointsBuilder, FieldType, Filter, GetPointsBuilder, ListValue, SearchPointsBuilder,
+        SetPayloadPointsBuilder, SnapshotDownloadBuilder, Struct, UpsertPointsBuilder, Value,
+        VectorParamsBuilder,
     };
+    use crate::qdrant_client::Qdrant;
     use std::collections::HashMap;
 
     #[test]
@@ -416,7 +418,7 @@ mod tests {
     #[tokio::test]
     async fn test_qdrant_queries() -> anyhow::Result<()> {
         let config = QdrantClientConfig::from_url("http://localhost:6334");
-        let client = QdrantClient::new(Some(config))?;
+        let client = Qdrant::new(Some(config))?;
 
         let health = client.health_check().await?;
         println!("{:?}", health);
@@ -428,20 +430,10 @@ mod tests {
         client.delete_collection(collection_name).await?;
 
         client
-            .create_collection(&CreateCollection {
-                collection_name: collection_name.into(),
-                vectors_config: Some(VectorsConfig {
-                    config: Some(Config::Params(VectorParams {
-                        size: 10,
-                        distance: Distance::Cosine.into(),
-                        hnsw_config: None,
-                        quantization_config: None,
-                        on_disk: None,
-                        datatype: None,
-                    })),
-                }),
-                ..Default::default()
-            })
+            .create_collection(
+                CreateCollectionBuilder::new(collection_name)
+                    .vectors_config(VectorParamsBuilder::new(10, Distance::Cosine)),
+            )
             .await?;
 
         let exists = client.collection_exists(collection_name).await?;
@@ -464,20 +456,15 @@ mod tests {
 
         let points = vec![PointStruct::new(0, vec![12.; 10], payload)];
         client
-            .upsert_points_blocking(collection_name, None, points, None)
+            .upsert_points(UpsertPointsBuilder::new(collection_name, points))
             .await?;
 
-        let mut search_points = SearchPoints {
-            collection_name: collection_name.into(),
-            vector: vec![11.; 10],
-            limit: 10,
-            with_payload: Some(true.into()),
-            ..Default::default()
-        };
+        let mut search_points =
+            SearchPointsBuilder::new(collection_name, vec![11.; 10], 10).build();
 
         // Keyword filter result
         search_points.filter = Some(Filter::all([Condition::matches("foo", "Bar".to_string())]));
-        let search_result = client.search_points(&search_points).await?;
+        let search_result = client.search_points(search_points.clone()).await?;
         assert!(!search_result.result.is_empty());
 
         // Existing implementations full text search filter result (`Condition::matches`)
@@ -485,7 +472,7 @@ mod tests {
             "sub_payload.foo",
             "Not ".to_string(),
         )]));
-        let search_result = client.search_points(&search_points).await?;
+        let search_result = client.search_points(search_points.clone()).await?;
         assert!(!search_result.result.is_empty());
 
         // Full text search filter result (`Condition::matches_text`)
@@ -493,7 +480,7 @@ mod tests {
             "sub_payload.foo",
             "Not",
         )]));
-        let search_result = client.search_points(&search_points).await?;
+        let search_result = client.search_points(search_points).await?;
         assert!(!search_result.result.is_empty());
 
         eprintln!("search_result = {:#?}", search_result);
@@ -503,37 +490,26 @@ mod tests {
             .into_iter()
             .collect::<HashMap<_, Value>>()
             .into();
+
         client
             .set_payload(
-                collection_name,
-                None,
-                &vec![0.into()].into(),
-                new_payload,
-                None,
-                None,
+                SetPayloadPointsBuilder::new(collection_name, new_payload).points_selector([0]),
             )
             .await?;
 
         // Delete some payload fields
         client
-            .delete_payload_blocking(
-                collection_name,
-                None,
-                &vec![0.into()].into(),
-                vec!["sub_payload".to_string()],
-                None,
+            .delete_payload(
+                DeletePayloadPointsBuilder::new(collection_name, ["sub_payload".into()])
+                    .points_selector([0]),
             )
             .await?;
 
-        // retrieve points
         let points = client
             .get_points(
-                collection_name,
-                None,
-                &[0.into()],
-                Some(true),
-                Some(true),
-                None,
+                GetPointsBuilder::new(collection_name, [0.into()])
+                    .with_vectors(true)
+                    .with_payload(true),
             )
             .await?;
 
@@ -543,7 +519,11 @@ mod tests {
         assert!(!point.payload.contains_key("sub_payload"));
 
         client
-            .delete_points(collection_name, None, &vec![0.into()].into(), None)
+            .delete_points(
+                DeletePointsBuilder::new(collection_name)
+                    .points([0])
+                    .wait(true),
+            )
             .await?;
 
         // Access raw point api with client
@@ -563,9 +543,10 @@ mod tests {
             .await?;
 
         client.create_snapshot(collection_name).await?;
+
         #[cfg(feature = "download_snapshots")]
         client
-            .download_snapshot("test.tar", collection_name, None, None)
+            .download_snapshot(SnapshotDownloadBuilder::new("test.tar", collection_name))
             .await?;
 
         Ok(())

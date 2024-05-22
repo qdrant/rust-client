@@ -101,13 +101,10 @@ impl Qdrant {
     }
 
     #[cfg(feature = "download_snapshots")]
-    pub async fn download_snapshot<T>(
+    pub async fn download_snapshot(
         &self,
         options: impl Into<crate::qdrant::SnapshotDownload>,
-    ) -> Result<()>
-    where
-        T: ToString + Clone,
-    {
+    ) -> Result<()> {
         use crate::qdrant_client::errors::QdrantError;
         use futures_util::StreamExt;
         use std::io::Write;

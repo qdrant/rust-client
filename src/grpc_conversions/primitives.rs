@@ -323,6 +323,18 @@ impl From<String> for IsNullCondition {
     }
 }
 
+impl From<bool> for with_payload_selector::SelectorOptions {
+    fn from(value: bool) -> Self {
+        Self::Enable(value)
+    }
+}
+
+impl From<bool> for with_vectors_selector::SelectorOptions {
+    fn from(value: bool) -> Self {
+        Self::Enable(value)
+    }
+}
+
 impl<S: Into<String>> From<S> for DeleteCollection {
     fn from(value: S) -> Self {
         DeleteCollectionBuilder::new(value).build()

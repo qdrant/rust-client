@@ -212,21 +212,63 @@ impl Qdrant {
 
 #[cfg(test)]
 mod tests {
-    use crate::client::QdrantClientConfig;
-    use crate::qdrant::CreateCollectionBuilder;
-
     use super::*;
+    use crate::client::QdrantClientConfig;
+    use crate::payload::Payload;
+    use crate::prelude::Distance;
+    use crate::qdrant::{
+        CountPointsBuilder, CreateCollectionBuilder, PointStruct, SearchPointsBuilder,
+        UpsertPointsBuilder, VectorParamsBuilder,
+    };
+    use std::time::Duration;
+    use tokio::time::sleep;
 
     #[tokio::test]
-    async fn create_collection_and_do_the_search() {
+    async fn create_collection_and_do_the_search() -> Result<()> {
         let config = QdrantClientConfig::from_url("http://localhost:6334");
-        let client = Qdrant::new(Some(config)).unwrap();
+        let client = Qdrant::new(Some(config))?;
 
-        let collection_name = "test";
+        let collection_name = "test2";
 
-        client.delete_collection(collection_name).await.unwrap();
+        let _ = client.delete_collection(collection_name).await;
 
-        let create_collection = CreateCollectionBuilder::new(collection_name);
-        let _result = client.create_collection(create_collection).await.unwrap();
+        assert!(!client.collection_exists(collection_name).await?);
+
+        let create_collection = CreateCollectionBuilder::new(collection_name)
+            .vectors_config(VectorParamsBuilder::new(3, Distance::Cosine));
+        let _result = client.create_collection(create_collection).await?;
+
+        sleep(Duration::from_secs(1)).await;
+
+        assert!(client.collection_exists(collection_name).await?);
+
+        client
+            .upsert_points(
+                UpsertPointsBuilder::new(
+                    collection_name,
+                    vec![
+                        PointStruct::new(0, vec![1.0, 0.0, 0.0], Payload::default()),
+                        PointStruct::new(1, vec![0.0, 1.0, 0.0], Payload::default()),
+                    ],
+                )
+                .wait(true),
+            )
+            .await?;
+
+        let count = client
+            .count(CountPointsBuilder::new(collection_name))
+            .await?;
+
+        assert_eq!(count.result.unwrap().count, 2);
+
+        let _search_res = client
+            .search_points(SearchPointsBuilder::new(
+                collection_name,
+                vec![0.8, 0.0, 0.0],
+                2,
+            ))
+            .await?;
+
+        Ok(())
     }
 }
