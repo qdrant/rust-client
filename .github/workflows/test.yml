@@ -10,7 +10,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
       - uses: actions/checkout@v4
       - name: Install dependencies
-        run: sudo apt update; sudo apt upgrade -y;sudo apt-get install protobuf-compiler
+        run: sudo apt-get update; sudo apt-get upgrade -y; sudo apt-get install protobuf-compiler
       - name: Run integration tests
         run: |
           ./tests/integration-tests.sh
