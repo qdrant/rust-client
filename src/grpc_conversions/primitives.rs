@@ -12,6 +12,7 @@ use crate::qdrant::{
     VectorParamsDiff, VectorParamsDiffMap, VectorParamsMap, Vectors, VectorsSelector,
     WithPayloadSelector, WithVectorsSelector,
 };
+use crate::qdrant_client::errors::QdrantError;
 use std::collections::HashMap;
 
 impl From<bool> for WithPayloadSelector {
@@ -389,6 +390,54 @@ impl<S: Into<String>> From<S> for DeleteFullSnapshotRequest {
     fn from(value: S) -> Self {
         Self {
             snapshot_name: value.into(),
+        }
+    }
+}
+
+impl TryFrom<Value> for bool {
+    type Error = QdrantError;
+
+    fn try_from(v: Value) -> Result<Self, Self::Error> {
+        if let Some(Kind::BoolValue(t)) = v.kind {
+            Ok(t)
+        } else {
+            Err(QdrantError::TypeMismatch("BoolValue".to_string()))
+        }
+    }
+}
+
+impl TryFrom<Value> for i64 {
+    type Error = QdrantError;
+
+    fn try_from(v: Value) -> Result<Self, Self::Error> {
+        if let Some(Kind::IntegerValue(t)) = v.kind {
+            Ok(t)
+        } else {
+            Err(QdrantError::TypeMismatch("IntegerValue".to_string()))
+        }
+    }
+}
+
+impl TryFrom<Value> for f64 {
+    type Error = QdrantError;
+
+    fn try_from(v: Value) -> Result<Self, Self::Error> {
+        if let Some(Kind::DoubleValue(t)) = v.kind {
+            Ok(t)
+        } else {
+            Err(QdrantError::TypeMismatch("DoubleValue".to_string()))
+        }
+    }
+}
+
+impl TryFrom<Value> for String {
+    type Error = QdrantError;
+
+    fn try_from(v: Value) -> Result<Self, Self::Error> {
+        if let Some(Kind::StringValue(t)) = v.kind {
+            Ok(t)
+        } else {
+            Err(QdrantError::TypeMismatch("StringValue".to_string()))
         }
     }
 }
