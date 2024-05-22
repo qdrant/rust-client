@@ -26,6 +26,19 @@ impl From<HashMap<&str, Value>> for Payload {
     }
 }
 
+impl<K, const N: usize> From<[(K, Value); N]> for Payload
+where
+    K: Into<String>,
+{
+    fn from(values: [(K, Value); N]) -> Self {
+        let mut map = HashMap::with_capacity(N);
+        for (k, v) in values.into_iter() {
+            map.insert(k.into(), v);
+        }
+        Self(map)
+    }
+}
+
 impl Payload {
     pub fn new() -> Self {
         Self(HashMap::new())

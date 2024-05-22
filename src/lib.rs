@@ -12,13 +12,15 @@
 //! ```
 //!
 //! To work with a Qdrant database, you'll first need to connect by creating a
-//! [`QdrantClient`](crate::client::QdrantClient):
+//! [`Qdrant`](qdrant_client::Qdrant) client:
 //! ```
 //!# use qdrant_client::prelude::*;
-//!# fn establish_connection(url: &str) -> anyhow::Result<QdrantClient> {
+//!# use qdrant_client::qdrant_client::Qdrant;
+//!# use qdrant_client::qdrant_client::errors::QdrantError;
+//!# fn establish_connection(url: &str) -> Result<Qdrant, QdrantError> {
 //! let mut config = QdrantClientConfig::from_url(url);
 //! config.api_key = std::env::var("QDRANT_API_KEY").ok();
-//! QdrantClient::new(Some(config))
+//! Qdrant::new(Some(config))
 //!# }
 //! ```
 //!
@@ -27,54 +29,52 @@
 //!
 //! ```
 //!# use qdrant_client::prelude::*;
-//! use qdrant_client::qdrant::{VectorParams, VectorsConfig};
-//! use qdrant_client::qdrant::vectors_config::Config;
-//!# async fn create_collection(qdrant_client: &QdrantClient)
-//!# -> Result<(), Box<dyn std::error::Error>> {
-//! let response = qdrant_client
-//!     .create_collection(&CreateCollection {
-//!         collection_name: "my_collection".into(),
-//!         vectors_config: Some(VectorsConfig {
-//!             config: Some(Config::Params(VectorParams {
-//!                 size: 512,
-//!                 distance: Distance::Cosine as i32,
-//!                 ..Default::default()
-//!             })),
-//!         }),
-//!         ..Default::default()
-//!     })
+//!# use qdrant_client::qdrant::{CreateCollectionBuilder, VectorParams, VectorParamsBuilder, VectorsConfig};
+//!# use qdrant_client::qdrant::vectors_config::Config;
+//!# use qdrant_client::qdrant_client::Qdrant;
+//!# async fn create_collection(qdrant_client: &Qdrant)
+//!# -> Result<(), QdrantError> {
+//! let client = Qdrant::new(None).unwrap();
+//! let response = client
+//!     .create_collection(
+//!         CreateCollectionBuilder::new("my_collection")
+//!             .vectors_config(VectorParamsBuilder::new(512, Distance::Cosine)),
+//!     )
 //!     .await?;
 //!# Ok(())
 //!# }
 //! ```
-//! The most interesting parts are the `collection_name` and the
-//! `vectors_config.size` (the length of vectors to store) and `distance`
-//! (which is the [`Distance`](crate::qdrant::Distance) measure to gauge
-//! similarity for the nearest neighbors search).
+//! The most interesting parts are the two arguments of `VectorParamsBuilder::new`.
+//! The first one (`512`) is the length of vectors to store and the second one (`Distance::Cosine`)
+//! is the Distance, which is the [`Distance`](qdrant::Distance) measure to gauge
+//! similarity for the nearest neighbors search.
 //!
 //! Now we have a collection, we can insert (or rather upsert) points.
 //! Points have an id, one or more vectors and a payload.
 //! We can usually do that in bulk, but for this example, we'll add a
 //! single point:
 //! ```
-//!# use qdrant_client::{prelude::*, qdrant::PointId};
-//!# async fn do_upsert(qdrant_client: &QdrantClient)
-//!# -> Result<(), Box<dyn std::error::Error>> {
-//! let point = PointStruct {
-//!     id: Some(PointId::from(42)), // unique u64 or String
-//!     vectors: Some(vec![0.0_f32; 512].into()),
-//!     payload: std::collections::HashMap::from([
-//!         ("great".into(), Value::from(true)),
-//!         ("level".into(), Value::from(9000)),
-//!         ("text".into(), Value::from("Hi Qdrant!")),
-//!         ("list".into(), Value::from(vec![1.234, 0.815])),
-//!     ]),
-//! };
+//! use qdrant_client::prelude::*;
+//! use qdrant_client::qdrant::UpsertPointsBuilder;
+//! use qdrant_client::qdrant_client::Qdrant;
+//!# async fn do_upsert(qdrant_client: &Qdrant)
+//!# -> Result<(), QdrantError> {
+//!    let point = PointStruct::new(
+//!        42, // The unique ID of our point
+//!        vec![0.0_f32; 512], // The vector
+//!        // Our payload
+//!        [
+//!            ("great", true.into()),
+//!            ("level", 9000.into()),
+//!            ("text", "Hi Qdrant!".into()),
+//!            ("list", vec![1.234f32, 0.815].into()),
+//!        ],
+//!    );
 //!
-//! let response = qdrant_client
-//!     .upsert_points("my_collection", None, vec![point], None)
-//!     .await?;
-//!# Ok(())
+//!    let response = qdrant_client
+//!        .upsert_points(UpsertPointsBuilder::new("my_collection", vec![point]))
+//!        .await?;
+//!#    Ok(())
 //!# }
 //! ```
 //!
@@ -82,25 +82,22 @@
 //! a plain similarity search:
 //! ```
 //!# use qdrant_client::prelude::*;
-//!# async fn search(qdrant_client: &QdrantClient)
-//!# -> Result<(), Box<dyn std::error::Error>> {
-//! let response = qdrant_client
-//!     .search_points(&SearchPoints {
-//!         collection_name: "my_collection".to_string(),
-//!         vector: vec![0.0_f32; 512],
-//!         limit: 4,
-//!         with_payload: Some(true.into()),
-//!         ..Default::default()
-//!     })
-//!     .await?;
+//!# use qdrant_client::qdrant::SearchPointsBuilder;
+//!# use qdrant_client::qdrant_client::Qdrant;
+//!# async fn search(qdrant_client: &Qdrant)
+//!# -> Result<(), QdrantError> {
+//! let search_request =
+//!     SearchPointsBuilder::new("my_collection", vec![0.0_f32; 512], 4).with_payload(true);
+//! let response = qdrant_client.search_points(search_request).await?;
 //!# Ok(())
 //!# }
 //! ```
-//!
-//! You can also add a `filters: Some(filters)` field to the
-//! [`SearchPoints`](crate::qdrant::SearchPoints) argument to filter the
-//! result. See the [`Filter`](crate::qdrant::Filter) documentation for
-//! details.
+//! The parameter for `SearchPointsBuilder::new()` contsructor are pretty straightforward:
+//! Name of the collection, the vector and how many top-k results to return.
+//! The `with_payload(true)` call tells qdrant to also return the (full) payload data for each point.
+//! You can also add a `.filter()` call to the
+//! [`SearchPointsBuilder`](qdrant::SearchPointsBuilder) to filter the result.
+//! See the [`Filter`](qdrant::Filter) documentation for details.
 
 mod channel_pool;
 pub mod client;
@@ -123,238 +120,8 @@ pub mod qdrant_client;
 #[cfg(feature = "serde")]
 pub mod serde;
 
-use error::NotA;
-use qdrant::{value::Kind::*, ListValue, RetrievedPoint, ScoredPoint, Struct, Value};
-use std::fmt::{Display, Formatter};
-use std::hash::{Hash, Hasher};
-
 #[doc(no_inline)]
 pub use prost_types::Timestamp;
-
-static NULL_VALUE: Value = Value {
-    kind: Some(NullValue(0)),
-};
-
-impl RetrievedPoint {
-    /// get a payload value for the specified key. If the key is not present,
-    /// this will return a null value.
-    ///
-    /// # Examples:
-    /// ```
-    /// use qdrant_client::qdrant::RetrievedPoint;
-    /// let point = RetrievedPoint::default();
-    /// assert!(point.get("not_present").is_null());
-    /// ````
-    pub fn get(&self, key: &str) -> &Value {
-        self.payload.get(key).unwrap_or(&NULL_VALUE)
-    }
-}
-
-impl ScoredPoint {
-    /// get a payload value for the specified key. If the key is not present,
-    /// this will return a null value.
-    ///
-    /// # Examples:
-    /// ```
-    /// use qdrant_client::qdrant::ScoredPoint;
-    /// let point = ScoredPoint::default();
-    /// assert!(point.get("not_present").is_null());
-    /// ````
-    pub fn get(&self, key: &str) -> &Value {
-        self.payload.get(key).unwrap_or(&NULL_VALUE)
-    }
-}
-
-macro_rules! extract {
-    ($kind:ident, $check:ident) => {
-        /// check if this value is a
-        #[doc = stringify!($kind)]
-        pub fn $check(&self) -> bool {
-            matches!(self.kind, Some($kind(_)))
-        }
-    };
-    ($kind:ident, $check:ident, $extract:ident, $ty:ty) => {
-        extract!($kind, $check);
-
-        /// extract the contents if this value is a
-        #[doc = stringify!($kind)]
-        pub fn $extract(&self) -> Option<$ty> {
-            if let Some($kind(v)) = self.kind {
-                Some(v)
-            } else {
-                None
-            }
-        }
-    };
-    ($kind:ident, $check:ident, $extract:ident, ref $ty:ty) => {
-        extract!($kind, $check);
-
-        /// extract the contents if this value is a
-        #[doc = stringify!($kind)]
-        pub fn $extract(&self) -> Option<&$ty> {
-            if let Some($kind(v)) = &self.kind {
-                Some(v)
-            } else {
-                None
-            }
-        }
-    };
-}
-
-impl Value {
-    extract!(NullValue, is_null);
-    extract!(BoolValue, is_bool, as_bool, bool);
-    extract!(IntegerValue, is_integer, as_integer, i64);
-    extract!(DoubleValue, is_double, as_double, f64);
-    extract!(StringValue, is_str, as_str, ref String);
-    extract!(ListValue, is_list, as_list, ref [Value]);
-    extract!(StructValue, is_struct, as_struct, ref Struct);
-
-    #[cfg(feature = "serde")]
-    /// convert this into a `serde_json::Value`
-    ///
-    /// # Examples:
-    ///
-    /// ```
-    /// use serde_json::json;
-    /// use qdrant_client::prelude::*;
-    /// use qdrant_client::qdrant::{value::Kind::*, Struct};
-    /// let value = Value { kind: Some(StructValue(Struct {
-    ///     fields: [
-    ///         ("text".into(), Value { kind: Some(StringValue("Hi Qdrant!".into())) }),
-    ///         ("int".into(), Value { kind: Some(IntegerValue(42))}),
-    ///     ].into()
-    /// }))};
-    /// assert_eq!(value.into_json(), json!({
-    ///    "text": "Hi Qdrant!",
-    ///    "int": 42
-    /// }));
-    /// ```
-    pub fn into_json(self) -> serde_json::Value {
-        use serde_json::Value as JsonValue;
-        match self.kind {
-            Some(BoolValue(b)) => JsonValue::Bool(b),
-            Some(IntegerValue(i)) => JsonValue::from(i),
-            Some(DoubleValue(d)) => JsonValue::from(d),
-            Some(StringValue(s)) => JsonValue::String(s),
-            Some(ListValue(vs)) => vs.into_iter().map(Value::into_json).collect(),
-            Some(StructValue(s)) => s
-                .fields
-                .into_iter()
-                .map(|(k, v)| (k, v.into_json()))
-                .collect(),
-            Some(NullValue(_)) | None => JsonValue::Null,
-        }
-    }
-}
-
-#[cfg(feature = "serde")]
-impl From<Value> for serde_json::Value {
-    fn from(value: Value) -> Self {
-        value.into_json()
-    }
-}
-
-impl Display for Value {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        match &self.kind {
-            Some(BoolValue(b)) => write!(f, "{}", b),
-            Some(IntegerValue(i)) => write!(f, "{}", i),
-            Some(DoubleValue(v)) => write!(f, "{}", v),
-            Some(StringValue(s)) => write!(f, "{:?}", s),
-            Some(ListValue(vs)) => {
-                let mut i = vs.values.iter();
-                write!(f, "[")?;
-                if let Some(first) = i.next() {
-                    write!(f, "{}", first)?;
-                    for v in i {
-                        write!(f, ",{}", v)?;
-                    }
-                }
-                write!(f, "]")
-            }
-            Some(StructValue(s)) => {
-                let mut i = s.fields.iter();
-                write!(f, "{{")?;
-                if let Some((key, value)) = i.next() {
-                    write!(f, "{:?}:{}", key, value)?;
-                    for (key, value) in i {
-                        write!(f, ",{:?}:{}", key, value)?;
-                    }
-                }
-                write!(f, "}}")
-            }
-            _ => write!(f, "null"),
-        }
-    }
-}
-
-impl Value {
-    /// try to get an iterator over the items of the contained list value, if any
-    pub fn iter_list(&self) -> Result<impl Iterator<Item = &Value>, NotA<ListValue>> {
-        if let Some(ListValue(values)) = &self.kind {
-            Ok(values.iter())
-        } else {
-            Err(NotA::default())
-        }
-    }
-
-    /// try to get a field from the struct if this value contains one
-    pub fn get_struct(&self, key: &str) -> Result<&Value, NotA<Struct>> {
-        if let Some(StructValue(Struct { fields })) = &self.kind {
-            Ok(fields.get(key).unwrap_or(&NULL_VALUE))
-        } else {
-            Err(NotA::default())
-        }
-    }
-}
-
-impl std::ops::Deref for ListValue {
-    type Target = [Value];
-
-    fn deref(&self) -> &[Value] {
-        &self.values
-    }
-}
-
-impl IntoIterator for ListValue {
-    type Item = Value;
-
-    type IntoIter = std::vec::IntoIter<Value>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        self.values.into_iter()
-    }
-}
-
-impl ListValue {
-    pub fn iter(&self) -> std::slice::Iter<'_, Value> {
-        self.values.iter()
-    }
-}
-
-impl Hash for qdrant::PointId {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        use qdrant::point_id::PointIdOptions::{Num, Uuid};
-        match &self.point_id_options {
-            Some(Num(u)) => state.write_u64(*u),
-            Some(Uuid(s)) => s.hash(state),
-            None => {}
-        }
-    }
-}
-
-impl Hash for qdrant::ScoredPoint {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.id.hash(state)
-    }
-}
-
-impl Hash for qdrant::RetrievedPoint {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.id.hash(state)
-    }
-}
 
 #[cfg(test)]
 mod tests {
