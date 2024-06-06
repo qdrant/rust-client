@@ -39,6 +39,7 @@ impl From<Vec<f32>> for Vector {
         Vector {
             data: vector,
             indices: None,
+            vectors_count: None,
         }
     }
 }
@@ -61,6 +62,7 @@ impl From<&[(u32, f32)]> for Vector {
         Vector {
             data: values,
             indices: Some(SparseIndices { data: indices }),
+            vectors_count: None,
         }
     }
 }
