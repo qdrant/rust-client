@@ -38,6 +38,9 @@ pub struct VectorParams {
     #[prost(enumeration = "Datatype", optional, tag = "6")]
     #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub datatype: ::core::option::Option<i32>,
+    /// Configuration for multi-vector search
+    #[prost(message, optional, tag = "7")]
+    pub multivector_config: ::core::option::Option<MultiVectorConfig>,
 }
 #[derive(derive_builder::Builder)]
 #[builder(
@@ -76,7 +79,10 @@ pub struct VectorParamsMap {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct VectorParamsDiffMap {
     #[prost(map = "string, message", tag = "1")]
-    pub map: ::std::collections::HashMap<::prost::alloc::string::String, VectorParamsDiff>,
+    pub map: ::std::collections::HashMap<
+        ::prost::alloc::string::String,
+        VectorParamsDiff,
+    >,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -133,7 +139,17 @@ pub struct SparseVectorParams {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SparseVectorConfig {
     #[prost(map = "string, message", tag = "1")]
-    pub map: ::std::collections::HashMap<::prost::alloc::string::String, SparseVectorParams>,
+    pub map: ::std::collections::HashMap<
+        ::prost::alloc::string::String,
+        SparseVectorParams,
+    >,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct MultiVectorConfig {
+    /// Comparator for multi-vector search
+    #[prost(enumeration = "MultiVectorComparator", tag = "1")]
+    pub comparator: i32,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -776,8 +792,10 @@ pub struct CollectionInfo {
     pub config: ::core::option::Option<CollectionConfig>,
     /// Collection data types
     #[prost(map = "string, message", tag = "8")]
-    pub payload_schema:
-        ::std::collections::HashMap<::prost::alloc::string::String, PayloadSchemaInfo>,
+    pub payload_schema: ::std::collections::HashMap<
+        ::prost::alloc::string::String,
+        PayloadSchemaInfo,
+    >,
     /// Approximate number of points in the collection
     #[prost(uint64, optional, tag = "9")]
     pub points_count: ::core::option::Option<u64>,
@@ -1089,7 +1107,9 @@ pub struct UpdateCollectionClusterSetupRequest {
         tags = "2, 3, 4, 5, 7, 8, 9"
     )]
     #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
-    pub operation: ::core::option::Option<update_collection_cluster_setup_request::Operation>,
+    pub operation: ::core::option::Option<
+        update_collection_cluster_setup_request::Operation,
+    >,
 }
 /// Nested message and enum types in `UpdateCollectionClusterSetupRequest`.
 pub mod update_collection_cluster_setup_request {
@@ -1180,6 +1200,7 @@ pub enum Datatype {
     Default = 0,
     Float32 = 1,
     Uint8 = 2,
+    Float16 = 3,
 }
 impl Datatype {
     /// String value of the enum field names used in the ProtoBuf definition.
@@ -1191,6 +1212,7 @@ impl Datatype {
             Datatype::Default => "Default",
             Datatype::Float32 => "Float32",
             Datatype::Uint8 => "Uint8",
+            Datatype::Float16 => "Float16",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -1199,6 +1221,7 @@ impl Datatype {
             "Default" => Some(Self::Default),
             "Float32" => Some(Self::Float32),
             "Uint8" => Some(Self::Uint8),
+            "Float16" => Some(Self::Float16),
             _ => None,
         }
     }
@@ -1226,6 +1249,29 @@ impl Modifier {
         match value {
             "None" => Some(Self::None),
             "Idf" => Some(Self::Idf),
+            _ => None,
+        }
+    }
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+#[repr(i32)]
+pub enum MultiVectorComparator {
+    MaxSim = 0,
+}
+impl MultiVectorComparator {
+    /// String value of the enum field names used in the ProtoBuf definition.
+    ///
+    /// The values are not transformed in any way and thus are considered stable
+    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+    pub fn as_str_name(&self) -> &'static str {
+        match self {
+            MultiVectorComparator::MaxSim => "MaxSim",
+        }
+    }
+    /// Creates an enum from field names used in the ProtoBuf definition.
+    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+        match value {
+            "MaxSim" => Some(Self::MaxSim),
             _ => None,
         }
     }
@@ -1489,6 +1535,8 @@ pub enum ReplicaState {
     PartialSnapshot = 5,
     /// Shard is undergoing recovered by an external node; Normally rejects updates, accepts updates if force is true
     Recovery = 6,
+    /// Points are being migrated to this shard as part of resharding
+    Resharding = 7,
 }
 impl ReplicaState {
     /// String value of the enum field names used in the ProtoBuf definition.
@@ -1504,6 +1552,7 @@ impl ReplicaState {
             ReplicaState::Listener => "Listener",
             ReplicaState::PartialSnapshot => "PartialSnapshot",
             ReplicaState::Recovery => "Recovery",
+            ReplicaState::Resharding => "Resharding",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -1516,6 +1565,7 @@ impl ReplicaState {
             "Listener" => Some(Self::Listener),
             "PartialSnapshot" => Some(Self::PartialSnapshot),
             "Recovery" => Some(Self::Recovery),
+            "Resharding" => Some(Self::Resharding),
             _ => None,
         }
     }
@@ -1555,8 +1605,8 @@ impl ShardTransferMethod {
 /// Generated client implementations.
 pub mod collections_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
-    use tonic::codegen::http::Uri;
     use tonic::codegen::*;
+    use tonic::codegen::http::Uri;
     #[derive(Debug, Clone)]
     pub struct CollectionsClient<T> {
         inner: tonic::client::Grpc<T>,
@@ -1600,8 +1650,9 @@ pub mod collections_client {
                     <T as tonic::client::GrpcService<tonic::body::BoxBody>>::ResponseBody,
                 >,
             >,
-            <T as tonic::codegen::Service<http::Request<tonic::body::BoxBody>>>::Error:
-                Into<StdError> + Send + Sync,
+            <T as tonic::codegen::Service<
+                http::Request<tonic::body::BoxBody>,
+            >>::Error: Into<StdError> + Send + Sync,
         {
             CollectionsClient::new(InterceptedService::new(inner, interceptor))
         }
@@ -1641,19 +1692,23 @@ pub mod collections_client {
         pub async fn get(
             &mut self,
             request: impl tonic::IntoRequest<super::GetCollectionInfoRequest>,
-        ) -> std::result::Result<tonic::Response<super::GetCollectionInfoResponse>, tonic::Status>
-        {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> std::result::Result<
+            tonic::Response<super::GetCollectionInfoResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Collections/Get");
             let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(GrpcMethod::new("qdrant.Collections", "Get"));
+            req.extensions_mut().insert(GrpcMethod::new("qdrant.Collections", "Get"));
             self.inner.unary(req, path, codec).await
         }
         ///
@@ -1661,19 +1716,23 @@ pub mod collections_client {
         pub async fn list(
             &mut self,
             request: impl tonic::IntoRequest<super::ListCollectionsRequest>,
-        ) -> std::result::Result<tonic::Response<super::ListCollectionsResponse>, tonic::Status>
-        {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> std::result::Result<
+            tonic::Response<super::ListCollectionsResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Collections/List");
             let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(GrpcMethod::new("qdrant.Collections", "List"));
+            req.extensions_mut().insert(GrpcMethod::new("qdrant.Collections", "List"));
             self.inner.unary(req, path, codec).await
         }
         ///
@@ -1681,19 +1740,25 @@ pub mod collections_client {
         pub async fn create(
             &mut self,
             request: impl tonic::IntoRequest<super::CreateCollection>,
-        ) -> std::result::Result<tonic::Response<super::CollectionOperationResponse>, tonic::Status>
-        {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> std::result::Result<
+            tonic::Response<super::CollectionOperationResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/qdrant.Collections/Create");
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Collections/Create",
+            );
             let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(GrpcMethod::new("qdrant.Collections", "Create"));
+            req.extensions_mut().insert(GrpcMethod::new("qdrant.Collections", "Create"));
             self.inner.unary(req, path, codec).await
         }
         ///
@@ -1701,19 +1766,25 @@ pub mod collections_client {
         pub async fn update(
             &mut self,
             request: impl tonic::IntoRequest<super::UpdateCollection>,
-        ) -> std::result::Result<tonic::Response<super::CollectionOperationResponse>, tonic::Status>
-        {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> std::result::Result<
+            tonic::Response<super::CollectionOperationResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/qdrant.Collections/Update");
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Collections/Update",
+            );
             let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(GrpcMethod::new("qdrant.Collections", "Update"));
+            req.extensions_mut().insert(GrpcMethod::new("qdrant.Collections", "Update"));
             self.inner.unary(req, path, codec).await
         }
         ///
@@ -1721,19 +1792,25 @@ pub mod collections_client {
         pub async fn delete(
             &mut self,
             request: impl tonic::IntoRequest<super::DeleteCollection>,
-        ) -> std::result::Result<tonic::Response<super::CollectionOperationResponse>, tonic::Status>
-        {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> std::result::Result<
+            tonic::Response<super::CollectionOperationResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/qdrant.Collections/Delete");
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Collections/Delete",
+            );
             let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(GrpcMethod::new("qdrant.Collections", "Delete"));
+            req.extensions_mut().insert(GrpcMethod::new("qdrant.Collections", "Delete"));
             self.inner.unary(req, path, codec).await
         }
         ///
@@ -1741,16 +1818,23 @@ pub mod collections_client {
         pub async fn update_aliases(
             &mut self,
             request: impl tonic::IntoRequest<super::ChangeAliases>,
-        ) -> std::result::Result<tonic::Response<super::CollectionOperationResponse>, tonic::Status>
-        {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> std::result::Result<
+            tonic::Response<super::CollectionOperationResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/qdrant.Collections/UpdateAliases");
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Collections/UpdateAliases",
+            );
             let mut req = request.into_request();
             req.extensions_mut()
                 .insert(GrpcMethod::new("qdrant.Collections", "UpdateAliases"));
@@ -1761,22 +1845,26 @@ pub mod collections_client {
         pub async fn list_collection_aliases(
             &mut self,
             request: impl tonic::IntoRequest<super::ListCollectionAliasesRequest>,
-        ) -> std::result::Result<tonic::Response<super::ListAliasesResponse>, tonic::Status>
-        {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> std::result::Result<
+            tonic::Response<super::ListAliasesResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path =
-                http::uri::PathAndQuery::from_static("/qdrant.Collections/ListCollectionAliases");
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Collections/ListCollectionAliases",
+            );
             let mut req = request.into_request();
-            req.extensions_mut().insert(GrpcMethod::new(
-                "qdrant.Collections",
-                "ListCollectionAliases",
-            ));
+            req.extensions_mut()
+                .insert(GrpcMethod::new("qdrant.Collections", "ListCollectionAliases"));
             self.inner.unary(req, path, codec).await
         }
         ///
@@ -1784,16 +1872,23 @@ pub mod collections_client {
         pub async fn list_aliases(
             &mut self,
             request: impl tonic::IntoRequest<super::ListAliasesRequest>,
-        ) -> std::result::Result<tonic::Response<super::ListAliasesResponse>, tonic::Status>
-        {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> std::result::Result<
+            tonic::Response<super::ListAliasesResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/qdrant.Collections/ListAliases");
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Collections/ListAliases",
+            );
             let mut req = request.into_request();
             req.extensions_mut()
                 .insert(GrpcMethod::new("qdrant.Collections", "ListAliases"));
@@ -1804,22 +1899,26 @@ pub mod collections_client {
         pub async fn collection_cluster_info(
             &mut self,
             request: impl tonic::IntoRequest<super::CollectionClusterInfoRequest>,
-        ) -> std::result::Result<tonic::Response<super::CollectionClusterInfoResponse>, tonic::Status>
-        {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> std::result::Result<
+            tonic::Response<super::CollectionClusterInfoResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path =
-                http::uri::PathAndQuery::from_static("/qdrant.Collections/CollectionClusterInfo");
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Collections/CollectionClusterInfo",
+            );
             let mut req = request.into_request();
-            req.extensions_mut().insert(GrpcMethod::new(
-                "qdrant.Collections",
-                "CollectionClusterInfo",
-            ));
+            req.extensions_mut()
+                .insert(GrpcMethod::new("qdrant.Collections", "CollectionClusterInfo"));
             self.inner.unary(req, path, codec).await
         }
         ///
@@ -1827,16 +1926,23 @@ pub mod collections_client {
         pub async fn collection_exists(
             &mut self,
             request: impl tonic::IntoRequest<super::CollectionExistsRequest>,
-        ) -> std::result::Result<tonic::Response<super::CollectionExistsResponse>, tonic::Status>
-        {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> std::result::Result<
+            tonic::Response<super::CollectionExistsResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/qdrant.Collections/CollectionExists");
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Collections/CollectionExists",
+            );
             let mut req = request.into_request();
             req.extensions_mut()
                 .insert(GrpcMethod::new("qdrant.Collections", "CollectionExists"));
@@ -1851,21 +1957,24 @@ pub mod collections_client {
             tonic::Response<super::UpdateCollectionClusterSetupResponse>,
             tonic::Status,
         > {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/qdrant.Collections/UpdateCollectionClusterSetup",
             );
             let mut req = request.into_request();
-            req.extensions_mut().insert(GrpcMethod::new(
-                "qdrant.Collections",
-                "UpdateCollectionClusterSetup",
-            ));
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new("qdrant.Collections", "UpdateCollectionClusterSetup"),
+                );
             self.inner.unary(req, path, codec).await
         }
         ///
@@ -1873,16 +1982,23 @@ pub mod collections_client {
         pub async fn create_shard_key(
             &mut self,
             request: impl tonic::IntoRequest<super::CreateShardKeyRequest>,
-        ) -> std::result::Result<tonic::Response<super::CreateShardKeyResponse>, tonic::Status>
-        {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> std::result::Result<
+            tonic::Response<super::CreateShardKeyResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/qdrant.Collections/CreateShardKey");
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Collections/CreateShardKey",
+            );
             let mut req = request.into_request();
             req.extensions_mut()
                 .insert(GrpcMethod::new("qdrant.Collections", "CreateShardKey"));
@@ -1893,16 +2009,23 @@ pub mod collections_client {
         pub async fn delete_shard_key(
             &mut self,
             request: impl tonic::IntoRequest<super::DeleteShardKeyRequest>,
-        ) -> std::result::Result<tonic::Response<super::DeleteShardKeyResponse>, tonic::Status>
-        {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> std::result::Result<
+            tonic::Response<super::DeleteShardKeyResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/qdrant.Collections/DeleteShardKey");
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Collections/DeleteShardKey",
+            );
             let mut req = request.into_request();
             req.extensions_mut()
                 .insert(GrpcMethod::new("qdrant.Collections", "DeleteShardKey"));
@@ -1922,61 +2045,91 @@ pub mod collections_server {
         async fn get(
             &self,
             request: tonic::Request<super::GetCollectionInfoRequest>,
-        ) -> std::result::Result<tonic::Response<super::GetCollectionInfoResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::GetCollectionInfoResponse>,
+            tonic::Status,
+        >;
         ///
         /// Get list name of all existing collections
         async fn list(
             &self,
             request: tonic::Request<super::ListCollectionsRequest>,
-        ) -> std::result::Result<tonic::Response<super::ListCollectionsResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::ListCollectionsResponse>,
+            tonic::Status,
+        >;
         ///
         /// Create new collection with given parameters
         async fn create(
             &self,
             request: tonic::Request<super::CreateCollection>,
-        ) -> std::result::Result<tonic::Response<super::CollectionOperationResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::CollectionOperationResponse>,
+            tonic::Status,
+        >;
         ///
         /// Update parameters of the existing collection
         async fn update(
             &self,
             request: tonic::Request<super::UpdateCollection>,
-        ) -> std::result::Result<tonic::Response<super::CollectionOperationResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::CollectionOperationResponse>,
+            tonic::Status,
+        >;
         ///
         /// Drop collection and all associated data
         async fn delete(
             &self,
             request: tonic::Request<super::DeleteCollection>,
-        ) -> std::result::Result<tonic::Response<super::CollectionOperationResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::CollectionOperationResponse>,
+            tonic::Status,
+        >;
         ///
         /// Update Aliases of the existing collection
         async fn update_aliases(
             &self,
             request: tonic::Request<super::ChangeAliases>,
-        ) -> std::result::Result<tonic::Response<super::CollectionOperationResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::CollectionOperationResponse>,
+            tonic::Status,
+        >;
         ///
         /// Get list of all aliases for a collection
         async fn list_collection_aliases(
             &self,
             request: tonic::Request<super::ListCollectionAliasesRequest>,
-        ) -> std::result::Result<tonic::Response<super::ListAliasesResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::ListAliasesResponse>,
+            tonic::Status,
+        >;
         ///
         /// Get list of all aliases for all existing collections
         async fn list_aliases(
             &self,
             request: tonic::Request<super::ListAliasesRequest>,
-        ) -> std::result::Result<tonic::Response<super::ListAliasesResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::ListAliasesResponse>,
+            tonic::Status,
+        >;
         ///
         /// Get cluster information for a collection
         async fn collection_cluster_info(
             &self,
             request: tonic::Request<super::CollectionClusterInfoRequest>,
-        ) -> std::result::Result<tonic::Response<super::CollectionClusterInfoResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::CollectionClusterInfoResponse>,
+            tonic::Status,
+        >;
         ///
         /// Check the existence of a collection
         async fn collection_exists(
             &self,
             request: tonic::Request<super::CollectionExistsRequest>,
-        ) -> std::result::Result<tonic::Response<super::CollectionExistsResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::CollectionExistsResponse>,
+            tonic::Status,
+        >;
         ///
         /// Update cluster setup for a collection
         async fn update_collection_cluster_setup(
@@ -1991,13 +2144,19 @@ pub mod collections_server {
         async fn create_shard_key(
             &self,
             request: tonic::Request<super::CreateShardKeyRequest>,
-        ) -> std::result::Result<tonic::Response<super::CreateShardKeyResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::CreateShardKeyResponse>,
+            tonic::Status,
+        >;
         ///
         /// Delete shard key
         async fn delete_shard_key(
             &self,
             request: tonic::Request<super::DeleteShardKeyRequest>,
-        ) -> std::result::Result<tonic::Response<super::DeleteShardKeyResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::DeleteShardKeyResponse>,
+            tonic::Status,
+        >;
     }
     #[derive(Debug)]
     pub struct CollectionsServer<T: Collections> {
@@ -2022,7 +2181,10 @@ pub mod collections_server {
                 max_encoding_message_size: None,
             }
         }
-        pub fn with_interceptor<F>(inner: T, interceptor: F) -> InterceptedService<Self, F>
+        pub fn with_interceptor<F>(
+            inner: T,
+            interceptor: F,
+        ) -> InterceptedService<Self, F>
         where
             F: tonic::service::Interceptor,
         {
@@ -2078,17 +2240,23 @@ pub mod collections_server {
                 "/qdrant.Collections/Get" => {
                     #[allow(non_camel_case_types)]
                     struct GetSvc<T: Collections>(pub Arc<T>);
-                    impl<T: Collections>
-                        tonic::server::UnaryService<super::GetCollectionInfoRequest> for GetSvc<T>
-                    {
+                    impl<
+                        T: Collections,
+                    > tonic::server::UnaryService<super::GetCollectionInfoRequest>
+                    for GetSvc<T> {
                         type Response = super::GetCollectionInfoResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::GetCollectionInfoRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut = async move { <T as Collections>::get(&inner, request).await };
+                            let fut = async move {
+                                <T as Collections>::get(&inner, request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -2118,16 +2286,23 @@ pub mod collections_server {
                 "/qdrant.Collections/List" => {
                     #[allow(non_camel_case_types)]
                     struct ListSvc<T: Collections>(pub Arc<T>);
-                    impl<T: Collections> tonic::server::UnaryService<super::ListCollectionsRequest> for ListSvc<T> {
+                    impl<
+                        T: Collections,
+                    > tonic::server::UnaryService<super::ListCollectionsRequest>
+                    for ListSvc<T> {
                         type Response = super::ListCollectionsResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::ListCollectionsRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut =
-                                async move { <T as Collections>::list(&inner, request).await };
+                            let fut = async move {
+                                <T as Collections>::list(&inner, request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -2157,16 +2332,23 @@ pub mod collections_server {
                 "/qdrant.Collections/Create" => {
                     #[allow(non_camel_case_types)]
                     struct CreateSvc<T: Collections>(pub Arc<T>);
-                    impl<T: Collections> tonic::server::UnaryService<super::CreateCollection> for CreateSvc<T> {
+                    impl<
+                        T: Collections,
+                    > tonic::server::UnaryService<super::CreateCollection>
+                    for CreateSvc<T> {
                         type Response = super::CollectionOperationResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::CreateCollection>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut =
-                                async move { <T as Collections>::create(&inner, request).await };
+                            let fut = async move {
+                                <T as Collections>::create(&inner, request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -2196,16 +2378,23 @@ pub mod collections_server {
                 "/qdrant.Collections/Update" => {
                     #[allow(non_camel_case_types)]
                     struct UpdateSvc<T: Collections>(pub Arc<T>);
-                    impl<T: Collections> tonic::server::UnaryService<super::UpdateCollection> for UpdateSvc<T> {
+                    impl<
+                        T: Collections,
+                    > tonic::server::UnaryService<super::UpdateCollection>
+                    for UpdateSvc<T> {
                         type Response = super::CollectionOperationResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::UpdateCollection>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut =
-                                async move { <T as Collections>::update(&inner, request).await };
+                            let fut = async move {
+                                <T as Collections>::update(&inner, request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -2235,16 +2424,23 @@ pub mod collections_server {
                 "/qdrant.Collections/Delete" => {
                     #[allow(non_camel_case_types)]
                     struct DeleteSvc<T: Collections>(pub Arc<T>);
-                    impl<T: Collections> tonic::server::UnaryService<super::DeleteCollection> for DeleteSvc<T> {
+                    impl<
+                        T: Collections,
+                    > tonic::server::UnaryService<super::DeleteCollection>
+                    for DeleteSvc<T> {
                         type Response = super::CollectionOperationResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::DeleteCollection>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut =
-                                async move { <T as Collections>::delete(&inner, request).await };
+                            let fut = async move {
+                                <T as Collections>::delete(&inner, request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -2274,9 +2470,15 @@ pub mod collections_server {
                 "/qdrant.Collections/UpdateAliases" => {
                     #[allow(non_camel_case_types)]
                     struct UpdateAliasesSvc<T: Collections>(pub Arc<T>);
-                    impl<T: Collections> tonic::server::UnaryService<super::ChangeAliases> for UpdateAliasesSvc<T> {
+                    impl<
+                        T: Collections,
+                    > tonic::server::UnaryService<super::ChangeAliases>
+                    for UpdateAliasesSvc<T> {
                         type Response = super::CollectionOperationResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::ChangeAliases>,
@@ -2314,19 +2516,23 @@ pub mod collections_server {
                 "/qdrant.Collections/ListCollectionAliases" => {
                     #[allow(non_camel_case_types)]
                     struct ListCollectionAliasesSvc<T: Collections>(pub Arc<T>);
-                    impl<T: Collections>
-                        tonic::server::UnaryService<super::ListCollectionAliasesRequest>
-                        for ListCollectionAliasesSvc<T>
-                    {
+                    impl<
+                        T: Collections,
+                    > tonic::server::UnaryService<super::ListCollectionAliasesRequest>
+                    for ListCollectionAliasesSvc<T> {
                         type Response = super::ListAliasesResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::ListCollectionAliasesRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as Collections>::list_collection_aliases(&inner, request).await
+                                <T as Collections>::list_collection_aliases(&inner, request)
+                                    .await
                             };
                             Box::pin(fut)
                         }
@@ -2357,9 +2563,15 @@ pub mod collections_server {
                 "/qdrant.Collections/ListAliases" => {
                     #[allow(non_camel_case_types)]
                     struct ListAliasesSvc<T: Collections>(pub Arc<T>);
-                    impl<T: Collections> tonic::server::UnaryService<super::ListAliasesRequest> for ListAliasesSvc<T> {
+                    impl<
+                        T: Collections,
+                    > tonic::server::UnaryService<super::ListAliasesRequest>
+                    for ListAliasesSvc<T> {
                         type Response = super::ListAliasesResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::ListAliasesRequest>,
@@ -2397,19 +2609,23 @@ pub mod collections_server {
                 "/qdrant.Collections/CollectionClusterInfo" => {
                     #[allow(non_camel_case_types)]
                     struct CollectionClusterInfoSvc<T: Collections>(pub Arc<T>);
-                    impl<T: Collections>
-                        tonic::server::UnaryService<super::CollectionClusterInfoRequest>
-                        for CollectionClusterInfoSvc<T>
-                    {
+                    impl<
+                        T: Collections,
+                    > tonic::server::UnaryService<super::CollectionClusterInfoRequest>
+                    for CollectionClusterInfoSvc<T> {
                         type Response = super::CollectionClusterInfoResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::CollectionClusterInfoRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as Collections>::collection_cluster_info(&inner, request).await
+                                <T as Collections>::collection_cluster_info(&inner, request)
+                                    .await
                             };
                             Box::pin(fut)
                         }
@@ -2440,11 +2656,15 @@ pub mod collections_server {
                 "/qdrant.Collections/CollectionExists" => {
                     #[allow(non_camel_case_types)]
                     struct CollectionExistsSvc<T: Collections>(pub Arc<T>);
-                    impl<T: Collections> tonic::server::UnaryService<super::CollectionExistsRequest>
-                        for CollectionExistsSvc<T>
-                    {
+                    impl<
+                        T: Collections,
+                    > tonic::server::UnaryService<super::CollectionExistsRequest>
+                    for CollectionExistsSvc<T> {
                         type Response = super::CollectionExistsResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::CollectionExistsRequest>,
@@ -2482,19 +2702,28 @@ pub mod collections_server {
                 "/qdrant.Collections/UpdateCollectionClusterSetup" => {
                     #[allow(non_camel_case_types)]
                     struct UpdateCollectionClusterSetupSvc<T: Collections>(pub Arc<T>);
-                    impl<T: Collections>
-                        tonic::server::UnaryService<super::UpdateCollectionClusterSetupRequest>
-                        for UpdateCollectionClusterSetupSvc<T>
-                    {
+                    impl<
+                        T: Collections,
+                    > tonic::server::UnaryService<
+                        super::UpdateCollectionClusterSetupRequest,
+                    > for UpdateCollectionClusterSetupSvc<T> {
                         type Response = super::UpdateCollectionClusterSetupResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
-                            request: tonic::Request<super::UpdateCollectionClusterSetupRequest>,
+                            request: tonic::Request<
+                                super::UpdateCollectionClusterSetupRequest,
+                            >,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as Collections>::update_collection_cluster_setup(&inner, request)
+                                <T as Collections>::update_collection_cluster_setup(
+                                        &inner,
+                                        request,
+                                    )
                                     .await
                             };
                             Box::pin(fut)
@@ -2526,11 +2755,15 @@ pub mod collections_server {
                 "/qdrant.Collections/CreateShardKey" => {
                     #[allow(non_camel_case_types)]
                     struct CreateShardKeySvc<T: Collections>(pub Arc<T>);
-                    impl<T: Collections> tonic::server::UnaryService<super::CreateShardKeyRequest>
-                        for CreateShardKeySvc<T>
-                    {
+                    impl<
+                        T: Collections,
+                    > tonic::server::UnaryService<super::CreateShardKeyRequest>
+                    for CreateShardKeySvc<T> {
                         type Response = super::CreateShardKeyResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::CreateShardKeyRequest>,
@@ -2568,11 +2801,15 @@ pub mod collections_server {
                 "/qdrant.Collections/DeleteShardKey" => {
                     #[allow(non_camel_case_types)]
                     struct DeleteShardKeySvc<T: Collections>(pub Arc<T>);
-                    impl<T: Collections> tonic::server::UnaryService<super::DeleteShardKeyRequest>
-                        for DeleteShardKeySvc<T>
-                    {
+                    impl<
+                        T: Collections,
+                    > tonic::server::UnaryService<super::DeleteShardKeyRequest>
+                    for DeleteShardKeySvc<T> {
                         type Response = super::DeleteShardKeyResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::DeleteShardKeyRequest>,
@@ -2607,14 +2844,18 @@ pub mod collections_server {
                     };
                     Box::pin(fut)
                 }
-                _ => Box::pin(async move {
-                    Ok(http::Response::builder()
-                        .status(200)
-                        .header("grpc-status", "12")
-                        .header("content-type", "application/grpc")
-                        .body(empty_body())
-                        .unwrap())
-                }),
+                _ => {
+                    Box::pin(async move {
+                        Ok(
+                            http::Response::builder()
+                                .status(200)
+                                .header("grpc-status", "12")
+                                .header("content-type", "application/grpc")
+                                .body(empty_body())
+                                .unwrap(),
+                        )
+                    })
+                }
             }
         }
     }
@@ -2790,13 +3031,61 @@ pub struct SparseIndices {
     #[prost(uint32, repeated, tag = "1")]
     pub data: ::prost::alloc::vec::Vec<u32>,
 }
+/// Legacy vector format, which determines the vector type by the configuration of its fields.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Vector {
+    /// Vector data (flatten for multi vectors)
     #[prost(float, repeated, tag = "1")]
     pub data: ::prost::alloc::vec::Vec<f32>,
+    /// Sparse indices for sparse vectors
     #[prost(message, optional, tag = "2")]
     pub indices: ::core::option::Option<SparseIndices>,
+    /// Number of vectors per multi vector
+    #[prost(uint32, optional, tag = "3")]
+    pub vectors_count: ::core::option::Option<u32>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct DenseVector {
+    #[prost(float, repeated, tag = "1")]
+    pub data: ::prost::alloc::vec::Vec<f32>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct SparseVector {
+    #[prost(float, repeated, tag = "1")]
+    pub values: ::prost::alloc::vec::Vec<f32>,
+    #[prost(uint32, repeated, tag = "2")]
+    pub indices: ::prost::alloc::vec::Vec<u32>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct MultiDenseVector {
+    #[prost(message, repeated, tag = "1")]
+    pub vectors: ::prost::alloc::vec::Vec<DenseVector>,
+}
+/// Vector type to be used in queries. Ids will be substituted with their corresponding vectors from the collection.
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct VectorInput {
+    #[prost(oneof = "vector_input::Variant", tags = "1, 2, 3, 4")]
+    pub variant: ::core::option::Option<vector_input::Variant>,
+}
+/// Nested message and enum types in `VectorInput`.
+pub mod vector_input {
+    #[allow(clippy::derive_partial_eq_without_eq)]
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
+    pub enum Variant {
+        #[prost(message, tag = "1")]
+        Id(super::PointId),
+        #[prost(message, tag = "2")]
+        Dense(super::DenseVector),
+        #[prost(message, tag = "3")]
+        Sparse(super::SparseVector),
+        #[prost(message, tag = "4")]
+        MultiDense(super::MultiDenseVector),
+    }
 }
 /// ---------------------------------------------
 /// ----------------- ShardKeySelector ----------
@@ -4112,7 +4401,7 @@ pub struct DiscoverBatchPoints {
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CountPoints {
-    /// name of the collection
+    /// Name of the collection
     #[prost(string, tag = "1")]
     #[builder(field(vis = "pub(crate)"))]
     pub collection_name: ::prost::alloc::string::String,
@@ -4141,6 +4430,145 @@ pub struct CountPoints {
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct RecommendInput {
+    /// Look for vectors closest to the vectors from these points
+    #[prost(message, repeated, tag = "1")]
+    pub positives: ::prost::alloc::vec::Vec<VectorInput>,
+    /// Try to avoid vectors like the vector from these points
+    #[prost(message, repeated, tag = "2")]
+    pub negatives: ::prost::alloc::vec::Vec<VectorInput>,
+    /// How to use the provided vectors to find the results
+    #[prost(enumeration = "RecommendStrategy", optional, tag = "3")]
+    pub strategy: ::core::option::Option<i32>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct ContextPairInput {
+    /// A positive vector
+    #[prost(message, optional, tag = "1")]
+    pub positive: ::core::option::Option<VectorInput>,
+    /// Repel from this vector
+    #[prost(message, optional, tag = "2")]
+    pub negative: ::core::option::Option<VectorInput>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct DiscoverInput {
+    /// Use this as the primary search objective
+    #[prost(message, optional, tag = "1")]
+    pub target: ::core::option::Option<VectorInput>,
+    /// Search space will be constrained by these pairs of vectors
+    #[prost(message, repeated, tag = "2")]
+    pub context_pairs: ::prost::alloc::vec::Vec<ContextPairInput>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct ContextInput {
+    /// Search space will be constrained by these pairs of vectors
+    #[prost(message, repeated, tag = "1")]
+    pub context_pairs: ::prost::alloc::vec::Vec<ContextPairInput>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct Query {
+    #[prost(oneof = "query::Variant", tags = "1, 2, 3, 4, 5, 6")]
+    pub variant: ::core::option::Option<query::Variant>,
+}
+/// Nested message and enum types in `Query`.
+pub mod query {
+    #[allow(clippy::derive_partial_eq_without_eq)]
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
+    pub enum Variant {
+        /// Find the nearest neighbors to this vector.
+        #[prost(message, tag = "1")]
+        Nearest(super::VectorInput),
+        /// Use multiple positive and negative vectors to find the results.
+        #[prost(message, tag = "2")]
+        Recommend(super::RecommendInput),
+        /// Search for nearest points, but constrain the search space with context
+        #[prost(message, tag = "3")]
+        Discover(super::DiscoverInput),
+        /// Return points that live in positive areas.
+        #[prost(message, tag = "4")]
+        Context(super::ContextInput),
+        /// Order the points by a payload field.
+        #[prost(message, tag = "5")]
+        OrderBy(super::OrderBy),
+        /// Fuse the results of multiple prefetches.
+        #[prost(enumeration = "super::Fusion", tag = "6")]
+        Fusion(i32),
+    }
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct PrefetchQuery {
+    /// Sub-requests to perform first. If present, the query will be performed on the results of the prefetches.
+    #[prost(message, repeated, tag = "1")]
+    pub prefetch: ::prost::alloc::vec::Vec<PrefetchQuery>,
+    /// Query to perform. If missing, returns points ordered by their IDs.
+    #[prost(message, optional, tag = "2")]
+    pub query: ::core::option::Option<Query>,
+    /// Define which vector to use for querying. If missing, the default vector is is used.
+    #[prost(string, optional, tag = "3")]
+    pub using: ::core::option::Option<::prost::alloc::string::String>,
+    /// Filter conditions - return only those points that satisfy the specified conditions.
+    #[prost(message, optional, tag = "4")]
+    pub filter: ::core::option::Option<Filter>,
+    /// Search params for when there is no prefetch.
+    #[prost(message, optional, tag = "5")]
+    pub search_params: ::core::option::Option<SearchParams>,
+    /// Return points with scores better than this threshold.
+    #[prost(float, optional, tag = "6")]
+    pub score_threshold: ::core::option::Option<f32>,
+    /// Max number of points. Default is 10
+    #[prost(uint64, optional, tag = "7")]
+    pub limit: ::core::option::Option<u64>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct QueryPoints {
+    /// Name of the collection
+    #[prost(string, tag = "1")]
+    pub collection_name: ::prost::alloc::string::String,
+    /// Sub-requests to perform first. If present, the query will be performed on the results of the prefetches.
+    #[prost(message, repeated, tag = "2")]
+    pub prefetch: ::prost::alloc::vec::Vec<PrefetchQuery>,
+    /// Query to perform. If missing, returns points ordered by their IDs.
+    #[prost(message, optional, tag = "3")]
+    pub query: ::core::option::Option<Query>,
+    /// Define which vector to use for querying. If missing, the default vector is used.
+    #[prost(string, optional, tag = "4")]
+    pub using: ::core::option::Option<::prost::alloc::string::String>,
+    /// Filter conditions - return only those points that satisfy the specified conditions.
+    #[prost(message, optional, tag = "5")]
+    pub filter: ::core::option::Option<Filter>,
+    /// Search params for when there is no prefetch.
+    #[prost(message, optional, tag = "6")]
+    pub search_params: ::core::option::Option<SearchParams>,
+    /// Return points with scores better than this threshold.
+    #[prost(float, optional, tag = "7")]
+    pub score_threshold: ::core::option::Option<f32>,
+    /// Max number of points. Default is 10.
+    #[prost(uint64, optional, tag = "8")]
+    pub limit: ::core::option::Option<u64>,
+    /// Offset of the result. Skip this many points. Default is 0.
+    #[prost(uint64, optional, tag = "9")]
+    pub offset: ::core::option::Option<u64>,
+    /// Options for specifying which vectors to include into the response.
+    #[prost(message, optional, tag = "10")]
+    pub with_vectors: ::core::option::Option<WithVectorsSelector>,
+    /// Options for specifying which payload to include or not.
+    #[prost(message, optional, tag = "11")]
+    pub with_payload: ::core::option::Option<WithPayloadSelector>,
+    /// Options for specifying read consistency guarantees.
+    #[prost(message, optional, tag = "12")]
+    pub read_consistency: ::core::option::Option<ReadConsistency>,
+    /// Specify in which shards to look for the points, if not specified - look in all shards.
+    #[prost(message, optional, tag = "13")]
+    pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PointsUpdateOperation {
     #[prost(
         oneof = "points_update_operation::Operation",
@@ -4163,7 +4591,10 @@ pub mod points_update_operation {
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct SetPayload {
         #[prost(map = "string, message", tag = "1")]
-        pub payload: ::std::collections::HashMap<::prost::alloc::string::String, super::Value>,
+        pub payload: ::std::collections::HashMap<
+            ::prost::alloc::string::String,
+            super::Value,
+        >,
         /// Affected points
         #[prost(message, optional, tag = "2")]
         pub points_selector: ::core::option::Option<super::PointsSelector>,
@@ -4178,7 +4609,10 @@ pub mod points_update_operation {
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct OverwritePayload {
         #[prost(map = "string, message", tag = "1")]
-        pub payload: ::std::collections::HashMap<::prost::alloc::string::String, super::Value>,
+        pub payload: ::std::collections::HashMap<
+            ::prost::alloc::string::String,
+            super::Value,
+        >,
         /// Affected points
         #[prost(message, optional, tag = "2")]
         pub points_selector: ::core::option::Option<super::PointsSelector>,
@@ -4315,6 +4749,23 @@ pub struct UpdateResult {
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct OrderValue {
+    #[prost(oneof = "order_value::Variant", tags = "1, 2")]
+    pub variant: ::core::option::Option<order_value::Variant>,
+}
+/// Nested message and enum types in `OrderValue`.
+pub mod order_value {
+    #[allow(clippy::derive_partial_eq_without_eq)]
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
+    pub enum Variant {
+        #[prost(int64, tag = "1")]
+        Int(i64),
+        #[prost(double, tag = "2")]
+        Float(f64),
+    }
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ScoredPoint {
     /// Point id
     #[prost(message, optional, tag = "1")]
@@ -4334,6 +4785,9 @@ pub struct ScoredPoint {
     /// Shard key
     #[prost(message, optional, tag = "7")]
     pub shard_key: ::core::option::Option<ShardKey>,
+    /// Order by value
+    #[prost(message, optional, tag = "8")]
+    pub order_value: ::core::option::Option<OrderValue>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -4745,7 +5199,9 @@ pub struct ValuesCount {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PointsSelector {
     #[prost(oneof = "points_selector::PointsSelectorOneOf", tags = "1, 2")]
-    pub points_selector_one_of: ::core::option::Option<points_selector::PointsSelectorOneOf>,
+    pub points_selector_one_of: ::core::option::Option<
+        points_selector::PointsSelectorOneOf,
+    >,
 }
 /// Nested message and enum types in `PointsSelector`.
 pub mod points_selector {
@@ -4947,6 +5403,30 @@ impl RecommendStrategy {
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
+pub enum Fusion {
+    /// Reciprocal Rank Fusion
+    Rrf = 0,
+}
+impl Fusion {
+    /// String value of the enum field names used in the ProtoBuf definition.
+    ///
+    /// The values are not transformed in any way and thus are considered stable
+    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+    pub fn as_str_name(&self) -> &'static str {
+        match self {
+            Fusion::Rrf => "RRF",
+        }
+    }
+    /// Creates an enum from field names used in the ProtoBuf definition.
+    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+        match value {
+            "RRF" => Some(Self::Rrf),
+            _ => None,
+        }
+    }
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+#[repr(i32)]
 pub enum UpdateStatus {
     UnknownUpdateStatus = 0,
     /// Update is received, but not processed yet
@@ -4983,8 +5463,8 @@ impl UpdateStatus {
 /// Generated client implementations.
 pub mod points_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
-    use tonic::codegen::http::Uri;
     use tonic::codegen::*;
+    use tonic::codegen::http::Uri;
     #[derive(Debug, Clone)]
     pub struct PointsClient<T> {
         inner: tonic::client::Grpc<T>,
@@ -5028,8 +5508,9 @@ pub mod points_client {
                     <T as tonic::client::GrpcService<tonic::body::BoxBody>>::ResponseBody,
                 >,
             >,
-            <T as tonic::codegen::Service<http::Request<tonic::body::BoxBody>>>::Error:
-                Into<StdError> + Send + Sync,
+            <T as tonic::codegen::Service<
+                http::Request<tonic::body::BoxBody>,
+            >>::Error: Into<StdError> + Send + Sync,
         {
             PointsClient::new(InterceptedService::new(inner, interceptor))
         }
@@ -5069,19 +5550,23 @@ pub mod points_client {
         pub async fn upsert(
             &mut self,
             request: impl tonic::IntoRequest<super::UpsertPoints>,
-        ) -> std::result::Result<tonic::Response<super::PointsOperationResponse>, tonic::Status>
-        {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> std::result::Result<
+            tonic::Response<super::PointsOperationResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Points/Upsert");
             let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(GrpcMethod::new("qdrant.Points", "Upsert"));
+            req.extensions_mut().insert(GrpcMethod::new("qdrant.Points", "Upsert"));
             self.inner.unary(req, path, codec).await
         }
         ///
@@ -5089,19 +5574,23 @@ pub mod points_client {
         pub async fn delete(
             &mut self,
             request: impl tonic::IntoRequest<super::DeletePoints>,
-        ) -> std::result::Result<tonic::Response<super::PointsOperationResponse>, tonic::Status>
-        {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> std::result::Result<
+            tonic::Response<super::PointsOperationResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Points/Delete");
             let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(GrpcMethod::new("qdrant.Points", "Delete"));
+            req.extensions_mut().insert(GrpcMethod::new("qdrant.Points", "Delete"));
             self.inner.unary(req, path, codec).await
         }
         ///
@@ -5110,17 +5599,19 @@ pub mod points_client {
             &mut self,
             request: impl tonic::IntoRequest<super::GetPoints>,
         ) -> std::result::Result<tonic::Response<super::GetResponse>, tonic::Status> {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Points/Get");
             let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(GrpcMethod::new("qdrant.Points", "Get"));
+            req.extensions_mut().insert(GrpcMethod::new("qdrant.Points", "Get"));
             self.inner.unary(req, path, codec).await
         }
         ///
@@ -5128,16 +5619,23 @@ pub mod points_client {
         pub async fn update_vectors(
             &mut self,
             request: impl tonic::IntoRequest<super::UpdatePointVectors>,
-        ) -> std::result::Result<tonic::Response<super::PointsOperationResponse>, tonic::Status>
-        {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> std::result::Result<
+            tonic::Response<super::PointsOperationResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/qdrant.Points/UpdateVectors");
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Points/UpdateVectors",
+            );
             let mut req = request.into_request();
             req.extensions_mut()
                 .insert(GrpcMethod::new("qdrant.Points", "UpdateVectors"));
@@ -5148,16 +5646,23 @@ pub mod points_client {
         pub async fn delete_vectors(
             &mut self,
             request: impl tonic::IntoRequest<super::DeletePointVectors>,
-        ) -> std::result::Result<tonic::Response<super::PointsOperationResponse>, tonic::Status>
-        {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> std::result::Result<
+            tonic::Response<super::PointsOperationResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/qdrant.Points/DeleteVectors");
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Points/DeleteVectors",
+            );
             let mut req = request.into_request();
             req.extensions_mut()
                 .insert(GrpcMethod::new("qdrant.Points", "DeleteVectors"));
@@ -5168,19 +5673,23 @@ pub mod points_client {
         pub async fn set_payload(
             &mut self,
             request: impl tonic::IntoRequest<super::SetPayloadPoints>,
-        ) -> std::result::Result<tonic::Response<super::PointsOperationResponse>, tonic::Status>
-        {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> std::result::Result<
+            tonic::Response<super::PointsOperationResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Points/SetPayload");
             let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(GrpcMethod::new("qdrant.Points", "SetPayload"));
+            req.extensions_mut().insert(GrpcMethod::new("qdrant.Points", "SetPayload"));
             self.inner.unary(req, path, codec).await
         }
         ///
@@ -5188,16 +5697,23 @@ pub mod points_client {
         pub async fn overwrite_payload(
             &mut self,
             request: impl tonic::IntoRequest<super::SetPayloadPoints>,
-        ) -> std::result::Result<tonic::Response<super::PointsOperationResponse>, tonic::Status>
-        {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> std::result::Result<
+            tonic::Response<super::PointsOperationResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/qdrant.Points/OverwritePayload");
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Points/OverwritePayload",
+            );
             let mut req = request.into_request();
             req.extensions_mut()
                 .insert(GrpcMethod::new("qdrant.Points", "OverwritePayload"));
@@ -5208,16 +5724,23 @@ pub mod points_client {
         pub async fn delete_payload(
             &mut self,
             request: impl tonic::IntoRequest<super::DeletePayloadPoints>,
-        ) -> std::result::Result<tonic::Response<super::PointsOperationResponse>, tonic::Status>
-        {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> std::result::Result<
+            tonic::Response<super::PointsOperationResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/qdrant.Points/DeletePayload");
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Points/DeletePayload",
+            );
             let mut req = request.into_request();
             req.extensions_mut()
                 .insert(GrpcMethod::new("qdrant.Points", "DeletePayload"));
@@ -5228,16 +5751,23 @@ pub mod points_client {
         pub async fn clear_payload(
             &mut self,
             request: impl tonic::IntoRequest<super::ClearPayloadPoints>,
-        ) -> std::result::Result<tonic::Response<super::PointsOperationResponse>, tonic::Status>
-        {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> std::result::Result<
+            tonic::Response<super::PointsOperationResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/qdrant.Points/ClearPayload");
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Points/ClearPayload",
+            );
             let mut req = request.into_request();
             req.extensions_mut()
                 .insert(GrpcMethod::new("qdrant.Points", "ClearPayload"));
@@ -5248,16 +5778,23 @@ pub mod points_client {
         pub async fn create_field_index(
             &mut self,
             request: impl tonic::IntoRequest<super::CreateFieldIndexCollection>,
-        ) -> std::result::Result<tonic::Response<super::PointsOperationResponse>, tonic::Status>
-        {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> std::result::Result<
+            tonic::Response<super::PointsOperationResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/qdrant.Points/CreateFieldIndex");
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Points/CreateFieldIndex",
+            );
             let mut req = request.into_request();
             req.extensions_mut()
                 .insert(GrpcMethod::new("qdrant.Points", "CreateFieldIndex"));
@@ -5268,16 +5805,23 @@ pub mod points_client {
         pub async fn delete_field_index(
             &mut self,
             request: impl tonic::IntoRequest<super::DeleteFieldIndexCollection>,
-        ) -> std::result::Result<tonic::Response<super::PointsOperationResponse>, tonic::Status>
-        {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> std::result::Result<
+            tonic::Response<super::PointsOperationResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/qdrant.Points/DeleteFieldIndex");
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Points/DeleteFieldIndex",
+            );
             let mut req = request.into_request();
             req.extensions_mut()
                 .insert(GrpcMethod::new("qdrant.Points", "DeleteFieldIndex"));
@@ -5289,17 +5833,19 @@ pub mod points_client {
             &mut self,
             request: impl tonic::IntoRequest<super::SearchPoints>,
         ) -> std::result::Result<tonic::Response<super::SearchResponse>, tonic::Status> {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Points/Search");
             let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(GrpcMethod::new("qdrant.Points", "Search"));
+            req.extensions_mut().insert(GrpcMethod::new("qdrant.Points", "Search"));
             self.inner.unary(req, path, codec).await
         }
         ///
@@ -5307,19 +5853,25 @@ pub mod points_client {
         pub async fn search_batch(
             &mut self,
             request: impl tonic::IntoRequest<super::SearchBatchPoints>,
-        ) -> std::result::Result<tonic::Response<super::SearchBatchResponse>, tonic::Status>
-        {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> std::result::Result<
+            tonic::Response<super::SearchBatchResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/qdrant.Points/SearchBatch");
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Points/SearchBatch",
+            );
             let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(GrpcMethod::new("qdrant.Points", "SearchBatch"));
+            req.extensions_mut().insert(GrpcMethod::new("qdrant.Points", "SearchBatch"));
             self.inner.unary(req, path, codec).await
         }
         ///
@@ -5327,16 +5879,23 @@ pub mod points_client {
         pub async fn search_groups(
             &mut self,
             request: impl tonic::IntoRequest<super::SearchPointGroups>,
-        ) -> std::result::Result<tonic::Response<super::SearchGroupsResponse>, tonic::Status>
-        {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> std::result::Result<
+            tonic::Response<super::SearchGroupsResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/qdrant.Points/SearchGroups");
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Points/SearchGroups",
+            );
             let mut req = request.into_request();
             req.extensions_mut()
                 .insert(GrpcMethod::new("qdrant.Points", "SearchGroups"));
@@ -5348,17 +5907,19 @@ pub mod points_client {
             &mut self,
             request: impl tonic::IntoRequest<super::ScrollPoints>,
         ) -> std::result::Result<tonic::Response<super::ScrollResponse>, tonic::Status> {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Points/Scroll");
             let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(GrpcMethod::new("qdrant.Points", "Scroll"));
+            req.extensions_mut().insert(GrpcMethod::new("qdrant.Points", "Scroll"));
             self.inner.unary(req, path, codec).await
         }
         ///
@@ -5366,18 +5927,23 @@ pub mod points_client {
         pub async fn recommend(
             &mut self,
             request: impl tonic::IntoRequest<super::RecommendPoints>,
-        ) -> std::result::Result<tonic::Response<super::RecommendResponse>, tonic::Status> {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> std::result::Result<
+            tonic::Response<super::RecommendResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Points/Recommend");
             let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(GrpcMethod::new("qdrant.Points", "Recommend"));
+            req.extensions_mut().insert(GrpcMethod::new("qdrant.Points", "Recommend"));
             self.inner.unary(req, path, codec).await
         }
         ///
@@ -5385,16 +5951,23 @@ pub mod points_client {
         pub async fn recommend_batch(
             &mut self,
             request: impl tonic::IntoRequest<super::RecommendBatchPoints>,
-        ) -> std::result::Result<tonic::Response<super::RecommendBatchResponse>, tonic::Status>
-        {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> std::result::Result<
+            tonic::Response<super::RecommendBatchResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/qdrant.Points/RecommendBatch");
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Points/RecommendBatch",
+            );
             let mut req = request.into_request();
             req.extensions_mut()
                 .insert(GrpcMethod::new("qdrant.Points", "RecommendBatch"));
@@ -5405,16 +5978,23 @@ pub mod points_client {
         pub async fn recommend_groups(
             &mut self,
             request: impl tonic::IntoRequest<super::RecommendPointGroups>,
-        ) -> std::result::Result<tonic::Response<super::RecommendGroupsResponse>, tonic::Status>
-        {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> std::result::Result<
+            tonic::Response<super::RecommendGroupsResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/qdrant.Points/RecommendGroups");
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Points/RecommendGroups",
+            );
             let mut req = request.into_request();
             req.extensions_mut()
                 .insert(GrpcMethod::new("qdrant.Points", "RecommendGroups"));
@@ -5439,18 +6019,23 @@ pub mod points_client {
         pub async fn discover(
             &mut self,
             request: impl tonic::IntoRequest<super::DiscoverPoints>,
-        ) -> std::result::Result<tonic::Response<super::DiscoverResponse>, tonic::Status> {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> std::result::Result<
+            tonic::Response<super::DiscoverResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Points/Discover");
             let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(GrpcMethod::new("qdrant.Points", "Discover"));
+            req.extensions_mut().insert(GrpcMethod::new("qdrant.Points", "Discover"));
             self.inner.unary(req, path, codec).await
         }
         ///
@@ -5458,16 +6043,23 @@ pub mod points_client {
         pub async fn discover_batch(
             &mut self,
             request: impl tonic::IntoRequest<super::DiscoverBatchPoints>,
-        ) -> std::result::Result<tonic::Response<super::DiscoverBatchResponse>, tonic::Status>
-        {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> std::result::Result<
+            tonic::Response<super::DiscoverBatchResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/qdrant.Points/DiscoverBatch");
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Points/DiscoverBatch",
+            );
             let mut req = request.into_request();
             req.extensions_mut()
                 .insert(GrpcMethod::new("qdrant.Points", "DiscoverBatch"));
@@ -5479,17 +6071,19 @@ pub mod points_client {
             &mut self,
             request: impl tonic::IntoRequest<super::CountPoints>,
         ) -> std::result::Result<tonic::Response<super::CountResponse>, tonic::Status> {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Points/Count");
             let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(GrpcMethod::new("qdrant.Points", "Count"));
+            req.extensions_mut().insert(GrpcMethod::new("qdrant.Points", "Count"));
             self.inner.unary(req, path, codec).await
         }
         ///
@@ -5497,19 +6091,25 @@ pub mod points_client {
         pub async fn update_batch(
             &mut self,
             request: impl tonic::IntoRequest<super::UpdateBatchPoints>,
-        ) -> std::result::Result<tonic::Response<super::UpdateBatchResponse>, tonic::Status>
-        {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> std::result::Result<
+            tonic::Response<super::UpdateBatchResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/qdrant.Points/UpdateBatch");
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Points/UpdateBatch",
+            );
             let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(GrpcMethod::new("qdrant.Points", "UpdateBatch"));
+            req.extensions_mut().insert(GrpcMethod::new("qdrant.Points", "UpdateBatch"));
             self.inner.unary(req, path, codec).await
         }
     }
@@ -5526,13 +6126,19 @@ pub mod points_server {
         async fn upsert(
             &self,
             request: tonic::Request<super::UpsertPoints>,
-        ) -> std::result::Result<tonic::Response<super::PointsOperationResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::PointsOperationResponse>,
+            tonic::Status,
+        >;
         ///
         /// Delete points
         async fn delete(
             &self,
             request: tonic::Request<super::DeletePoints>,
-        ) -> std::result::Result<tonic::Response<super::PointsOperationResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::PointsOperationResponse>,
+            tonic::Status,
+        >;
         ///
         /// Retrieve points
         async fn get(
@@ -5544,49 +6150,73 @@ pub mod points_server {
         async fn update_vectors(
             &self,
             request: tonic::Request<super::UpdatePointVectors>,
-        ) -> std::result::Result<tonic::Response<super::PointsOperationResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::PointsOperationResponse>,
+            tonic::Status,
+        >;
         ///
         /// Delete named vectors for points
         async fn delete_vectors(
             &self,
             request: tonic::Request<super::DeletePointVectors>,
-        ) -> std::result::Result<tonic::Response<super::PointsOperationResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::PointsOperationResponse>,
+            tonic::Status,
+        >;
         ///
         /// Set payload for points
         async fn set_payload(
             &self,
             request: tonic::Request<super::SetPayloadPoints>,
-        ) -> std::result::Result<tonic::Response<super::PointsOperationResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::PointsOperationResponse>,
+            tonic::Status,
+        >;
         ///
         /// Overwrite payload for points
         async fn overwrite_payload(
             &self,
             request: tonic::Request<super::SetPayloadPoints>,
-        ) -> std::result::Result<tonic::Response<super::PointsOperationResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::PointsOperationResponse>,
+            tonic::Status,
+        >;
         ///
         /// Delete specified key payload for points
         async fn delete_payload(
             &self,
             request: tonic::Request<super::DeletePayloadPoints>,
-        ) -> std::result::Result<tonic::Response<super::PointsOperationResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::PointsOperationResponse>,
+            tonic::Status,
+        >;
         ///
         /// Remove all payload for specified points
         async fn clear_payload(
             &self,
             request: tonic::Request<super::ClearPayloadPoints>,
-        ) -> std::result::Result<tonic::Response<super::PointsOperationResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::PointsOperationResponse>,
+            tonic::Status,
+        >;
         ///
         /// Create index for field in collection
         async fn create_field_index(
             &self,
             request: tonic::Request<super::CreateFieldIndexCollection>,
-        ) -> std::result::Result<tonic::Response<super::PointsOperationResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::PointsOperationResponse>,
+            tonic::Status,
+        >;
         ///
         /// Delete field index for collection
         async fn delete_field_index(
             &self,
             request: tonic::Request<super::DeleteFieldIndexCollection>,
-        ) -> std::result::Result<tonic::Response<super::PointsOperationResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::PointsOperationResponse>,
+            tonic::Status,
+        >;
         ///
         /// Retrieve closest points based on vector similarity and given filtering conditions
         async fn search(
@@ -5598,13 +6228,19 @@ pub mod points_server {
         async fn search_batch(
             &self,
             request: tonic::Request<super::SearchBatchPoints>,
-        ) -> std::result::Result<tonic::Response<super::SearchBatchResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::SearchBatchResponse>,
+            tonic::Status,
+        >;
         ///
         /// Retrieve closest points based on vector similarity and given filtering conditions, grouped by a given field
         async fn search_groups(
             &self,
             request: tonic::Request<super::SearchPointGroups>,
-        ) -> std::result::Result<tonic::Response<super::SearchGroupsResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::SearchGroupsResponse>,
+            tonic::Status,
+        >;
         ///
         /// Iterate over all or filtered points
         async fn scroll(
@@ -5616,19 +6252,28 @@ pub mod points_server {
         async fn recommend(
             &self,
             request: tonic::Request<super::RecommendPoints>,
-        ) -> std::result::Result<tonic::Response<super::RecommendResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::RecommendResponse>,
+            tonic::Status,
+        >;
         ///
         /// Look for the points which are closer to stored positive examples and at the same time further to negative examples.
         async fn recommend_batch(
             &self,
             request: tonic::Request<super::RecommendBatchPoints>,
-        ) -> std::result::Result<tonic::Response<super::RecommendBatchResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::RecommendBatchResponse>,
+            tonic::Status,
+        >;
         ///
         /// Look for the points which are closer to stored positive examples and at the same time further to negative examples, grouped by a given field
         async fn recommend_groups(
             &self,
             request: tonic::Request<super::RecommendPointGroups>,
-        ) -> std::result::Result<tonic::Response<super::RecommendGroupsResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::RecommendGroupsResponse>,
+            tonic::Status,
+        >;
         ///
         /// Use context and a target to find the most similar points to the target, constrained by the context.
         ///
@@ -5648,13 +6293,19 @@ pub mod points_server {
         async fn discover(
             &self,
             request: tonic::Request<super::DiscoverPoints>,
-        ) -> std::result::Result<tonic::Response<super::DiscoverResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::DiscoverResponse>,
+            tonic::Status,
+        >;
         ///
         /// Batch request points based on { positive, negative } pairs of examples, and/or a target
         async fn discover_batch(
             &self,
             request: tonic::Request<super::DiscoverBatchPoints>,
-        ) -> std::result::Result<tonic::Response<super::DiscoverBatchResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::DiscoverBatchResponse>,
+            tonic::Status,
+        >;
         ///
         /// Count points in collection with given filtering conditions
         async fn count(
@@ -5666,7 +6317,10 @@ pub mod points_server {
         async fn update_batch(
             &self,
             request: tonic::Request<super::UpdateBatchPoints>,
-        ) -> std::result::Result<tonic::Response<super::UpdateBatchResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::UpdateBatchResponse>,
+            tonic::Status,
+        >;
     }
     #[derive(Debug)]
     pub struct PointsServer<T: Points> {
@@ -5691,7 +6345,10 @@ pub mod points_server {
                 max_encoding_message_size: None,
             }
         }
-        pub fn with_interceptor<F>(inner: T, interceptor: F) -> InterceptedService<Self, F>
+        pub fn with_interceptor<F>(
+            inner: T,
+            interceptor: F,
+        ) -> InterceptedService<Self, F>
         where
             F: tonic::service::Interceptor,
         {
@@ -5747,15 +6404,21 @@ pub mod points_server {
                 "/qdrant.Points/Upsert" => {
                     #[allow(non_camel_case_types)]
                     struct UpsertSvc<T: Points>(pub Arc<T>);
-                    impl<T: Points> tonic::server::UnaryService<super::UpsertPoints> for UpsertSvc<T> {
+                    impl<T: Points> tonic::server::UnaryService<super::UpsertPoints>
+                    for UpsertSvc<T> {
                         type Response = super::PointsOperationResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::UpsertPoints>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut = async move { <T as Points>::upsert(&inner, request).await };
+                            let fut = async move {
+                                <T as Points>::upsert(&inner, request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -5785,15 +6448,21 @@ pub mod points_server {
                 "/qdrant.Points/Delete" => {
                     #[allow(non_camel_case_types)]
                     struct DeleteSvc<T: Points>(pub Arc<T>);
-                    impl<T: Points> tonic::server::UnaryService<super::DeletePoints> for DeleteSvc<T> {
+                    impl<T: Points> tonic::server::UnaryService<super::DeletePoints>
+                    for DeleteSvc<T> {
                         type Response = super::PointsOperationResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::DeletePoints>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut = async move { <T as Points>::delete(&inner, request).await };
+                            let fut = async move {
+                                <T as Points>::delete(&inner, request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -5823,15 +6492,21 @@ pub mod points_server {
                 "/qdrant.Points/Get" => {
                     #[allow(non_camel_case_types)]
                     struct GetSvc<T: Points>(pub Arc<T>);
-                    impl<T: Points> tonic::server::UnaryService<super::GetPoints> for GetSvc<T> {
+                    impl<T: Points> tonic::server::UnaryService<super::GetPoints>
+                    for GetSvc<T> {
                         type Response = super::GetResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::GetPoints>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut = async move { <T as Points>::get(&inner, request).await };
+                            let fut = async move {
+                                <T as Points>::get(&inner, request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -5861,16 +6536,23 @@ pub mod points_server {
                 "/qdrant.Points/UpdateVectors" => {
                     #[allow(non_camel_case_types)]
                     struct UpdateVectorsSvc<T: Points>(pub Arc<T>);
-                    impl<T: Points> tonic::server::UnaryService<super::UpdatePointVectors> for UpdateVectorsSvc<T> {
+                    impl<
+                        T: Points,
+                    > tonic::server::UnaryService<super::UpdatePointVectors>
+                    for UpdateVectorsSvc<T> {
                         type Response = super::PointsOperationResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::UpdatePointVectors>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut =
-                                async move { <T as Points>::update_vectors(&inner, request).await };
+                            let fut = async move {
+                                <T as Points>::update_vectors(&inner, request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -5900,16 +6582,23 @@ pub mod points_server {
                 "/qdrant.Points/DeleteVectors" => {
                     #[allow(non_camel_case_types)]
                     struct DeleteVectorsSvc<T: Points>(pub Arc<T>);
-                    impl<T: Points> tonic::server::UnaryService<super::DeletePointVectors> for DeleteVectorsSvc<T> {
+                    impl<
+                        T: Points,
+                    > tonic::server::UnaryService<super::DeletePointVectors>
+                    for DeleteVectorsSvc<T> {
                         type Response = super::PointsOperationResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::DeletePointVectors>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut =
-                                async move { <T as Points>::delete_vectors(&inner, request).await };
+                            let fut = async move {
+                                <T as Points>::delete_vectors(&inner, request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -5939,16 +6628,21 @@ pub mod points_server {
                 "/qdrant.Points/SetPayload" => {
                     #[allow(non_camel_case_types)]
                     struct SetPayloadSvc<T: Points>(pub Arc<T>);
-                    impl<T: Points> tonic::server::UnaryService<super::SetPayloadPoints> for SetPayloadSvc<T> {
+                    impl<T: Points> tonic::server::UnaryService<super::SetPayloadPoints>
+                    for SetPayloadSvc<T> {
                         type Response = super::PointsOperationResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::SetPayloadPoints>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut =
-                                async move { <T as Points>::set_payload(&inner, request).await };
+                            let fut = async move {
+                                <T as Points>::set_payload(&inner, request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -5978,9 +6672,13 @@ pub mod points_server {
                 "/qdrant.Points/OverwritePayload" => {
                     #[allow(non_camel_case_types)]
                     struct OverwritePayloadSvc<T: Points>(pub Arc<T>);
-                    impl<T: Points> tonic::server::UnaryService<super::SetPayloadPoints> for OverwritePayloadSvc<T> {
+                    impl<T: Points> tonic::server::UnaryService<super::SetPayloadPoints>
+                    for OverwritePayloadSvc<T> {
                         type Response = super::PointsOperationResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::SetPayloadPoints>,
@@ -6018,16 +6716,23 @@ pub mod points_server {
                 "/qdrant.Points/DeletePayload" => {
                     #[allow(non_camel_case_types)]
                     struct DeletePayloadSvc<T: Points>(pub Arc<T>);
-                    impl<T: Points> tonic::server::UnaryService<super::DeletePayloadPoints> for DeletePayloadSvc<T> {
+                    impl<
+                        T: Points,
+                    > tonic::server::UnaryService<super::DeletePayloadPoints>
+                    for DeletePayloadSvc<T> {
                         type Response = super::PointsOperationResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::DeletePayloadPoints>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut =
-                                async move { <T as Points>::delete_payload(&inner, request).await };
+                            let fut = async move {
+                                <T as Points>::delete_payload(&inner, request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -6057,16 +6762,23 @@ pub mod points_server {
                 "/qdrant.Points/ClearPayload" => {
                     #[allow(non_camel_case_types)]
                     struct ClearPayloadSvc<T: Points>(pub Arc<T>);
-                    impl<T: Points> tonic::server::UnaryService<super::ClearPayloadPoints> for ClearPayloadSvc<T> {
+                    impl<
+                        T: Points,
+                    > tonic::server::UnaryService<super::ClearPayloadPoints>
+                    for ClearPayloadSvc<T> {
                         type Response = super::PointsOperationResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::ClearPayloadPoints>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut =
-                                async move { <T as Points>::clear_payload(&inner, request).await };
+                            let fut = async move {
+                                <T as Points>::clear_payload(&inner, request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -6096,11 +6808,15 @@ pub mod points_server {
                 "/qdrant.Points/CreateFieldIndex" => {
                     #[allow(non_camel_case_types)]
                     struct CreateFieldIndexSvc<T: Points>(pub Arc<T>);
-                    impl<T: Points> tonic::server::UnaryService<super::CreateFieldIndexCollection>
-                        for CreateFieldIndexSvc<T>
-                    {
+                    impl<
+                        T: Points,
+                    > tonic::server::UnaryService<super::CreateFieldIndexCollection>
+                    for CreateFieldIndexSvc<T> {
                         type Response = super::PointsOperationResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::CreateFieldIndexCollection>,
@@ -6138,11 +6854,15 @@ pub mod points_server {
                 "/qdrant.Points/DeleteFieldIndex" => {
                     #[allow(non_camel_case_types)]
                     struct DeleteFieldIndexSvc<T: Points>(pub Arc<T>);
-                    impl<T: Points> tonic::server::UnaryService<super::DeleteFieldIndexCollection>
-                        for DeleteFieldIndexSvc<T>
-                    {
+                    impl<
+                        T: Points,
+                    > tonic::server::UnaryService<super::DeleteFieldIndexCollection>
+                    for DeleteFieldIndexSvc<T> {
                         type Response = super::PointsOperationResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::DeleteFieldIndexCollection>,
@@ -6180,15 +6900,21 @@ pub mod points_server {
                 "/qdrant.Points/Search" => {
                     #[allow(non_camel_case_types)]
                     struct SearchSvc<T: Points>(pub Arc<T>);
-                    impl<T: Points> tonic::server::UnaryService<super::SearchPoints> for SearchSvc<T> {
+                    impl<T: Points> tonic::server::UnaryService<super::SearchPoints>
+                    for SearchSvc<T> {
                         type Response = super::SearchResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::SearchPoints>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut = async move { <T as Points>::search(&inner, request).await };
+                            let fut = async move {
+                                <T as Points>::search(&inner, request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -6218,16 +6944,21 @@ pub mod points_server {
                 "/qdrant.Points/SearchBatch" => {
                     #[allow(non_camel_case_types)]
                     struct SearchBatchSvc<T: Points>(pub Arc<T>);
-                    impl<T: Points> tonic::server::UnaryService<super::SearchBatchPoints> for SearchBatchSvc<T> {
+                    impl<T: Points> tonic::server::UnaryService<super::SearchBatchPoints>
+                    for SearchBatchSvc<T> {
                         type Response = super::SearchBatchResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::SearchBatchPoints>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut =
-                                async move { <T as Points>::search_batch(&inner, request).await };
+                            let fut = async move {
+                                <T as Points>::search_batch(&inner, request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -6257,16 +6988,21 @@ pub mod points_server {
                 "/qdrant.Points/SearchGroups" => {
                     #[allow(non_camel_case_types)]
                     struct SearchGroupsSvc<T: Points>(pub Arc<T>);
-                    impl<T: Points> tonic::server::UnaryService<super::SearchPointGroups> for SearchGroupsSvc<T> {
+                    impl<T: Points> tonic::server::UnaryService<super::SearchPointGroups>
+                    for SearchGroupsSvc<T> {
                         type Response = super::SearchGroupsResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::SearchPointGroups>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut =
-                                async move { <T as Points>::search_groups(&inner, request).await };
+                            let fut = async move {
+                                <T as Points>::search_groups(&inner, request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -6296,15 +7032,21 @@ pub mod points_server {
                 "/qdrant.Points/Scroll" => {
                     #[allow(non_camel_case_types)]
                     struct ScrollSvc<T: Points>(pub Arc<T>);
-                    impl<T: Points> tonic::server::UnaryService<super::ScrollPoints> for ScrollSvc<T> {
+                    impl<T: Points> tonic::server::UnaryService<super::ScrollPoints>
+                    for ScrollSvc<T> {
                         type Response = super::ScrollResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::ScrollPoints>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut = async move { <T as Points>::scroll(&inner, request).await };
+                            let fut = async move {
+                                <T as Points>::scroll(&inner, request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -6334,16 +7076,21 @@ pub mod points_server {
                 "/qdrant.Points/Recommend" => {
                     #[allow(non_camel_case_types)]
                     struct RecommendSvc<T: Points>(pub Arc<T>);
-                    impl<T: Points> tonic::server::UnaryService<super::RecommendPoints> for RecommendSvc<T> {
+                    impl<T: Points> tonic::server::UnaryService<super::RecommendPoints>
+                    for RecommendSvc<T> {
                         type Response = super::RecommendResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::RecommendPoints>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut =
-                                async move { <T as Points>::recommend(&inner, request).await };
+                            let fut = async move {
+                                <T as Points>::recommend(&inner, request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -6373,9 +7120,15 @@ pub mod points_server {
                 "/qdrant.Points/RecommendBatch" => {
                     #[allow(non_camel_case_types)]
                     struct RecommendBatchSvc<T: Points>(pub Arc<T>);
-                    impl<T: Points> tonic::server::UnaryService<super::RecommendBatchPoints> for RecommendBatchSvc<T> {
+                    impl<
+                        T: Points,
+                    > tonic::server::UnaryService<super::RecommendBatchPoints>
+                    for RecommendBatchSvc<T> {
                         type Response = super::RecommendBatchResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::RecommendBatchPoints>,
@@ -6413,9 +7166,15 @@ pub mod points_server {
                 "/qdrant.Points/RecommendGroups" => {
                     #[allow(non_camel_case_types)]
                     struct RecommendGroupsSvc<T: Points>(pub Arc<T>);
-                    impl<T: Points> tonic::server::UnaryService<super::RecommendPointGroups> for RecommendGroupsSvc<T> {
+                    impl<
+                        T: Points,
+                    > tonic::server::UnaryService<super::RecommendPointGroups>
+                    for RecommendGroupsSvc<T> {
                         type Response = super::RecommendGroupsResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::RecommendPointGroups>,
@@ -6453,15 +7212,21 @@ pub mod points_server {
                 "/qdrant.Points/Discover" => {
                     #[allow(non_camel_case_types)]
                     struct DiscoverSvc<T: Points>(pub Arc<T>);
-                    impl<T: Points> tonic::server::UnaryService<super::DiscoverPoints> for DiscoverSvc<T> {
+                    impl<T: Points> tonic::server::UnaryService<super::DiscoverPoints>
+                    for DiscoverSvc<T> {
                         type Response = super::DiscoverResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::DiscoverPoints>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut = async move { <T as Points>::discover(&inner, request).await };
+                            let fut = async move {
+                                <T as Points>::discover(&inner, request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -6491,16 +7256,23 @@ pub mod points_server {
                 "/qdrant.Points/DiscoverBatch" => {
                     #[allow(non_camel_case_types)]
                     struct DiscoverBatchSvc<T: Points>(pub Arc<T>);
-                    impl<T: Points> tonic::server::UnaryService<super::DiscoverBatchPoints> for DiscoverBatchSvc<T> {
+                    impl<
+                        T: Points,
+                    > tonic::server::UnaryService<super::DiscoverBatchPoints>
+                    for DiscoverBatchSvc<T> {
                         type Response = super::DiscoverBatchResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::DiscoverBatchPoints>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut =
-                                async move { <T as Points>::discover_batch(&inner, request).await };
+                            let fut = async move {
+                                <T as Points>::discover_batch(&inner, request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -6530,15 +7302,21 @@ pub mod points_server {
                 "/qdrant.Points/Count" => {
                     #[allow(non_camel_case_types)]
                     struct CountSvc<T: Points>(pub Arc<T>);
-                    impl<T: Points> tonic::server::UnaryService<super::CountPoints> for CountSvc<T> {
+                    impl<T: Points> tonic::server::UnaryService<super::CountPoints>
+                    for CountSvc<T> {
                         type Response = super::CountResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::CountPoints>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut = async move { <T as Points>::count(&inner, request).await };
+                            let fut = async move {
+                                <T as Points>::count(&inner, request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -6568,16 +7346,21 @@ pub mod points_server {
                 "/qdrant.Points/UpdateBatch" => {
                     #[allow(non_camel_case_types)]
                     struct UpdateBatchSvc<T: Points>(pub Arc<T>);
-                    impl<T: Points> tonic::server::UnaryService<super::UpdateBatchPoints> for UpdateBatchSvc<T> {
+                    impl<T: Points> tonic::server::UnaryService<super::UpdateBatchPoints>
+                    for UpdateBatchSvc<T> {
                         type Response = super::UpdateBatchResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::UpdateBatchPoints>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut =
-                                async move { <T as Points>::update_batch(&inner, request).await };
+                            let fut = async move {
+                                <T as Points>::update_batch(&inner, request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -6604,14 +7387,18 @@ pub mod points_server {
                     };
                     Box::pin(fut)
                 }
-                _ => Box::pin(async move {
-                    Ok(http::Response::builder()
-                        .status(200)
-                        .header("grpc-status", "12")
-                        .header("content-type", "application/grpc")
-                        .body(empty_body())
-                        .unwrap())
-                }),
+                _ => {
+                    Box::pin(async move {
+                        Ok(
+                            http::Response::builder()
+                                .status(200)
+                                .header("grpc-status", "12")
+                                .header("content-type", "application/grpc")
+                                .body(empty_body())
+                                .unwrap(),
+                        )
+                    })
+                }
             }
         }
     }
@@ -6722,8 +7509,8 @@ pub struct DeleteSnapshotResponse {
 /// Generated client implementations.
 pub mod snapshots_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
-    use tonic::codegen::http::Uri;
     use tonic::codegen::*;
+    use tonic::codegen::http::Uri;
     #[derive(Debug, Clone)]
     pub struct SnapshotsClient<T> {
         inner: tonic::client::Grpc<T>,
@@ -6767,8 +7554,9 @@ pub mod snapshots_client {
                     <T as tonic::client::GrpcService<tonic::body::BoxBody>>::ResponseBody,
                 >,
             >,
-            <T as tonic::codegen::Service<http::Request<tonic::body::BoxBody>>>::Error:
-                Into<StdError> + Send + Sync,
+            <T as tonic::codegen::Service<
+                http::Request<tonic::body::BoxBody>,
+            >>::Error: Into<StdError> + Send + Sync,
         {
             SnapshotsClient::new(InterceptedService::new(inner, interceptor))
         }
@@ -6808,19 +7596,23 @@ pub mod snapshots_client {
         pub async fn create(
             &mut self,
             request: impl tonic::IntoRequest<super::CreateSnapshotRequest>,
-        ) -> std::result::Result<tonic::Response<super::CreateSnapshotResponse>, tonic::Status>
-        {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> std::result::Result<
+            tonic::Response<super::CreateSnapshotResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Snapshots/Create");
             let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(GrpcMethod::new("qdrant.Snapshots", "Create"));
+            req.extensions_mut().insert(GrpcMethod::new("qdrant.Snapshots", "Create"));
             self.inner.unary(req, path, codec).await
         }
         ///
@@ -6828,19 +7620,23 @@ pub mod snapshots_client {
         pub async fn list(
             &mut self,
             request: impl tonic::IntoRequest<super::ListSnapshotsRequest>,
-        ) -> std::result::Result<tonic::Response<super::ListSnapshotsResponse>, tonic::Status>
-        {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> std::result::Result<
+            tonic::Response<super::ListSnapshotsResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Snapshots/List");
             let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(GrpcMethod::new("qdrant.Snapshots", "List"));
+            req.extensions_mut().insert(GrpcMethod::new("qdrant.Snapshots", "List"));
             self.inner.unary(req, path, codec).await
         }
         ///
@@ -6848,19 +7644,23 @@ pub mod snapshots_client {
         pub async fn delete(
             &mut self,
             request: impl tonic::IntoRequest<super::DeleteSnapshotRequest>,
-        ) -> std::result::Result<tonic::Response<super::DeleteSnapshotResponse>, tonic::Status>
-        {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> std::result::Result<
+            tonic::Response<super::DeleteSnapshotResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Snapshots/Delete");
             let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(GrpcMethod::new("qdrant.Snapshots", "Delete"));
+            req.extensions_mut().insert(GrpcMethod::new("qdrant.Snapshots", "Delete"));
             self.inner.unary(req, path, codec).await
         }
         ///
@@ -6868,16 +7668,23 @@ pub mod snapshots_client {
         pub async fn create_full(
             &mut self,
             request: impl tonic::IntoRequest<super::CreateFullSnapshotRequest>,
-        ) -> std::result::Result<tonic::Response<super::CreateSnapshotResponse>, tonic::Status>
-        {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> std::result::Result<
+            tonic::Response<super::CreateSnapshotResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/qdrant.Snapshots/CreateFull");
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Snapshots/CreateFull",
+            );
             let mut req = request.into_request();
             req.extensions_mut()
                 .insert(GrpcMethod::new("qdrant.Snapshots", "CreateFull"));
@@ -6888,19 +7695,25 @@ pub mod snapshots_client {
         pub async fn list_full(
             &mut self,
             request: impl tonic::IntoRequest<super::ListFullSnapshotsRequest>,
-        ) -> std::result::Result<tonic::Response<super::ListSnapshotsResponse>, tonic::Status>
-        {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> std::result::Result<
+            tonic::Response<super::ListSnapshotsResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/qdrant.Snapshots/ListFull");
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Snapshots/ListFull",
+            );
             let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(GrpcMethod::new("qdrant.Snapshots", "ListFull"));
+            req.extensions_mut().insert(GrpcMethod::new("qdrant.Snapshots", "ListFull"));
             self.inner.unary(req, path, codec).await
         }
         ///
@@ -6908,16 +7721,23 @@ pub mod snapshots_client {
         pub async fn delete_full(
             &mut self,
             request: impl tonic::IntoRequest<super::DeleteFullSnapshotRequest>,
-        ) -> std::result::Result<tonic::Response<super::DeleteSnapshotResponse>, tonic::Status>
-        {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> std::result::Result<
+            tonic::Response<super::DeleteSnapshotResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/qdrant.Snapshots/DeleteFull");
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Snapshots/DeleteFull",
+            );
             let mut req = request.into_request();
             req.extensions_mut()
                 .insert(GrpcMethod::new("qdrant.Snapshots", "DeleteFull"));
@@ -6937,37 +7757,55 @@ pub mod snapshots_server {
         async fn create(
             &self,
             request: tonic::Request<super::CreateSnapshotRequest>,
-        ) -> std::result::Result<tonic::Response<super::CreateSnapshotResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::CreateSnapshotResponse>,
+            tonic::Status,
+        >;
         ///
         /// List collection snapshots
         async fn list(
             &self,
             request: tonic::Request<super::ListSnapshotsRequest>,
-        ) -> std::result::Result<tonic::Response<super::ListSnapshotsResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::ListSnapshotsResponse>,
+            tonic::Status,
+        >;
         ///
         /// Delete collection snapshot
         async fn delete(
             &self,
             request: tonic::Request<super::DeleteSnapshotRequest>,
-        ) -> std::result::Result<tonic::Response<super::DeleteSnapshotResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::DeleteSnapshotResponse>,
+            tonic::Status,
+        >;
         ///
         /// Create full storage snapshot
         async fn create_full(
             &self,
             request: tonic::Request<super::CreateFullSnapshotRequest>,
-        ) -> std::result::Result<tonic::Response<super::CreateSnapshotResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::CreateSnapshotResponse>,
+            tonic::Status,
+        >;
         ///
         /// List full storage snapshots
         async fn list_full(
             &self,
             request: tonic::Request<super::ListFullSnapshotsRequest>,
-        ) -> std::result::Result<tonic::Response<super::ListSnapshotsResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::ListSnapshotsResponse>,
+            tonic::Status,
+        >;
         ///
         /// Delete full storage snapshot
         async fn delete_full(
             &self,
             request: tonic::Request<super::DeleteFullSnapshotRequest>,
-        ) -> std::result::Result<tonic::Response<super::DeleteSnapshotResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::DeleteSnapshotResponse>,
+            tonic::Status,
+        >;
     }
     #[derive(Debug)]
     pub struct SnapshotsServer<T: Snapshots> {
@@ -6992,7 +7830,10 @@ pub mod snapshots_server {
                 max_encoding_message_size: None,
             }
         }
-        pub fn with_interceptor<F>(inner: T, interceptor: F) -> InterceptedService<Self, F>
+        pub fn with_interceptor<F>(
+            inner: T,
+            interceptor: F,
+        ) -> InterceptedService<Self, F>
         where
             F: tonic::service::Interceptor,
         {
@@ -7048,16 +7889,23 @@ pub mod snapshots_server {
                 "/qdrant.Snapshots/Create" => {
                     #[allow(non_camel_case_types)]
                     struct CreateSvc<T: Snapshots>(pub Arc<T>);
-                    impl<T: Snapshots> tonic::server::UnaryService<super::CreateSnapshotRequest> for CreateSvc<T> {
+                    impl<
+                        T: Snapshots,
+                    > tonic::server::UnaryService<super::CreateSnapshotRequest>
+                    for CreateSvc<T> {
                         type Response = super::CreateSnapshotResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::CreateSnapshotRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut =
-                                async move { <T as Snapshots>::create(&inner, request).await };
+                            let fut = async move {
+                                <T as Snapshots>::create(&inner, request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -7087,15 +7935,23 @@ pub mod snapshots_server {
                 "/qdrant.Snapshots/List" => {
                     #[allow(non_camel_case_types)]
                     struct ListSvc<T: Snapshots>(pub Arc<T>);
-                    impl<T: Snapshots> tonic::server::UnaryService<super::ListSnapshotsRequest> for ListSvc<T> {
+                    impl<
+                        T: Snapshots,
+                    > tonic::server::UnaryService<super::ListSnapshotsRequest>
+                    for ListSvc<T> {
                         type Response = super::ListSnapshotsResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::ListSnapshotsRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut = async move { <T as Snapshots>::list(&inner, request).await };
+                            let fut = async move {
+                                <T as Snapshots>::list(&inner, request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -7125,16 +7981,23 @@ pub mod snapshots_server {
                 "/qdrant.Snapshots/Delete" => {
                     #[allow(non_camel_case_types)]
                     struct DeleteSvc<T: Snapshots>(pub Arc<T>);
-                    impl<T: Snapshots> tonic::server::UnaryService<super::DeleteSnapshotRequest> for DeleteSvc<T> {
+                    impl<
+                        T: Snapshots,
+                    > tonic::server::UnaryService<super::DeleteSnapshotRequest>
+                    for DeleteSvc<T> {
                         type Response = super::DeleteSnapshotResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::DeleteSnapshotRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut =
-                                async move { <T as Snapshots>::delete(&inner, request).await };
+                            let fut = async move {
+                                <T as Snapshots>::delete(&inner, request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -7164,18 +8027,23 @@ pub mod snapshots_server {
                 "/qdrant.Snapshots/CreateFull" => {
                     #[allow(non_camel_case_types)]
                     struct CreateFullSvc<T: Snapshots>(pub Arc<T>);
-                    impl<T: Snapshots> tonic::server::UnaryService<super::CreateFullSnapshotRequest>
-                        for CreateFullSvc<T>
-                    {
+                    impl<
+                        T: Snapshots,
+                    > tonic::server::UnaryService<super::CreateFullSnapshotRequest>
+                    for CreateFullSvc<T> {
                         type Response = super::CreateSnapshotResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::CreateFullSnapshotRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut =
-                                async move { <T as Snapshots>::create_full(&inner, request).await };
+                            let fut = async move {
+                                <T as Snapshots>::create_full(&inner, request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -7205,16 +8073,23 @@ pub mod snapshots_server {
                 "/qdrant.Snapshots/ListFull" => {
                     #[allow(non_camel_case_types)]
                     struct ListFullSvc<T: Snapshots>(pub Arc<T>);
-                    impl<T: Snapshots> tonic::server::UnaryService<super::ListFullSnapshotsRequest> for ListFullSvc<T> {
+                    impl<
+                        T: Snapshots,
+                    > tonic::server::UnaryService<super::ListFullSnapshotsRequest>
+                    for ListFullSvc<T> {
                         type Response = super::ListSnapshotsResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::ListFullSnapshotsRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut =
-                                async move { <T as Snapshots>::list_full(&inner, request).await };
+                            let fut = async move {
+                                <T as Snapshots>::list_full(&inner, request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -7244,18 +8119,23 @@ pub mod snapshots_server {
                 "/qdrant.Snapshots/DeleteFull" => {
                     #[allow(non_camel_case_types)]
                     struct DeleteFullSvc<T: Snapshots>(pub Arc<T>);
-                    impl<T: Snapshots> tonic::server::UnaryService<super::DeleteFullSnapshotRequest>
-                        for DeleteFullSvc<T>
-                    {
+                    impl<
+                        T: Snapshots,
+                    > tonic::server::UnaryService<super::DeleteFullSnapshotRequest>
+                    for DeleteFullSvc<T> {
                         type Response = super::DeleteSnapshotResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::DeleteFullSnapshotRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut =
-                                async move { <T as Snapshots>::delete_full(&inner, request).await };
+                            let fut = async move {
+                                <T as Snapshots>::delete_full(&inner, request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -7282,14 +8162,18 @@ pub mod snapshots_server {
                     };
                     Box::pin(fut)
                 }
-                _ => Box::pin(async move {
-                    Ok(http::Response::builder()
-                        .status(200)
-                        .header("grpc-status", "12")
-                        .header("content-type", "application/grpc")
-                        .body(empty_body())
-                        .unwrap())
-                }),
+                _ => {
+                    Box::pin(async move {
+                        Ok(
+                            http::Response::builder()
+                                .status(200)
+                                .header("grpc-status", "12")
+                                .header("content-type", "application/grpc")
+                                .body(empty_body())
+                                .unwrap(),
+                        )
+                    })
+                }
             }
         }
     }
@@ -7335,8 +8219,8 @@ pub struct HealthCheckReply {
 /// Generated client implementations.
 pub mod qdrant_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
-    use tonic::codegen::http::Uri;
     use tonic::codegen::*;
+    use tonic::codegen::http::Uri;
     #[derive(Debug, Clone)]
     pub struct QdrantClient<T> {
         inner: tonic::client::Grpc<T>,
@@ -7380,8 +8264,9 @@ pub mod qdrant_client {
                     <T as tonic::client::GrpcService<tonic::body::BoxBody>>::ResponseBody,
                 >,
             >,
-            <T as tonic::codegen::Service<http::Request<tonic::body::BoxBody>>>::Error:
-                Into<StdError> + Send + Sync,
+            <T as tonic::codegen::Service<
+                http::Request<tonic::body::BoxBody>,
+            >>::Error: Into<StdError> + Send + Sync,
         {
             QdrantClient::new(InterceptedService::new(inner, interceptor))
         }
@@ -7419,18 +8304,25 @@ pub mod qdrant_client {
         pub async fn health_check(
             &mut self,
             request: impl tonic::IntoRequest<super::HealthCheckRequest>,
-        ) -> std::result::Result<tonic::Response<super::HealthCheckReply>, tonic::Status> {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> std::result::Result<
+            tonic::Response<super::HealthCheckReply>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/qdrant.Qdrant/HealthCheck");
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Qdrant/HealthCheck",
+            );
             let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(GrpcMethod::new("qdrant.Qdrant", "HealthCheck"));
+            req.extensions_mut().insert(GrpcMethod::new("qdrant.Qdrant", "HealthCheck"));
             self.inner.unary(req, path, codec).await
         }
     }
@@ -7445,7 +8337,10 @@ pub mod qdrant_server {
         async fn health_check(
             &self,
             request: tonic::Request<super::HealthCheckRequest>,
-        ) -> std::result::Result<tonic::Response<super::HealthCheckReply>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::HealthCheckReply>,
+            tonic::Status,
+        >;
     }
     #[derive(Debug)]
     pub struct QdrantServer<T: Qdrant> {
@@ -7470,7 +8365,10 @@ pub mod qdrant_server {
                 max_encoding_message_size: None,
             }
         }
-        pub fn with_interceptor<F>(inner: T, interceptor: F) -> InterceptedService<Self, F>
+        pub fn with_interceptor<F>(
+            inner: T,
+            interceptor: F,
+        ) -> InterceptedService<Self, F>
         where
             F: tonic::service::Interceptor,
         {
@@ -7526,16 +8424,23 @@ pub mod qdrant_server {
                 "/qdrant.Qdrant/HealthCheck" => {
                     #[allow(non_camel_case_types)]
                     struct HealthCheckSvc<T: Qdrant>(pub Arc<T>);
-                    impl<T: Qdrant> tonic::server::UnaryService<super::HealthCheckRequest> for HealthCheckSvc<T> {
+                    impl<
+                        T: Qdrant,
+                    > tonic::server::UnaryService<super::HealthCheckRequest>
+                    for HealthCheckSvc<T> {
                         type Response = super::HealthCheckReply;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::HealthCheckRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut =
-                                async move { <T as Qdrant>::health_check(&inner, request).await };
+                            let fut = async move {
+                                <T as Qdrant>::health_check(&inner, request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -7562,14 +8467,18 @@ pub mod qdrant_server {
                     };
                     Box::pin(fut)
                 }
-                _ => Box::pin(async move {
-                    Ok(http::Response::builder()
-                        .status(200)
-                        .header("grpc-status", "12")
-                        .header("content-type", "application/grpc")
-                        .body(empty_body())
-                        .unwrap())
-                }),
+                _ => {
+                    Box::pin(async move {
+                        Ok(
+                            http::Response::builder()
+                                .status(200)
+                                .header("grpc-status", "12")
+                                .header("content-type", "application/grpc")
+                                .body(empty_body())
+                                .unwrap(),
+                        )
+                    })
+                }
             }
         }
     }
@@ -7632,21 +8541,9 @@ builder_type_conversions!(RecommendPointGroups, RecommendPointGroupsBuilder, tru
 builder_type_conversions!(DiscoverPoints, DiscoverPointsBuilder, true);
 builder_type_conversions!(DiscoverBatchPoints, DiscoverBatchPointsBuilder, true);
 builder_type_conversions!(CountPoints, CountPointsBuilder, true);
-builder_type_conversions!(
-    CreateFieldIndexCollection,
-    CreateFieldIndexCollectionBuilder,
-    true
-);
-builder_type_conversions!(
-    DeleteFieldIndexCollection,
-    DeleteFieldIndexCollectionBuilder,
-    true
-);
-builder_type_conversions!(
-    UpdateCollectionClusterSetupRequest,
-    UpdateCollectionClusterSetupRequestBuilder,
-    true
-);
+builder_type_conversions!(CreateFieldIndexCollection, CreateFieldIndexCollectionBuilder, true);
+builder_type_conversions!(DeleteFieldIndexCollection, DeleteFieldIndexCollectionBuilder, true);
+builder_type_conversions!(UpdateCollectionClusterSetupRequest, UpdateCollectionClusterSetupRequestBuilder, true);
 builder_type_conversions!(CreateShardKeyRequest, CreateShardKeyRequestBuilder, true);
 builder_type_conversions!(DeleteShardKeyRequest, DeleteShardKeyRequestBuilder, true);
 builder_type_conversions!(DeleteCollection, DeleteCollectionBuilder, true);
