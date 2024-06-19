@@ -2,22 +2,24 @@ use crate::qdrant::{QueryPoints, QueryResponse};
 use crate::qdrant_client::Qdrant;
 
 impl Qdrant {
-    pub async fn query(&self, request: impl Into<QueryPoints>) -> crate::qdrant_client::Result<QueryResponse> {
+    pub async fn query(
+        &self,
+        request: impl Into<QueryPoints>,
+    ) -> crate::qdrant_client::Result<QueryResponse> {
         let request = &request.into();
 
         self.with_points_client(|mut points_api| async move {
             let result = points_api.query(request.clone()).await?;
             Ok(result.into_inner())
         })
-            .await
+        .await
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use crate::qdrant::{CreateCollectionBuilder, QueryPointsBuilder};
     use super::*;
+    use crate::qdrant::{CreateCollectionBuilder, QueryPointsBuilder};
 
     #[tokio::test]
     async fn test_query() {

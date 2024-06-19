@@ -219,9 +219,9 @@ mod tests {
         CountPointsBuilder, CreateCollectionBuilder, PointStruct, SearchPointsBuilder,
         UpsertPointsBuilder, VectorParamsBuilder,
     };
+    use crate::qdrant_client::config::QdrantConfig;
     use std::time::Duration;
     use tokio::time::sleep;
-    use crate::qdrant_client::config::QdrantConfig;
 
     #[tokio::test]
     async fn create_collection_and_do_the_search() -> Result<()> {

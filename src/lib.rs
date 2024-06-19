@@ -134,9 +134,9 @@ mod tests {
         SetPayloadPointsBuilder, SnapshotDownloadBuilder, Struct, UpsertPointsBuilder, Value,
         VectorParamsBuilder,
     };
+    use crate::qdrant_client::config::QdrantConfig;
     use crate::qdrant_client::Qdrant;
     use std::collections::HashMap;
-    use crate::qdrant_client::config::QdrantConfig;
 
     #[test]
     fn display() {
