@@ -24,7 +24,7 @@ mod tests {
     #[tokio::test]
     async fn test_query() {
         let client = Qdrant::from_url("http://localhost:6334").build().unwrap();
-        let collection_name = "test_collection";
+        let collection_name = "test_collection_query";
 
         client.delete_collection(collection_name).await.unwrap();
 
