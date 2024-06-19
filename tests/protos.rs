@@ -62,7 +62,7 @@ enum MacroConfig {
 trait BuilderExt {
     fn configure_derive_builder(self) -> Self;
     fn derive_builders(self, paths: &[(&str, &str)], derive_options: &[BuildDeriveOptions])
-                       -> Self;
+        -> Self;
     fn derive_builder(self, path: &str, derive_options: Option<&str>) -> Self;
     fn field_build_attributes(self, paths: &[(&str, &str)]) -> Self;
 }
@@ -539,7 +539,6 @@ fn configure_builder(builder: Builder) -> Builder {
                 builder_custom_into!(read_consistency::Value, self.read_consistency),
             ),
             ("DiscoverBatchPoints.timeout", DEFAULT_OPTION),
-
             // PrefetchQuery
             ("PrefetchQuery.collection_name", PUBLIC_ONLY),
             ("PrefetchQuery.prefetch", DEFAULT_OPTION_INTO),
@@ -550,7 +549,6 @@ fn configure_builder(builder: Builder) -> Builder {
             ("PrefetchQuery.score_threshold", DEFAULT_OPTION_INTO),
             ("PrefetchQuery.limit", DEFAULT_OPTION_INTO),
             ("PrefetchQuery.lookup_from", DEFAULT_OPTION_INTO),
-
             // Query
             ("QueryPoints.collection_name", PUBLIC_ONLY),
             ("QueryPoints.query", DEFAULT_OPTION_INTO),
@@ -575,7 +573,6 @@ fn configure_builder(builder: Builder) -> Builder {
             ("QueryPoints.shard_key_selector", DEFAULT_OPTION_INTO),
             ("QueryPoints.lookup_from", DEFAULT_OPTION_INTO),
             ("QueryPoints.timeout", DEFAULT_OPTION),
-
             // CountPoints
             ("CountPoints.collection_name", PUBLIC_ONLY),
             ("CountPoints.filter", DEFAULT_OPTION_INTO),
@@ -934,8 +931,8 @@ fn additional_builder_derive_options() -> &'static [BuildDeriveOptions] {
 
 /// Returns a list of all unique structs that appear in a list of paths.
 fn unique_structs_from_paths<'a, I>(paths: I, extra: &[&'a str]) -> Vec<&'a str>
-    where
-        I: IntoIterator<Item=&'a str>,
+where
+    I: IntoIterator<Item = &'a str>,
 {
     let mut derives = paths
         .into_iter()
@@ -959,7 +956,7 @@ fn append_to_file(path: &str, line: &str) {
         OpenOptions::new().append(true).open(path).unwrap(),
         "{line}",
     )
-        .unwrap()
+    .unwrap()
 }
 
 /// Generates all necessary macro calls for builders who should have them.

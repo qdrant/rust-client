@@ -2,7 +2,16 @@ use crate::prelude::point_id::PointIdOptions;
 use crate::prelude::{DeleteCollection, Value};
 use crate::qdrant::value::Kind;
 use crate::qdrant::vectors::VectorsOptions;
-use crate::qdrant::{shard_key, with_payload_selector, with_vectors_selector, CollectionClusterInfoRequest, CollectionExistsRequest, CreateSnapshotRequest, DeleteAlias, DeleteCollectionBuilder, DeleteFullSnapshotRequest, GetCollectionInfoRequest, IsEmptyCondition, IsNullCondition, ListCollectionAliasesRequest, ListSnapshotsRequest, NamedVectors, PayloadExcludeSelector, PayloadIncludeSelector, PointId, RepeatedIntegers, RepeatedStrings, ShardKeySelector, SparseIndices, SparseVectorConfig, SparseVectorParams, Struct, Vector, VectorParams, VectorParamsDiff, VectorParamsDiffMap, VectorParamsMap, Vectors, VectorsSelector, WithPayloadSelector, WithVectorsSelector, ShardKey};
+use crate::qdrant::{
+    shard_key, with_payload_selector, with_vectors_selector, CollectionClusterInfoRequest,
+    CollectionExistsRequest, CreateSnapshotRequest, DeleteAlias, DeleteCollectionBuilder,
+    DeleteFullSnapshotRequest, GetCollectionInfoRequest, IsEmptyCondition, IsNullCondition,
+    ListCollectionAliasesRequest, ListSnapshotsRequest, NamedVectors, PayloadExcludeSelector,
+    PayloadIncludeSelector, PointId, RepeatedIntegers, RepeatedStrings, ShardKey, ShardKeySelector,
+    SparseIndices, SparseVectorConfig, SparseVectorParams, Struct, Vector, VectorParams,
+    VectorParamsDiff, VectorParamsDiffMap, VectorParamsMap, Vectors, VectorsSelector,
+    WithPayloadSelector, WithVectorsSelector,
+};
 use std::collections::HashMap;
 
 impl From<bool> for WithPayloadSelector {
@@ -185,8 +194,8 @@ impl From<&str> for Value {
 }
 
 impl<T> From<Vec<(&str, T)>> for Value
-    where
-        T: Into<Value>,
+where
+    T: Into<Value>,
 {
     fn from(val: Vec<(&str, T)>) -> Self {
         Self {
