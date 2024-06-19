@@ -163,13 +163,13 @@ mod tests {
                                     kind: Some(BoolValue(true)),
                                 },
                             )]
-                            .into(),
+                                .into(),
                         }),
                     ),
                 ]
-                .into_iter()
-                .map(|(k, v)| (k.into(), Value { kind: Some(v) }))
-                .collect(),
+                    .into_iter()
+                    .map(|(k, v)| (k.into(), Value { kind: Some(v) }))
+                    .collect(),
             })),
         };
         let text = format!("{}", value);
@@ -180,8 +180,8 @@ mod tests {
             "\"int\":42",
             "\"text\":\"Hi Qdrant!\""
         ]
-        .into_iter()
-        .all(|item| text.contains(item)));
+            .into_iter()
+            .all(|item| text.contains(item)));
     }
 
     #[tokio::test]
@@ -219,9 +219,9 @@ mod tests {
             ("bar", 12.into()),
             ("sub_payload", sub_payload.into()),
         ]
-        .into_iter()
-        .collect::<HashMap<_, Value>>()
-        .into();
+            .into_iter()
+            .collect::<HashMap<_, Value>>()
+            .into();
 
         let points = vec![PointStruct::new(0, vec![12.; 10], payload)];
         client
