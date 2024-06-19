@@ -1,12 +1,14 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-
-fn generate_snippet_test(snippet: &str, name: &str, dir: &Path) -> () {
-
+fn generate_snippet_test(snippet: &str, name: &str, dir: &Path) {
     // Pad each line of the snippet with 8 spaces
 
-    let snippet = snippet.lines().map(|line| format!("        {}", line)).collect::<Vec<_>>().join("\n");
+    let snippet = snippet
+        .lines()
+        .map(|line| format!("        {}", line))
+        .collect::<Vec<_>>()
+        .join("\n");
 
     let test_snippet = format!(
         r#"
@@ -29,7 +31,6 @@ async fn test_{name}() {{
     fs::write(test_snippet_path, test_snippet).unwrap();
 }
 
-
 fn main() {
     println!("cargo:rerun-if-changed=tests/snippets");
 
@@ -40,12 +41,12 @@ fn main() {
 
     // Create the converted directory if it doesn't exist
     if !tests_output_dir.exists() {
-        fs::create_dir_all(&tests_output_dir).unwrap();
+        fs::create_dir_all(tests_output_dir).unwrap();
     }
 
     let snippet_names: Vec<_> = fs::read_dir(snippets_dir)
         .unwrap()
-        .into_iter().filter_map(|entry| {
+        .filter_map(|entry| {
             let entry = entry.unwrap();
             let path = entry.path();
             if path.is_file() {
@@ -54,7 +55,8 @@ fn main() {
             } else {
                 None
             }
-        }).collect();
+        })
+        .collect();
 
     for (path, name) in &snippet_names {
         let content = fs::read_to_string(path).unwrap();
@@ -64,7 +66,11 @@ fn main() {
     // Generate `tests/snippet_tests/mod.rs` file
     // For each file in `./tests/snippet_tests` directory, generate a line `mode {file_name};`
 
-    let mod_file = snippet_names.iter().map(|(_, name)| format!("mod test_{};", name)).collect::<Vec<_>>().join("\n");
+    let mod_file = snippet_names
+        .iter()
+        .map(|(_, name)| format!("mod test_{};", name))
+        .collect::<Vec<_>>()
+        .join("\n");
 
     let mut mod_file_path = PathBuf::from(tests_output_dir);
     mod_file_path.push("mod.rs");
