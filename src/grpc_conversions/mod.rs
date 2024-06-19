@@ -1,5 +1,6 @@
 pub mod extensions;
 pub mod primitives;
+mod query;
 
 use crate::client::Payload;
 use crate::qdrant::payload_index_params::IndexParams;

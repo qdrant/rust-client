@@ -1,6 +1,8 @@
 pub mod collection;
+pub mod config;
 pub mod errors;
 mod points;
+mod query;
 pub mod sharding_keys;
 pub mod snapshot;
 
@@ -12,27 +14,28 @@ use tonic::transport::{Channel, Uri};
 use tonic::Status;
 
 pub use crate::auth::TokenInterceptor;
-pub use crate::config::{AsTimeout, CompressionEncoding, MaybeApiKey, QdrantClientConfig};
+pub use crate::config::{AsTimeout, CompressionEncoding, MaybeApiKey};
 pub use crate::payload::Payload;
+use crate::qdrant_client::config::QdrantConfig;
 use crate::qdrant_client::errors::QdrantError;
 
 pub type Result<T> = std::result::Result<T, QdrantError>;
 
 /// A builder type for `QdrantClient`s
-pub type QdrantClientBuilder = QdrantClientConfig;
+pub type QdrantBuilder = QdrantConfig;
 
 pub struct Qdrant {
     pub channel: ChannelPool,
-    pub cfg: QdrantClientConfig,
+    pub cfg: QdrantConfig,
 }
 
 impl Qdrant {
     /// Create a builder to setup the client
-    pub fn from_url(url: &str) -> QdrantClientBuilder {
-        QdrantClientBuilder::from_url(url)
+    pub fn from_url(url: &str) -> QdrantBuilder {
+        QdrantBuilder::from_url(url)
     }
 
-    pub fn new(cfg: Option<QdrantClientConfig>) -> Result<Self> {
+    pub fn new(cfg: Option<QdrantConfig>) -> Result<Self> {
         let cfg = cfg.unwrap_or_default();
 
         let channel = ChannelPool::new(

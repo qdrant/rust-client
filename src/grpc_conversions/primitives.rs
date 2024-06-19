@@ -7,7 +7,7 @@ use crate::qdrant::{
     CollectionExistsRequest, CreateSnapshotRequest, DeleteAlias, DeleteCollectionBuilder,
     DeleteFullSnapshotRequest, GetCollectionInfoRequest, IsEmptyCondition, IsNullCondition,
     ListCollectionAliasesRequest, ListSnapshotsRequest, NamedVectors, PayloadExcludeSelector,
-    PayloadIncludeSelector, PointId, RepeatedIntegers, RepeatedStrings, ShardKeySelector,
+    PayloadIncludeSelector, PointId, RepeatedIntegers, RepeatedStrings, ShardKey, ShardKeySelector,
     SparseIndices, SparseVectorConfig, SparseVectorParams, Struct, Vector, VectorParams,
     VectorParamsDiff, VectorParamsDiffMap, VectorParamsMap, Vectors, VectorsSelector,
     WithPayloadSelector, WithVectorsSelector,
@@ -39,6 +39,7 @@ impl From<Vec<f32>> for Vector {
         Vector {
             data: vector,
             indices: None,
+            vectors_count: None,
         }
     }
 }
@@ -61,6 +62,7 @@ impl From<&[(u32, f32)]> for Vector {
         Vector {
             data: values,
             indices: Some(SparseIndices { data: indices }),
+            vectors_count: None,
         }
     }
 }
@@ -219,27 +221,51 @@ impl From<u64> for shard_key::Key {
     }
 }
 
+impl From<String> for ShardKey {
+    fn from(keyword: String) -> Self {
+        ShardKey {
+            key: Some(shard_key::Key::Keyword(keyword)),
+        }
+    }
+}
+
+impl From<u64> for ShardKey {
+    fn from(number: u64) -> Self {
+        ShardKey {
+            key: Some(shard_key::Key::Number(number)),
+        }
+    }
+}
+
 impl From<String> for ShardKeySelector {
     fn from(keyword: String) -> Self {
-        keyword.into()
+        ShardKeySelector {
+            shard_keys: vec![ShardKey::from(keyword)],
+        }
     }
 }
 
 impl From<u64> for ShardKeySelector {
     fn from(number: u64) -> Self {
-        number.into()
+        ShardKeySelector {
+            shard_keys: vec![ShardKey::from(number)],
+        }
     }
 }
 
 impl From<Vec<String>> for ShardKeySelector {
     fn from(keywords: Vec<String>) -> Self {
-        keywords.into()
+        ShardKeySelector {
+            shard_keys: keywords.into_iter().map(ShardKey::from).collect(),
+        }
     }
 }
 
 impl From<Vec<u64>> for ShardKeySelector {
     fn from(numbers: Vec<u64>) -> Self {
-        numbers.into()
+        ShardKeySelector {
+            shard_keys: numbers.into_iter().map(ShardKey::from).collect(),
+        }
     }
 }
 

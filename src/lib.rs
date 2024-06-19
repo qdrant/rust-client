@@ -15,10 +15,11 @@
 //! [`Qdrant`](qdrant_client::Qdrant) client:
 //! ```
 //!# use qdrant_client::prelude::*;
+//! use qdrant_client::qdrant_client::config::QdrantConfig;
 //!# use qdrant_client::qdrant_client::Qdrant;
 //!# use qdrant_client::qdrant_client::errors::QdrantError;
 //!# fn establish_connection(url: &str) -> Result<Qdrant, QdrantError> {
-//! let mut config = QdrantClientConfig::from_url(url);
+//! let mut config = QdrantConfig::from_url(url);
 //! config.api_key = std::env::var("QDRANT_API_KEY").ok();
 //! Qdrant::new(Some(config))
 //!# }
@@ -133,6 +134,7 @@ mod tests {
         SetPayloadPointsBuilder, SnapshotDownloadBuilder, Struct, UpsertPointsBuilder, Value,
         VectorParamsBuilder,
     };
+    use crate::qdrant_client::config::QdrantConfig;
     use crate::qdrant_client::Qdrant;
     use std::collections::HashMap;
 
@@ -161,13 +163,13 @@ mod tests {
                                     kind: Some(BoolValue(true)),
                                 },
                             )]
-                            .into(),
+                                .into(),
                         }),
                     ),
                 ]
-                .into_iter()
-                .map(|(k, v)| (k.into(), Value { kind: Some(v) }))
-                .collect(),
+                    .into_iter()
+                    .map(|(k, v)| (k.into(), Value { kind: Some(v) }))
+                    .collect(),
             })),
         };
         let text = format!("{}", value);
@@ -178,13 +180,13 @@ mod tests {
             "\"int\":42",
             "\"text\":\"Hi Qdrant!\""
         ]
-        .into_iter()
-        .all(|item| text.contains(item)));
+            .into_iter()
+            .all(|item| text.contains(item)));
     }
 
     #[tokio::test]
     async fn test_qdrant_queries() -> anyhow::Result<()> {
-        let config = QdrantClientConfig::from_url("http://localhost:6334");
+        let config = QdrantConfig::from_url("http://localhost:6334");
         let client = Qdrant::new(Some(config))?;
 
         let health = client.health_check().await?;
@@ -217,13 +219,13 @@ mod tests {
             ("bar", 12.into()),
             ("sub_payload", sub_payload.into()),
         ]
-        .into_iter()
-        .collect::<HashMap<_, Value>>()
-        .into();
+            .into_iter()
+            .collect::<HashMap<_, Value>>()
+            .into();
 
         let points = vec![PointStruct::new(0, vec![12.; 10], payload)];
         client
-            .upsert_points(UpsertPointsBuilder::new(collection_name, points))
+            .upsert_points(UpsertPointsBuilder::new(collection_name, points).wait(true))
             .await?;
 
         let mut search_points =
@@ -232,6 +234,8 @@ mod tests {
         // Keyword filter result
         search_points.filter = Some(Filter::all([Condition::matches("foo", "Bar".to_string())]));
         let search_result = client.search_points(search_points.clone()).await?;
+        println!("{:#?}", search_result);
+
         assert!(!search_result.result.is_empty());
 
         // Existing implementations full text search filter result (`Condition::matches`)
