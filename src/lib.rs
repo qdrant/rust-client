@@ -225,7 +225,7 @@ mod tests {
 
         let points = vec![PointStruct::new(0, vec![12.; 10], payload)];
         client
-            .upsert_points(UpsertPointsBuilder::new(collection_name, points))
+            .upsert_points(UpsertPointsBuilder::new(collection_name, points).wait(true))
             .await?;
 
         let mut search_points =
@@ -234,6 +234,8 @@ mod tests {
         // Keyword filter result
         search_points.filter = Some(Filter::all([Condition::matches("foo", "Bar".to_string())]));
         let search_result = client.search_points(search_points.clone()).await?;
+        println!("{:#?}", search_result);
+
         assert!(!search_result.result.is_empty());
 
         // Existing implementations full text search filter result (`Condition::matches`)
