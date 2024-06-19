@@ -1,28 +1,19 @@
 use std::future::Future;
 
 use tonic::codegen::InterceptedService;
-use tonic::transport::Channel;
 use tonic::Status;
+use tonic::transport::Channel;
 
 use crate::auth::TokenInterceptor;
 use crate::prelude::SearchPoints;
+use crate::qdrant::{ClearPayloadPoints, CountPoints, CountResponse, CreateFieldIndexCollection, DeleteFieldIndexCollection, DeletePayloadPoints, DeletePoints, DeletePointVectors, DiscoverBatchPoints, DiscoverBatchResponse, DiscoverPoints, DiscoverResponse, GetPoints, GetResponse, PointsOperationResponse, RecommendBatchPoints, RecommendBatchResponse, RecommendGroupsResponse, RecommendPointGroups, RecommendPoints, RecommendResponse, ScrollPoints, ScrollResponse, SearchBatchPoints, SearchBatchResponse, SearchGroupsResponse, SearchPointGroups, SearchResponse, SetPayloadPoints, UpdateBatchPoints, UpdateBatchResponse, UpdatePointVectors, UpsertPoints};
 use crate::qdrant::points_client::PointsClient;
-use crate::qdrant::{
-    ClearPayloadPoints, CountPoints, CountResponse, CreateFieldIndexCollection,
-    DeleteFieldIndexCollection, DeletePayloadPoints, DeletePointVectors, DeletePoints,
-    DiscoverBatchPoints, DiscoverBatchResponse, DiscoverPoints, DiscoverResponse, GetPoints,
-    GetResponse, PointsOperationResponse, RecommendBatchPoints, RecommendBatchResponse,
-    RecommendGroupsResponse, RecommendPointGroups, RecommendPoints, RecommendResponse,
-    ScrollPoints, ScrollResponse, SearchBatchPoints, SearchBatchResponse, SearchGroupsResponse,
-    SearchPointGroups, SearchResponse, SetPayloadPoints, UpdateBatchPoints, UpdateBatchResponse,
-    UpdatePointVectors, UpsertPoints,
-};
 use crate::qdrant_client::{Qdrant, Result};
 
 impl Qdrant {
     pub(crate) async fn with_points_client<
         T,
-        O: Future<Output = std::result::Result<T, Status>>,
+        O: Future<Output=std::result::Result<T, Status>>,
     >(
         &self,
         f: impl Fn(PointsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
@@ -54,7 +45,7 @@ impl Qdrant {
             let result = points_api.search(request.clone()).await?;
             Ok(result.into_inner())
         })
-        .await
+            .await
     }
 
     pub async fn search_batch_points(
@@ -67,7 +58,7 @@ impl Qdrant {
             let result = points_api.search_batch(request.clone()).await?;
             Ok(result.into_inner())
         })
-        .await
+            .await
     }
 
     pub async fn search_groups(
@@ -80,7 +71,7 @@ impl Qdrant {
             let result = points_api.search_groups(request.clone()).await?;
             Ok(result.into_inner())
         })
-        .await
+            .await
     }
 
     pub async fn batch_updates(
@@ -92,7 +83,7 @@ impl Qdrant {
         self.with_points_client(|mut points_api| async move {
             Ok(points_api.update_batch(request.clone()).await?.into_inner())
         })
-        .await
+            .await
     }
 
     /// Update or insert points into the collection.
@@ -107,7 +98,7 @@ impl Qdrant {
         self.with_points_client(|mut points_api| async move {
             Ok(points_api.upsert(request.clone()).await?.into_inner())
         })
-        .await
+            .await
     }
 
     /// Update or insert points into the collection, splitting in chunks.
@@ -146,7 +137,7 @@ impl Qdrant {
 
             Ok(resp)
         })
-        .await
+            .await
     }
 
     pub async fn set_payload(
@@ -159,7 +150,7 @@ impl Qdrant {
             let result = points_api.set_payload(request.clone()).await?;
             Ok(result.into_inner())
         })
-        .await
+            .await
     }
 
     pub async fn overwrite_payload(
@@ -172,7 +163,7 @@ impl Qdrant {
             let result = points_api.overwrite_payload(request.clone()).await?;
             Ok(result.into_inner())
         })
-        .await
+            .await
     }
 
     pub async fn delete_payload(
@@ -185,7 +176,7 @@ impl Qdrant {
             let result = points_api.delete_payload(request.clone()).await?;
             Ok(result.into_inner())
         })
-        .await
+            .await
     }
 
     pub async fn clear_payload(
@@ -198,7 +189,7 @@ impl Qdrant {
             let result = points_api.clear_payload(request.clone()).await?;
             Ok(result.into_inner())
         })
-        .await
+            .await
     }
 
     pub async fn get_points(&self, request: impl Into<GetPoints>) -> Result<GetResponse> {
@@ -208,7 +199,7 @@ impl Qdrant {
             let result = points_api.get(request.clone()).await?;
             Ok(result.into_inner())
         })
-        .await
+            .await
     }
 
     pub async fn delete_points(
@@ -221,7 +212,7 @@ impl Qdrant {
             let result = points_api.delete(request.clone()).await?;
             Ok(result.into_inner())
         })
-        .await
+            .await
     }
 
     pub async fn delete_vectors(
@@ -234,7 +225,7 @@ impl Qdrant {
             let result = points_api.delete_vectors(request.clone()).await?;
             Ok(result.into_inner())
         })
-        .await
+            .await
     }
 
     pub async fn update_vectors(
@@ -247,7 +238,7 @@ impl Qdrant {
             let result = points_api.update_vectors(request.clone()).await?;
             Ok(result.into_inner())
         })
-        .await
+            .await
     }
 
     pub async fn scroll(&self, request: impl Into<ScrollPoints>) -> Result<ScrollResponse> {
@@ -257,7 +248,7 @@ impl Qdrant {
             let result = points_api.scroll(request.clone()).await?;
             Ok(result.into_inner())
         })
-        .await
+            .await
     }
 
     pub async fn recommend(
@@ -270,7 +261,7 @@ impl Qdrant {
             let result = points_api.recommend(request.clone()).await?;
             Ok(result.into_inner())
         })
-        .await
+            .await
     }
 
     pub async fn recommend_batch(
@@ -283,7 +274,7 @@ impl Qdrant {
             let result = points_api.recommend_batch(request.clone()).await?;
             Ok(result.into_inner())
         })
-        .await
+            .await
     }
 
     pub async fn recommend_groups(
@@ -296,7 +287,7 @@ impl Qdrant {
             let result = points_api.recommend_groups(request.clone()).await?;
             Ok(result.into_inner())
         })
-        .await
+            .await
     }
 
     pub async fn discover(&self, request: impl Into<DiscoverPoints>) -> Result<DiscoverResponse> {
@@ -306,7 +297,7 @@ impl Qdrant {
             let result = points_api.discover(request.clone()).await?;
             Ok(result.into_inner())
         })
-        .await
+            .await
     }
 
     pub async fn discover_batch(
@@ -317,7 +308,7 @@ impl Qdrant {
             let result = points_api.discover_batch(request.clone()).await?;
             Ok(result.into_inner())
         })
-        .await
+            .await
     }
 
     pub async fn count(&self, request: impl Into<CountPoints>) -> Result<CountResponse> {
@@ -327,7 +318,7 @@ impl Qdrant {
             let result = points_api.count(request.clone()).await?;
             Ok(result.into_inner())
         })
-        .await
+            .await
     }
 
     pub async fn update_batch_points(
@@ -340,7 +331,7 @@ impl Qdrant {
             let result = points_api.update_batch(request.clone()).await?;
             Ok(result.into_inner())
         })
-        .await
+            .await
     }
 
     /// Create index for a payload field
@@ -354,7 +345,7 @@ impl Qdrant {
             let result = client.create_field_index(request.clone()).await?;
             Ok(result.into_inner())
         })
-        .await
+            .await
     }
 
     pub async fn delete_field_index(
@@ -367,6 +358,6 @@ impl Qdrant {
             let result = client.delete_field_index(request.clone()).await?;
             Ok(result.into_inner())
         })
-        .await
+            .await
     }
 }

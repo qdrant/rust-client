@@ -213,7 +213,6 @@ impl Qdrant {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::client::QdrantClientConfig;
     use crate::payload::Payload;
     use crate::prelude::Distance;
     use crate::qdrant::{
@@ -222,10 +221,11 @@ mod tests {
     };
     use std::time::Duration;
     use tokio::time::sleep;
+    use crate::qdrant_client::config::QdrantConfig;
 
     #[tokio::test]
     async fn create_collection_and_do_the_search() -> Result<()> {
-        let config = QdrantClientConfig::from_url("http://localhost:6334");
+        let config = QdrantConfig::from_url("http://localhost:6334");
         let client = Qdrant::new(Some(config))?;
 
         let collection_name = "test2";

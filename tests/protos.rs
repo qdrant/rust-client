@@ -551,10 +551,11 @@ fn configure_builder(builder: Builder) -> Builder {
             ("PrefetchQuery.lookup_from", DEFAULT_OPTION_INTO),
             // Query
             ("QueryPoints.collection_name", PUBLIC_ONLY),
+            ("QueryPoints.prefetch", DEFAULT_OPTION_INTO),
             ("QueryPoints.query", DEFAULT_OPTION_INTO),
             ("QueryPoints.using", DEFAULT_OPTION_INTO),
             ("QueryPoints.filter", DEFAULT_OPTION_INTO),
-            ("QueryPoints.params", DEFAULT_OPTION_INTO),
+            ("QueryPoints.search_params", DEFAULT_OPTION_INTO),
             ("QueryPoints.score_threshold", DEFAULT_OPTION_INTO),
             ("QueryPoints.limit", DEFAULT_OPTION),
             ("QueryPoints.offset", DEFAULT_OPTION),
@@ -834,6 +835,11 @@ fn builder_derive_options() -> &'static [BuildDeriveOptions] {
         ),
         (
             "DiscoverBatchPoints",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::WithDefaultFn,
+        ),
+        (
+            "QueryPoints",
             NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
             MacroConfig::WithDefaultFn,
         ),

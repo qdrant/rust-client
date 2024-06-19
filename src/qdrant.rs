@@ -4557,6 +4557,11 @@ pub struct PrefetchQuery {
     pub lookup_from: ::core::option::Option<LookupLocation>,
 }
 #[derive(derive_builder::Builder)]
+#[builder(
+    build_fn(private, name = "build_inner"),
+    pattern = "owned",
+    custom_constructor
+)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct QueryPoints {
@@ -4566,6 +4571,7 @@ pub struct QueryPoints {
     pub collection_name: ::prost::alloc::string::String,
     /// Sub-requests to perform first. If present, the query will be performed on the results of the prefetches.
     #[prost(message, repeated, tag = "2")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub prefetch: ::prost::alloc::vec::Vec<PrefetchQuery>,
     /// Query to perform. If missing, returns points ordered by their IDs.
     #[prost(message, optional, tag = "3")]
@@ -4581,6 +4587,7 @@ pub struct QueryPoints {
     pub filter: ::core::option::Option<Filter>,
     /// Search params for when there is no prefetch.
     #[prost(message, optional, tag = "6")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub search_params: ::core::option::Option<SearchParams>,
     /// Return points with scores better than this threshold.
     #[prost(float, optional, tag = "7")]
@@ -8690,6 +8697,7 @@ builder_type_conversions!(RecommendBatchPoints, RecommendBatchPointsBuilder, tru
 builder_type_conversions!(RecommendPointGroups, RecommendPointGroupsBuilder, true);
 builder_type_conversions!(DiscoverPoints, DiscoverPointsBuilder, true);
 builder_type_conversions!(DiscoverBatchPoints, DiscoverBatchPointsBuilder, true);
+builder_type_conversions!(QueryPoints, QueryPointsBuilder, true);
 builder_type_conversions!(CountPoints, CountPointsBuilder, true);
 builder_type_conversions!(CreateFieldIndexCollection, CreateFieldIndexCollectionBuilder, true);
 builder_type_conversions!(DeleteFieldIndexCollection, DeleteFieldIndexCollectionBuilder, true);

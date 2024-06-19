@@ -15,10 +15,11 @@
 //! [`Qdrant`](qdrant_client::Qdrant) client:
 //! ```
 //!# use qdrant_client::prelude::*;
+//! use qdrant_client::qdrant_client::config::QdrantConfig;
 //!# use qdrant_client::qdrant_client::Qdrant;
 //!# use qdrant_client::qdrant_client::errors::QdrantError;
 //!# fn establish_connection(url: &str) -> Result<Qdrant, QdrantError> {
-//! let mut config = QdrantClientConfig::from_url(url);
+//! let mut config = QdrantConfig::from_url(url);
 //! config.api_key = std::env::var("QDRANT_API_KEY").ok();
 //! Qdrant::new(Some(config))
 //!# }
@@ -135,6 +136,7 @@ mod tests {
     };
     use crate::qdrant_client::Qdrant;
     use std::collections::HashMap;
+    use crate::qdrant_client::config::QdrantConfig;
 
     #[test]
     fn display() {
@@ -184,7 +186,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_qdrant_queries() -> anyhow::Result<()> {
-        let config = QdrantClientConfig::from_url("http://localhost:6334");
+        let config = QdrantConfig::from_url("http://localhost:6334");
         let client = Qdrant::new(Some(config))?;
 
         let health = client.health_check().await?;
