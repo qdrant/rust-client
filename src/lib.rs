@@ -89,7 +89,6 @@
 
 // Public modules
 pub mod auth;
-pub mod builder_types;
 
 // Generated Qdrant API types
 /// API types
@@ -99,6 +98,7 @@ pub mod qdrant;
 
 // Internal modules
 mod builder_ext;
+mod builder_types;
 mod channel_pool;
 mod filters;
 mod grpc_conversions;

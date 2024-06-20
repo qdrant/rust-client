@@ -37,6 +37,7 @@ fn protos() {
 
     // import our manual builder here so all builder come from the same module in the end user API.
     append_to_file(GRPC_OUTPUT_FILE, "pub use crate::manual_builder::*;");
+    append_to_file(GRPC_OUTPUT_FILE, "pub use crate::builder_types::*;");
 
     panic!("proto definitions changed. Stubs recompiled. Please commit the changes.")
 }

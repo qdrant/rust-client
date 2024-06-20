@@ -8705,3 +8705,4 @@ builder_type_conversions!(RenameAlias, RenameAliasBuilder, true);
 builder_type_conversions!(DeletePoints, DeletePointsBuilder, true);
 
 pub use crate::manual_builder::*;
+pub use crate::builder_types::*;
