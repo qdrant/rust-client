@@ -87,9 +87,6 @@
 //! [`SearchPointsBuilder`](qdrant::SearchPointsBuilder) to filter the result.
 //! See the [`Filter`](qdrant::Filter) documentation for details.
 
-// Public modules
-pub mod auth;
-
 // Generated Qdrant API types
 /// API types
 #[allow(clippy::all)]
@@ -97,6 +94,7 @@ pub mod auth;
 pub mod qdrant;
 
 // Internal modules
+mod auth;
 mod builder_ext;
 mod builder_types;
 mod channel_pool;
@@ -137,10 +135,6 @@ pub mod serde;
 // Re-exports
 pub use crate::payload::Payload;
 pub use crate::qdrant_client::{config::QdrantConfig, error::Error, Qdrant, QdrantBuilder, Result};
-
-// Vendored re-exports
-#[doc(no_inline)]
-pub use prost_types::Timestamp;
 
 #[cfg(test)]
 mod tests {

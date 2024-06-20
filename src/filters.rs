@@ -244,8 +244,7 @@ impl qdrant::Condition {
     /// # Examples:
     ///
     /// ```
-    /// use qdrant_client::qdrant::DatetimeRange;
-    /// use qdrant_client::Timestamp;
+    /// use qdrant_client::qdrant::{DatetimeRange, Timestamp};
     /// qdrant_client::qdrant::Condition::datetime_range("timestamp", DatetimeRange {
     ///     gte: Some(Timestamp::date(2023, 2, 8).unwrap()),
     ///     ..Default::default()
