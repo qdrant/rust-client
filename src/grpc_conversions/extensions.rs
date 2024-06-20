@@ -1,4 +1,5 @@
 use crate::client::Payload;
+#[allow(deprecated)]
 use crate::error::NotA;
 use crate::prelude::{PointStruct, Value};
 use crate::qdrant::value::Kind;
@@ -6,6 +7,7 @@ use crate::qdrant::{ListValue, PointId, RetrievedPoint, ScoredPoint, Struct, Vec
 use std::fmt::{Display, Formatter};
 use std::hash::{Hash, Hasher};
 
+/// Null value
 static NULL_VALUE: Value = Value {
     kind: Some(Kind::NullValue(0)),
 };
@@ -29,13 +31,28 @@ impl RetrievedPoint {
     /// this will return a null value.
     ///
     /// # Examples:
+    ///
     /// ```
     /// use qdrant_client::qdrant::RetrievedPoint;
     /// let point = RetrievedPoint::default();
     /// assert!(point.get("not_present").is_null());
     /// ````
     pub fn get(&self, key: &str) -> &Value {
-        self.payload.get(key).unwrap_or(&NULL_VALUE)
+        self.try_get(key).unwrap_or(&NULL_VALUE)
+    }
+
+    /// Try to get a payload value for the specified key. If the key is not present,
+    /// this will return `None`.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// use qdrant_client::qdrant::RetrievedPoint;
+    /// let point = RetrievedPoint::default();
+    /// assert_eq!(point.try_get("not_present"), None);
+    /// ````
+    pub fn try_get(&self, key: &str) -> Option<&Value> {
+        self.payload.get(key)
     }
 }
 
@@ -44,13 +61,28 @@ impl ScoredPoint {
     /// this will return a null value.
     ///
     /// # Examples:
+    ///
     /// ```
     /// use qdrant_client::qdrant::ScoredPoint;
     /// let point = ScoredPoint::default();
     /// assert!(point.get("not_present").is_null());
     /// ````
     pub fn get(&self, key: &str) -> &Value {
-        self.payload.get(key).unwrap_or(&NULL_VALUE)
+        self.try_get(key).unwrap_or(&NULL_VALUE)
+    }
+
+    /// Get a payload value for the specified key. If the key is not present,
+    /// this will return `None`.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// use qdrant_client::qdrant::ScoredPoint;
+    /// let point = ScoredPoint::default();
+    /// assert_eq!(point.get("not_present"), None);
+    /// ````
+    pub fn try_get(&self, key: &str) -> Option<&Value> {
+        self.payload.get(key)
     }
 }
 
@@ -187,7 +219,20 @@ impl Display for Value {
 }
 
 impl Value {
-    /// try to get an iterator over the items of the contained list value, if any
+    /// Try to get an iterator over the items of the contained list value
+    ///
+    /// Returns `None` if this is not a list.
+    pub fn try_list_iter(&self) -> Option<impl Iterator<Item = &Value>> {
+        if let Some(Kind::ListValue(values)) = &self.kind {
+            Some(values.iter())
+        } else {
+            None
+        }
+    }
+
+    /// Try to get an iterator over the items of the contained list value, if any
+    #[deprecated(since = "1.10.0", note = "use `try_list_iter` instead")]
+    #[allow(deprecated)]
     pub fn iter_list(&self) -> Result<impl Iterator<Item = &Value>, NotA<ListValue>> {
         if let Some(Kind::ListValue(values)) = &self.kind {
             Ok(values.iter())
@@ -196,7 +241,20 @@ impl Value {
         }
     }
 
-    /// try to get a field from the struct if this value contains one
+    /// Get a value from a struct field
+    ///
+    /// Returns `None` if this is not a struct type or if the field is not present.
+    pub fn get_value(&self, key: &str) -> Option<&Value> {
+        if let Some(Kind::StructValue(Struct { fields })) = &self.kind {
+            Some(fields.get(key)?)
+        } else {
+            None
+        }
+    }
+
+    /// Try to get a field from the struct if this value contains one
+    #[deprecated(since = "1.10.0", note = "use `get_value` instead")]
+    #[allow(deprecated)]
     pub fn get_struct(&self, key: &str) -> Result<&Value, NotA<Struct>> {
         if let Some(Kind::StructValue(Struct { fields })) = &self.kind {
             Ok(fields.get(key).unwrap_or(&NULL_VALUE))
