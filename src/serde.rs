@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 use crate::client::Payload;
 use crate::qdrant::value::Kind;
 use crate::qdrant::{ListValue, Struct, Value};
