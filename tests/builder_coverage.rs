@@ -1,5 +1,18 @@
 use qdrant_client::prelude::Distance;
-use qdrant_client::qdrant::{BinaryQuantizationBuilder, ClearPayloadPointsBuilder, CountPointsBuilder, CreateAliasBuilder, CreateFieldIndexCollectionBuilder, CreateShardKeyRequestBuilder, DeleteCollectionBuilder, DeleteFieldIndexCollectionBuilder, DeletePayloadPointsBuilder, DeletePointVectorsBuilder, DeletePointsBuilder, DeleteShardKeyRequestBuilder, DiscoverBatchPointsBuilder, DiscoverPointsBuilder, GetPointsBuilder, LookupLocationBuilder, OrderByBuilder, ProductQuantizationBuilder, QuantizationType, RecommendBatchPointsBuilder, RecommendPointGroupsBuilder, RecommendPointsBuilder, RenameAliasBuilder, ScalarQuantizationBuilder, ScrollPointsBuilder, SearchBatchPointsBuilder, SearchPointGroupsBuilder, SearchPointsBuilder, SetPayloadPointsBuilder, TextIndexParamsBuilder, TokenizerType, UpdateBatchPointsBuilder, UpdateCollectionBuilder, UpdateCollectionClusterSetupRequestBuilder, UpdatePointVectorsBuilder, UpsertPointsBuilder, VectorParamsBuilder, WithLookupBuilder, QueryPointsBuilder};
+use qdrant_client::qdrant::{
+    BinaryQuantizationBuilder, ClearPayloadPointsBuilder, CountPointsBuilder, CreateAliasBuilder,
+    CreateFieldIndexCollectionBuilder, CreateShardKeyRequestBuilder, DeleteCollectionBuilder,
+    DeleteFieldIndexCollectionBuilder, DeletePayloadPointsBuilder, DeletePointVectorsBuilder,
+    DeletePointsBuilder, DeleteShardKeyRequestBuilder, DiscoverBatchPointsBuilder,
+    DiscoverPointsBuilder, GetPointsBuilder, LookupLocationBuilder, OrderByBuilder,
+    ProductQuantizationBuilder, QuantizationType, QueryPointsBuilder, RecommendBatchPointsBuilder,
+    RecommendPointGroupsBuilder, RecommendPointsBuilder, RenameAliasBuilder,
+    ScalarQuantizationBuilder, ScrollPointsBuilder, SearchBatchPointsBuilder,
+    SearchPointGroupsBuilder, SearchPointsBuilder, SetPayloadPointsBuilder, TextIndexParamsBuilder,
+    TokenizerType, UpdateBatchPointsBuilder, UpdateCollectionBuilder,
+    UpdateCollectionClusterSetupRequestBuilder, UpdatePointVectorsBuilder, UpsertPointsBuilder,
+    VectorParamsBuilder, WithLookupBuilder,
+};
 use std::collections::HashMap;
 
 /// TLDR; Ensures new fields introduced in protobuf updates won't cause a panic at runtime due to missing derive_builder attributes.
