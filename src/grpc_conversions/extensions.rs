@@ -79,7 +79,7 @@ impl ScoredPoint {
     /// ```
     /// use qdrant_client::qdrant::ScoredPoint;
     /// let point = ScoredPoint::default();
-    /// assert_eq!(point.get("not_present"), None);
+    /// assert_eq!(point.try_get("not_present"), None);
     /// ````
     pub fn try_get(&self, key: &str) -> Option<&Value> {
         self.payload.get(key)
