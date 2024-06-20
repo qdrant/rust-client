@@ -1,3 +1,6 @@
+// TODO: remove this once this test has been converted
+#![allow(deprecated)]
+
 use qdrant_client::{client::QdrantClient, qdrant::{
     points_selector::PointsSelectorOneOf, PointsIdsList, PointsSelector,
 }};

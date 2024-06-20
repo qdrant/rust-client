@@ -34,7 +34,7 @@ impl Qdrant {
                     let service = self.with_api_key(channel);
                     let mut client =
                         PointsClient::new(service).max_decoding_message_size(usize::MAX);
-                    if let Some(compression) = self.cfg.compression {
+                    if let Some(compression) = self.config.compression {
                         client = client
                             .send_compressed(compression.into())
                             .accept_compressed(compression.into());
@@ -98,7 +98,7 @@ impl Qdrant {
     /// Update or insert points into the collection.
     /// If points with given ID already exist, they will be overwritten.
     /// Also this method does not split the points to insert to avoid timeouts.
-    /// Look at [`upsert_points_batch`] for that.
+    /// Look at [`upsert_points_batch`](Self::upsert_points_batch) for that.
     pub async fn upsert_points(
         &self,
         request: impl Into<UpsertPoints>,

@@ -37,3 +37,7 @@ serde = ["dep:serde", "dep:serde_json"]
 [[example]]
 name = "search"
 required-features = ["serde"]
+
+[[example]]
+name = "deprecated_search"
+required-features = ["serde"]

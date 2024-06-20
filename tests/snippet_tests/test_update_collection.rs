@@ -4,6 +4,9 @@ async fn test_update_collection() {
     async fn update_collection() -> Result<(), Box<dyn std::error::Error>> {
       // WARNING: This is a generated test snippet.
       // Please, modify the snippet in the `../snippets/update_collection.rs` file
+        // TODO: remove this once this test has been converted
+        #![allow(deprecated)]
+        
         use qdrant_client::{client::QdrantClient, qdrant::OptimizersConfigDiff};
         
         let client = QdrantClient::from_url("http://localhost:6334").build()?;
