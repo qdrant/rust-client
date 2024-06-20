@@ -92,7 +92,7 @@ pub mod auth;
 pub mod builder_types;
 pub mod payload;
 
-// Qdrant API types
+// Generated Qdrant API types
 /// API types
 #[allow(clippy::all)]
 #[rustfmt::skip]
