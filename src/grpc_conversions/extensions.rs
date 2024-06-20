@@ -88,8 +88,8 @@ impl ScoredPoint {
 
 macro_rules! extract {
     ($kind:ident, $check:ident) => {
-        /// check if this value is a
-        #[doc = stringify!($kind)]
+        /// Check if this value is a
+        #[doc = stringify!([$kind])]
         pub fn $check(&self) -> bool {
             matches!(self.kind, Some($kind(_)))
         }
@@ -97,8 +97,11 @@ macro_rules! extract {
     ($kind:ident, $check:ident, $extract:ident, $ty:ty) => {
         extract!($kind, $check);
 
-        /// extract the contents if this value is a
-        #[doc = stringify!($kind)]
+        /// Get this value as
+        #[doc = stringify!([$ty])]
+        ///
+        /// Returns `None` if this value is not a
+        #[doc = stringify!([$kind].)]
         pub fn $extract(&self) -> Option<$ty> {
             if let Some($kind(v)) = self.kind {
                 Some(v)
@@ -110,8 +113,11 @@ macro_rules! extract {
     ($kind:ident, $check:ident, $extract:ident, ref $ty:ty) => {
         extract!($kind, $check);
 
-        /// extract the contents if this value is a
-        #[doc = stringify!($kind)]
+        /// Get this value as
+        #[doc = stringify!([$ty])]
+        ///
+        /// Returns `None` if this value is not a
+        #[doc = stringify!([$kind].)]
         pub fn $extract(&self) -> Option<&$ty> {
             if let Some($kind(v)) = &self.kind {
                 Some(v)
@@ -140,7 +146,7 @@ mod value_extract_impl {
 
 impl Value {
     #[cfg(feature = "serde")]
-    /// convert this into a `serde_json::Value`
+    /// Convert this into a [`serde_json::Value`]
     ///
     /// # Examples:
     ///
