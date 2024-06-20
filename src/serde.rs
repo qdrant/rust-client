@@ -100,10 +100,8 @@ impl TryFrom<serde_json::Value> for Payload {
     type Error = PayloadConversionError;
 
     fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
-        if let serde_json::Value::Object(obj) = value {
-            Ok(Payload::new_from_hashmap(
-                obj.into_iter().map(|(k, v)| (k, v.into())).collect(),
-            ))
+        if let serde_json::Value::Object(object) = value {
+            Ok(object.into())
         } else {
             Err(PayloadConversionError(value))
         }

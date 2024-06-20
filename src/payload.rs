@@ -7,6 +7,21 @@ use std::collections::HashMap;
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Payload(pub(crate) HashMap<String, Value>);
 
+#[cfg(feature = "serde")]
+impl Payload {
+    /// Convert a JSON object into a Payload
+    ///
+    /// Returns `None` if the given JSON value is not an object.
+    #[inline]
+    pub fn from_json_object(value: serde_json::Value) -> Option<Self> {
+        if let serde_json::Value::Object(object) = value {
+            Some(object.into())
+        } else {
+            None
+        }
+    }
+}
+
 impl From<Payload> for HashMap<String, Value> {
     #[inline]
     fn from(payload: Payload) -> Self {
@@ -23,6 +38,14 @@ impl From<HashMap<&str, Value>> for Payload {
                 .map(|(k, v)| (k.to_string(), v))
                 .collect(),
         )
+    }
+}
+
+#[cfg(feature = "serde")]
+impl From<serde_json::Map<String, serde_json::Value>> for Payload {
+    #[inline]
+    fn from(obj: serde_json::Map<String, serde_json::Value>) -> Self {
+        Payload::new_from_hashmap(obj.into_iter().map(|(k, v)| (k, v.into())).collect())
     }
 }
 
