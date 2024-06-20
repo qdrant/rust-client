@@ -4,6 +4,9 @@ async fn test_search_point_groups() {
     async fn search_point_groups() -> Result<(), Box<dyn std::error::Error>> {
       // WARNING: This is a generated test snippet.
       // Please, modify the snippet in the `../snippets/search_point_groups.rs` file
+        // TODO: remove this once this test has been converted
+        #![allow(deprecated)]
+        
         use qdrant_client::{
             client::QdrantClient,
             qdrant::SearchPointGroups,

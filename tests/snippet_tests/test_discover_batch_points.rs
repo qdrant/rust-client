@@ -4,6 +4,9 @@ async fn test_discover_batch_points() {
     async fn discover_batch_points() -> Result<(), Box<dyn std::error::Error>> {
       // WARNING: This is a generated test snippet.
       // Please, modify the snippet in the `../snippets/discover_batch_points.rs` file
+        // TODO: remove this once this test has been converted
+        #![allow(deprecated)]
+        
         use qdrant_client::{
             client::QdrantClient,
             qdrant::{
