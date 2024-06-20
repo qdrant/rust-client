@@ -167,10 +167,7 @@ fn configure_builder(builder: Builder) -> Builder {
             ("CreateCollection.shard_number", DEFAULT_OPTION),
             ("CreateCollection.on_disk_payload", DEFAULT_OPTION),
             ("CreateCollection.timeout", DEFAULT_OPTION),
-            (
-                "CreateCollection.vectors_config",
-                DEFAULT_OPTION_INTO
-            ),
+            ("CreateCollection.vectors_config", DEFAULT_OPTION_INTO),
             ("CreateCollection.replication_factor", DEFAULT_OPTION),
             ("CreateCollection.write_consistency_factor", DEFAULT_OPTION),
             ("CreateCollection.init_from_collection", DEFAULT_OPTION_INTO),
@@ -260,10 +257,7 @@ fn configure_builder(builder: Builder) -> Builder {
             ("UpdateCollection.timeout", DEFAULT_OPTION),
             ("UpdateCollection.params", DEFAULT_OPTION_INTO),
             ("UpdateCollection.hnsw_config", DEFAULT_OPTION_INTO),
-            (
-                "UpdateCollection.vectors_config",
-                DEFAULT_OPTION_INTO,
-            ),
+            ("UpdateCollection.vectors_config", DEFAULT_OPTION_INTO),
             (
                 "UpdateCollection.quantization_config",
                 builder_custom_into!(
