@@ -4,6 +4,9 @@ async fn test_upsert_points() {
     async fn upsert_points() -> Result<(), Box<dyn std::error::Error>> {
       // WARNING: This is a generated test snippet.
       // Please, modify the snippet in the `../snippets/upsert_points.rs` file
+        // TODO: remove this once this test has been converted
+        #![allow(deprecated)]
+        
         use qdrant_client::{client::QdrantClient, client::Payload, qdrant::PointStruct};
         use serde_json::json;
         

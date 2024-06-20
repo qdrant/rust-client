@@ -1,3 +1,6 @@
+// TODO: remove this once this test has been converted
+#![allow(deprecated)]
+
 use qdrant_client::{client::QdrantClient, client::Payload, qdrant::PointStruct};
 use serde_json::json;
 

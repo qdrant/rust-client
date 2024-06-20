@@ -4,6 +4,9 @@ async fn test_create_field_index() {
     async fn create_field_index() -> Result<(), Box<dyn std::error::Error>> {
       // WARNING: This is a generated test snippet.
       // Please, modify the snippet in the `../snippets/create_field_index.rs` file
+        // TODO: remove this once this test has been converted
+        #![allow(deprecated)]
+        
         use qdrant_client::{client::QdrantClient, qdrant::FieldType};
         
         let client = QdrantClient::from_url("http://localhost:6334").build()?;
