@@ -135,9 +135,7 @@ pub mod prelude;
 pub mod serde;
 
 // Re-exports
-pub use crate::qdrant_client::{
-    config::QdrantConfig, errors::Error, Qdrant, QdrantBuilder, Result,
-};
+pub use crate::qdrant_client::{config::QdrantConfig, error::Error, Qdrant, QdrantBuilder, Result};
 
 // Vendored re-exports
 #[doc(no_inline)]
