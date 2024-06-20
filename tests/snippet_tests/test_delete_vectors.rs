@@ -4,6 +4,9 @@ async fn test_delete_vectors() {
     async fn delete_vectors() -> Result<(), Box<dyn std::error::Error>> {
       // WARNING: This is a generated test snippet.
       // Please, modify the snippet in the `../snippets/delete_vectors.rs` file
+        // TODO: remove this once this test has been converted
+        #![allow(deprecated)]
+        
         use qdrant_client::{client::QdrantClient, qdrant::{
             points_selector::PointsSelectorOneOf, PointsIdsList, PointsSelector, VectorsSelector,
         }};

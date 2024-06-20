@@ -1,5 +1,5 @@
-pub mod extensions;
-pub mod primitives;
+mod extensions;
+mod primitives;
 mod query;
 
 use crate::client::Payload;
