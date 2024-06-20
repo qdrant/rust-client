@@ -27,25 +27,19 @@ impl VectorsConfigBuilder {
 }
 
 impl From<VectorsConfigBuilder> for VectorsConfig {
-    fn from(builder: VectorsConfigBuilder) -> Self {
+    fn from(mut builder: VectorsConfigBuilder) -> Self {
         if builder.params.is_empty() {
-            VectorsConfig { config: None }
-        } else if builder.params.len() == 1 {
-            if builder.params.contains_key(DEFAULT_VECTOR_NAME) {
-                VectorsConfig {
-                    config: Some(Config::from(
-                        builder.params.get(DEFAULT_VECTOR_NAME).unwrap().clone(),
-                    )),
-                }
-            } else {
-                VectorsConfig {
-                    config: Some(Config::from(VectorParamsMap::from(builder.params))),
-                }
-            }
-        } else {
-            VectorsConfig {
-                config: Some(Config::from(VectorParamsMap::from(builder.params))),
-            }
+            return VectorsConfig::default();
+        }
+
+        if builder.params.len() == 1 && builder.params.contains_key(DEFAULT_VECTOR_NAME) {
+            return VectorsConfig {
+                config: Some(Config::from(builder.params.remove(DEFAULT_VECTOR_NAME))),
+            };
+        }
+
+        VectorsConfig {
+            config: Some(Config::from(VectorParamsMap::from(builder.params))),
         }
     }
 }
