@@ -517,13 +517,7 @@ pub struct CreateCollection {
     pub timeout: ::core::option::Option<u64>,
     /// Configuration for vectors
     #[prost(message, optional, tag = "10")]
-    #[builder(
-        setter(into, strip_option),
-        field(
-            ty = "Option<vectors_config::Config>",
-            build = "convert_option(&self.vectors_config)"
-        )
-    )]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub vectors_config: ::core::option::Option<VectorsConfig>,
     /// Number of replicas of each shard that network tries to maintain, default = 1
     #[prost(uint32, optional, tag = "11")]
@@ -587,13 +581,7 @@ pub struct UpdateCollection {
     pub hnsw_config: ::core::option::Option<HnswConfigDiff>,
     /// New vector parameters
     #[prost(message, optional, tag = "6")]
-    #[builder(
-        setter(into, strip_option),
-        field(
-            ty = "Option<vectors_config_diff::Config>",
-            build = "convert_option(&self.vectors_config)"
-        )
-    )]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub vectors_config: ::core::option::Option<VectorsConfigDiff>,
     /// Quantization configuration of vector
     #[prost(message, optional, tag = "7")]
