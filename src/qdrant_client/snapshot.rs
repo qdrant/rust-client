@@ -105,7 +105,7 @@ impl Qdrant {
         &self,
         options: impl Into<crate::qdrant::SnapshotDownload>,
     ) -> Result<()> {
-        use crate::qdrant_client::errors::Error;
+        use crate::qdrant_client::error::Error;
         use futures_util::StreamExt;
         use std::io::Write;
 
