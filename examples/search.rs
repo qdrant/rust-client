@@ -14,13 +14,12 @@ async fn main() -> Result<()> {
 
     let collections_list = client.list_collections().await?;
     dbg!(collections_list);
-    // collections_list = ListCollectionsResponse {
-    //     collections: [
-    //         CollectionDescription {
-    //             name: "test",
-    //         },
-    //     ],
-    //     time: 3.652e-5,
+    // collections_list = {
+    //   "collections": [
+    //     {
+    //       "name": "test"
+    //     }
+    //   ]
     // }
 
     let collection_name = "test";
@@ -63,60 +62,20 @@ async fn main() -> Result<()> {
         )
         .await?;
     dbg!(&search_result);
-    // search_result = SearchResponse {
-    //     result: [
-    //         ScoredPoint {
-    //             id: Some(
-    //                 PointId {
-    //                     point_id_options: Some(
-    //                         Num(
-    //                             0,
-    //                         ),
-    //                     ),
-    //                 },
-    //             ),
-    //             payload: {
-    //                 "bar": Value {
-    //                     kind: Some(
-    //                         IntegerValue(
-    //                             12,
-    //                         ),
-    //                     ),
-    //                 },
-    //                 "baz": Value {
-    //                     kind: Some(
-    //                         StructValue(
-    //                             Struct {
-    //                                 fields: {
-    //                                     "qux": Value {
-    //                                         kind: Some(
-    //                                             StringValue(
-    //                                                 "quux",
-    //                                             ),
-    //                                         ),
-    //                                     },
-    //                                 },
-    //                             },
-    //                         ),
-    //                     ),
-    //                 },
-    //                 "foo": Value {
-    //                     kind: Some(
-    //                         StringValue(
-    //                             "Bar",
-    //                         ),
-    //                     ),
-    //                 },
-    //             },
-    //             score: 1.0000001,
-    //             version: 0,
-    //             vectors: None,
-    //             shard_key: None,
-    //             order_value: None,
-    //         },
-    //     ],
-    //     time: 0.000623298,
-    // }
+    // search_result = [
+    //   {
+    //     "id": 0,
+    //     "version": 0,
+    //     "score": 1.0000001,
+    //     "payload": {
+    //       "bar": 12,
+    //       "baz": {
+    //         "qux": "quux"
+    //       },
+    //       "foo": "Bar"
+    //     }
+    //   }
+    // ]
 
     let found_point = search_result.result.into_iter().next().unwrap();
     let mut payload = found_point.payload;
