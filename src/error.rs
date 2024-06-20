@@ -6,8 +6,9 @@ use std::error::Error;
 use std::fmt::{Debug, Display, Formatter};
 use std::marker::PhantomData;
 
-/// An error for failed conversions (e.g. calling `String::try_from(v)`
-/// on an integer [`Value`])
+/// An error for failed conversions (e.g. calling [`String::try_from(v)`](String::try_from) on an
+/// integer [`Value`])
+#[deprecated(since = "1.10.0", note = "new functions don't use this type anymore")]
 pub struct NotA<T> {
     marker: PhantomData<T>,
 }
