@@ -10,6 +10,7 @@ pub struct VectorsConfigBuilder {
 }
 
 impl VectorsConfigBuilder {
+    /// Add a named vector with the given parameters
     pub fn add_named_vector_params(
         &mut self,
         name: impl Into<String>,
