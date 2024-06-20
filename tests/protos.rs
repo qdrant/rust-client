@@ -167,11 +167,7 @@ fn configure_builder(builder: Builder) -> Builder {
             ("CreateCollection.shard_number", DEFAULT_OPTION),
             ("CreateCollection.on_disk_payload", DEFAULT_OPTION),
             ("CreateCollection.timeout", DEFAULT_OPTION),
-            (
-                "CreateCollection.vectors_config",
-                builder_custom_into!(vectors_config::Config, self.vectors_config),
-                // => "setter(into, strip_option), field(ty=Option<vectors_config::Config>, build=convert_option(&self.vectors_config))"
-            ),
+            ("CreateCollection.vectors_config", DEFAULT_OPTION_INTO),
             ("CreateCollection.replication_factor", DEFAULT_OPTION),
             ("CreateCollection.write_consistency_factor", DEFAULT_OPTION),
             ("CreateCollection.init_from_collection", DEFAULT_OPTION_INTO),
@@ -261,10 +257,7 @@ fn configure_builder(builder: Builder) -> Builder {
             ("UpdateCollection.timeout", DEFAULT_OPTION),
             ("UpdateCollection.params", DEFAULT_OPTION_INTO),
             ("UpdateCollection.hnsw_config", DEFAULT_OPTION_INTO),
-            (
-                "UpdateCollection.vectors_config",
-                builder_custom_into!(vectors_config_diff::Config, self.vectors_config),
-            ),
+            ("UpdateCollection.vectors_config", DEFAULT_OPTION_INTO),
             (
                 "UpdateCollection.quantization_config",
                 builder_custom_into!(
