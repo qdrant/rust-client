@@ -91,8 +91,6 @@
 pub mod auth;
 pub mod builder_types;
 pub mod payload;
-#[cfg(feature = "serde")]
-pub mod serde;
 
 // Qdrant API types
 /// API types
@@ -131,6 +129,10 @@ pub mod error;
 /// Deprecated prelude
 #[deprecated(since = "1.10.0", note = "use types directly")]
 pub mod prelude;
+/// Deprecated serde helper
+#[cfg(feature = "serde")]
+#[deprecated(since = "1.10.0", note = "use `Payload::from_json_object` instead")]
+pub mod serde;
 
 // Re-exports
 pub use crate::qdrant_client::{
