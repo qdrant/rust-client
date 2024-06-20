@@ -4,6 +4,9 @@ async fn test_delete_payload() {
     async fn delete_payload() -> Result<(), Box<dyn std::error::Error>> {
       // WARNING: This is a generated test snippet.
       // Please, modify the snippet in the `../snippets/delete_payload.rs` file
+        // TODO: remove this once this test has been converted
+        #![allow(deprecated)]
+        
         use qdrant_client::{client::QdrantClient, qdrant::{
             points_selector::PointsSelectorOneOf, PointsIdsList, PointsSelector,
         }};

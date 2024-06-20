@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 use crate::qdrant::value::Kind::*;
 use crate::qdrant::{ListValue, Struct, Value};
 use std::error::Error;
@@ -5,7 +7,7 @@ use std::fmt::{Debug, Display, Formatter};
 use std::marker::PhantomData;
 
 /// An error for failed conversions (e.g. calling `String::try_from(v)`
-/// on an integer [`Value`](Value))
+/// on an integer [`Value`])
 pub struct NotA<T> {
     marker: PhantomData<T>,
 }

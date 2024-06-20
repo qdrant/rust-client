@@ -1,34 +1,39 @@
 mod builers;
-pub mod collection;
+mod collection;
 pub mod config;
 mod conversions;
 pub mod errors;
 mod points;
 mod query;
-pub mod sharding_keys;
-pub mod snapshot;
+mod sharding_keys;
+mod snapshot;
 
 use crate::channel_pool::ChannelPool;
 use crate::qdrant::{qdrant_client, HealthCheckReply, HealthCheckRequest};
+use crate::Error;
 use std::future::Future;
 use tonic::codegen::InterceptedService;
 use tonic::transport::{Channel, Uri};
 use tonic::Status;
 
-pub use crate::auth::TokenInterceptor;
-pub use crate::config::{AsTimeout, CompressionEncoding, MaybeApiKey};
-pub use crate::payload::Payload;
+use crate::auth::TokenInterceptor;
 use crate::qdrant_client::config::QdrantConfig;
-use crate::qdrant_client::errors::QdrantError;
 
-pub type Result<T> = std::result::Result<T, QdrantError>;
+/// [`Qdrant`] client result
+pub type Result<T> = std::result::Result<T, Error>;
 
-/// A builder type for `QdrantClient`s
+/// A builder for [`Qdrant`]
 pub type QdrantBuilder = QdrantConfig;
 
+/// Qdrant client
+///
+/// Connects to a Qdrant server and provides an API interface.
 pub struct Qdrant {
-    pub channel: ChannelPool,
-    pub cfg: QdrantConfig,
+    /// Client configuration
+    pub config: QdrantConfig,
+
+    /// Internal connection pool
+    channel: ChannelPool,
 }
 
 impl Qdrant {
@@ -37,24 +42,24 @@ impl Qdrant {
         QdrantBuilder::from_url(url)
     }
 
-    pub fn new(cfg: Option<QdrantConfig>) -> Result<Self> {
-        let cfg = cfg.unwrap_or_default();
+    pub fn new(config: Option<QdrantConfig>) -> Result<Self> {
+        let config = config.unwrap_or_default();
 
         let channel = ChannelPool::new(
-            cfg.uri.parse::<Uri>()?,
-            cfg.timeout,
-            cfg.connect_timeout,
-            cfg.keep_alive_while_idle,
+            config.uri.parse::<Uri>()?,
+            config.timeout,
+            config.connect_timeout,
+            config.keep_alive_while_idle,
         );
 
-        let client = Self { channel, cfg };
+        let client = Self { channel, config };
 
         Ok(client)
     }
 
     /// Wraps a channel with a token interceptor
     fn with_api_key(&self, channel: Channel) -> InterceptedService<Channel, TokenInterceptor> {
-        let interceptor = TokenInterceptor::new(self.cfg.api_key.clone());
+        let interceptor = TokenInterceptor::new(self.config.api_key.clone());
         InterceptedService::new(channel, interceptor)
     }
 
@@ -70,7 +75,7 @@ impl Qdrant {
                     let service = self.with_api_key(channel);
                     let mut client = qdrant_client::QdrantClient::new(service)
                         .max_decoding_message_size(usize::MAX);
-                    if let Some(compression) = self.cfg.compression {
+                    if let Some(compression) = self.config.compression {
                         client = client
                             .send_compressed(compression.into())
                             .accept_compressed(compression.into());

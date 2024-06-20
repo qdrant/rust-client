@@ -4,6 +4,9 @@ async fn test_set_payload() {
     async fn set_payload() -> Result<(), Box<dyn std::error::Error>> {
       // WARNING: This is a generated test snippet.
       // Please, modify the snippet in the `../snippets/set_payload.rs` file
+        // TODO: remove this once this test has been converted
+        #![allow(deprecated)]
+        
         use serde_json::json;
         use qdrant_client::{client::QdrantClient, qdrant::{
             points_selector::PointsSelectorOneOf, PointsIdsList, PointsSelector,
