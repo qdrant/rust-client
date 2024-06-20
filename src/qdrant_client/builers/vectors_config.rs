@@ -20,6 +20,7 @@ impl VectorsConfigBuilder {
         self
     }
 
+    /// Add the default vector with the given parameters
     pub fn add_vector_params(&mut self, params: impl Into<VectorParams>) -> &mut Self {
         self.params
             .insert(DEFAULT_VECTOR_NAME.to_string(), params.into());
