@@ -4,14 +4,13 @@ use qdrant_client::qdrant::{
     ScalarQuantizationBuilder, SearchParamsBuilder, SearchPointsBuilder, UpsertPointsBuilder,
     VectorParamsBuilder,
 };
-use qdrant_client::{Qdrant, QdrantConfig, Result};
+use qdrant_client::{Qdrant, Result};
 
 #[tokio::main]
 async fn main() -> Result<()> {
     // Example of top level client
     // You may also use tonic-generated client from `src/qdrant.rs`
-    let config = QdrantConfig::from_url("http://localhost:6334");
-    let client = Qdrant::new(Some(config))?;
+    let client = Qdrant::from_url("http://localhost:6334").build()?;
 
     let collections_list = client.list_collections().await?;
     dbg!(collections_list);
