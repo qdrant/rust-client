@@ -36,7 +36,7 @@ impl From<VectorsConfigBuilder> for VectorsConfig {
 
         if builder.params.len() == 1 && builder.params.contains_key(DEFAULT_VECTOR_NAME) {
             return VectorsConfig {
-                config: Some(Config::from(builder.params.remove(DEFAULT_VECTOR_NAME))),
+                config: Some(Config::from(builder.params.remove(DEFAULT_VECTOR_NAME).unwrap())),
             };
         }
 
