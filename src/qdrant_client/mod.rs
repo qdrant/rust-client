@@ -2,7 +2,7 @@ mod builers;
 mod collection;
 pub mod config;
 mod conversions;
-pub mod errors;
+pub mod error;
 mod points;
 mod query;
 mod sharding_keys;

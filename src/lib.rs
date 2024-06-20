@@ -91,10 +91,8 @@
 pub mod auth;
 pub mod builder_types;
 pub mod payload;
-#[cfg(feature = "serde")]
-pub mod serde;
 
-// Qdrant API types
+// Generated Qdrant API types
 /// API types
 #[allow(clippy::all)]
 #[rustfmt::skip]
@@ -131,11 +129,13 @@ pub mod error;
 /// Deprecated prelude
 #[deprecated(since = "1.10.0", note = "use types directly")]
 pub mod prelude;
+/// Deprecated serde helper
+#[cfg(feature = "serde")]
+#[deprecated(since = "1.10.0", note = "use `Payload::from_json_object` instead")]
+pub mod serde;
 
 // Re-exports
-pub use crate::qdrant_client::{
-    config::QdrantConfig, errors::Error, Qdrant, QdrantBuilder, Result,
-};
+pub use crate::qdrant_client::{config::QdrantConfig, error::Error, Qdrant, QdrantBuilder, Result};
 
 // Vendored re-exports
 #[doc(no_inline)]

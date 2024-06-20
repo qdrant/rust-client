@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 use crate::client::Payload;
 use crate::qdrant::value::Kind;
 use crate::qdrant::{ListValue, Struct, Value};
@@ -100,10 +102,8 @@ impl TryFrom<serde_json::Value> for Payload {
     type Error = PayloadConversionError;
 
     fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
-        if let serde_json::Value::Object(obj) = value {
-            Ok(Payload::new_from_hashmap(
-                obj.into_iter().map(|(k, v)| (k, v.into())).collect(),
-            ))
+        if let serde_json::Value::Object(object) = value {
+            Ok(object.into())
         } else {
             Err(PayloadConversionError(value))
         }
@@ -118,82 +118,5 @@ impl<'de> Deserialize<'de> for Value {
         // rely on serde_json to materialize a JSON value for conversion
         let serde_value = serde_json::Value::deserialize(deserializer)?;
         Ok(serde_value.into())
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::client::Payload;
-    use serde_json::json;
-
-    #[test]
-    fn json_payload_round_trip() {
-        let payload: Payload = vec![
-            ("some_string", "Bar".into()),
-            ("some_bool", true.into()),
-            ("some_int", 12.into()),
-            ("some_float", 2.3.into()),
-            ("some_seq", vec!["elem1", "elem2"].into()),
-            ("some_obj", vec![("key", "value")].into()),
-        ]
-        .into_iter()
-        .collect::<HashMap<_, Value>>()
-        .into();
-
-        // payload -> Json string
-        let json_value = serde_json::to_string(&payload).unwrap();
-
-        // Json string -> payload
-        let payload_back: Payload = serde_json::from_str(&json_value).unwrap();
-
-        // assert round trip
-        assert_eq!(payload, payload_back);
-    }
-
-    #[test]
-    fn payload_from_string() {
-        let json = r#"{
-            "some_string": "Bar",
-            "some_bool": true,
-            "some_int": 12,
-            "some_float": 2.3,
-            "some_seq": ["elem1", "elem2"],
-            "some_obj": {"key": "value"}
-            }"#;
-
-        // String -> payload
-        let parsed_payload: Payload = serde_json::from_str(json).unwrap();
-
-        let expected: Payload = vec![
-            ("some_string", "Bar".into()),
-            ("some_bool", true.into()),
-            ("some_int", 12.into()),
-            ("some_float", 2.3.into()),
-            ("some_seq", vec!["elem1", "elem2"].into()),
-            ("some_obj", vec![("key", "value")].into()),
-        ]
-        .into_iter()
-        .collect::<HashMap<_, Value>>()
-        .into();
-
-        // assert expected
-        assert_eq!(parsed_payload, expected);
-    }
-
-    #[test]
-    fn test_json_macro() {
-        let json_value = json!({
-            "some_string": "Bar",
-            "some_bool": true,
-            "some_int": 12,
-            "some_float": 2.3,
-            "some_seq": ["elem1", "elem2"],
-            "some_obj": {"key": "value"}
-        });
-
-        let payload: Payload = json_value.try_into().unwrap();
-
-        eprintln!("payload = {:#?}", payload);
     }
 }
