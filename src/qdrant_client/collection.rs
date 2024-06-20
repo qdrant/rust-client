@@ -32,7 +32,7 @@ impl Qdrant {
                     let service = self.with_api_key(channel);
                     let mut client =
                         CollectionsClient::new(service).max_decoding_message_size(usize::MAX);
-                    if let Some(compression) = self.cfg.compression {
+                    if let Some(compression) = self.config.compression {
                         client = client
                             .send_compressed(compression.into())
                             .accept_compressed(compression.into());

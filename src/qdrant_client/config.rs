@@ -1,15 +1,25 @@
-use crate::prelude::QdrantError;
-use crate::qdrant_client::Qdrant;
+use crate::Error;
+use crate::Qdrant;
 use std::time::Duration;
 
+/// Qdrant client configuration
 pub struct QdrantConfig {
+    /// Qdrant server URI to connect to
     pub uri: String,
+
+    /// Timeout for API requests
     pub timeout: Duration,
+
+    /// Timeout for connecting to the Qdrant server
     pub connect_timeout: Duration,
+
+    /// Whether to keep idle connections active
     pub keep_alive_while_idle: bool,
 
-    /// API key or token to use for authorization
+    /// Optional API key or token to use for authorization
     pub api_key: Option<String>,
+
+    /// Optional compression schema to use for API requests
     pub compression: Option<CompressionEncoding>,
 }
 
@@ -43,13 +53,13 @@ impl QdrantConfig {
     }
 
     /// set the API key, builder-like. The API key argument can be any of
-    /// `&str`, `String`, `Option<&str>``, `Option<String>` or `Result<String>`.`
+    /// `&str`, `String`, `Option<&str>`, `Option<String>` or `Result<String>`.
     ///
     /// # Examples:
     ///
     /// A typical use case might be getting the key from an env var:
     /// ```rust, no_run
-    /// use qdrant_client::qdrant_client::Qdrant;
+    /// use qdrant_client::Qdrant;
     ///
     /// let client = Qdrant::from_url("localhost:6334")
     ///     .with_api_key(std::env::var("QDRANT_API_KEY"))
@@ -57,9 +67,8 @@ impl QdrantConfig {
     /// ```
     /// Another possibility might be getting it out of some config
     /// ```rust, no_run
-    /// use qdrant_client::prelude::*;
     ///# use std::collections::HashMap;
-    /// use qdrant_client::qdrant_client::config::QdrantConfig;
+    /// use qdrant_client::QdrantConfig;
     ///# let config: HashMap<&str, String> = HashMap::new();
     /// let client = QdrantConfig::from_url("localhost:6334")
     ///     .with_api_key(config.get("api_key"))
@@ -95,7 +104,7 @@ impl QdrantConfig {
     }
 
     /// Build the Qdrant
-    pub fn build(self) -> Result<Qdrant, QdrantError> {
+    pub fn build(self) -> Result<Qdrant, Error> {
         Qdrant::new(Some(self))
     }
 }

@@ -91,9 +91,9 @@ impl QdrantClient {
     /// Update or insert points into the collection.
     /// If points with given ID already exist, they will be overwritten.
     /// This method does *not* wait for completion of the operation, use
-    /// [`upsert_points_blocking`] for that.
+    /// [`upsert_points_blocking`](Self::upsert_points_blocking) for that.
     /// Also this method does not split the points to insert to avoid timeouts,
-    /// look at [`upsert_points_batch`] for that.
+    /// look at [`upsert_points_batch`](Self::upsert_points_batch) for that.
     pub async fn upsert_points(
         &self,
         collection_name: impl ToString,
@@ -114,7 +114,7 @@ impl QdrantClient {
     /// Update or insert points into the collection, wait for completion.
     /// If points with given ID already exist, they will be overwritten.
     /// This method does not split the points to insert to avoid timeouts,
-    /// look at [`upsert_points_batch`] for that.
+    /// look at [`upsert_points_batch`](Self::upsert_points_batch) for that.
     pub async fn upsert_points_blocking(
         &self,
         collection_name: impl ToString,
@@ -159,7 +159,7 @@ impl QdrantClient {
     /// Update or insert points into the collection, splitting in chunks.
     /// If points with given ID already exist, they will be overwritten.
     /// This method does *not* wait for completion of the operation, use
-    /// [`upsert_points_batch_blocking`] for that.
+    /// [`upsert_points_batch_blocking`](Self::upsert_points_batch_blocking) for that.
     pub async fn upsert_points_batch(
         &self,
         collection_name: impl ToString,
@@ -861,7 +861,7 @@ impl QdrantClient {
 
     /// Perform multiple point, vector and payload insert, update and delete operations in one request.
     /// This method does *not* wait for completion of the operation, use
-    /// [`update_batch_blocking`] for that.
+    /// [`update_batch_points_blocking`](Self::update_batch_points_blocking) for that.
     pub async fn update_batch_points(
         &self,
         collection_name: impl ToString,

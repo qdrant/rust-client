@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 pub mod collection;
 pub mod points;
 pub mod snapshot;
@@ -14,9 +16,11 @@ pub use crate::auth::TokenInterceptor;
 pub use crate::config::{AsTimeout, CompressionEncoding, MaybeApiKey, QdrantClientConfig};
 pub use crate::payload::Payload;
 
-/// A builder type for `QdrantClient`s
+/// A builder for `QdrantClient`s
+#[deprecated(since = "1.10.0", note = "use `qdrant_client::QdrantBuilder` instead")]
 pub type QdrantClientBuilder = QdrantClientConfig;
 
+#[deprecated(since = "1.10.0", note = "use `qdrant_client::Qdrant` instead")]
 pub struct QdrantClient {
     pub channel: ChannelPool,
     pub cfg: QdrantClientConfig,

@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 use crate::client::QdrantClient;
 use std::time::Duration;
 
@@ -6,8 +8,6 @@ pub struct QdrantClientConfig {
     pub timeout: Duration,
     pub connect_timeout: Duration,
     pub keep_alive_while_idle: bool,
-
-    /// API key or token to use for authorization
     pub api_key: Option<String>,
     pub compression: Option<CompressionEncoding>,
 }
@@ -42,7 +42,7 @@ impl QdrantClientConfig {
     }
 
     /// set the API key, builder-like. The API key argument can be any of
-    /// `&str`, `String`, `Option<&str>``, `Option<String>` or `Result<String>`.`
+    /// `&str`, `String`, `Option<&str>`, `Option<String>` or `Result<String>`.
     ///
     /// # Examples:
     ///

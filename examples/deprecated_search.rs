@@ -1,17 +1,19 @@
-use qdrant_client::payload::Payload;
+#![allow(deprecated)]
+
+use anyhow::Result;
+use qdrant_client::prelude::*;
 use qdrant_client::qdrant::{
-    Condition, CreateCollectionBuilder, Distance, Filter, PointStruct, QuantizationType,
-    ScalarQuantizationBuilder, SearchParamsBuilder, SearchPointsBuilder, UpsertPointsBuilder,
-    VectorParamsBuilder,
+    Condition, CreateCollectionBuilder, Distance, Filter, PayloadIncludeSelector, QuantizationType,
+    ScalarQuantizationBuilder, SearchParamsBuilder, SearchPointsBuilder, VectorParamsBuilder,
 };
-use qdrant_client::{Qdrant, QdrantConfig, Result};
+use serde_json::json;
 
 #[tokio::main]
 async fn main() -> Result<()> {
     // Example of top level client
     // You may also use tonic-generated client from `src/qdrant.rs`
-    let config = QdrantConfig::from_url("http://localhost:6334");
-    let client = Qdrant::new(Some(config))?;
+    let config = QdrantClientConfig::from_url("http://localhost:6334");
+    let client = QdrantClient::new(Some(config))?;
 
     let collections_list = client.list_collections().await?;
     dbg!(collections_list);
@@ -21,7 +23,7 @@ async fn main() -> Result<()> {
     //             name: "test",
     //         },
     //     ],
-    //     time: 3.652e-5,
+    //     time: 1.78e-6,
     // }
 
     let collection_name = "test";
@@ -29,16 +31,18 @@ async fn main() -> Result<()> {
 
     client
         .create_collection(
-            CreateCollectionBuilder::new(collection_name)
-                .vectors_config(VectorParamsBuilder::new(10, Distance::Cosine))
-                .quantization_config(ScalarQuantizationBuilder::new(QuantizationType::Int8)),
+            &CreateCollectionBuilder::default()
+                .collection_name(collection_name)
+                .vectors_config(VectorParamsBuilder::new(300, Distance::Cosine))
+                .quantization_config(ScalarQuantizationBuilder::new(QuantizationType::Int8))
+                .build(),
         )
         .await?;
 
     let collection_info = client.collection_info(collection_name).await?;
     dbg!(collection_info);
 
-    let payload: Payload = serde_json::json!(
+    let payload: Payload = json!(
         {
             "foo": "Bar",
             "bar": 12,
@@ -52,17 +56,17 @@ async fn main() -> Result<()> {
 
     let points = vec![PointStruct::new(0, vec![12.; 10], payload)];
     client
-        .upsert_points(UpsertPointsBuilder::new(collection_name, points))
+        .upsert_points_blocking(collection_name, None, points, None)
         .await?;
 
-    let search_result = client
-        .search_points(
-            SearchPointsBuilder::new(collection_name, [11.; 10], 10)
-                .filter(Filter::all([Condition::matches("bar", 12)]))
-                .with_payload(true)
-                .params(SearchParamsBuilder::default().exact(true)),
-        )
-        .await?;
+    let search_point_req = SearchPointsBuilder::new(collection_name, [11.; 10], 10)
+        .filter(Filter::all([Condition::matches("bar", 12)]))
+        .with_payload(PayloadIncludeSelector { fields: vec![] })
+        .params(SearchParamsBuilder::default().exact(true))
+        .build();
+
+    let search_result = client.search_points(&search_point_req).await?;
+
     dbg!(&search_result);
     // search_result = SearchResponse {
     //     result: [
@@ -80,43 +84,24 @@ async fn main() -> Result<()> {
     //                 "bar": Value {
     //                     kind: Some(
     //                         IntegerValue(
-    //                             12,
-    //                         ),
+    //                     12,
     //                     ),
-    //                 },
-    //                 "baz": Value {
-    //                     kind: Some(
-    //                         StructValue(
-    //                             Struct {
-    //                                 fields: {
-    //                                     "qux": Value {
-    //                                         kind: Some(
-    //                                             StringValue(
-    //                                                 "quux",
-    //                                             ),
-    //                                         ),
-    //                                     },
-    //                                 },
-    //                             },
-    //                         ),
     //                     ),
     //                 },
     //                 "foo": Value {
     //                     kind: Some(
     //                         StringValue(
-    //                             "Bar",
-    //                         ),
+    //                     "Bar",
+    //                     ),
     //                     ),
     //                 },
     //             },
     //             score: 1.0000001,
     //             version: 0,
     //             vectors: None,
-    //             shard_key: None,
-    //             order_value: None,
     //         },
     //     ],
-    //     time: 0.000623298,
+    //     time: 9.5394e-5,
     // }
 
     let found_point = search_result.result.into_iter().next().unwrap();

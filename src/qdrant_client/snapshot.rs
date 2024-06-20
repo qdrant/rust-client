@@ -23,7 +23,7 @@ impl Qdrant {
                     let service = self.with_api_key(channel);
                     let mut client =
                         SnapshotsClient::new(service).max_decoding_message_size(usize::MAX);
-                    if let Some(compression) = self.cfg.compression {
+                    if let Some(compression) = self.config.compression {
                         client = client
                             .send_compressed(compression.into())
                             .accept_compressed(compression.into());
@@ -105,7 +105,7 @@ impl Qdrant {
         &self,
         options: impl Into<crate::qdrant::SnapshotDownload>,
     ) -> Result<()> {
-        use crate::qdrant_client::errors::QdrantError;
+        use crate::qdrant_client::errors::Error;
         use futures_util::StreamExt;
         use std::io::Write;
 
@@ -120,11 +120,7 @@ impl Qdrant {
                 .first()
             {
                 Some(sn) => sn.name.clone(),
-                _ => {
-                    return Err(QdrantError::NoSnapshotFound(
-                        options.collection_name.clone(),
-                    ))
-                }
+                _ => return Err(Error::NoSnapshotFound(options.collection_name.clone())),
             },
         };
 
