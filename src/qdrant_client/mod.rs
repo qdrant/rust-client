@@ -5,6 +5,8 @@ mod points;
 mod query;
 pub mod sharding_keys;
 pub mod snapshot;
+mod builers;
+mod conversions;
 
 use crate::channel_pool::ChannelPool;
 use crate::qdrant::{qdrant_client, HealthCheckReply, HealthCheckRequest};

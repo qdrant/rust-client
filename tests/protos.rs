@@ -169,8 +169,7 @@ fn configure_builder(builder: Builder) -> Builder {
             ("CreateCollection.timeout", DEFAULT_OPTION),
             (
                 "CreateCollection.vectors_config",
-                builder_custom_into!(vectors_config::Config, self.vectors_config),
-                // => "setter(into, strip_option), field(ty=Option<vectors_config::Config>, build=convert_option(&self.vectors_config))"
+                DEFAULT_OPTION_INTO
             ),
             ("CreateCollection.replication_factor", DEFAULT_OPTION),
             ("CreateCollection.write_consistency_factor", DEFAULT_OPTION),
@@ -263,7 +262,7 @@ fn configure_builder(builder: Builder) -> Builder {
             ("UpdateCollection.hnsw_config", DEFAULT_OPTION_INTO),
             (
                 "UpdateCollection.vectors_config",
-                builder_custom_into!(vectors_config_diff::Config, self.vectors_config),
+                DEFAULT_OPTION_INTO,
             ),
             (
                 "UpdateCollection.quantization_config",

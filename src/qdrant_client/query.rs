@@ -12,14 +12,16 @@ impl Qdrant {
             let result = points_api.query(request.clone()).await?;
             Ok(result.into_inner())
         })
-        .await
+            .await
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use crate::qdrant::{CreateCollectionBuilder, Distance, QueryPointsBuilder, VectorParamsBuilder};
+    use crate::qdrant_client::builers::vectors_config::VectorsConfigBuilder;
+
     use super::*;
-    use crate::qdrant::{CreateCollectionBuilder, QueryPointsBuilder};
 
     #[tokio::test]
     async fn test_query() {
@@ -28,7 +30,13 @@ mod tests {
 
         client.delete_collection(collection_name).await.unwrap();
 
-        let create_collection = CreateCollectionBuilder::new(collection_name);
+        let mut vector_config = VectorsConfigBuilder::default();
+
+        vector_config.add_named_vector_params("large_vector", VectorParamsBuilder::new(8, Distance::Cosine));
+        vector_config.add_named_vector_params("small_vector", VectorParamsBuilder::new(4, Distance::Euclid));
+
+        let create_collection = CreateCollectionBuilder::new(collection_name).vectors_config(vector_config);
+
         client.create_collection(create_collection).await.unwrap();
 
         let request = QueryPointsBuilder::new(collection_name);
