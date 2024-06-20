@@ -123,11 +123,10 @@ pub mod client;
 )]
 pub mod config;
 /// Deprecated error type
-// TODO: deprecate once NotA is removed/deprecated
-// #[deprecated(
-//     since = "1.10.0",
-//     note = "use new error type at `qdrant_client::Error` instead"
-// )]
+#[deprecated(
+    since = "1.10.0",
+    note = "use new error type at `qdrant_client::Error` instead"
+)]
 pub mod error;
 /// Deprecated prelude
 #[deprecated(since = "1.10.0", note = "use types directly")]
