@@ -90,7 +90,6 @@
 // Public modules
 pub mod auth;
 pub mod builder_types;
-pub mod payload;
 
 // Generated Qdrant API types
 /// API types
@@ -105,6 +104,7 @@ mod filters;
 mod grpc_conversions;
 mod grpc_macros;
 mod manual_builder;
+mod payload;
 mod qdrant_client;
 
 // Deprecated modules
@@ -135,6 +135,7 @@ pub mod prelude;
 pub mod serde;
 
 // Re-exports
+pub use crate::payload::Payload;
 pub use crate::qdrant_client::{config::QdrantConfig, error::Error, Qdrant, QdrantBuilder, Result};
 
 // Vendored re-exports

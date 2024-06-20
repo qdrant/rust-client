@@ -1,10 +1,9 @@
-use qdrant_client::payload::Payload;
 use qdrant_client::qdrant::{
     Condition, CreateCollectionBuilder, Distance, Filter, PointStruct, QuantizationType,
     ScalarQuantizationBuilder, SearchParamsBuilder, SearchPointsBuilder, UpsertPointsBuilder,
     VectorParamsBuilder,
 };
-use qdrant_client::{Qdrant, Result};
+use qdrant_client::{Payload, Qdrant, Result};
 
 #[tokio::main]
 async fn main() -> Result<()> {
