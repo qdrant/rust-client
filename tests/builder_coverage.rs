@@ -1,17 +1,16 @@
-use qdrant_client::prelude::Distance;
 use qdrant_client::qdrant::{
     BinaryQuantizationBuilder, ClearPayloadPointsBuilder, CountPointsBuilder, CreateAliasBuilder,
     CreateFieldIndexCollectionBuilder, CreateShardKeyRequestBuilder, DeleteCollectionBuilder,
     DeleteFieldIndexCollectionBuilder, DeletePayloadPointsBuilder, DeletePointVectorsBuilder,
-    DeletePointsBuilder, DeleteShardKeyRequestBuilder, DiscoverBatchPointsBuilder,
-    DiscoverPointsBuilder, GetPointsBuilder, LookupLocationBuilder, OrderByBuilder,
-    ProductQuantizationBuilder, QuantizationType, QueryPointsBuilder, RecommendBatchPointsBuilder,
-    RecommendPointGroupsBuilder, RecommendPointsBuilder, RenameAliasBuilder,
-    ScalarQuantizationBuilder, ScrollPointsBuilder, SearchBatchPointsBuilder,
-    SearchPointGroupsBuilder, SearchPointsBuilder, SetPayloadPointsBuilder, TextIndexParamsBuilder,
-    TokenizerType, UpdateBatchPointsBuilder, UpdateCollectionBuilder,
-    UpdateCollectionClusterSetupRequestBuilder, UpdatePointVectorsBuilder, UpsertPointsBuilder,
-    VectorParamsBuilder, WithLookupBuilder,
+    DeletePointsBuilder, DeleteShardKeyRequestBuilder, DeleteSnapshotRequestBuilder,
+    DiscoverBatchPointsBuilder, DiscoverPointsBuilder, Distance, GetPointsBuilder,
+    LookupLocationBuilder, OrderByBuilder, ProductQuantizationBuilder, QuantizationType,
+    QueryPointsBuilder, RecommendBatchPointsBuilder, RecommendPointGroupsBuilder,
+    RecommendPointsBuilder, RenameAliasBuilder, ScalarQuantizationBuilder, ScrollPointsBuilder,
+    SearchBatchPointsBuilder, SearchPointGroupsBuilder, SearchPointsBuilder,
+    SetPayloadPointsBuilder, TextIndexParamsBuilder, TokenizerType, UpdateBatchPointsBuilder,
+    UpdateCollectionBuilder, UpdateCollectionClusterSetupRequestBuilder, UpdatePointVectorsBuilder,
+    UpsertPointsBuilder, VectorParamsBuilder, WithLookupBuilder,
 };
 use std::collections::HashMap;
 
@@ -65,4 +64,5 @@ fn builder_coverage() {
     CreateAliasBuilder::new("", "").build();
     RenameAliasBuilder::new("", "").build();
     QueryPointsBuilder::new("mycollection").build();
+    DeleteSnapshotRequestBuilder::new("mycollection", "snapshot").build();
 }
