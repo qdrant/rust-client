@@ -1,23 +1,11 @@
-// TODO: remove this once this test has been converted
-#![allow(deprecated)]
+use qdrant_client::qdrant::{CreateCollectionBuilder, Distance, VectorParamsBuilder};
+use qdrant_client::Qdrant;
 
-use qdrant_client::{
-    client::QdrantClient,
-    qdrant::{vectors_config::Config, CreateCollection, Distance, VectorParams, VectorsConfig},
-};
-
-let client = QdrantClient::from_url("http://localhost:6334").build()?;
+let client = Qdrant::from_url("http://localhost:6334").build()?;
 
 client
-    .create_collection(&CreateCollection {
-        collection_name: "{collection_name}".to_string(),
-        vectors_config: Some(VectorsConfig {
-            config: Some(Config::Params(VectorParams {
-                size: 100,
-                distance: Distance::Cosine.into(),
-                ..Default::default()
-            })),
-        }),
-        ..Default::default()
-    })
+    .create_collection(
+        CreateCollectionBuilder::new("{collection_name}")
+            .vectors_config(VectorParamsBuilder::new(100, Distance::Cosine)),
+    )
     .await?;

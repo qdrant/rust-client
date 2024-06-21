@@ -1,43 +1,29 @@
-// TODO: remove this once this test has been converted
-#![allow(deprecated)]
-
-use qdrant_client::{
-    client::QdrantClient,
-    qdrant::{
-        target_vector::Target, vector_example::Example, ContextExamplePair, DiscoverPoints,
-        TargetVector, VectorExample,
-    },
+use qdrant_client::qdrant::{
+    target_vector::Target, vector_example::Example, ContextExamplePairBuilder,
+    DiscoverPointsBuilder, VectorExample,
 };
+use qdrant_client::Qdrant;
 
-let client = QdrantClient::from_url("http://localhost:6334").build()?;
+let client = Qdrant::from_url("http://localhost:6334").build()?;
 
 client
-    .discover(&DiscoverPoints {
-        collection_name: "{collection_name}".to_string(),
-        target: Some(TargetVector {
-            target: Some(Target::Single(VectorExample {
-                example: Some(Example::Vector(vec![0.2, 0.1, 0.9, 0.7].into())),
-            })),
-        }),
-        context: vec![
-            ContextExamplePair {
-                positive: Some(VectorExample {
-                    example: Some(Example::Id(100.into())),
-                }),
-                negative: Some(VectorExample {
-                    example: Some(Example::Id(718.into())),
-                }),
-            },
-            ContextExamplePair {
-                positive: Some(VectorExample {
-                    example: Some(Example::Id(200.into())),
-                }),
-                negative: Some(VectorExample {
-                    example: Some(Example::Id(300.into())),
-                }),
-            },
-        ],
-        limit: 10,
-        ..Default::default()
-    })
+    .discover(
+        DiscoverPointsBuilder::new(
+            "{collection_name}",
+            vec![
+                ContextExamplePairBuilder::default()
+                    .positive(Example::Id(100.into()))
+                    .negative(Example::Id(718.into()))
+                    .build(),
+                ContextExamplePairBuilder::default()
+                    .positive(Example::Id(200.into()))
+                    .negative(Example::Id(300.into()))
+                    .build(),
+            ],
+            10,
+        )
+        .target(Target::Single(VectorExample {
+            example: Some(Example::Vector(vec![0.2, 0.1, 0.9, 0.7].into())),
+        })),
+    )
     .await?;
