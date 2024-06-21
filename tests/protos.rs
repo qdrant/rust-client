@@ -584,7 +584,7 @@ fn configure_builder(builder: Builder) -> Builder {
             ("CreateFieldIndexCollection.collection_name", PUBLIC_ONLY),
             ("CreateFieldIndexCollection.field_name", PUBLIC_ONLY),
             ("CreateFieldIndexCollection.wait", DEFAULT_OPTION),
-            ("CreateFieldIndexCollection.field_type", DEFAULT_OPTION),
+            ("CreateFieldIndexCollection.field_type", DEFAULT_OPTION_INTO),
             (
                 "CreateFieldIndexCollection.field_index_params",
                 DEFAULT_OPTION_INTO,
@@ -663,6 +663,9 @@ fn configure_builder(builder: Builder) -> Builder {
             // RenameAlias
             ("RenameAlias.old_alias_name", PUBLIC_ONLY),
             ("RenameAlias.new_alias_name", PUBLIC_ONLY),
+            // DeleteSnapshotRequest
+            ("DeleteSnapshotRequest.collection_name", PUBLIC_ONLY),
+            ("DeleteSnapshotRequest.snapshot_name", PUBLIC_ONLY),
         ],
         builder_derive_options(),
     )
@@ -922,6 +925,11 @@ fn builder_derive_options() -> &'static [BuildDeriveOptions] {
         ),
         (
             "RenameAlias",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::WithDefaultFn,
+        ),
+        (
+            "DeleteSnapshotRequest",
             NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
             MacroConfig::WithDefaultFn,
         ),
