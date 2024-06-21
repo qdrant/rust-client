@@ -3445,7 +3445,7 @@ pub struct CreateFieldIndexCollection {
     pub field_name: ::prost::alloc::string::String,
     /// Field type.
     #[prost(enumeration = "FieldType", optional, tag = "4")]
-    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub field_type: ::core::option::Option<i32>,
     /// Payload index params.
     #[prost(message, optional, tag = "5")]
@@ -7600,14 +7600,22 @@ pub struct ListSnapshotsRequest {
     #[prost(string, tag = "1")]
     pub collection_name: ::prost::alloc::string::String,
 }
+#[derive(derive_builder::Builder)]
+#[builder(
+    build_fn(private, name = "build_inner"),
+    pattern = "owned",
+    custom_constructor
+)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeleteSnapshotRequest {
     /// Name of the collection
     #[prost(string, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub collection_name: ::prost::alloc::string::String,
     /// Name of the collection snapshot
     #[prost(string, tag = "2")]
+    #[builder(field(vis = "pub(crate)"))]
     pub snapshot_name: ::prost::alloc::string::String,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -8702,6 +8710,7 @@ builder_type_conversions!(ContextExamplePair, ContextExamplePairBuilder);
 builder_type_conversions!(TextIndexParams, TextIndexParamsBuilder, true);
 builder_type_conversions!(CreateAlias, CreateAliasBuilder, true);
 builder_type_conversions!(RenameAlias, RenameAliasBuilder, true);
+builder_type_conversions!(DeleteSnapshotRequest, DeleteSnapshotRequestBuilder, true);
 builder_type_conversions!(DeletePoints, DeletePointsBuilder, true);
 
 pub use crate::manual_builder::*;

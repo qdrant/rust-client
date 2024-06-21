@@ -5,11 +5,12 @@ use crate::qdrant::{
     CountPointsBuilder, CreateAliasBuilder, CreateCollectionBuilder,
     CreateFieldIndexCollectionBuilder, CreateShardKeyRequestBuilder, DeleteCollectionBuilder,
     DeleteFieldIndexCollectionBuilder, DeletePayloadPointsBuilder, DeletePointVectorsBuilder,
-    DeletePointsBuilder, DeleteShardKey, DeleteShardKeyRequestBuilder, DiscoverBatchPointsBuilder,
-    DiscoverPoints, DiscoverPointsBuilder, Distance, GetPointsBuilder, LookupLocationBuilder,
-    OrderByBuilder, PayloadExcludeSelector, PayloadIncludeSelector, PointId, PointStruct,
-    PointVectors, PointsUpdateOperation, ProductQuantizationBuilder, QuantizationType,
-    QueryPointsBuilder, RecommendBatchPointsBuilder, RecommendExample, RecommendPointGroups,
+    DeletePointsBuilder, DeleteShardKey, DeleteShardKeyRequestBuilder,
+    DeleteSnapshotRequestBuilder, DiscoverBatchPointsBuilder, DiscoverPoints,
+    DiscoverPointsBuilder, Distance, GetPointsBuilder, LookupLocationBuilder, OrderByBuilder,
+    PayloadExcludeSelector, PayloadIncludeSelector, PointId, PointStruct, PointVectors,
+    PointsUpdateOperation, ProductQuantizationBuilder, QuantizationType, QueryPointsBuilder,
+    RecommendBatchPointsBuilder, RecommendExample, RecommendPointGroups,
     RecommendPointGroupsBuilder, RecommendPoints, RecommendPointsBuilder, RenameAliasBuilder,
     ScalarQuantizationBuilder, ScrollPointsBuilder, SearchBatchPointsBuilder,
     SearchPointGroupsBuilder, SearchPoints, SearchPointsBuilder, SetPayloadPointsBuilder, ShardKey,
@@ -416,6 +417,40 @@ impl RecommendPointsBuilder {
     }
 }
 
+impl RecommendPointGroupsBuilder {
+    /// Look for vectors closest to the vectors from these points or vectors
+    pub fn positive(mut self, recommend_example: impl Into<RecommendExample>) -> Self {
+        let recommend_example = recommend_example.into();
+        match recommend_example {
+            RecommendExample::PointId(point_id) => {
+                self.positive.get_or_insert_with(Vec::new).push(point_id);
+            }
+            RecommendExample::Vector(vector) => {
+                self.positive_vectors
+                    .get_or_insert_with(Vec::new)
+                    .push(vector);
+            }
+        }
+        self
+    }
+
+    /// Try to avoid vectors like the vector from these points or vectors
+    pub fn negative(mut self, recommend_example: impl Into<RecommendExample>) -> Self {
+        let recommend_example = recommend_example.into();
+        match recommend_example {
+            RecommendExample::PointId(point_id) => {
+                self.negative.get_or_insert_with(Vec::new).push(point_id);
+            }
+            RecommendExample::Vector(vector) => {
+                self.negative_vectors
+                    .get_or_insert_with(Vec::new)
+                    .push(vector);
+            }
+        }
+        self
+    }
+}
+
 impl RecommendPointGroups {
     /// Look for vectors closest to the vectors from these points or vectors
     pub fn positive(mut self, recommend_example: impl Into<RecommendExample>) -> Self {
@@ -474,6 +509,15 @@ impl QueryPointsBuilder {
     pub fn new(collection_name: impl Into<String>) -> Self {
         let mut builder = Self::empty();
         builder.collection_name = Some(collection_name.into());
+        builder
+    }
+}
+
+impl DeleteSnapshotRequestBuilder {
+    pub fn new(collection_name: impl Into<String>, snapshot_name: impl Into<String>) -> Self {
+        let mut builder = Self::empty();
+        builder.collection_name = Some(collection_name.into());
+        builder.snapshot_name = Some(snapshot_name.into());
         builder
     }
 }
