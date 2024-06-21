@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 
-use crate::builder_types::RecommendExample;
 use crate::qdrant::{
     shard_key, BinaryQuantizationBuilder, ClearPayloadPointsBuilder, ContextExamplePair,
     CountPointsBuilder, CreateAliasBuilder, CreateCollectionBuilder,
@@ -10,7 +9,7 @@ use crate::qdrant::{
     DiscoverPoints, DiscoverPointsBuilder, Distance, GetPointsBuilder, LookupLocationBuilder,
     OrderByBuilder, PayloadExcludeSelector, PayloadIncludeSelector, PointId, PointStruct,
     PointVectors, PointsUpdateOperation, ProductQuantizationBuilder, QuantizationType,
-    QueryPointsBuilder, RecommendBatchPointsBuilder, RecommendPointGroups,
+    QueryPointsBuilder, RecommendBatchPointsBuilder, RecommendExample, RecommendPointGroups,
     RecommendPointGroupsBuilder, RecommendPoints, RecommendPointsBuilder, RenameAliasBuilder,
     ScalarQuantizationBuilder, ScrollPointsBuilder, SearchBatchPointsBuilder,
     SearchPointGroupsBuilder, SearchPoints, SearchPointsBuilder, SetPayloadPointsBuilder, ShardKey,

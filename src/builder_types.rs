@@ -1,5 +1,6 @@
 use crate::qdrant::{PointId, Vector};
 
+/// A recommendation example, being a [`PointId`] or a [`Vector`]
 pub enum RecommendExample {
     PointId(PointId),
     Vector(Vector),
