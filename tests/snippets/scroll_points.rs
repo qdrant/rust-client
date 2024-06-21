@@ -1,20 +1,18 @@
-// TODO: remove this once this test has been converted
-#![allow(deprecated)]
+use qdrant_client::qdrant::ScrollPointsBuilder;
+use qdrant_client::qdrant::{Condition, Filter};
+use qdrant_client::Qdrant;
 
-use qdrant_client::{client::QdrantClient, qdrant::{Condition, Filter, ScrollPoints}};
-
-let client = QdrantClient::from_url("http://localhost:6334").build()?;
+let client = Qdrant::from_url("http://localhost:6334").build()?;
 
 client
-    .scroll(&ScrollPoints {
-        collection_name: "{collection_name}".to_string(),
-        filter: Some(Filter::must([Condition::matches(
-            "color",
-            "red".to_string(),
-        )])),
-        limit: Some(1),
-        with_payload: Some(true.into()),
-        with_vectors: Some(false.into()),
-        ..Default::default()
-    })
+    .scroll(
+        ScrollPointsBuilder::new("{collection_name}")
+            .filter(Filter::must([Condition::matches(
+                "color",
+                "red".to_string(),
+            )]))
+            .limit(1)
+            .with_payload(true)
+            .with_vectors(false),
+    )
     .await?;
