@@ -1,4 +1,4 @@
-//! The Qdrant Vector Database client
+//! The [Qdrant](https://qdrant.tech/) Vector Search client
 //!
 //! This library uses GRPC to connect to the Qdrant server and allows you to
 //! access most if not all features. If you find a missing feature, please open
@@ -34,10 +34,11 @@
 //!# Ok(())
 //!# }
 //! ```
-//! The most interesting parts are the two arguments of `VectorParamsBuilder::new`.
-//! The first one (`512`) is the length of vectors to store and the second one (`Distance::Cosine`)
-//! is the Distance, which is the [`Distance`](qdrant::Distance) measure to gauge
-//! similarity for the nearest neighbors search.
+//! The most interesting parts are the two arguments of
+//! [`VectorParamsBuilder::new`](qdrant::VectorParamsBuilder::new). The first one (`512`) is the
+//! length of vectors to store and the second one ([`Distance::Cosine`](qdrant::Distance::Cosine))
+//! is the Distance, which is the [`Distance`](qdrant::Distance) measure to gauge similarity for
+//! the nearest neighbors search.
 //!
 //! Now we have a collection, we can insert (or rather upsert) points.
 //! Points have an id, one or more vectors and a payload.
@@ -80,17 +81,13 @@
 //!# Ok(())
 //!# }
 //! ```
-//! The parameter for `SearchPointsBuilder::new()` contsructor are pretty straightforward:
-//! Name of the collection, the vector and how many top-k results to return.
-//! The `with_payload(true)` call tells qdrant to also return the (full) payload data for each point.
-//! You can also add a `.filter()` call to the
-//! [`SearchPointsBuilder`](qdrant::SearchPointsBuilder) to filter the result.
-//! See the [`Filter`](qdrant::Filter) documentation for details.
-
-// Public modules
-pub mod auth;
-pub mod builder_types;
-pub mod payload;
+//! The parameter for [`SearchPointsBuilder::new()`](qdrant::SearchPointsBuilder::new) contsructor
+//! are pretty straightforward: name of the collection, the vector and how many top-k results to
+//! return. The [`with_payload(true)`](qdrant::SearchPointsBuilder::with_payload) call tells qdrant
+//! to also return the (full) payload data for each point. You can also add a
+//! [`filter()`](qdrant::SearchPointsBuilder::filter) call to the
+//! [`SearchPointsBuilder`](qdrant::SearchPointsBuilder) to filter the result. See the
+//! [`Filter`](qdrant::Filter) documentation for details.
 
 // Generated Qdrant API types
 /// API types
@@ -99,12 +96,15 @@ pub mod payload;
 pub mod qdrant;
 
 // Internal modules
+mod auth;
 mod builder_ext;
+mod builder_types;
 mod channel_pool;
 mod filters;
 mod grpc_conversions;
 mod grpc_macros;
 mod manual_builder;
+mod payload;
 mod qdrant_client;
 
 // Deprecated modules
@@ -135,11 +135,8 @@ pub mod prelude;
 pub mod serde;
 
 // Re-exports
+pub use crate::payload::Payload;
 pub use crate::qdrant_client::{config::QdrantConfig, error::Error, Qdrant, QdrantBuilder, Result};
-
-// Vendored re-exports
-#[doc(no_inline)]
-pub use prost_types::Timestamp;
 
 #[cfg(test)]
 mod tests {

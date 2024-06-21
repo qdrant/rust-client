@@ -3,15 +3,33 @@ use crate::qdrant::Value;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
+/// Point payload
+///
+/// A JSON-like object that can be attached to points. With payloads you can store any kind of
+/// information along with your points. Qdrant provides comprehensive ways to filter on payload
+/// values during vector search.
+///
+/// Payload documentation: <https://qdrant.tech/documentation/concepts/payload/>
 #[derive(Clone, PartialEq, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Payload(pub(crate) HashMap<String, Value>);
 
-#[cfg(feature = "serde")]
 impl Payload {
-    /// Convert a JSON object into a Payload
+    /// Construct a new empty payload object
+    pub fn new() -> Self {
+        Self(HashMap::new())
+    }
+
+    /// Construct a payload object from the given hash map
+    #[deprecated(since = "1.10.0", note = "use `Payload::from` instead")]
+    pub fn new_from_hashmap(payload: HashMap<String, Value>) -> Self {
+        Self(payload)
+    }
+
+    /// Convert a JSON object into payload
     ///
     /// Returns `None` if the given JSON value is not an object.
+    #[cfg(feature = "serde")]
     #[inline]
     pub fn from_json_object(value: serde_json::Value) -> Option<Self> {
         if let serde_json::Value::Object(object) = value {
@@ -20,12 +38,17 @@ impl Payload {
             None
         }
     }
+
+    /// Insert a payload value at the given key, replacing any existing value
+    pub fn insert(&mut self, key: impl ToString, val: impl Into<Value>) {
+        self.0.insert(key.to_string(), val.into());
+    }
 }
 
-impl From<Payload> for HashMap<String, Value> {
+impl From<HashMap<String, Value>> for Payload {
     #[inline]
-    fn from(payload: Payload) -> Self {
-        payload.0
+    fn from(payload: HashMap<String, Value>) -> Self {
+        Self(payload)
     }
 }
 
@@ -41,11 +64,22 @@ impl From<HashMap<&str, Value>> for Payload {
     }
 }
 
+impl From<Payload> for HashMap<String, Value> {
+    #[inline]
+    fn from(payload: Payload) -> Self {
+        payload.0
+    }
+}
+
 #[cfg(feature = "serde")]
 impl From<serde_json::Map<String, serde_json::Value>> for Payload {
     #[inline]
     fn from(obj: serde_json::Map<String, serde_json::Value>) -> Self {
-        Payload::new_from_hashmap(obj.into_iter().map(|(k, v)| (k, v.into())).collect())
+        Payload::from(
+            obj.into_iter()
+                .map(|(k, v)| (k, v.into()))
+                .collect::<HashMap<String, Value>>(),
+        )
     }
 }
 
@@ -59,20 +93,6 @@ where
             map.insert(k.into(), v);
         }
         Self(map)
-    }
-}
-
-impl Payload {
-    pub fn new() -> Self {
-        Self(HashMap::new())
-    }
-
-    pub fn new_from_hashmap(payload: HashMap<String, Value>) -> Self {
-        Self(payload)
-    }
-
-    pub fn insert(&mut self, key: impl ToString, val: impl Into<Value>) {
-        self.0.insert(key.to_string(), val.into());
     }
 }
 
