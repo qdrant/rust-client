@@ -4,22 +4,16 @@ async fn test_get_points() {
     async fn get_points() -> Result<(), Box<dyn std::error::Error>> {
       // WARNING: This is a generated test snippet.
       // Please, modify the snippet in the `../snippets/get_points.rs` file
-        // TODO: remove this once this test has been converted
-        #![allow(deprecated)]
+        use qdrant_client::qdrant::GetPointsBuilder;
+        use qdrant_client::Qdrant;
         
-        use qdrant_client::client::QdrantClient;
-        
-        let client = QdrantClient::from_url("http://localhost:6334").build()?;
+        let client = Qdrant::from_url("http://localhost:6334").build()?;
         
         client
-            .get_points(
+            .get_points(GetPointsBuilder::new(
                 "{collection_name}",
-                None,
-                &[0.into(), 30.into(), 100.into()],
-                Some(false),
-                Some(false),
-                None,
-            )
+                vec![0.into(), 30.into(), 100.into()],
+            ))
             .await?;
         Ok(())
     }
