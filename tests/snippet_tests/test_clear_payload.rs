@@ -4,26 +4,17 @@ async fn test_clear_payload() {
     async fn clear_payload() -> Result<(), Box<dyn std::error::Error>> {
       // WARNING: This is a generated test snippet.
       // Please, modify the snippet in the `../snippets/clear_payload.rs` file
-        // TODO: remove this once this test has been converted
-        #![allow(deprecated)]
+        use qdrant_client::qdrant::{ClearPayloadPointsBuilder, PointsIdsList};
+        use qdrant_client::Qdrant;
         
-        use qdrant_client::{client::QdrantClient, qdrant::{
-            points_selector::PointsSelectorOneOf, PointsIdsList, PointsSelector,
-        }};
-        
-        let client = QdrantClient::from_url("http://localhost:6334").build()?;
+        let client = Qdrant::from_url("http://localhost:6334").build()?;
         
         client
-            .clear_payload(
-                "{collection_name}",
-                None,
-                Some(PointsSelector {
-                    points_selector_one_of: Some(PointsSelectorOneOf::Points(PointsIdsList {
-                        ids: vec![0.into(), 3.into(), 100.into()],
-                    })),
-                }),
-                None,
-            )
+            .clear_payload(ClearPayloadPointsBuilder::new("{collection_name}").points(
+                PointsIdsList {
+                    ids: vec![0.into(), 3.into(), 100.into()],
+                },
+            ))
             .await?;
         Ok(())
     }

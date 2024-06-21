@@ -1,10 +1,17 @@
-// TODO: remove this once this test has been converted
-#![allow(deprecated)]
+use qdrant_client::qdrant::{CreateAliasBuilder, DeleteAlias};
+use qdrant_client::Qdrant;
 
-use qdrant_client::client::QdrantClient;
+let client = Qdrant::from_url("http://localhost:6334").build()?;
 
-let client = QdrantClient::from_url("http://localhost:6334").build()?;
+client
+    .create_alias(CreateAliasBuilder::new(
+        "example_collection",
+        "production_collection",
+    ))
+    .await?;
 
-client.create_alias("example_collection", "production_collection").await?;
-
-client.delete_alias("production_collection").await?;
+client
+    .delete_alias(DeleteAlias {
+        alias_name: "production_collection".to_string(),
+    })
+    .await?;
