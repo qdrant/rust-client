@@ -1,7 +1,6 @@
 use crate::qdrant::point_id::PointIdOptions;
 use crate::qdrant::{PointId, Vector};
 
-/// A recommendation example, being a [`PointId`] or a [`Vector`]
 pub enum RecommendExample {
     PointId(PointId),
     Vector(Vector),
@@ -23,6 +22,22 @@ impl From<u64> for RecommendExample {
     fn from(value: u64) -> Self {
         Self::PointId(PointId {
             point_id_options: Some(PointIdOptions::Num(value)),
+        })
+    }
+}
+
+impl From<&str> for RecommendExample {
+    fn from(value: &str) -> Self {
+        Self::PointId(PointId {
+            point_id_options: Some(PointIdOptions::Uuid(value.to_string())),
+        })
+    }
+}
+
+impl From<String> for RecommendExample {
+    fn from(value: String) -> Self {
+        Self::PointId(PointId {
+            point_id_options: Some(PointIdOptions::Uuid(value)),
         })
     }
 }
