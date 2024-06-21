@@ -7,7 +7,7 @@ use qdrant_client::qdrant::{
     PointStruct, PointVectors, PointsIdsList, PointsSelector, PointsUpdateOperation,
     UpdateBatchPointsBuilder,
 };
-use qdrant_client::qdrant_client::Qdrant;
+use qdrant_client::Qdrant;
 use serde_json::json;
 use std::collections::HashMap;
 
