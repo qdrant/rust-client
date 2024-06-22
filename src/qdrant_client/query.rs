@@ -118,6 +118,7 @@ mod tests {
         client
             .create_field_index(
                 CreateFieldIndexCollectionBuilder::new(collection_name, "num", FieldType::Integer)
+                    .wait(true)
                     .field_index_params(IntegerIndexParamsBuilder::new(false, true).build()),
             )
             .await
