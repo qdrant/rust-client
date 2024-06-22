@@ -1,4 +1,7 @@
-use crate::qdrant::{query, ContextInput, DiscoverInput, Fusion, OrderBy, Query, RecommendInput, VectorInput, OrderByBuilder};
+use crate::qdrant::{
+    query, ContextInput, DiscoverInput, Fusion, OrderBy, OrderByBuilder, Query, RecommendInput,
+    VectorInput,
+};
 
 impl From<VectorInput> for Query {
     fn from(value: VectorInput) -> Self {

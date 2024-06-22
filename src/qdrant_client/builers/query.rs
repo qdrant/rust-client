@@ -1,4 +1,8 @@
-use crate::qdrant::{ContextInput, ContextInputBuilder, ContextInputPairBuilder, DiscoverInput, DiscoverInputBuilder, OrderBy, OrderByBuilder, PrefetchQuery, PrefetchQueryBuilder, Query, QueryPointsBuilder, RecommendInput, RecommendInputBuilder, VectorInput};
+use crate::qdrant::{
+    ContextInput, ContextInputBuilder, ContextInputPairBuilder, DiscoverInput,
+    DiscoverInputBuilder, OrderBy, OrderByBuilder, PrefetchQuery, PrefetchQueryBuilder, Query,
+    QueryPointsBuilder, RecommendInput, RecommendInputBuilder, VectorInput,
+};
 
 impl QueryPointsBuilder {
     pub fn add_prefetch(mut self, prefetch_query: impl Into<PrefetchQuery>) -> Self {
@@ -85,20 +89,31 @@ impl DiscoverInputBuilder {
 
 impl ContextInputPairBuilder {
     pub fn new(positive: impl Into<VectorInput>, negative: impl Into<VectorInput>) -> Self {
-        ContextInputPairBuilder::empty().positive(positive).negative(negative)
+        ContextInputPairBuilder::empty()
+            .positive(positive)
+            .negative(negative)
     }
 }
 
 impl ContextInputBuilder {
-    pub fn add_pair(mut self, positive: impl Into<VectorInput>, negative: impl Into<VectorInput>) -> Self {
+    pub fn add_pair(
+        mut self,
+        positive: impl Into<VectorInput>,
+        negative: impl Into<VectorInput>,
+    ) -> Self {
         match self.pairs {
-            Some(ref mut pairs) => pairs.push(ContextInputPairBuilder::new(positive, negative).build()),
-            None => self.pairs = Some(vec![ContextInputPairBuilder::new(positive, negative).build()]),
+            Some(ref mut pairs) => {
+                pairs.push(ContextInputPairBuilder::new(positive, negative).build())
+            }
+            None => {
+                self.pairs = Some(vec![
+                    ContextInputPairBuilder::new(positive, negative).build()
+                ])
+            }
         }
         self
     }
 }
-
 
 impl OrderByBuilder {
     pub fn new(key: impl Into<String>) -> Self {

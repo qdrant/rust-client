@@ -1,6 +1,20 @@
 use std::collections::HashMap;
 
-use qdrant_client::qdrant::{BinaryQuantizationBuilder, ClearPayloadPointsBuilder, CountPointsBuilder, CreateAliasBuilder, CreateFieldIndexCollectionBuilder, CreateShardKeyRequestBuilder, DeleteCollectionBuilder, DeleteFieldIndexCollectionBuilder, DeletePayloadPointsBuilder, DeletePointVectorsBuilder, DeletePointsBuilder, DeleteShardKeyRequestBuilder, DeleteSnapshotRequestBuilder, DiscoverBatchPointsBuilder, DiscoverPointsBuilder, Distance, FieldType, GetPointsBuilder, LookupLocationBuilder, OrderByBuilder, ProductQuantizationBuilder, QueryPointsBuilder, RecommendBatchPointsBuilder, RecommendPointGroupsBuilder, RecommendPointsBuilder, RenameAliasBuilder, ScrollPointsBuilder, SearchBatchPointsBuilder, SearchPointGroupsBuilder, SearchPointsBuilder, SetPayloadPointsBuilder, TextIndexParamsBuilder, TokenizerType, UpdateBatchPointsBuilder, UpdateCollectionBuilder, UpdateCollectionClusterSetupRequestBuilder, UpdatePointVectorsBuilder, UpsertPointsBuilder, VectorParamsBuilder, WithLookupBuilder,DiscoverInputBuilder, ContextInputBuilder, ContextInputPairBuilder};
+use qdrant_client::qdrant::{
+    BinaryQuantizationBuilder, ClearPayloadPointsBuilder, ContextInputBuilder,
+    ContextInputPairBuilder, CountPointsBuilder, CreateAliasBuilder,
+    CreateFieldIndexCollectionBuilder, CreateShardKeyRequestBuilder, DeleteCollectionBuilder,
+    DeleteFieldIndexCollectionBuilder, DeletePayloadPointsBuilder, DeletePointVectorsBuilder,
+    DeletePointsBuilder, DeleteShardKeyRequestBuilder, DeleteSnapshotRequestBuilder,
+    DiscoverBatchPointsBuilder, DiscoverInputBuilder, DiscoverPointsBuilder, Distance, FieldType,
+    GetPointsBuilder, LookupLocationBuilder, OrderByBuilder, ProductQuantizationBuilder,
+    QueryPointsBuilder, RecommendBatchPointsBuilder, RecommendPointGroupsBuilder,
+    RecommendPointsBuilder, RenameAliasBuilder, ScrollPointsBuilder, SearchBatchPointsBuilder,
+    SearchPointGroupsBuilder, SearchPointsBuilder, SetPayloadPointsBuilder, TextIndexParamsBuilder,
+    TokenizerType, UpdateBatchPointsBuilder, UpdateCollectionBuilder,
+    UpdateCollectionClusterSetupRequestBuilder, UpdatePointVectorsBuilder, UpsertPointsBuilder,
+    VectorParamsBuilder, WithLookupBuilder,
+};
 
 /// TLDR; Ensures new fields introduced in protobuf updates won't cause a panic at runtime due to missing derive_builder attributes.
 ///

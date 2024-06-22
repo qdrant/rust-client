@@ -12,13 +12,20 @@ impl Qdrant {
             let result = points_api.query(request.clone()).await?;
             Ok(result.into_inner())
         })
-            .await
+        .await
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::qdrant::{ContextInputBuilder, CreateCollectionBuilder, CreateFieldIndexCollectionBuilder, Datatype, DiscoverInputBuilder, Distance, FieldType, Fusion, IntegerIndexParamsBuilder, Modifier, MultiVectorConfig, NamedVectors, PointId, PointStruct, PrefetchQueryBuilder, Query, QueryPointsBuilder, RecommendInputBuilder, ScalarQuantizationBuilder, SparseIndexConfigBuilder, SparseVectorParamsBuilder, UpsertPointsBuilder, Vector, VectorInput, VectorParamsBuilder};
+    use crate::qdrant::{
+        ContextInputBuilder, CreateCollectionBuilder, CreateFieldIndexCollectionBuilder, Datatype,
+        DiscoverInputBuilder, Distance, FieldType, Fusion, IntegerIndexParamsBuilder, Modifier,
+        MultiVectorConfig, NamedVectors, PointId, PointStruct, PrefetchQueryBuilder, Query,
+        QueryPointsBuilder, RecommendInputBuilder, ScalarQuantizationBuilder,
+        SparseIndexConfigBuilder, SparseVectorParamsBuilder, UpsertPointsBuilder, Vector,
+        VectorInput, VectorParamsBuilder,
+    };
     use crate::qdrant_client::builers::sparse_vectors_config::SparseVectorsConfigBuilder;
     use crate::qdrant_client::builers::vectors_config::VectorsConfigBuilder;
     use crate::Payload;
@@ -103,7 +110,7 @@ mod tests {
                         ),
                     ],
                 )
-                    .wait(true),
+                .wait(true),
             )
             .await
             .unwrap();
@@ -130,20 +137,14 @@ mod tests {
             .add_prefetch(
                 PrefetchQueryBuilder::default()
                     .using("colbert_vector")
-                    .query(Query::new_nearest(
-                        vec![
-                            vec![0.1, 0.2, 0.3, 0.4],
-                            vec![1.1, 1.2, 1.3, 1.4],
-                        ]
-                    ))
+                    .query(Query::new_nearest(vec![
+                        vec![0.1, 0.2, 0.3, 0.4],
+                        vec![1.1, 1.2, 1.3, 1.4],
+                    ]))
                     .add_prefetch(
                         PrefetchQueryBuilder::default()
                             .using("sparse_idf_vector")
-                            .query(
-                                VectorInput::new_sparse(
-                                    vec![1, 2, 3],
-                                    vec![0.1, 0.2, 0.3],
-                                ))
+                            .query(VectorInput::new_sparse(vec![1, 2, 3], vec![0.1, 0.2, 0.3])),
                     )
                     .add_prefetch(
                         PrefetchQueryBuilder::default()
@@ -152,14 +153,11 @@ mod tests {
                             .add_prefetch(
                                 PrefetchQueryBuilder::default()
                                     .using("small_vector")
-                                    .query(Query::new_nearest(vec![0.1; 4]))
-                            )
+                                    .query(Query::new_nearest(vec![0.1; 4])),
+                            ),
                     ),
             )
-            .add_prefetch(
-                PrefetchQueryBuilder::default()
-                    .query(Query::new_order_by("num")),
-            );
+            .add_prefetch(PrefetchQueryBuilder::default().query(Query::new_order_by("num")));
 
         let response = client.query(request).await.unwrap();
         assert_eq!(response.result.len(), 1);
@@ -172,7 +170,7 @@ mod tests {
             .query(Query::new_recommend(
                 RecommendInputBuilder::default()
                     .add_positive(vec![0.1; 8])
-                    .add_negative(PointId::from(0))
+                    .add_negative(PointId::from(0)),
             ));
 
         let response = client.query(request).await.unwrap();
@@ -183,16 +181,10 @@ mod tests {
         let request = QueryPointsBuilder::new(collection_name)
             .limit(1)
             .using("large_vector")
-            .query(Query::new_discover(
-                DiscoverInputBuilder::new(
-                    vec![0.1; 8],
-                    ContextInputBuilder::default()
-                        .add_pair(
-                            PointId::from(0),
-                            vec![0.2; 8],
-                        ),
-                )
-            ));
+            .query(Query::new_discover(DiscoverInputBuilder::new(
+                vec![0.1; 8],
+                ContextInputBuilder::default().add_pair(PointId::from(0), vec![0.2; 8]),
+            )));
 
         let response = client.query(request).await.unwrap();
         assert_eq!(response.result.len(), 1);

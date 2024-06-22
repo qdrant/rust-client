@@ -1,21 +1,21 @@
 use std::collections::HashMap;
 
 use crate::qdrant::{
-    BinaryQuantizationBuilder, ClearPayloadPointsBuilder, ContextExamplePair, CountPointsBuilder,
-    CreateAliasBuilder, CreateCollectionBuilder, CreateFieldIndexCollectionBuilder,
-    CreateShardKeyRequestBuilder, DeleteCollectionBuilder, DeleteFieldIndexCollectionBuilder,
-    DeletePayloadPointsBuilder, DeletePointsBuilder, DeletePointVectorsBuilder,
-    DeleteShardKey, DeleteShardKeyRequestBuilder, DeleteSnapshotRequestBuilder,
-    DiscoverBatchPointsBuilder, DiscoverPoints, DiscoverPointsBuilder,
-    Distance, FieldType, GetPointsBuilder, LookupLocationBuilder, PayloadExcludeSelector
-    , PayloadIncludeSelector, PointId, PointStruct, PointsUpdateOperation,
-    PointVectors, ProductQuantizationBuilder, QuantizationType, QueryPointsBuilder,
+    shard_key, BinaryQuantizationBuilder, ClearPayloadPointsBuilder, ContextExamplePair,
+    CountPointsBuilder, CreateAliasBuilder, CreateCollectionBuilder,
+    CreateFieldIndexCollectionBuilder, CreateShardKeyRequestBuilder, DeleteCollectionBuilder,
+    DeleteFieldIndexCollectionBuilder, DeletePayloadPointsBuilder, DeletePointVectorsBuilder,
+    DeletePointsBuilder, DeleteShardKey, DeleteShardKeyRequestBuilder,
+    DeleteSnapshotRequestBuilder, DiscoverBatchPointsBuilder, DiscoverPoints,
+    DiscoverPointsBuilder, Distance, FieldType, GetPointsBuilder, LookupLocationBuilder,
+    PayloadExcludeSelector, PayloadIncludeSelector, PointId, PointStruct, PointVectors,
+    PointsUpdateOperation, ProductQuantizationBuilder, QuantizationType, QueryPointsBuilder,
     RecommendBatchPointsBuilder, RecommendExample, RecommendPointGroupsBuilder, RecommendPoints,
     RecommendPointsBuilder, RenameAliasBuilder, ScalarQuantizationBuilder, ScrollPointsBuilder,
     SearchBatchPointsBuilder, SearchPointGroupsBuilder, SearchPoints, SearchPointsBuilder,
-    SetPayloadPointsBuilder, shard_key, ShardKey, UpdateBatchPointsBuilder,
-    UpdateCollectionBuilder, UpdateCollectionClusterSetupRequestBuilder, UpdatePointVectorsBuilder,
-    UpsertPointsBuilder, Value, VectorParamsBuilder, VectorsSelector, WithLookupBuilder,
+    SetPayloadPointsBuilder, ShardKey, UpdateBatchPointsBuilder, UpdateCollectionBuilder,
+    UpdateCollectionClusterSetupRequestBuilder, UpdatePointVectorsBuilder, UpsertPointsBuilder,
+    Value, VectorParamsBuilder, VectorsSelector, WithLookupBuilder,
 };
 
 impl VectorParamsBuilder {
