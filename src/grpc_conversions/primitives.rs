@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::prelude::point_id::PointIdOptions;
 use crate::prelude::{DeleteCollection, Value};
 use crate::qdrant::value::Kind;
@@ -11,7 +13,6 @@ use crate::qdrant::{
     VectorParamsDiffMap, VectorParamsMap, VectorsSelector, WithPayloadSelector,
     WithVectorsSelector,
 };
-use std::collections::HashMap;
 
 impl From<bool> for WithPayloadSelector {
     fn from(flag: bool) -> Self {

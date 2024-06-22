@@ -1,3 +1,9 @@
+use std::future::Future;
+
+use tonic::codegen::InterceptedService;
+use tonic::transport::Channel;
+use tonic::Status;
+
 use crate::auth::TokenInterceptor;
 use crate::client::QdrantClient;
 use crate::qdrant::alias_operations::Action;
@@ -14,10 +20,6 @@ use crate::qdrant::{
     SparseVectorConfig, UpdateCollection, UpdateCollectionClusterSetupRequest,
     UpdateCollectionClusterSetupResponse, VectorsConfigDiff,
 };
-use std::future::Future;
-use tonic::codegen::InterceptedService;
-use tonic::transport::Channel;
-use tonic::Status;
 
 impl QdrantClient {
     // Access to raw collection API

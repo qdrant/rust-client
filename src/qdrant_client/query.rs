@@ -18,6 +18,9 @@ impl Qdrant {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::json;
+
+    use super::*;
     use crate::qdrant::{
         ContextInputBuilder, CreateCollectionBuilder, CreateFieldIndexCollectionBuilder, Datatype,
         DiscoverInputBuilder, Distance, FieldType, Fusion, IntegerIndexParamsBuilder, Modifier,
@@ -29,9 +32,6 @@ mod tests {
     use crate::qdrant_client::builers::sparse_vectors_config::SparseVectorsConfigBuilder;
     use crate::qdrant_client::builers::vectors_config::VectorsConfigBuilder;
     use crate::Payload;
-    use serde_json::json;
-
-    use super::*;
 
     #[tokio::test]
     async fn test_query() {

@@ -1,6 +1,6 @@
-use crate::Qdrant;
-use crate::QdrantError;
 use std::time::Duration;
+
+use crate::{Qdrant, QdrantError};
 
 /// Qdrant client configuration
 pub struct QdrantConfig {

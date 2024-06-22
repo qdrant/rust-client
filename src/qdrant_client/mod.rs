@@ -8,16 +8,17 @@ mod query;
 mod sharding_keys;
 mod snapshot;
 
-use crate::channel_pool::ChannelPool;
-use crate::qdrant::{qdrant_client, HealthCheckReply, HealthCheckRequest};
-use crate::QdrantError;
 use std::future::Future;
+
 use tonic::codegen::InterceptedService;
 use tonic::transport::{Channel, Uri};
 use tonic::Status;
 
 use crate::auth::TokenInterceptor;
+use crate::channel_pool::ChannelPool;
+use crate::qdrant::{qdrant_client, HealthCheckReply, HealthCheckRequest};
 use crate::qdrant_client::config::QdrantConfig;
+use crate::QdrantError;
 
 /// [`Qdrant`] client result
 pub type Result<T> = std::result::Result<T, QdrantError>;

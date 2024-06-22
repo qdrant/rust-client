@@ -1,6 +1,7 @@
+use std::collections::HashMap;
+
 use crate::qdrant::vectors::VectorsOptions;
 use crate::qdrant::{NamedVectors, SparseIndices, Vector, Vectors};
-use std::collections::HashMap;
 
 impl From<Vec<f32>> for Vector {
     fn from(vector: Vec<f32>) -> Self {

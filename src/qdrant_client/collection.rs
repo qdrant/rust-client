@@ -212,6 +212,10 @@ impl Qdrant {
 
 #[cfg(test)]
 mod tests {
+    use std::time::Duration;
+
+    use tokio::time::sleep;
+
     use super::*;
     use crate::payload::Payload;
     use crate::prelude::Distance;
@@ -220,8 +224,6 @@ mod tests {
         UpsertPointsBuilder, VectorParamsBuilder,
     };
     use crate::qdrant_client::config::QdrantConfig;
-    use std::time::Duration;
-    use tokio::time::sleep;
 
     #[tokio::test]
     async fn create_collection_and_do_the_search() -> Result<()> {

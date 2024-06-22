@@ -1,3 +1,9 @@
+use std::future::Future;
+
+use tonic::codegen::InterceptedService;
+use tonic::transport::Channel;
+use tonic::Status;
+
 use crate::auth::TokenInterceptor;
 use crate::qdrant::snapshots_client::SnapshotsClient;
 use crate::qdrant::{
@@ -6,10 +12,6 @@ use crate::qdrant::{
     ListFullSnapshotsRequest, ListSnapshotsRequest, ListSnapshotsResponse,
 };
 use crate::qdrant_client::{Qdrant, Result};
-use std::future::Future;
-use tonic::codegen::InterceptedService;
-use tonic::transport::Channel;
-use tonic::Status;
 
 impl Qdrant {
     pub async fn with_snapshot_client<T, O: Future<Output = std::result::Result<T, Status>>>(
@@ -105,9 +107,11 @@ impl Qdrant {
         &self,
         options: impl Into<crate::qdrant::SnapshotDownload>,
     ) -> Result<()> {
-        use crate::qdrant_client::error::QdrantError;
-        use futures_util::StreamExt;
         use std::io::Write;
+
+        use futures_util::StreamExt;
+
+        use crate::qdrant_client::error::QdrantError;
 
         let options = options.into();
 

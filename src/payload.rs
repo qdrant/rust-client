@@ -1,7 +1,9 @@
-use crate::qdrant::Value;
+use std::collections::HashMap;
+
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+
+use crate::qdrant::Value;
 
 /// Point payload
 ///
@@ -99,9 +101,10 @@ where
 #[cfg(feature = "serde")]
 #[cfg(test)]
 mod tests {
+    use serde_json::json;
+
     use super::*;
     use crate::client::Payload;
-    use serde_json::json;
 
     #[test]
     fn json_payload_round_trip() {

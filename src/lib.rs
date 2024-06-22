@@ -136,12 +136,14 @@ pub mod serde;
 
 // Re-exports
 pub use crate::payload::Payload;
-pub use crate::qdrant_client::{
-    config::QdrantConfig, error::QdrantError, Qdrant, QdrantBuilder, Result,
-};
+pub use crate::qdrant_client::config::QdrantConfig;
+pub use crate::qdrant_client::error::QdrantError;
+pub use crate::qdrant_client::{Qdrant, QdrantBuilder, Result};
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashMap;
+
     use crate::payload::Payload;
     use crate::qdrant::value::Kind::*;
     use crate::qdrant::{
@@ -151,7 +153,6 @@ mod tests {
         UpsertPointsBuilder, Value, VectorParamsBuilder,
     };
     use crate::{Qdrant, QdrantConfig};
-    use std::collections::HashMap;
 
     #[test]
     fn display() {

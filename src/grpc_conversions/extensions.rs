@@ -1,11 +1,12 @@
+use std::fmt::{Display, Formatter};
+use std::hash::{Hash, Hasher};
+
 use crate::client::Payload;
 #[allow(deprecated)]
 use crate::error::NotA;
 use crate::prelude::{PointStruct, Value};
 use crate::qdrant::value::Kind;
 use crate::qdrant::{ListValue, PointId, RetrievedPoint, ScoredPoint, Struct, Vectors};
-use std::fmt::{Display, Formatter};
-use std::hash::{Hash, Hasher};
 
 /// Null value
 static NULL_VALUE: Value = Value {
