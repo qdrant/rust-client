@@ -10,7 +10,7 @@ mod snapshot;
 
 use crate::channel_pool::ChannelPool;
 use crate::qdrant::{qdrant_client, HealthCheckReply, HealthCheckRequest};
-use crate::Error;
+use crate::QdrantError;
 use std::future::Future;
 use tonic::codegen::InterceptedService;
 use tonic::transport::{Channel, Uri};
@@ -20,7 +20,7 @@ use crate::auth::TokenInterceptor;
 use crate::qdrant_client::config::QdrantConfig;
 
 /// [`Qdrant`] client result
-pub type Result<T> = std::result::Result<T, Error>;
+pub type Result<T> = std::result::Result<T, QdrantError>;
 
 /// A builder for [`Qdrant`]
 pub type QdrantBuilder = QdrantConfig;

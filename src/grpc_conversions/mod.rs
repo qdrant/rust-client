@@ -7,7 +7,6 @@ use crate::qdrant::payload_index_params::IndexParams;
 use crate::qdrant::point_id::PointIdOptions;
 use crate::qdrant::points_selector::PointsSelectorOneOf;
 use crate::qdrant::value::Kind;
-use crate::qdrant::vectors::VectorsOptions;
 use crate::qdrant::{
     alias_operations, condition, group_id, points_update_operation, quantization_config,
     quantization_config_diff, r#match, read_consistency, shard_key, start_from, target_vector,
@@ -16,17 +15,16 @@ use crate::qdrant::{
     BinaryQuantization, BinaryQuantizationBuilder, Condition, CreateAlias, CreateShardKey,
     DeleteAlias, DeleteShardKey, Disabled, FieldCondition, Filter, GeoLineString, GeoPoint,
     GroupId, HasIdCondition, IntegerIndexParams, IsEmptyCondition, IsNullCondition, ListValue,
-    Match, MoveShard, NamedVectors, NestedCondition, PayloadExcludeSelector,
-    PayloadIncludeSelector, PayloadIndexParams, PointId, PointsIdsList, PointsSelector,
-    PointsUpdateOperation, ProductQuantization, ProductQuantizationBuilder, QuantizationConfig,
-    QuantizationConfigDiff, ReadConsistency, RenameAlias, Replica, ReplicateShard, RestartTransfer,
-    ScalarQuantization, ScalarQuantizationBuilder, ShardKey, ShardKeySelector, SparseIndexConfig,
-    SparseVectorParams, StartFrom, Struct, TargetVector, TextIndexParams, Value, Vector,
-    VectorExample, VectorParams, VectorParamsBuilder, VectorParamsDiff, VectorParamsDiffBuilder,
-    VectorParamsDiffMap, VectorParamsMap, Vectors, VectorsConfig, VectorsConfigDiff,
-    VectorsSelector, WithPayloadSelector, WithVectorsSelector,
+    Match, MoveShard, NestedCondition, PayloadExcludeSelector, PayloadIncludeSelector,
+    PayloadIndexParams, PointId, PointsIdsList, PointsSelector, PointsUpdateOperation,
+    ProductQuantization, ProductQuantizationBuilder, QuantizationConfig, QuantizationConfigDiff,
+    ReadConsistency, RenameAlias, Replica, ReplicateShard, RestartTransfer, ScalarQuantization,
+    ScalarQuantizationBuilder, ShardKey, ShardKeySelector, SparseIndexConfig, SparseVectorParams,
+    StartFrom, Struct, TargetVector, TextIndexParams, Value, Vector, VectorExample, VectorParams,
+    VectorParamsBuilder, VectorParamsDiff, VectorParamsDiffBuilder, VectorParamsDiffMap,
+    VectorParamsMap, VectorsConfig, VectorsConfigDiff, VectorsSelector, WithPayloadSelector,
+    WithVectorsSelector,
 };
-use std::collections::HashMap;
 
 impl From<Vec<PointId>> for PointsSelector {
     fn from(point_ids: Vec<PointId>) -> Self {
@@ -275,32 +273,6 @@ impl From<PayloadIncludeSelector> for with_payload_selector::SelectorOptions {
 impl From<PayloadExcludeSelector> for with_payload_selector::SelectorOptions {
     fn from(value: PayloadExcludeSelector) -> Self {
         Self::Exclude(value)
-    }
-}
-
-impl From<HashMap<String, Vector>> for NamedVectors {
-    fn from(value: HashMap<String, Vector>) -> Self {
-        Self { vectors: value }
-    }
-}
-
-impl From<VectorsOptions> for Vectors {
-    fn from(value: VectorsOptions) -> Self {
-        Self {
-            vectors_options: Some(value),
-        }
-    }
-}
-
-impl From<Vector> for VectorsOptions {
-    fn from(value: Vector) -> Self {
-        Self::Vector(value)
-    }
-}
-
-impl From<NamedVectors> for VectorsOptions {
-    fn from(value: NamedVectors) -> Self {
-        Self::Vectors(value)
     }
 }
 

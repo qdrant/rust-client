@@ -136,7 +136,9 @@ pub mod serde;
 
 // Re-exports
 pub use crate::payload::Payload;
-pub use crate::qdrant_client::{config::QdrantConfig, error::Error, Qdrant, QdrantBuilder, Result};
+pub use crate::qdrant_client::{
+    config::QdrantConfig, error::QdrantError, Qdrant, QdrantBuilder, Result,
+};
 
 #[cfg(test)]
 mod tests {

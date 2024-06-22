@@ -34,7 +34,7 @@ async fn main() -> Result<()> {
             &CreateCollectionBuilder::default()
                 .collection_name(collection_name)
                 .vectors_config(VectorParamsBuilder::new(300, Distance::Cosine))
-                .quantization_config(ScalarQuantizationBuilder::new(QuantizationType::Int8))
+                .quantization_config(ScalarQuantizationBuilder::new())
                 .build(),
         )
         .await?;

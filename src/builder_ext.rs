@@ -28,10 +28,10 @@ impl VectorParamsBuilder {
     }
 }
 
-impl ScalarQuantizationBuilder {
-    pub fn new(r#type: QuantizationType) -> Self {
+impl Default for ScalarQuantizationBuilder {
+    fn default() -> Self {
         let mut builder = Self::empty();
-        builder.r#type = Some(r#type.into());
+        builder.r#type = Some(QuantizationType::Int8.into());
         builder
     }
 }

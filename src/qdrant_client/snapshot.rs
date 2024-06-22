@@ -105,7 +105,7 @@ impl Qdrant {
         &self,
         options: impl Into<crate::qdrant::SnapshotDownload>,
     ) -> Result<()> {
-        use crate::qdrant_client::error::Error;
+        use crate::qdrant_client::error::QdrantError;
         use futures_util::StreamExt;
         use std::io::Write;
 
@@ -120,7 +120,11 @@ impl Qdrant {
                 .first()
             {
                 Some(sn) => sn.name.clone(),
-                _ => return Err(Error::NoSnapshotFound(options.collection_name.clone())),
+                _ => {
+                    return Err(QdrantError::NoSnapshotFound(
+                        options.collection_name.clone(),
+                    ))
+                }
             },
         };
 
