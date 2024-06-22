@@ -44,7 +44,7 @@ fn main() {
         fs::create_dir_all(tests_output_dir).unwrap();
     }
 
-    let snippet_names: Vec<_> = fs::read_dir(snippets_dir)
+    let mut snippet_names: Vec<_> = fs::read_dir(snippets_dir)
         .unwrap()
         .filter_map(|entry| {
             let entry = entry.unwrap();
@@ -57,6 +57,8 @@ fn main() {
             }
         })
         .collect();
+
+    snippet_names.sort_unstable_by_key(|(_, name)| name.clone());
 
     for (path, name) in &snippet_names {
         let content = fs::read_to_string(path).unwrap();
