@@ -537,7 +537,6 @@ fn configure_builder(builder: Builder) -> Builder {
             ),
             ("DiscoverBatchPoints.timeout", DEFAULT_OPTION),
             // PrefetchQuery
-            ("PrefetchQuery.collection_name", PUBLIC_ONLY),
             ("PrefetchQuery.prefetch", DEFAULT_OPTION_INTO),
             ("PrefetchQuery.query", DEFAULT_OPTION_INTO),
             ("PrefetchQuery.using", DEFAULT_OPTION_INTO),
@@ -666,6 +665,21 @@ fn configure_builder(builder: Builder) -> Builder {
             // DeleteSnapshotRequest
             ("DeleteSnapshotRequest.collection_name", PUBLIC_ONLY),
             ("DeleteSnapshotRequest.snapshot_name", PUBLIC_ONLY),
+            // IntegerIndexParams
+            ("IntegerIndexParams.lookup", DEFAULT_OPTION_INTO),
+            ("IntegerIndexParams.range", DEFAULT_OPTION_INTO),
+            // RecommendInput
+            ("RecommendInput.positive", DEFAULT_OPTION_INTO),
+            ("RecommendInput.negative", DEFAULT_OPTION_INTO),
+            ("RecommendInput.strategy", DEFAULT_OPTION_INTO),
+            // DiscoverInput
+            ("DiscoverInput.target", DEFAULT_OPTION_INTO),
+            ("DiscoverInput.context", DEFAULT_OPTION_INTO),
+            // ContextInput
+            ("ContextInput.pairs", DEFAULT_OPTION_INTO),
+            // ContextInputPair
+            ("ContextInputPair.positive", DEFAULT_OPTION_INTO),
+            ("ContextInputPair.negative", DEFAULT_OPTION_INTO),
         ],
         builder_derive_options(),
     )
@@ -919,6 +933,11 @@ fn builder_derive_options() -> &'static [BuildDeriveOptions] {
             MacroConfig::WithDefaultFn,
         ),
         (
+            "IntegerIndexParams",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::WithDefaultFn,
+        ),
+        (
             "CreateAlias",
             NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
             MacroConfig::WithDefaultFn,
@@ -930,6 +949,31 @@ fn builder_derive_options() -> &'static [BuildDeriveOptions] {
         ),
         (
             "DeleteSnapshotRequest",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::WithDefaultFn,
+        ),
+        (
+            "PrefetchQuery",
+            DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::DefaultImpl,
+        ),
+        (
+            "RecommendInput",
+            DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::DefaultImpl,
+        ),
+        (
+            "DiscoverInput",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::WithDefaultFn,
+        ),
+        (
+            "ContextInput",
+            DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::DefaultImpl,
+        ),
+        (
+            "ContextInputPair",
             NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
             MacroConfig::WithDefaultFn,
         ),

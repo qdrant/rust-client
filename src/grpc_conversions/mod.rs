@@ -3,7 +3,6 @@ mod primitives;
 mod query;
 
 use crate::client::Payload;
-use crate::qdrant::payload_index_params::IndexParams;
 use crate::qdrant::point_id::PointIdOptions;
 use crate::qdrant::points_selector::PointsSelectorOneOf;
 use crate::qdrant::value::Kind;
@@ -14,16 +13,15 @@ use crate::qdrant::{
     with_payload_selector, with_vectors_selector, AbortShardTransfer, AliasOperations,
     BinaryQuantization, BinaryQuantizationBuilder, Condition, CreateAlias, CreateShardKey,
     DeleteAlias, DeleteShardKey, Disabled, FieldCondition, Filter, GeoLineString, GeoPoint,
-    GroupId, HasIdCondition, IntegerIndexParams, IsEmptyCondition, IsNullCondition, ListValue,
-    Match, MoveShard, NestedCondition, PayloadExcludeSelector, PayloadIncludeSelector,
-    PayloadIndexParams, PointId, PointsIdsList, PointsSelector, PointsUpdateOperation,
-    ProductQuantization, ProductQuantizationBuilder, QuantizationConfig, QuantizationConfigDiff,
-    ReadConsistency, RenameAlias, Replica, ReplicateShard, RestartTransfer, ScalarQuantization,
-    ScalarQuantizationBuilder, ShardKey, ShardKeySelector, SparseIndexConfig, SparseVectorParams,
-    StartFrom, Struct, TargetVector, TextIndexParams, Value, Vector, VectorExample, VectorParams,
-    VectorParamsBuilder, VectorParamsDiff, VectorParamsDiffBuilder, VectorParamsDiffMap,
-    VectorParamsMap, VectorsConfig, VectorsConfigDiff, VectorsSelector, WithPayloadSelector,
-    WithVectorsSelector,
+    GroupId, HasIdCondition, IsEmptyCondition, IsNullCondition, ListValue, Match, MoveShard,
+    NestedCondition, PayloadExcludeSelector, PayloadIncludeSelector, PointId, PointsIdsList,
+    PointsSelector, PointsUpdateOperation, ProductQuantization, ProductQuantizationBuilder,
+    QuantizationConfig, QuantizationConfigDiff, ReadConsistency, RenameAlias, Replica,
+    ReplicateShard, RestartTransfer, ScalarQuantization, ScalarQuantizationBuilder, ShardKey,
+    ShardKeySelector, SparseIndexConfig, SparseVectorParams, StartFrom, Struct, TargetVector,
+    Value, Vector, VectorExample, VectorParams, VectorParamsBuilder, VectorParamsDiff,
+    VectorParamsDiffBuilder, VectorParamsDiffMap, VectorParamsMap, VectorsConfig,
+    VectorsConfigDiff, VectorsSelector, WithPayloadSelector, WithVectorsSelector,
 };
 
 impl From<Vec<PointId>> for PointsSelector {
@@ -181,26 +179,6 @@ impl From<Disabled> for quantization_config_diff::Quantization {
 impl From<BinaryQuantization> for quantization_config_diff::Quantization {
     fn from(value: BinaryQuantization) -> Self {
         Self::Binary(value)
-    }
-}
-
-impl From<IndexParams> for PayloadIndexParams {
-    fn from(value: IndexParams) -> Self {
-        Self {
-            index_params: Some(value),
-        }
-    }
-}
-
-impl From<TextIndexParams> for IndexParams {
-    fn from(value: TextIndexParams) -> Self {
-        Self::TextIndexParams(value)
-    }
-}
-
-impl From<IntegerIndexParams> for IndexParams {
-    fn from(value: IntegerIndexParams) -> Self {
-        Self::IntegerIndexParams(value)
     }
 }
 

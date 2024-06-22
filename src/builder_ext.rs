@@ -1,22 +1,21 @@
 use std::collections::HashMap;
 
 use crate::qdrant::{
-    shard_key, BinaryQuantizationBuilder, ClearPayloadPointsBuilder, ContextExamplePair,
-    CountPointsBuilder, CreateAliasBuilder, CreateCollectionBuilder,
-    CreateFieldIndexCollectionBuilder, CreateShardKeyRequestBuilder, DeleteCollectionBuilder,
-    DeleteFieldIndexCollectionBuilder, DeletePayloadPointsBuilder, DeletePointVectorsBuilder,
-    DeletePointsBuilder, DeleteShardKey, DeleteShardKeyRequestBuilder,
-    DeleteSnapshotRequestBuilder, DiscoverBatchPointsBuilder, DiscoverPoints,
-    DiscoverPointsBuilder, Distance, GetPointsBuilder, LookupLocationBuilder, OrderByBuilder,
-    PayloadExcludeSelector, PayloadIncludeSelector, PointId, PointStruct, PointVectors,
-    PointsUpdateOperation, ProductQuantizationBuilder, QuantizationType, QueryPointsBuilder,
+    BinaryQuantizationBuilder, ClearPayloadPointsBuilder, ContextExamplePair, CountPointsBuilder,
+    CreateAliasBuilder, CreateCollectionBuilder, CreateFieldIndexCollectionBuilder,
+    CreateShardKeyRequestBuilder, DeleteCollectionBuilder, DeleteFieldIndexCollectionBuilder,
+    DeletePayloadPointsBuilder, DeletePointsBuilder, DeletePointVectorsBuilder,
+    DeleteShardKey, DeleteShardKeyRequestBuilder, DeleteSnapshotRequestBuilder,
+    DiscoverBatchPointsBuilder, DiscoverPoints, DiscoverPointsBuilder,
+    Distance, FieldType, GetPointsBuilder, LookupLocationBuilder, PayloadExcludeSelector
+    , PayloadIncludeSelector, PointId, PointStruct, PointsUpdateOperation,
+    PointVectors, ProductQuantizationBuilder, QuantizationType, QueryPointsBuilder,
     RecommendBatchPointsBuilder, RecommendExample, RecommendPointGroupsBuilder, RecommendPoints,
     RecommendPointsBuilder, RenameAliasBuilder, ScalarQuantizationBuilder, ScrollPointsBuilder,
     SearchBatchPointsBuilder, SearchPointGroupsBuilder, SearchPoints, SearchPointsBuilder,
-    SetPayloadPointsBuilder, ShardKey, TextIndexParamsBuilder, TokenizerType,
-    UpdateBatchPointsBuilder, UpdateCollectionBuilder, UpdateCollectionClusterSetupRequestBuilder,
-    UpdatePointVectorsBuilder, UpsertPointsBuilder, Value, VectorParamsBuilder, VectorsSelector,
-    WithLookupBuilder,
+    SetPayloadPointsBuilder, shard_key, ShardKey, UpdateBatchPointsBuilder,
+    UpdateCollectionBuilder, UpdateCollectionClusterSetupRequestBuilder, UpdatePointVectorsBuilder,
+    UpsertPointsBuilder, Value, VectorParamsBuilder, VectorsSelector, WithLookupBuilder,
 };
 
 impl VectorParamsBuilder {
@@ -195,14 +194,6 @@ impl ScrollPointsBuilder {
     }
 }
 
-impl OrderByBuilder {
-    pub fn new(key: impl Into<String>) -> Self {
-        let mut builder = Self::empty();
-        builder.key = Some(key.into());
-        builder
-    }
-}
-
 impl RecommendPointsBuilder {
     pub fn new(collection_name: impl Into<String>, limit: u64) -> Self {
         let mut builder = Self::empty();
@@ -292,11 +283,15 @@ impl UpsertPointsBuilder {
 }
 
 impl CreateFieldIndexCollectionBuilder {
-    pub fn new(collection_name: impl Into<String>, field_name: impl Into<String>) -> Self {
+    pub fn new(
+        collection_name: impl Into<String>,
+        field_name: impl Into<String>,
+        field_type: FieldType,
+    ) -> Self {
         let mut builder = Self::empty();
         builder.collection_name = Some(collection_name.into());
         builder.field_name = Some(field_name.into());
-        builder
+        builder.field_type(field_type)
     }
 }
 
@@ -347,14 +342,6 @@ impl DeleteCollectionBuilder {
     pub fn new(collection_name: impl Into<String>) -> Self {
         let mut builder = Self::empty();
         builder.collection_name = Some(collection_name.into());
-        builder
-    }
-}
-
-impl TextIndexParamsBuilder {
-    pub fn new(tokenizer: TokenizerType) -> Self {
-        let mut builder = Self::empty();
-        builder.tokenizer = Some(tokenizer.into());
         builder
     }
 }

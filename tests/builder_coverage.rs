@@ -1,18 +1,6 @@
-use qdrant_client::qdrant::{
-    BinaryQuantizationBuilder, ClearPayloadPointsBuilder, CountPointsBuilder, CreateAliasBuilder,
-    CreateFieldIndexCollectionBuilder, CreateShardKeyRequestBuilder, DeleteCollectionBuilder,
-    DeleteFieldIndexCollectionBuilder, DeletePayloadPointsBuilder, DeletePointVectorsBuilder,
-    DeletePointsBuilder, DeleteShardKeyRequestBuilder, DeleteSnapshotRequestBuilder,
-    DiscoverBatchPointsBuilder, DiscoverPointsBuilder, Distance, GetPointsBuilder,
-    LookupLocationBuilder, OrderByBuilder, ProductQuantizationBuilder, QuantizationType,
-    QueryPointsBuilder, RecommendBatchPointsBuilder, RecommendPointGroupsBuilder,
-    RecommendPointsBuilder, RenameAliasBuilder, ScalarQuantizationBuilder, ScrollPointsBuilder,
-    SearchBatchPointsBuilder, SearchPointGroupsBuilder, SearchPointsBuilder,
-    SetPayloadPointsBuilder, TextIndexParamsBuilder, TokenizerType, UpdateBatchPointsBuilder,
-    UpdateCollectionBuilder, UpdateCollectionClusterSetupRequestBuilder, UpdatePointVectorsBuilder,
-    UpsertPointsBuilder, VectorParamsBuilder, WithLookupBuilder,
-};
 use std::collections::HashMap;
+
+use qdrant_client::qdrant::{BinaryQuantizationBuilder, ClearPayloadPointsBuilder, CountPointsBuilder, CreateAliasBuilder, CreateFieldIndexCollectionBuilder, CreateShardKeyRequestBuilder, DeleteCollectionBuilder, DeleteFieldIndexCollectionBuilder, DeletePayloadPointsBuilder, DeletePointVectorsBuilder, DeletePointsBuilder, DeleteShardKeyRequestBuilder, DeleteSnapshotRequestBuilder, DiscoverBatchPointsBuilder, DiscoverPointsBuilder, Distance, FieldType, GetPointsBuilder, LookupLocationBuilder, OrderByBuilder, ProductQuantizationBuilder, QueryPointsBuilder, RecommendBatchPointsBuilder, RecommendPointGroupsBuilder, RecommendPointsBuilder, RenameAliasBuilder, ScrollPointsBuilder, SearchBatchPointsBuilder, SearchPointGroupsBuilder, SearchPointsBuilder, SetPayloadPointsBuilder, TextIndexParamsBuilder, TokenizerType, UpdateBatchPointsBuilder, UpdateCollectionBuilder, UpdateCollectionClusterSetupRequestBuilder, UpdatePointVectorsBuilder, UpsertPointsBuilder, VectorParamsBuilder, WithLookupBuilder,DiscoverInputBuilder, ContextInputBuilder, ContextInputPairBuilder};
 
 /// TLDR; Ensures new fields introduced in protobuf updates won't cause a panic at runtime due to missing derive_builder attributes.
 ///
@@ -28,7 +16,6 @@ use std::collections::HashMap;
 #[test]
 fn builder_coverage() {
     VectorParamsBuilder::new(1, Distance::Cosine).build();
-    ScalarQuantizationBuilder::new(QuantizationType::Int8).build();
     ProductQuantizationBuilder::new(1).build();
     BinaryQuantizationBuilder::new(true).build();
     SearchPointsBuilder::new("mycollection", [11.; 5], 3).build();
@@ -54,7 +41,7 @@ fn builder_coverage() {
     DiscoverBatchPointsBuilder::new("mycollection", []).build();
     CountPointsBuilder::new("mycollection").build();
     UpsertPointsBuilder::new("mycollection", []).build();
-    CreateFieldIndexCollectionBuilder::new("mycollection", " myfield").build();
+    CreateFieldIndexCollectionBuilder::new("mycollection", " myfield", FieldType::Integer).build();
     DeleteFieldIndexCollectionBuilder::new("mycollection", " myfield").build();
     UpdateCollectionClusterSetupRequestBuilder::new("mycollection").build();
     CreateShardKeyRequestBuilder::new("mycollection").build();
@@ -65,4 +52,6 @@ fn builder_coverage() {
     RenameAliasBuilder::new("", "").build();
     QueryPointsBuilder::new("mycollection").build();
     DeleteSnapshotRequestBuilder::new("mycollection", "snapshot").build();
+    ContextInputPairBuilder::new(vec![1.0], vec![2.0]).build();
+    DiscoverInputBuilder::new(vec![1.0], ContextInputBuilder::default()).build();
 }
