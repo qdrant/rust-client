@@ -14,7 +14,7 @@ async fn test_create_field_index() {
                 CreateFieldIndexCollectionBuilder::new(
                     "{collection_name}",
                     "{field_name}",
-                    FieldType::Keyword
+                    FieldType::Keyword,
                 ),
             )
             .await?;

@@ -8,7 +8,7 @@ client
         CreateFieldIndexCollectionBuilder::new(
             "{collection_name}",
             "{field_name}",
-            FieldType::Keyword
+            FieldType::Keyword,
         ),
     )
     .await?;

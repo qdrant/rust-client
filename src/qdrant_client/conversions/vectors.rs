@@ -24,12 +24,7 @@ impl From<Vec<Vec<f32>>> for Vector {
 // Since we construct two new Vec's anyway it's fine to source from a reference
 impl From<&[(u32, f32)]> for Vector {
     fn from(tuples: &[(u32, f32)]) -> Self {
-        let mut indices = Vec::with_capacity(tuples.len());
-        let mut values = Vec::with_capacity(tuples.len());
-        for (i, w) in tuples {
-            indices.push(*i);
-            values.push(*w);
-        }
+        let (indices, values) = tuples.iter().cloned().unzip();
         Vector {
             data: values,
             indices: Some(SparseIndices { data: indices }),
