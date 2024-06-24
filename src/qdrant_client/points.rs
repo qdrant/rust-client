@@ -95,7 +95,7 @@ impl Qdrant {
         .await
     }
 
-    /// Update or insert points into the collection.
+    /// Insert or update points into the collection.
     /// If points with given ID already exist, they will be overwritten.
     /// Also this method does not split the points to insert to avoid timeouts.
     /// Look at [`upsert_points_batch`](Self::upsert_points_batch) for that.
@@ -110,7 +110,7 @@ impl Qdrant {
         .await
     }
 
-    /// Update or insert points into the collection, splitting in chunks.
+    /// Insert or update points into the collection, splitting in chunks.
     /// If points with given ID already exist, they will be overwritten.
     pub async fn upsert_points_batch(
         &self,

@@ -45,6 +45,10 @@ impl QdrantClient {
             .await
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::list_collections` instead"
+    )]
     pub async fn list_collections(&self) -> anyhow::Result<ListCollectionsResponse> {
         Ok(self
             .with_collections_client(|mut collection_api| async move {
@@ -54,7 +58,10 @@ impl QdrantClient {
             .await?)
     }
 
-    #[deprecated(since = "1.8.0", note = "Please use `collection_exists` instead")]
+    #[deprecated(
+        since = "1.8.0",
+        note = "use new `qdrant_client::Qdrant::collection_exists` instead"
+    )]
     pub async fn has_collection(&self, collection_name: impl ToString) -> anyhow::Result<bool> {
         let collection_name = collection_name.to_string();
         let response = self.list_collections().await?;
@@ -66,6 +73,10 @@ impl QdrantClient {
         Ok(result)
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::collection_exists` instead"
+    )]
     pub async fn collection_exists(&self, collection_name: impl ToString) -> anyhow::Result<bool> {
         let collection_name_ref = &collection_name.to_string();
         Ok(self
@@ -83,6 +94,10 @@ impl QdrantClient {
             .await?)
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::create_collection` instead"
+    )]
     pub async fn create_collection(
         &self,
         details: &CreateCollection,
@@ -96,6 +111,10 @@ impl QdrantClient {
     }
 
     #[allow(clippy::too_many_arguments)]
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::update_collection` instead"
+    )]
     pub async fn update_collection(
         &self,
         collection_name: impl ToString,
@@ -129,6 +148,10 @@ impl QdrantClient {
             .await?)
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::delete_collection` instead"
+    )]
     pub async fn delete_collection(
         &self,
         collection_name: impl ToString,
@@ -149,6 +172,10 @@ impl QdrantClient {
             .await?)
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::collection_info` instead"
+    )]
     pub async fn collection_info(
         &self,
         collection_name: impl ToString,
@@ -168,6 +195,10 @@ impl QdrantClient {
             .await?)
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::create_alias` instead"
+    )]
     pub async fn create_alias(
         &self,
         collection_name: impl ToString,
@@ -186,6 +217,10 @@ impl QdrantClient {
         self.update_aliases(change_aliases).await
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::delete_alias` instead"
+    )]
     pub async fn delete_alias(
         &self,
         alias_name: impl ToString,
@@ -202,6 +237,10 @@ impl QdrantClient {
         self.update_aliases(change_aliases).await
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::rename_alias` instead"
+    )]
     pub async fn rename_alias(
         &self,
         old_alias_name: impl ToString,
@@ -221,6 +260,10 @@ impl QdrantClient {
     }
 
     // lower level API
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::create_alias`, `qdrant_client::Qdrant::rename_alias` or `qdrant_client::Qdrant::delete_alias` instead"
+    )]
     pub async fn update_aliases(
         &self,
         change_aliases: ChangeAliases,
@@ -237,6 +280,10 @@ impl QdrantClient {
             .await?)
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::list_collection_aliases` instead"
+    )]
     pub async fn list_collection_aliases(
         &self,
         collection_name: impl ToString,
@@ -255,6 +302,10 @@ impl QdrantClient {
             .await?)
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::list_aliases` instead"
+    )]
     pub async fn list_aliases(&self) -> anyhow::Result<ListAliasesResponse> {
         Ok(self
             .with_collections_client(|mut collection_api| async move {
@@ -264,6 +315,10 @@ impl QdrantClient {
             .await?)
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::collection_cluster_info` instead"
+    )]
     pub async fn collection_cluster_info(
         &self,
         collection_name: impl ToString,
@@ -334,6 +389,10 @@ impl QdrantClient {
             .await?)
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::update_collection_cluster_setup` instead"
+    )]
     pub async fn update_collection_cluster_setup(
         &self,
         collection_name: impl ToString,

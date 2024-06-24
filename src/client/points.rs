@@ -90,7 +90,7 @@ impl QdrantClient {
             .await
     }
 
-    /// Update or insert points into the collection.
+    /// Insert or update points into the collection.
     /// If points with given ID already exist, they will be overwritten.
     /// This method does *not* wait for completion of the operation, use
     /// [`upsert_points_blocking`](Self::upsert_points_blocking) for that.
@@ -113,7 +113,7 @@ impl QdrantClient {
         .await
     }
 
-    /// Update or insert points into the collection, wait for completion.
+    /// Insert or update points into the collection, wait for completion.
     /// If points with given ID already exist, they will be overwritten.
     /// This method does not split the points to insert to avoid timeouts,
     /// look at [`upsert_points_batch`](Self::upsert_points_batch) for that.
@@ -158,7 +158,7 @@ impl QdrantClient {
             .await?)
     }
 
-    /// Update or insert points into the collection, splitting in chunks.
+    /// Insert or update points into the collection, splitting in chunks.
     /// If points with given ID already exist, they will be overwritten.
     /// This method does *not* wait for completion of the operation, use
     /// [`upsert_points_batch_blocking`](Self::upsert_points_batch_blocking) for that.
@@ -181,7 +181,7 @@ impl QdrantClient {
         .await
     }
 
-    /// Update or insert points into the collection, splitting in chunks and
+    /// Insert or update points into the collection, splitting in chunks and
     /// waiting for completion of each.
     /// If points with given ID already exist, they will be overwritten.
     pub async fn upsert_points_batch_blocking(
