@@ -83,7 +83,7 @@ impl Qdrant {
     ///# -> Result<(), QdrantError> {
     /// client
     ///     .create_collection(
-    ///         CreateCollectionBuilder::new("my_collection")
+    ///         CreateCollectionBuilder::neww("my_collection")
     ///             .vectors_config(VectorParamsBuilder::new(100, Distance::Cosine)),
     ///     )
     ///     .await?;
