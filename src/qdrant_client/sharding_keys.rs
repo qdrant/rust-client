@@ -1,13 +1,13 @@
 use crate::qdrant::{
     CreateShardKeyRequest, CreateShardKeyResponse, DeleteShardKeyRequest, DeleteShardKeyResponse,
 };
-use crate::qdrant_client::{Qdrant, Result};
+use crate::qdrant_client::{Qdrant, QdrantResult};
 
 impl Qdrant {
     pub async fn create_shard_key(
         &self,
         request: impl Into<CreateShardKeyRequest>,
-    ) -> Result<CreateShardKeyResponse> {
+    ) -> QdrantResult<CreateShardKeyResponse> {
         let request = &request.into();
 
         self.with_collections_client(|mut collection_api| async move {
@@ -20,7 +20,7 @@ impl Qdrant {
     pub async fn delete_shard_key(
         &self,
         request: impl Into<DeleteShardKeyRequest>,
-    ) -> Result<DeleteShardKeyResponse> {
+    ) -> QdrantResult<DeleteShardKeyResponse> {
         let request = &request.into();
 
         self.with_collections_client(|mut collection_api| async move {

@@ -3,14 +3,17 @@
 //! private but for custom type conversions, build() function and constructor with required values we
 //! need access to those private fields. For this reason we introduce a few manually created builder here.
 
-use derive_builder::Builder;
 use std::path::PathBuf;
+
+use derive_builder::Builder;
 
 /// Builder for service types within qdrant::points_update_operation.
 /// This sub-module is necessary since we do a `use manual_builder::*` in the qdrant.rs file to have
 /// all builder coming from qdrant.rs file in the user API. However there are some builder types here
 /// whichs name is already part of the qdrant.rs module. This submodule prevents ambiguity for those builder.
 pub mod points_update_operation {
+    use std::collections::HashMap;
+
     use crate::grpc_macros::builder_type_conversions;
     use crate::qdrant::points_update_operation::{
         ClearPayload, DeletePayload, DeletePoints, DeleteVectors, OverwritePayload,
@@ -20,7 +23,6 @@ pub mod points_update_operation {
         points_selector, PointStruct, PointVectors, PointsSelector, ShardKeySelector, Value,
         VectorsSelector,
     };
-    use std::collections::HashMap;
 
     #[derive(Clone)]
     pub struct PointStructListBuilder {

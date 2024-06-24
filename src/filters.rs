@@ -1,11 +1,10 @@
 use crate::qdrant::condition::ConditionOneOf;
 use crate::qdrant::points_selector::PointsSelectorOneOf;
 use crate::qdrant::r#match::MatchValue;
-use crate::qdrant::{self, DatetimeRange, MinShould};
 use crate::qdrant::{
-    Condition, FieldCondition, Filter, GeoBoundingBox, GeoPolygon, GeoRadius, HasIdCondition,
-    IsEmptyCondition, IsNullCondition, NestedCondition, PointId, PointsSelector, Range,
-    ValuesCount,
+    self, Condition, DatetimeRange, FieldCondition, Filter, GeoBoundingBox, GeoPolygon, GeoRadius,
+    HasIdCondition, IsEmptyCondition, IsNullCondition, MinShould, NestedCondition, PointId,
+    PointsSelector, Range, ValuesCount,
 };
 
 impl From<Filter> for PointsSelector {

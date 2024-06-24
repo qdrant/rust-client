@@ -1,3 +1,11 @@
+use std::future::Future;
+#[cfg(feature = "download_snapshots")]
+use std::path::PathBuf;
+
+use tonic::codegen::InterceptedService;
+use tonic::transport::Channel;
+use tonic::Status;
+
 use crate::auth::TokenInterceptor;
 use crate::client::QdrantClient;
 use crate::qdrant::snapshots_client::SnapshotsClient;
@@ -6,12 +14,6 @@ use crate::qdrant::{
     DeleteFullSnapshotRequest, DeleteSnapshotRequest, DeleteSnapshotResponse,
     ListFullSnapshotsRequest, ListSnapshotsRequest, ListSnapshotsResponse,
 };
-use std::future::Future;
-#[cfg(feature = "download_snapshots")]
-use std::path::PathBuf;
-use tonic::codegen::InterceptedService;
-use tonic::transport::Channel;
-use tonic::Status;
 
 impl QdrantClient {
     pub async fn with_snapshot_client<T, O: Future<Output = anyhow::Result<T, Status>>>(
@@ -143,8 +145,9 @@ impl QdrantClient {
     where
         T: ToString + Clone,
     {
-        use futures_util::StreamExt;
         use std::io::Write;
+
+        use futures_util::StreamExt;
 
         let snapshot_name = match snapshot_name {
             Some(sn) => sn.to_string(),

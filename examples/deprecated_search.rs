@@ -1,13 +1,13 @@
-#![allow(deprecated)]
-
 use anyhow::Result;
+#[allow(deprecated)]
 use qdrant_client::prelude::*;
+use qdrant_client::qdrant::vectors_config::Config;
 use qdrant_client::qdrant::{
-    Condition, CreateCollectionBuilder, Distance, Filter, PayloadIncludeSelector, QuantizationType,
-    ScalarQuantizationBuilder, SearchParamsBuilder, SearchPointsBuilder, VectorParamsBuilder,
+    Condition, CreateCollection, Filter, SearchPoints, VectorParams, VectorsConfig,
 };
 use serde_json::json;
 
+#[allow(deprecated)]
 #[tokio::main]
 async fn main() -> Result<()> {
     // Example of top level client
@@ -30,13 +30,17 @@ async fn main() -> Result<()> {
     client.delete_collection(collection_name).await?;
 
     client
-        .create_collection(
-            &CreateCollectionBuilder::default()
-                .collection_name(collection_name)
-                .vectors_config(VectorParamsBuilder::new(300, Distance::Cosine))
-                .quantization_config(ScalarQuantizationBuilder::new(QuantizationType::Int8))
-                .build(),
-        )
+        .create_collection(&CreateCollection {
+            collection_name: collection_name.into(),
+            vectors_config: Some(VectorsConfig {
+                config: Some(Config::Params(VectorParams {
+                    size: 10,
+                    distance: Distance::Cosine.into(),
+                    ..Default::default()
+                })),
+            }),
+            ..Default::default()
+        })
         .await?;
 
     let collection_info = client.collection_info(collection_name).await?;
@@ -59,14 +63,16 @@ async fn main() -> Result<()> {
         .upsert_points_blocking(collection_name, None, points, None)
         .await?;
 
-    let search_point_req = SearchPointsBuilder::new(collection_name, [11.; 10], 10)
-        .filter(Filter::all([Condition::matches("bar", 12)]))
-        .with_payload(PayloadIncludeSelector { fields: vec![] })
-        .params(SearchParamsBuilder::default().exact(true))
-        .build();
-
-    let search_result = client.search_points(&search_point_req).await?;
-
+    let search_result = client
+        .search_points(&SearchPoints {
+            collection_name: collection_name.into(),
+            vector: vec![11.; 10],
+            filter: Some(Filter::all([Condition::matches("bar", 12)])),
+            limit: 10,
+            with_payload: Some(true.into()),
+            ..Default::default()
+        })
+        .await?;
     dbg!(&search_result);
     // search_result = SearchResponse {
     //     result: [
