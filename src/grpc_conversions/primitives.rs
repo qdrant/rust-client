@@ -1,18 +1,18 @@
+use std::collections::HashMap;
+
 use crate::prelude::point_id::PointIdOptions;
 use crate::prelude::{DeleteCollection, Value};
 use crate::qdrant::value::Kind;
-use crate::qdrant::vectors::VectorsOptions;
 use crate::qdrant::{
     shard_key, with_payload_selector, with_vectors_selector, CollectionClusterInfoRequest,
     CollectionExistsRequest, CreateSnapshotRequest, DeleteAlias, DeleteCollectionBuilder,
     DeleteFullSnapshotRequest, GetCollectionInfoRequest, IsEmptyCondition, IsNullCondition,
-    ListCollectionAliasesRequest, ListSnapshotsRequest, NamedVectors, PayloadExcludeSelector,
+    ListCollectionAliasesRequest, ListSnapshotsRequest, PayloadExcludeSelector,
     PayloadIncludeSelector, PointId, RepeatedIntegers, RepeatedStrings, ShardKey, ShardKeySelector,
-    SparseIndices, SparseVectorConfig, SparseVectorParams, Struct, Vector, VectorParams,
-    VectorParamsDiff, VectorParamsDiffMap, VectorParamsMap, Vectors, VectorsSelector,
-    WithPayloadSelector, WithVectorsSelector,
+    SparseIndices, SparseVectorConfig, SparseVectorParams, Struct, VectorParams, VectorParamsDiff,
+    VectorParamsDiffMap, VectorParamsMap, VectorsSelector, WithPayloadSelector,
+    WithVectorsSelector,
 };
-use std::collections::HashMap;
 
 impl From<bool> for WithPayloadSelector {
     fn from(flag: bool) -> Self {
@@ -30,97 +30,6 @@ impl From<Vec<&str>> for WithPayloadSelector {
                     fields: fields.into_iter().map(|f| f.to_string()).collect(),
                 },
             )),
-        }
-    }
-}
-
-impl From<Vec<f32>> for Vector {
-    fn from(vector: Vec<f32>) -> Self {
-        Vector {
-            data: vector,
-            indices: None,
-            vectors_count: None,
-        }
-    }
-}
-
-impl From<Vec<(u32, f32)>> for Vector {
-    fn from(tuples: Vec<(u32, f32)>) -> Self {
-        Self::from(tuples.as_slice())
-    }
-}
-
-// Since we construct two new Vec's anyway it's fine to source from a reference
-impl From<&[(u32, f32)]> for Vector {
-    fn from(tuples: &[(u32, f32)]) -> Self {
-        let mut indices = Vec::with_capacity(tuples.len());
-        let mut values = Vec::with_capacity(tuples.len());
-        for (i, w) in tuples {
-            indices.push(*i);
-            values.push(*w);
-        }
-        Vector {
-            data: values,
-            indices: Some(SparseIndices { data: indices }),
-            vectors_count: None,
-        }
-    }
-}
-
-impl From<HashMap<String, Vec<f32>>> for Vectors {
-    fn from(named_vectors: HashMap<String, Vec<f32>>) -> Self {
-        Vectors {
-            vectors_options: Some(VectorsOptions::Vectors(NamedVectors {
-                vectors: named_vectors
-                    .into_iter()
-                    .map(|(k, v)| (k, v.into()))
-                    .collect(),
-            })),
-        }
-    }
-}
-
-impl From<HashMap<String, Vector>> for Vectors {
-    fn from(named_vectors: HashMap<String, Vector>) -> Self {
-        Vectors {
-            vectors_options: Some(VectorsOptions::Vectors(NamedVectors {
-                vectors: named_vectors.into_iter().collect(),
-            })),
-        }
-    }
-}
-
-impl From<HashMap<String, Vec<(u32, f32)>>> for Vectors {
-    fn from(named_vectors: HashMap<String, Vec<(u32, f32)>>) -> Self {
-        Vectors {
-            vectors_options: Some(VectorsOptions::Vectors(NamedVectors {
-                vectors: named_vectors
-                    .into_iter()
-                    .map(|(k, v)| (k, v.into()))
-                    .collect(),
-            })),
-        }
-    }
-}
-
-// Since we construct two new Vec's anyway it's fine to source from a reference
-impl From<HashMap<String, &[(u32, f32)]>> for Vectors {
-    fn from(named_vectors: HashMap<String, &[(u32, f32)]>) -> Self {
-        Vectors {
-            vectors_options: Some(VectorsOptions::Vectors(NamedVectors {
-                vectors: named_vectors
-                    .into_iter()
-                    .map(|(k, v)| (k, v.into()))
-                    .collect(),
-            })),
-        }
-    }
-}
-
-impl From<Vec<f32>> for Vectors {
-    fn from(vector: Vec<f32>) -> Self {
-        Vectors {
-            vectors_options: Some(VectorsOptions::Vector(vector.into())),
         }
     }
 }

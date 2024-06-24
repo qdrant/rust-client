@@ -17,16 +17,13 @@ use crate::qdrant::{
     SearchPointGroups, SearchResponse, SetPayloadPoints, UpdateBatchPoints, UpdateBatchResponse,
     UpdatePointVectors, UpsertPoints,
 };
-use crate::qdrant_client::{Qdrant, Result};
+use crate::qdrant_client::{Qdrant, QdrantResult};
 
 impl Qdrant {
-    pub(crate) async fn with_points_client<
-        T,
-        O: Future<Output = std::result::Result<T, Status>>,
-    >(
+    pub(crate) async fn with_points_client<T, O: Future<Output = Result<T, Status>>>(
         &self,
         f: impl Fn(PointsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
-    ) -> Result<T> {
+    ) -> QdrantResult<T> {
         let result = self
             .channel
             .with_channel(
@@ -47,7 +44,10 @@ impl Qdrant {
         Ok(result)
     }
 
-    pub async fn search_points(&self, request: impl Into<SearchPoints>) -> Result<SearchResponse> {
+    pub async fn search_points(
+        &self,
+        request: impl Into<SearchPoints>,
+    ) -> QdrantResult<SearchResponse> {
         let request = &request.into();
 
         self.with_points_client(|mut points_api| async move {
@@ -60,7 +60,7 @@ impl Qdrant {
     pub async fn search_batch_points(
         &self,
         request: impl Into<SearchBatchPoints>,
-    ) -> Result<SearchBatchResponse> {
+    ) -> QdrantResult<SearchBatchResponse> {
         let request = &request.into();
 
         self.with_points_client(|mut points_api| async move {
@@ -73,7 +73,7 @@ impl Qdrant {
     pub async fn search_groups(
         &self,
         request: impl Into<SearchPointGroups>,
-    ) -> Result<SearchGroupsResponse> {
+    ) -> QdrantResult<SearchGroupsResponse> {
         let request = &request.into();
 
         self.with_points_client(|mut points_api| async move {
@@ -86,7 +86,7 @@ impl Qdrant {
     pub async fn batch_updates(
         &self,
         request: impl Into<UpdateBatchPoints>,
-    ) -> Result<UpdateBatchResponse> {
+    ) -> QdrantResult<UpdateBatchResponse> {
         let request = &request.into();
 
         self.with_points_client(|mut points_api| async move {
@@ -102,7 +102,7 @@ impl Qdrant {
     pub async fn upsert_points(
         &self,
         request: impl Into<UpsertPoints>,
-    ) -> Result<PointsOperationResponse> {
+    ) -> QdrantResult<PointsOperationResponse> {
         let request = &request.into();
         self.with_points_client(|mut points_api| async move {
             Ok(points_api.upsert(request.clone()).await?.into_inner())
@@ -116,7 +116,7 @@ impl Qdrant {
         &self,
         request: impl Into<UpsertPoints>,
         chunk_size: usize,
-    ) -> Result<PointsOperationResponse> {
+    ) -> QdrantResult<PointsOperationResponse> {
         let mut request = request.into();
         let points = std::mem::take(&mut request.points);
 
@@ -152,7 +152,7 @@ impl Qdrant {
     pub async fn set_payload(
         &self,
         request: impl Into<SetPayloadPoints>,
-    ) -> Result<PointsOperationResponse> {
+    ) -> QdrantResult<PointsOperationResponse> {
         let request = &request.into();
 
         self.with_points_client(|mut points_api| async move {
@@ -165,7 +165,7 @@ impl Qdrant {
     pub async fn overwrite_payload(
         &self,
         request: impl Into<SetPayloadPoints>,
-    ) -> Result<PointsOperationResponse> {
+    ) -> QdrantResult<PointsOperationResponse> {
         let request = &request.into();
 
         self.with_points_client(|mut points_api| async move {
@@ -178,7 +178,7 @@ impl Qdrant {
     pub async fn delete_payload(
         &self,
         request: impl Into<DeletePayloadPoints>,
-    ) -> Result<PointsOperationResponse> {
+    ) -> QdrantResult<PointsOperationResponse> {
         let request = &request.into();
 
         self.with_points_client(|mut points_api| async move {
@@ -191,7 +191,7 @@ impl Qdrant {
     pub async fn clear_payload(
         &self,
         request: impl Into<ClearPayloadPoints>,
-    ) -> Result<PointsOperationResponse> {
+    ) -> QdrantResult<PointsOperationResponse> {
         let request = &request.into();
 
         self.with_points_client(|mut points_api| async move {
@@ -201,7 +201,7 @@ impl Qdrant {
         .await
     }
 
-    pub async fn get_points(&self, request: impl Into<GetPoints>) -> Result<GetResponse> {
+    pub async fn get_points(&self, request: impl Into<GetPoints>) -> QdrantResult<GetResponse> {
         let request = &request.into();
 
         self.with_points_client(|mut points_api| async move {
@@ -214,7 +214,7 @@ impl Qdrant {
     pub async fn delete_points(
         &self,
         request: impl Into<DeletePoints>,
-    ) -> Result<PointsOperationResponse> {
+    ) -> QdrantResult<PointsOperationResponse> {
         let request = &request.into();
 
         self.with_points_client(|mut points_api| async move {
@@ -227,7 +227,7 @@ impl Qdrant {
     pub async fn delete_vectors(
         &self,
         request: impl Into<DeletePointVectors>,
-    ) -> Result<PointsOperationResponse> {
+    ) -> QdrantResult<PointsOperationResponse> {
         let request = &request.into();
 
         self.with_points_client(|mut points_api| async move {
@@ -240,7 +240,7 @@ impl Qdrant {
     pub async fn update_vectors(
         &self,
         request: impl Into<UpdatePointVectors>,
-    ) -> Result<PointsOperationResponse> {
+    ) -> QdrantResult<PointsOperationResponse> {
         let request = &request.into();
 
         self.with_points_client(|mut points_api| async move {
@@ -250,7 +250,7 @@ impl Qdrant {
         .await
     }
 
-    pub async fn scroll(&self, request: impl Into<ScrollPoints>) -> Result<ScrollResponse> {
+    pub async fn scroll(&self, request: impl Into<ScrollPoints>) -> QdrantResult<ScrollResponse> {
         let request = &request.into();
 
         self.with_points_client(|mut points_api| async move {
@@ -263,7 +263,7 @@ impl Qdrant {
     pub async fn recommend(
         &self,
         request: impl Into<RecommendPoints>,
-    ) -> Result<RecommendResponse> {
+    ) -> QdrantResult<RecommendResponse> {
         let request = &request.into();
 
         self.with_points_client(|mut points_api| async move {
@@ -276,7 +276,7 @@ impl Qdrant {
     pub async fn recommend_batch(
         &self,
         request: impl Into<RecommendBatchPoints>,
-    ) -> Result<RecommendBatchResponse> {
+    ) -> QdrantResult<RecommendBatchResponse> {
         let request = &request.into();
 
         self.with_points_client(|mut points_api| async move {
@@ -289,7 +289,7 @@ impl Qdrant {
     pub async fn recommend_groups(
         &self,
         request: impl Into<RecommendPointGroups>,
-    ) -> Result<RecommendGroupsResponse> {
+    ) -> QdrantResult<RecommendGroupsResponse> {
         let request = &request.into();
 
         self.with_points_client(|mut points_api| async move {
@@ -299,7 +299,10 @@ impl Qdrant {
         .await
     }
 
-    pub async fn discover(&self, request: impl Into<DiscoverPoints>) -> Result<DiscoverResponse> {
+    pub async fn discover(
+        &self,
+        request: impl Into<DiscoverPoints>,
+    ) -> QdrantResult<DiscoverResponse> {
         let request = &request.into();
 
         self.with_points_client(|mut points_api| async move {
@@ -312,7 +315,7 @@ impl Qdrant {
     pub async fn discover_batch(
         &self,
         request: &DiscoverBatchPoints,
-    ) -> Result<DiscoverBatchResponse> {
+    ) -> QdrantResult<DiscoverBatchResponse> {
         self.with_points_client(|mut points_api| async move {
             let result = points_api.discover_batch(request.clone()).await?;
             Ok(result.into_inner())
@@ -320,7 +323,7 @@ impl Qdrant {
         .await
     }
 
-    pub async fn count(&self, request: impl Into<CountPoints>) -> Result<CountResponse> {
+    pub async fn count(&self, request: impl Into<CountPoints>) -> QdrantResult<CountResponse> {
         let request = &request.into();
 
         self.with_points_client(|mut points_api| async move {
@@ -333,7 +336,7 @@ impl Qdrant {
     pub async fn update_batch_points(
         &self,
         request: impl Into<UpdateBatchPoints>,
-    ) -> Result<UpdateBatchResponse> {
+    ) -> QdrantResult<UpdateBatchResponse> {
         let request = &request.into();
 
         self.with_points_client(|mut points_api| async move {
@@ -347,7 +350,7 @@ impl Qdrant {
     pub async fn create_field_index(
         &self,
         request: impl Into<CreateFieldIndexCollection>,
-    ) -> Result<PointsOperationResponse> {
+    ) -> QdrantResult<PointsOperationResponse> {
         let request = &request.into();
 
         self.with_points_client(|mut client| async move {
@@ -360,7 +363,7 @@ impl Qdrant {
     pub async fn delete_field_index(
         &self,
         request: impl Into<DeleteFieldIndexCollection>,
-    ) -> Result<PointsOperationResponse> {
+    ) -> QdrantResult<PointsOperationResponse> {
         let request = &request.into();
 
         self.with_points_client(|mut client| async move {

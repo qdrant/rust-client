@@ -3,11 +3,9 @@ mod primitives;
 mod query;
 
 use crate::client::Payload;
-use crate::qdrant::payload_index_params::IndexParams;
 use crate::qdrant::point_id::PointIdOptions;
 use crate::qdrant::points_selector::PointsSelectorOneOf;
 use crate::qdrant::value::Kind;
-use crate::qdrant::vectors::VectorsOptions;
 use crate::qdrant::{
     alias_operations, condition, group_id, points_update_operation, quantization_config,
     quantization_config_diff, r#match, read_consistency, shard_key, start_from, target_vector,
@@ -15,18 +13,16 @@ use crate::qdrant::{
     with_payload_selector, with_vectors_selector, AbortShardTransfer, AliasOperations,
     BinaryQuantization, BinaryQuantizationBuilder, Condition, CreateAlias, CreateShardKey,
     DeleteAlias, DeleteShardKey, Disabled, FieldCondition, Filter, GeoLineString, GeoPoint,
-    GroupId, HasIdCondition, IntegerIndexParams, IsEmptyCondition, IsNullCondition, ListValue,
-    Match, MoveShard, NamedVectors, NestedCondition, PayloadExcludeSelector,
-    PayloadIncludeSelector, PayloadIndexParams, PointId, PointsIdsList, PointsSelector,
-    PointsUpdateOperation, ProductQuantization, ProductQuantizationBuilder, QuantizationConfig,
-    QuantizationConfigDiff, ReadConsistency, RenameAlias, Replica, ReplicateShard, RestartTransfer,
-    ScalarQuantization, ScalarQuantizationBuilder, ShardKey, ShardKeySelector, SparseIndexConfig,
-    SparseVectorParams, StartFrom, Struct, TargetVector, TextIndexParams, Value, Vector,
-    VectorExample, VectorParams, VectorParamsBuilder, VectorParamsDiff, VectorParamsDiffBuilder,
-    VectorParamsDiffMap, VectorParamsMap, Vectors, VectorsConfig, VectorsConfigDiff,
-    VectorsSelector, WithPayloadSelector, WithVectorsSelector,
+    GroupId, HasIdCondition, IsEmptyCondition, IsNullCondition, ListValue, Match, MoveShard,
+    NestedCondition, PayloadExcludeSelector, PayloadIncludeSelector, PointId, PointsIdsList,
+    PointsSelector, PointsUpdateOperation, ProductQuantization, ProductQuantizationBuilder,
+    QuantizationConfig, QuantizationConfigDiff, ReadConsistency, RenameAlias, Replica,
+    ReplicateShard, RestartTransfer, ScalarQuantization, ScalarQuantizationBuilder, ShardKey,
+    ShardKeySelector, SparseIndexConfig, SparseVectorParams, StartFrom, Struct, TargetVector,
+    Value, Vector, VectorExample, VectorParams, VectorParamsBuilder, VectorParamsDiff,
+    VectorParamsDiffBuilder, VectorParamsDiffMap, VectorParamsMap, VectorsConfig,
+    VectorsConfigDiff, VectorsSelector, WithPayloadSelector, WithVectorsSelector,
 };
-use std::collections::HashMap;
 
 impl From<Vec<PointId>> for PointsSelector {
     fn from(point_ids: Vec<PointId>) -> Self {
@@ -186,26 +182,6 @@ impl From<BinaryQuantization> for quantization_config_diff::Quantization {
     }
 }
 
-impl From<IndexParams> for PayloadIndexParams {
-    fn from(value: IndexParams) -> Self {
-        Self {
-            index_params: Some(value),
-        }
-    }
-}
-
-impl From<TextIndexParams> for IndexParams {
-    fn from(value: TextIndexParams) -> Self {
-        Self::TextIndexParams(value)
-    }
-}
-
-impl From<IntegerIndexParams> for IndexParams {
-    fn from(value: IntegerIndexParams) -> Self {
-        Self::IntegerIndexParams(value)
-    }
-}
-
 impl From<alias_operations::Action> for AliasOperations {
     fn from(value: alias_operations::Action) -> Self {
         AliasOperations {
@@ -275,32 +251,6 @@ impl From<PayloadIncludeSelector> for with_payload_selector::SelectorOptions {
 impl From<PayloadExcludeSelector> for with_payload_selector::SelectorOptions {
     fn from(value: PayloadExcludeSelector) -> Self {
         Self::Exclude(value)
-    }
-}
-
-impl From<HashMap<String, Vector>> for NamedVectors {
-    fn from(value: HashMap<String, Vector>) -> Self {
-        Self { vectors: value }
-    }
-}
-
-impl From<VectorsOptions> for Vectors {
-    fn from(value: VectorsOptions) -> Self {
-        Self {
-            vectors_options: Some(value),
-        }
-    }
-}
-
-impl From<Vector> for VectorsOptions {
-    fn from(value: Vector) -> Self {
-        Self::Vector(value)
-    }
-}
-
-impl From<NamedVectors> for VectorsOptions {
-    fn from(value: NamedVectors) -> Self {
-        Self::Vectors(value)
     }
 }
 

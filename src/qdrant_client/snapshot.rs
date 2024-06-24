@@ -1,3 +1,9 @@
+use std::future::Future;
+
+use tonic::codegen::InterceptedService;
+use tonic::transport::Channel;
+use tonic::Status;
+
 use crate::auth::TokenInterceptor;
 use crate::qdrant::snapshots_client::SnapshotsClient;
 use crate::qdrant::{
@@ -5,17 +11,13 @@ use crate::qdrant::{
     DeleteFullSnapshotRequest, DeleteSnapshotRequest, DeleteSnapshotResponse,
     ListFullSnapshotsRequest, ListSnapshotsRequest, ListSnapshotsResponse,
 };
-use crate::qdrant_client::{Qdrant, Result};
-use std::future::Future;
-use tonic::codegen::InterceptedService;
-use tonic::transport::Channel;
-use tonic::Status;
+use crate::qdrant_client::{Qdrant, QdrantResult};
 
 impl Qdrant {
-    pub async fn with_snapshot_client<T, O: Future<Output = std::result::Result<T, Status>>>(
+    pub async fn with_snapshot_client<T, O: Future<Output = Result<T, Status>>>(
         &self,
         f: impl Fn(SnapshotsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
-    ) -> Result<T> {
+    ) -> QdrantResult<T> {
         let result = self
             .channel
             .with_channel(
@@ -39,7 +41,7 @@ impl Qdrant {
     pub async fn create_snapshot(
         &self,
         request: impl Into<CreateSnapshotRequest>,
-    ) -> Result<CreateSnapshotResponse> {
+    ) -> QdrantResult<CreateSnapshotResponse> {
         let request = &request.into();
         self.with_snapshot_client(|mut client| async move {
             let result = client.create(request.clone()).await?;
@@ -51,7 +53,7 @@ impl Qdrant {
     pub async fn list_snapshots(
         &self,
         request: impl Into<ListSnapshotsRequest>,
-    ) -> Result<ListSnapshotsResponse> {
+    ) -> QdrantResult<ListSnapshotsResponse> {
         let request = &request.into();
         self.with_snapshot_client(|mut client| async move {
             let result = client.list(request.clone()).await?;
@@ -63,7 +65,7 @@ impl Qdrant {
     pub async fn delete_snapshot(
         &self,
         request: impl Into<DeleteSnapshotRequest>,
-    ) -> Result<DeleteSnapshotResponse> {
+    ) -> QdrantResult<DeleteSnapshotResponse> {
         let request = &request.into();
         self.with_snapshot_client(|mut client| async move {
             let result = client.delete(request.clone()).await?;
@@ -72,7 +74,7 @@ impl Qdrant {
         .await
     }
 
-    pub async fn create_full_snapshot(&self) -> Result<CreateSnapshotResponse> {
+    pub async fn create_full_snapshot(&self) -> QdrantResult<CreateSnapshotResponse> {
         self.with_snapshot_client(|mut client| async move {
             let result = client.create_full(CreateFullSnapshotRequest {}).await?;
             Ok(result.into_inner())
@@ -80,7 +82,7 @@ impl Qdrant {
         .await
     }
 
-    pub async fn list_full_snapshots(&self) -> Result<ListSnapshotsResponse> {
+    pub async fn list_full_snapshots(&self) -> QdrantResult<ListSnapshotsResponse> {
         self.with_snapshot_client(|mut client| async move {
             let result = client.list_full(ListFullSnapshotsRequest {}).await?;
             Ok(result.into_inner())
@@ -91,7 +93,7 @@ impl Qdrant {
     pub async fn delete_full_snapshot(
         &self,
         request: impl Into<DeleteFullSnapshotRequest>,
-    ) -> Result<DeleteSnapshotResponse> {
+    ) -> QdrantResult<DeleteSnapshotResponse> {
         let request = &request.into();
         self.with_snapshot_client(|mut client| async move {
             let result = client.delete_full(request.clone()).await?;
@@ -104,10 +106,12 @@ impl Qdrant {
     pub async fn download_snapshot(
         &self,
         options: impl Into<crate::qdrant::SnapshotDownload>,
-    ) -> Result<()> {
-        use crate::qdrant_client::error::Error;
-        use futures_util::StreamExt;
+    ) -> QdrantResult<()> {
         use std::io::Write;
+
+        use futures_util::StreamExt;
+
+        use crate::qdrant_client::error::QdrantError;
 
         let options = options.into();
 
@@ -120,7 +124,11 @@ impl Qdrant {
                 .first()
             {
                 Some(sn) => sn.name.clone(),
-                _ => return Err(Error::NoSnapshotFound(options.collection_name.clone())),
+                _ => {
+                    return Err(QdrantError::NoSnapshotFound(
+                        options.collection_name.clone(),
+                    ))
+                }
             },
         };
 

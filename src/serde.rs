@@ -1,12 +1,14 @@
 #![allow(deprecated)]
 
+use std::collections::HashMap;
+use std::fmt::{Display, Formatter};
+
+use serde::ser::{SerializeMap, SerializeSeq};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
+
 use crate::client::Payload;
 use crate::qdrant::value::Kind;
 use crate::qdrant::{ListValue, Struct, Value};
-use serde::ser::{SerializeMap, SerializeSeq};
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use std::collections::HashMap;
-use std::fmt::{Display, Formatter};
 
 #[derive(Debug)]
 pub struct PayloadConversionError(serde_json::Value);

@@ -1,6 +1,7 @@
+use std::collections::HashMap;
+
 use crate::qdrant::vectors_config::Config;
 use crate::qdrant::{VectorParams, VectorParamsMap, VectorsConfig};
-use std::collections::HashMap;
 
 const DEFAULT_VECTOR_NAME: &str = "";
 

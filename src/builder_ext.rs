@@ -7,16 +7,15 @@ use crate::qdrant::{
     DeleteFieldIndexCollectionBuilder, DeletePayloadPointsBuilder, DeletePointVectorsBuilder,
     DeletePointsBuilder, DeleteShardKey, DeleteShardKeyRequestBuilder,
     DeleteSnapshotRequestBuilder, DiscoverBatchPointsBuilder, DiscoverPoints,
-    DiscoverPointsBuilder, Distance, GetPointsBuilder, LookupLocationBuilder, OrderByBuilder,
+    DiscoverPointsBuilder, Distance, FieldType, GetPointsBuilder, LookupLocationBuilder,
     PayloadExcludeSelector, PayloadIncludeSelector, PointId, PointStruct, PointVectors,
     PointsUpdateOperation, ProductQuantizationBuilder, QuantizationType, QueryPointsBuilder,
     RecommendBatchPointsBuilder, RecommendExample, RecommendPointGroupsBuilder, RecommendPoints,
     RecommendPointsBuilder, RenameAliasBuilder, ScalarQuantizationBuilder, ScrollPointsBuilder,
     SearchBatchPointsBuilder, SearchPointGroupsBuilder, SearchPoints, SearchPointsBuilder,
-    SetPayloadPointsBuilder, ShardKey, TextIndexParamsBuilder, TokenizerType,
-    UpdateBatchPointsBuilder, UpdateCollectionBuilder, UpdateCollectionClusterSetupRequestBuilder,
-    UpdatePointVectorsBuilder, UpsertPointsBuilder, Value, VectorParamsBuilder, VectorsSelector,
-    WithLookupBuilder,
+    SetPayloadPointsBuilder, ShardKey, UpdateBatchPointsBuilder, UpdateCollectionBuilder,
+    UpdateCollectionClusterSetupRequestBuilder, UpdatePointVectorsBuilder, UpsertPointsBuilder,
+    Value, VectorParamsBuilder, VectorsSelector, WithLookupBuilder,
 };
 
 impl VectorParamsBuilder {
@@ -28,10 +27,10 @@ impl VectorParamsBuilder {
     }
 }
 
-impl ScalarQuantizationBuilder {
-    pub fn new(r#type: QuantizationType) -> Self {
+impl Default for ScalarQuantizationBuilder {
+    fn default() -> Self {
         let mut builder = Self::empty();
-        builder.r#type = Some(r#type.into());
+        builder.r#type = Some(QuantizationType::Int8.into());
         builder
     }
 }
@@ -195,14 +194,6 @@ impl ScrollPointsBuilder {
     }
 }
 
-impl OrderByBuilder {
-    pub fn new(key: impl Into<String>) -> Self {
-        let mut builder = Self::empty();
-        builder.key = Some(key.into());
-        builder
-    }
-}
-
 impl RecommendPointsBuilder {
     pub fn new(collection_name: impl Into<String>, limit: u64) -> Self {
         let mut builder = Self::empty();
@@ -292,11 +283,15 @@ impl UpsertPointsBuilder {
 }
 
 impl CreateFieldIndexCollectionBuilder {
-    pub fn new(collection_name: impl Into<String>, field_name: impl Into<String>) -> Self {
+    pub fn new(
+        collection_name: impl Into<String>,
+        field_name: impl Into<String>,
+        field_type: FieldType,
+    ) -> Self {
         let mut builder = Self::empty();
         builder.collection_name = Some(collection_name.into());
         builder.field_name = Some(field_name.into());
-        builder
+        builder.field_type(field_type)
     }
 }
 
@@ -347,14 +342,6 @@ impl DeleteCollectionBuilder {
     pub fn new(collection_name: impl Into<String>) -> Self {
         let mut builder = Self::empty();
         builder.collection_name = Some(collection_name.into());
-        builder
-    }
-}
-
-impl TextIndexParamsBuilder {
-    pub fn new(tokenizer: TokenizerType) -> Self {
-        let mut builder = Self::empty();
-        builder.tokenizer = Some(tokenizer.into());
         builder
     }
 }

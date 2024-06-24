@@ -1,3 +1,9 @@
+use std::future::Future;
+
+use tonic::codegen::InterceptedService;
+use tonic::transport::Channel;
+use tonic::Status;
+
 use crate::auth::TokenInterceptor;
 use crate::client::{Payload, QdrantClient};
 use crate::prelude::{PointStruct, SearchPoints};
@@ -14,10 +20,6 @@ use crate::qdrant::{
     UpdateBatchPoints, UpdateBatchResponse, UpdatePointVectors, UpsertPoints, VectorsSelector,
     WithPayloadSelector, WithVectorsSelector, WriteOrdering,
 };
-use std::future::Future;
-use tonic::codegen::InterceptedService;
-use tonic::transport::Channel;
-use tonic::Status;
 
 impl QdrantClient {
     // Access to raw points API
