@@ -27,8 +27,8 @@ mod tests {
         SparseIndexConfigBuilder, SparseVectorParamsBuilder, UpsertPointsBuilder, Vector,
         VectorInput, VectorParamsBuilder,
     };
-    use crate::qdrant_client::builers::sparse_vectors_config::SparseVectorsConfigBuilder;
-    use crate::qdrant_client::builers::vectors_config::VectorsConfigBuilder;
+    use crate::qdrant_client::builders::sparse_vectors_config::SparseVectorsConfigBuilder;
+    use crate::qdrant_client::builders::vectors_config::VectorsConfigBuilder;
     use crate::Payload;
 
     #[tokio::test]
