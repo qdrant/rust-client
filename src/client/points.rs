@@ -45,6 +45,10 @@ impl QdrantClient {
             .await
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::update_points_batch` instead"
+    )]
     async fn _batch_updates(
         &self,
         collection_name: impl ToString,
@@ -70,6 +74,10 @@ impl QdrantClient {
             .await?)
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::update_points_batch` instead"
+    )]
     pub async fn batch_updates(
         &self,
         collection_name: impl ToString,
@@ -80,6 +88,10 @@ impl QdrantClient {
             .await
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::update_points_batch` instead"
+    )]
     pub async fn batch_updates_blocking(
         &self,
         collection_name: impl ToString,
@@ -90,12 +102,16 @@ impl QdrantClient {
             .await
     }
 
-    /// Update or insert points into the collection.
+    /// Insert or update points into the collection.
     /// If points with given ID already exist, they will be overwritten.
     /// This method does *not* wait for completion of the operation, use
     /// [`upsert_points_blocking`](Self::upsert_points_blocking) for that.
     /// Also this method does not split the points to insert to avoid timeouts,
     /// look at [`upsert_points_batch`](Self::upsert_points_batch) for that.
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::upsert_points` instead"
+    )]
     pub async fn upsert_points(
         &self,
         collection_name: impl ToString,
@@ -113,10 +129,14 @@ impl QdrantClient {
         .await
     }
 
-    /// Update or insert points into the collection, wait for completion.
+    /// Insert or update points into the collection, wait for completion.
     /// If points with given ID already exist, they will be overwritten.
     /// This method does not split the points to insert to avoid timeouts,
     /// look at [`upsert_points_batch`](Self::upsert_points_batch) for that.
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::upsert_points` instead"
+    )]
     pub async fn upsert_points_blocking(
         &self,
         collection_name: impl ToString,
@@ -129,6 +149,10 @@ impl QdrantClient {
     }
 
     #[inline]
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::upsert_points` instead"
+    )]
     async fn _upsert_points(
         &self,
         collection_name: impl ToString,
@@ -158,10 +182,14 @@ impl QdrantClient {
             .await?)
     }
 
-    /// Update or insert points into the collection, splitting in chunks.
+    /// Insert or update points into the collection, splitting in chunks.
     /// If points with given ID already exist, they will be overwritten.
     /// This method does *not* wait for completion of the operation, use
     /// [`upsert_points_batch_blocking`](Self::upsert_points_batch_blocking) for that.
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::upsert_points_batch` instead"
+    )]
     pub async fn upsert_points_batch(
         &self,
         collection_name: impl ToString,
@@ -181,9 +209,13 @@ impl QdrantClient {
         .await
     }
 
-    /// Update or insert points into the collection, splitting in chunks and
+    /// Insert or update points into the collection, splitting in chunks and
     /// waiting for completion of each.
     /// If points with given ID already exist, they will be overwritten.
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::upsert_points_batch` instead"
+    )]
     pub async fn upsert_points_batch_blocking(
         &self,
         collection_name: impl ToString,
@@ -204,6 +236,10 @@ impl QdrantClient {
     }
 
     #[inline]
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::upsert_points_batch` instead"
+    )]
     async fn _upsert_points_batch(
         &self,
         collection_name: impl ToString,
@@ -248,6 +284,10 @@ impl QdrantClient {
             .await?)
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::set_payload` instead"
+    )]
     pub async fn set_payload(
         &self,
         collection_name: impl ToString,
@@ -269,6 +309,10 @@ impl QdrantClient {
         .await
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::set_payload` instead"
+    )]
     pub async fn set_payload_blocking(
         &self,
         collection_name: impl ToString,
@@ -292,6 +336,10 @@ impl QdrantClient {
 
     #[inline]
     #[allow(clippy::too_many_arguments)]
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::set_payload` instead"
+    )]
     async fn _set_payload(
         &self,
         collection_name: impl ToString,
@@ -327,6 +375,10 @@ impl QdrantClient {
             .await?)
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::overwrite_payload` instead"
+    )]
     pub async fn overwrite_payload(
         &self,
         collection_name: impl ToString,
@@ -348,6 +400,10 @@ impl QdrantClient {
         .await
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::overwrite_payload` instead"
+    )]
     pub async fn overwrite_payload_blocking(
         &self,
         collection_name: impl ToString,
@@ -371,6 +427,10 @@ impl QdrantClient {
 
     #[inline]
     #[allow(clippy::too_many_arguments)]
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::overwrite_payload` instead"
+    )]
     async fn _overwrite_payload(
         &self,
         collection_name: impl ToString,
@@ -406,6 +466,10 @@ impl QdrantClient {
             .await?)
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::delete_payload` instead"
+    )]
     pub async fn delete_payload(
         &self,
         collection_name: impl ToString,
@@ -425,6 +489,10 @@ impl QdrantClient {
         .await
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::delete_payload` instead"
+    )]
     pub async fn delete_payload_blocking(
         &self,
         collection_name: impl ToString,
@@ -445,6 +513,10 @@ impl QdrantClient {
     }
 
     #[inline]
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::delete_payload` instead"
+    )]
     async fn _delete_payload(
         &self,
         collection_name: impl ToString,
@@ -477,6 +549,10 @@ impl QdrantClient {
             .await?)
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::clear_payload` instead"
+    )]
     pub async fn clear_payload(
         &self,
         collection_name: impl ToString,
@@ -494,6 +570,10 @@ impl QdrantClient {
         .await
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::clear_payload` instead"
+    )]
     pub async fn clear_payload_blocking(
         &self,
         collection_name: impl ToString,
@@ -512,6 +592,10 @@ impl QdrantClient {
     }
 
     #[inline]
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::clear_payload` instead"
+    )]
     async fn _clear_payload(
         &self,
         collection_name: impl ToString,
@@ -542,6 +626,10 @@ impl QdrantClient {
             .await?)
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::get_points` instead"
+    )]
     pub async fn get_points(
         &self,
         collection_name: impl ToString,
@@ -582,6 +670,10 @@ impl QdrantClient {
             .await?)
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::search_points` instead"
+    )]
     pub async fn search_points(&self, request: &SearchPoints) -> anyhow::Result<SearchResponse> {
         Ok(self
             .with_points_client(|mut points_api| async move {
@@ -591,6 +683,10 @@ impl QdrantClient {
             .await?)
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::search_batch_points` instead"
+    )]
     pub async fn search_batch_points(
         &self,
         request: &SearchBatchPoints,
@@ -603,6 +699,10 @@ impl QdrantClient {
             .await?)
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::search_groups` instead"
+    )]
     pub async fn search_groups(
         &self,
         request: &SearchPointGroups,
@@ -615,6 +715,10 @@ impl QdrantClient {
             .await?)
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::delete_points` instead"
+    )]
     pub async fn delete_points(
         &self,
         collection_name: impl ToString,
@@ -626,6 +730,10 @@ impl QdrantClient {
             .await
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::delete_points` instead"
+    )]
     pub async fn delete_points_blocking(
         &self,
         collection_name: impl ToString,
@@ -637,6 +745,10 @@ impl QdrantClient {
             .await
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::delete_points` instead"
+    )]
     async fn _delete_points(
         &self,
         collection_name: impl ToString,
@@ -667,6 +779,10 @@ impl QdrantClient {
             .await?)
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::delete_vectors` instead"
+    )]
     pub async fn delete_vectors(
         &self,
         collection_name: impl ToString,
@@ -686,6 +802,10 @@ impl QdrantClient {
         .await
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::delete_vectors` instead"
+    )]
     pub async fn delete_vectors_blocking(
         &self,
         collection_name: impl ToString,
@@ -705,6 +825,10 @@ impl QdrantClient {
         .await
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::delete_vectors` instead"
+    )]
     async fn _delete_vectors(
         &self,
         collection_name: impl ToString,
@@ -737,6 +861,10 @@ impl QdrantClient {
             .await?)
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::update_vectors` instead"
+    )]
     pub async fn update_vectors(
         &self,
         collection_name: impl ToString,
@@ -748,6 +876,10 @@ impl QdrantClient {
             .await
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::update_vectors` instead"
+    )]
     pub async fn update_vectors_blocking(
         &self,
         collection_name: impl ToString,
@@ -759,6 +891,10 @@ impl QdrantClient {
             .await
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::update_vectors` instead"
+    )]
     async fn _update_vectors(
         &self,
         collection_name: impl ToString,
@@ -789,6 +925,10 @@ impl QdrantClient {
             .await?)
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::scroll` instead"
+    )]
     pub async fn scroll(&self, request: &ScrollPoints) -> anyhow::Result<ScrollResponse> {
         Ok(self
             .with_points_client(|mut points_api| async move {
@@ -798,6 +938,10 @@ impl QdrantClient {
             .await?)
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::recommend` instead"
+    )]
     pub async fn recommend(&self, request: &RecommendPoints) -> anyhow::Result<RecommendResponse> {
         Ok(self
             .with_points_client(|mut points_api| async move {
@@ -807,6 +951,10 @@ impl QdrantClient {
             .await?)
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::recommend_batch` instead"
+    )]
     pub async fn recommend_batch(
         &self,
         request: &RecommendBatchPoints,
@@ -819,6 +967,10 @@ impl QdrantClient {
             .await?)
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::recommend_groups` instead"
+    )]
     pub async fn recommend_groups(
         &self,
         request: &RecommendPointGroups,
@@ -831,6 +983,10 @@ impl QdrantClient {
             .await?)
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::discover` instead"
+    )]
     pub async fn discover(&self, request: &DiscoverPoints) -> anyhow::Result<DiscoverResponse> {
         Ok(self
             .with_points_client(|mut points_api| async move {
@@ -840,6 +996,10 @@ impl QdrantClient {
             .await?)
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::discover_batch` instead"
+    )]
     pub async fn discover_batch(
         &self,
         request: &DiscoverBatchPoints,
@@ -852,6 +1012,10 @@ impl QdrantClient {
             .await?)
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::count` instead"
+    )]
     pub async fn count(&self, request: &CountPoints) -> anyhow::Result<CountResponse> {
         Ok(self
             .with_points_client(|mut points_api| async move {
@@ -864,6 +1028,10 @@ impl QdrantClient {
     /// Perform multiple point, vector and payload insert, update and delete operations in one request.
     /// This method does *not* wait for completion of the operation, use
     /// [`update_batch_points_blocking`](Self::update_batch_points_blocking) for that.
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::update_points_batch` instead"
+    )]
     pub async fn update_batch_points(
         &self,
         collection_name: impl ToString,
@@ -876,6 +1044,10 @@ impl QdrantClient {
 
     /// Perform multiple point, vector and payload insert, update and delete operations in one request.
     /// This method waits for completion on each operation.
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::update_points_batch` instead"
+    )]
     pub async fn update_batch_points_blocking(
         &self,
         collection_name: impl ToString,
@@ -886,6 +1058,10 @@ impl QdrantClient {
             .await
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::update_points_batch` instead"
+    )]
     async fn _update_batch_points(
         &self,
         collection_name: impl ToString,
@@ -913,6 +1089,10 @@ impl QdrantClient {
     }
 
     /// Create index for a payload field
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::create_field_index` instead"
+    )]
     pub async fn _create_field_index(
         &self,
         collection_name: impl ToString,
@@ -945,6 +1125,10 @@ impl QdrantClient {
             .await?)
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::create_field_index` instead"
+    )]
     pub async fn create_field_index(
         &self,
         collection_name: impl ToString,
@@ -964,6 +1148,10 @@ impl QdrantClient {
         .await
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::create_field_index` instead"
+    )]
     pub async fn create_field_index_blocking(
         &self,
         collection_name: impl ToString,
@@ -983,6 +1171,10 @@ impl QdrantClient {
         .await
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::delete_field_index` instead"
+    )]
     pub async fn _delete_field_index(
         &self,
         collection_name: impl ToString,
@@ -1011,6 +1203,10 @@ impl QdrantClient {
             .await?)
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::delete_field_index` instead"
+    )]
     pub async fn delete_field_index(
         &self,
         collection_name: impl ToString,
@@ -1021,6 +1217,10 @@ impl QdrantClient {
             .await
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::delete_field_index` instead"
+    )]
     pub async fn delete_field_index_blocking(
         &self,
         collection_name: impl ToString,

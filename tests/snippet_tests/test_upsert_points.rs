@@ -4,9 +4,8 @@ async fn test_upsert_points() {
     async fn upsert_points() -> Result<(), Box<dyn std::error::Error>> {
       // WARNING: This is a generated test snippet.
       // Please, modify the snippet in the `../snippets/upsert_points.rs` file
-        use qdrant_client::prelude::{Payload, PointStruct};
-        use qdrant_client::qdrant::UpsertPointsBuilder;
-        use qdrant_client::Qdrant;
+        use qdrant_client::qdrant::{PointStruct, UpsertPointsBuilder};
+        use qdrant_client::{Qdrant, Payload};
         use serde_json::json;
         
         let client = Qdrant::from_url("http://localhost:6334").build()?;
