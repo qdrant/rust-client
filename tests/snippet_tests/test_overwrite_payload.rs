@@ -4,11 +4,10 @@ async fn test_overwrite_payload() {
     async fn overwrite_payload() -> Result<(), Box<dyn std::error::Error>> {
       // WARNING: This is a generated test snippet.
       // Please, modify the snippet in the `../snippets/overwrite_payload.rs` file
-        use qdrant_client::client::Payload;
         use qdrant_client::qdrant::{
             points_selector::PointsSelectorOneOf, PointsIdsList, SetPayloadPointsBuilder,
         };
-        use qdrant_client::Qdrant;
+        use qdrant_client::{Qdrant, Payload};
         use serde_json::json;
         
         let client = Qdrant::from_url("http://localhost:6334").build()?;
