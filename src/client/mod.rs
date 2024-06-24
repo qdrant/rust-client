@@ -21,6 +21,17 @@ use crate::qdrant::{qdrant_client, HealthCheckReply, HealthCheckRequest};
 #[deprecated(since = "1.10.0", note = "use `qdrant_client::QdrantBuilder` instead")]
 pub type QdrantClientBuilder = QdrantClientConfig;
 
+/// Deprecated Qdrant client
+///
+/// # Deprecated
+///
+/// This client is deprecated.
+///
+/// Please switch to the new [`Qdrant`](crate::Qdrant) client. It is easier to use and provides a
+/// more robust interface.
+///
+/// See examples at the [crate root](crate) or at each individual [`Qdrant`](crate::Qdrant)
+/// operation.
 #[deprecated(since = "1.10.0", note = "use `qdrant_client::Qdrant` instead")]
 pub struct QdrantClient {
     pub channel: ChannelPool,
@@ -29,10 +40,18 @@ pub struct QdrantClient {
 
 impl QdrantClient {
     /// Create a builder to setup the client
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::from_url` instead"
+    )]
     pub fn from_url(url: &str) -> QdrantClientBuilder {
         QdrantClientBuilder::from_url(url)
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::new` instead"
+    )]
     pub fn new(cfg: Option<QdrantClientConfig>) -> Result<Self> {
         let cfg = cfg.unwrap_or_default();
 
@@ -77,6 +96,10 @@ impl QdrantClient {
             .await
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::health_check` instead"
+    )]
     pub async fn health_check(&self) -> Result<HealthCheckReply> {
         Ok(self
             .with_root_qdrant_client(|mut qdrant_api| async move {
