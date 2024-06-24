@@ -2,7 +2,38 @@ use super::QdrantResult;
 use crate::qdrant::{QueryPoints, QueryResponse};
 use crate::qdrant_client::Qdrant;
 
+/// Point query operations.
+///
+/// Query points using the universal search API.
+///
+/// <!-- TODO: update documentation link to universal search API once released -->
+///
+/// Documentation: <https://qdrant.tech/documentation/concepts/search/#search-api>
 impl Qdrant {
+    /// Query a collection.
+    ///
+    /// ```no_run
+    ///# use qdrant_client::{Qdrant, QdrantError};
+    /// use qdrant_client::qdrant::{Condition, Filter, QueryPointsBuilder};
+    ///
+    ///# async fn query(client: &Qdrant)
+    ///# -> Result<(), QdrantError> {
+    /// client
+    ///     .query(
+    ///         QueryPointsBuilder::new("my_collection")
+    ///             .filter(Filter::must([Condition::matches(
+    ///                 "city",
+    ///                 "London".to_string(),
+    ///             )]))
+    ///     )
+    ///     .await?;
+    ///# Ok(())
+    ///# }
+    /// ```
+    ///
+    /// <!-- TODO: update documentation link to universal search API once released -->
+    ///
+    /// Documentation: <https://qdrant.tech/documentation/concepts/search/#search-api>
     pub async fn query(&self, request: impl Into<QueryPoints>) -> QdrantResult<QueryResponse> {
         let request = &request.into();
 
