@@ -109,6 +109,9 @@ impl QdrantConfig {
     }
 }
 
+/// Default Qdrant client configuration.
+///
+/// Connects to `http://localhost:6334` without an API key.
 impl Default for QdrantConfig {
     fn default() -> Self {
         Self {

@@ -4,8 +4,7 @@ async fn test_scroll_points() {
     async fn scroll_points() -> Result<(), Box<dyn std::error::Error>> {
       // WARNING: This is a generated test snippet.
       // Please, modify the snippet in the `../snippets/scroll_points.rs` file
-        use qdrant_client::qdrant::ScrollPointsBuilder;
-        use qdrant_client::qdrant::{Condition, Filter};
+        use qdrant_client::qdrant::{Condition, Filter, ScrollPointsBuilder};
         use qdrant_client::Qdrant;
         
         let client = Qdrant::from_url("http://localhost:6334").build()?;
