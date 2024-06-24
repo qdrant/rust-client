@@ -222,10 +222,9 @@ impl Qdrant {
     ///# }
     /// ```
     ///
-    /// <div class="warning">
-    /// A snapshot only contains data of a single node. If using distributed mode, you must create
-    /// a snapshot on each node explicitly.
-    /// </div>
+    /// Note: Snapshots are node-local. They only contain data of a single node. In distributed
+    /// mode you must create a snapshot on each node separately. Each node has their own list of
+    /// snapshots.
     ///
     /// Documentation: <https://qdrant.tech/documentation/concepts/snapshots/#retrieve-snapshot>
     #[cfg(feature = "download_snapshots")]
