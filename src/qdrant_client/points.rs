@@ -228,6 +228,7 @@ impl Qdrant {
     ///
     /// The same as [`upsert_points`](Self::upsert_points), but it automatically splits all points
     /// into chunks of `chunk_size` to prevent timing out.
+    #[doc(alias = "upsert_points_batch")]
     pub async fn upsert_points_chunked(
         &self,
         request: impl Into<UpsertPoints>,
