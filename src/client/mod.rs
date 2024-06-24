@@ -21,6 +21,17 @@ use crate::qdrant::{qdrant_client, HealthCheckReply, HealthCheckRequest};
 #[deprecated(since = "1.10.0", note = "use `qdrant_client::QdrantBuilder` instead")]
 pub type QdrantClientBuilder = QdrantClientConfig;
 
+/// Deprecated Qdrant client
+///
+/// # Deprecated
+///
+/// This client is deprecated.
+///
+/// Please switch to the new [`Qdrant`](crate::Qdrant) client. It is easier to use and provides a
+/// more robust interface.
+///
+/// See examples at the [crate root](crate) or at each individual [`Qdrant`](crate::Qdrant)
+/// operation.
 #[deprecated(since = "1.10.0", note = "use `qdrant_client::Qdrant` instead")]
 pub struct QdrantClient {
     pub channel: ChannelPool,
