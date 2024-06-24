@@ -117,6 +117,9 @@
 //!
 //! Documentation: <https://qdrant.tech/documentation/concepts/search/>
 
+#![doc(html_logo_url = "https://qdrant.tech/favicon/android-chrome-192x192.png")]
+#![doc(issue_tracker_base_url = "https://github.com/qdrant/rust-client/issues/")]
+
 // Generated Qdrant API types
 /// API types
 #[allow(clippy::all)]
