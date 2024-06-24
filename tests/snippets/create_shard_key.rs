@@ -8,7 +8,7 @@ client
     .create_shard_key(
         CreateShardKeyRequestBuilder::new("{collection_name}").request(
             CreateShardKeyBuilder::default()
-                .shard_key(Key::Keyword("{shard_key".to_string())),
+                .shard_key(Key::Keyword("{shard_key}".to_string())),
         ),
     )
     .await?;

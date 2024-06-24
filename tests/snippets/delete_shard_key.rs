@@ -7,6 +7,6 @@ let client = Qdrant::from_url("http://localhost:6334").build()?;
 client
     .delete_shard_key(
         DeleteShardKeyRequestBuilder::new("{collection_name}")
-            .key(Key::Keyword("{shard_key".to_string())),
+            .key(Key::Keyword("{shard_key}".to_string())),
     )
     .await?;

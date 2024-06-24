@@ -337,6 +337,10 @@ impl QdrantClient {
             .await?)
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::create_shard_key` instead"
+    )]
     pub async fn create_shard_key(
         &self,
         collection_name: impl AsRef<str>,
@@ -366,6 +370,10 @@ impl QdrantClient {
             .await?)
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::create_shard_key` instead"
+    )]
     pub async fn delete_shard_key(
         &self,
         collection_name: impl AsRef<str>,
