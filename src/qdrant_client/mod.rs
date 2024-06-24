@@ -57,6 +57,15 @@ pub type QdrantBuilder = QdrantConfig;
 ///# Ok(())
 ///# }
 /// ```
+///
+/// # Operations
+///
+/// Common operations include:
+///
+/// - [`create_collection`](Qdrant::create_collection) - Create a new collection
+/// - [`upsert_points`](Qdrant::upsert_points) - Insert or update points
+/// - [`search_points`](Qdrant::search_points) - Search points with similarity search
+/// - [All operations](Qdrant#implementations)
 pub struct Qdrant {
     /// Client configuration
     pub config: QdrantConfig,
