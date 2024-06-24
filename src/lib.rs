@@ -141,25 +141,30 @@ mod qdrant_client;
     since = "1.10.0",
     note = "use new client at `qdrant_client::Qdrant` instead"
 )]
+#[doc(hidden)]
 pub mod client;
 /// Deprecated Qdrant client config
 #[deprecated(
     since = "1.10.0",
     note = "use new config at `qdrant_client::QdrantConfig` instead"
 )]
+#[doc(hidden)]
 pub mod config;
 /// Deprecated error type
 #[deprecated(
     since = "1.10.0",
     note = "use new error type at `qdrant_client::Error` instead"
 )]
+#[doc(hidden)]
 pub mod error;
 /// Deprecated prelude
 #[deprecated(since = "1.10.0", note = "use types directly")]
+#[doc(hidden)]
 pub mod prelude;
 /// Deprecated serde helper
 #[cfg(feature = "serde")]
 #[deprecated(since = "1.10.0", note = "use `Payload::from_json_object` instead")]
+#[doc(hidden)]
 pub mod serde;
 
 // Re-exports
