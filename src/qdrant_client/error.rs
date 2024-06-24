@@ -4,13 +4,16 @@ use tonic::codegen::http::uri::InvalidUri;
 /// Qdrant client error
 #[derive(Error, Debug)]
 pub enum QdrantError {
-    /// API response error
+    /// Qdrant server responded with an error
     #[error("Error in the response: {}", .status.code())]
     ResponseError {
         /// gRPC status code
         status: tonic::Status,
     },
 
+    /// Conversion of a Rust into an API type failed
+    ///
+    /// Such error may include trying to convert a sparse vector into a dense vector.
     #[error("Error in conversion: {}", .0)]
     ConversionError(String),
 
@@ -22,7 +25,7 @@ pub enum QdrantError {
     #[error("No snapshot found for collection: {}", .0)]
     NoSnapshotFound(String),
 
-    /// IO error
+    /// Generic IO error
     #[error("IO error: {}", .0)]
     Io(#[from] std::io::Error),
 
