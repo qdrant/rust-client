@@ -4,17 +4,18 @@ pub mod collection;
 pub mod points;
 pub mod snapshot;
 
-use crate::channel_pool::ChannelPool;
-use crate::qdrant::{qdrant_client, HealthCheckReply, HealthCheckRequest};
-use anyhow::Result;
 use std::future::Future;
+
+use anyhow::Result;
 use tonic::codegen::InterceptedService;
 use tonic::transport::{Channel, Uri};
 use tonic::Status;
 
 pub use crate::auth::TokenInterceptor;
+use crate::channel_pool::ChannelPool;
 pub use crate::config::{AsTimeout, CompressionEncoding, MaybeApiKey, QdrantClientConfig};
 pub use crate::payload::Payload;
+use crate::qdrant::{qdrant_client, HealthCheckReply, HealthCheckRequest};
 
 /// A builder for `QdrantClient`s
 #[deprecated(since = "1.10.0", note = "use `qdrant_client::QdrantBuilder` instead")]

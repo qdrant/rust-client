@@ -3,13 +3,16 @@ use tonic::codegen::http::uri::InvalidUri;
 
 /// Qdrant client error
 #[derive(Error, Debug)]
-pub enum Error {
+pub enum QdrantError {
     /// API response error
     #[error("Error in the response: {}", .status.code())]
     ResponseError {
         /// gRPC status code
         status: tonic::Status,
     },
+
+    #[error("Error in conversion: {}", .0)]
+    ConversionError(String),
 
     /// Invalid Qdrant server URI
     #[error("Invalid URI: {}", .0)]
@@ -29,14 +32,14 @@ pub enum Error {
     Reqwest(#[from] reqwest::Error),
 }
 
-impl From<tonic::Status> for Error {
+impl From<tonic::Status> for QdrantError {
     fn from(status: tonic::Status) -> Self {
-        Error::ResponseError { status }
+        QdrantError::ResponseError { status }
     }
 }
 
-impl From<InvalidUri> for Error {
+impl From<InvalidUri> for QdrantError {
     fn from(err: InvalidUri) -> Self {
-        Error::InvalidUri(err)
+        QdrantError::InvalidUri(err)
     }
 }

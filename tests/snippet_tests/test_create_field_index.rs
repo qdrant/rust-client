@@ -11,8 +11,11 @@ async fn test_create_field_index() {
         
         client
             .create_field_index(
-                CreateFieldIndexCollectionBuilder::new("{collection_name}", "{field_name}")
-                    .field_type(FieldType::Keyword),
+                CreateFieldIndexCollectionBuilder::new(
+                    "{collection_name}",
+                    "{field_name}",
+                    FieldType::Keyword,
+                ),
             )
             .await?;
         Ok(())

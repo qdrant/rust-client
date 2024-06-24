@@ -1,12 +1,11 @@
 use qdrant_client::qdrant::{
-    Condition, CreateCollectionBuilder, Distance, Filter, PointStruct, QuantizationType,
-    ScalarQuantizationBuilder, SearchParamsBuilder, SearchPointsBuilder, UpsertPointsBuilder,
-    VectorParamsBuilder,
+    Condition, CreateCollectionBuilder, Distance, Filter, PointStruct, ScalarQuantizationBuilder,
+    SearchParamsBuilder, SearchPointsBuilder, UpsertPointsBuilder, VectorParamsBuilder,
 };
-use qdrant_client::{Payload, Qdrant, Result};
+use qdrant_client::{Payload, Qdrant, QdrantError};
 
 #[tokio::main]
-async fn main() -> Result<()> {
+async fn main() -> Result<(), QdrantError> {
     // Example of top level client
     // You may also use tonic-generated client from `src/qdrant.rs`
     let client = Qdrant::from_url("http://localhost:6334").build()?;
@@ -28,7 +27,7 @@ async fn main() -> Result<()> {
         .create_collection(
             CreateCollectionBuilder::new(collection_name)
                 .vectors_config(VectorParamsBuilder::new(10, Distance::Cosine))
-                .quantization_config(ScalarQuantizationBuilder::new(QuantizationType::Int8)),
+                .quantization_config(ScalarQuantizationBuilder::default()),
         )
         .await?;
 
