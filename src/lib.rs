@@ -1,30 +1,36 @@
-//! The [Qdrant](https://qdrant.tech/) Vector Search client
+//! The [Qdrant](https://qdrant.tech/) - High-Performance Vector Search at Scale - client for Rust.
 //!
-//! This library uses GRPC to connect to the Qdrant server and allows you to
-//! access most if not all features. If you find a missing feature, please open
-//! an [issue](https://github.com/qdrant/rust-client/issues/new).
+//! This crate connects to your Qdrant server over gRPC and provides an easy to use API interface
+//! for it.
 //!
-//! To work with a Qdrant server, you'll first need to connect by creating a [`Qdrant`] client:
-//! ```
-//! use qdrant_client::{Qdrant, QdrantConfig, QdrantError};
+//! # Connect
+//!
+//! First you'll need to [connect](Qdrant#connect) by creating a [`Qdrant`] client:
+//!
+//! ```no_run
+//! use qdrant_client::Qdrant;
+//!# use qdrant_client::QdrantError;
 //!
 //!# fn establish_connection(url: &str) -> Result<Qdrant, QdrantError> {
-//! let mut config = QdrantConfig::from_url(url);
-//! config.api_key = std::env::var("QDRANT_API_KEY").ok();
-//! Qdrant::new(Some(config))
+//! let client = Qdrant::from_url("http://localhost:6334")
+//!     .with_api_key(std::env::var("QDRANT_API_KEY"))
+//!     .build()?;
+//!# Ok(client)
 //!# }
 //! ```
 //!
-//! Qdrant works with *Collections* of *Points*. To add vector data, you first
-//! create a collection:
+//! # Create collection
 //!
-//! ```
+//! Qdrant works with [Collections ⧉ ](https://qdrant.tech/documentation/concepts/collections/) of
+//! [Points ⧉ ](https://qdrant.tech/documentation/concepts/points/). To add vector data, you first
+//! [create a collection](Qdrant::create_collection):
+//!
+//! ```no_run
 //!# use qdrant_client::{Qdrant, QdrantError};
-//!# use qdrant_client::qdrant::{CreateCollectionBuilder, Distance, VectorParams, VectorParamsBuilder, VectorsConfig};
-//!# use qdrant_client::qdrant::vectors_config::Config;
-//!# async fn create_collection(qdrant_client: &Qdrant)
+//! use qdrant_client::qdrant::{CreateCollectionBuilder, Distance, VectorParamsBuilder};
+//!
+//!# async fn create_collection(client: &Qdrant)
 //!# -> Result<(), QdrantError> {
-//! let client = Qdrant::new(None).unwrap();
 //! let response = client
 //!     .create_collection(
 //!         CreateCollectionBuilder::new("my_collection")
@@ -34,53 +40,73 @@
 //!# Ok(())
 //!# }
 //! ```
+//!
 //! The most interesting parts are the two arguments of
 //! [`VectorParamsBuilder::new`](qdrant::VectorParamsBuilder::new). The first one (`512`) is the
 //! length of vectors to store and the second one ([`Distance::Cosine`](qdrant::Distance::Cosine))
 //! is the Distance, which is the [`Distance`](qdrant::Distance) measure to gauge similarity for
 //! the nearest neighbors search.
 //!
+//! Documentation: <https://qdrant.tech/documentation/concepts/collections/#create-a-collection>
+//!
+//! # Upsert points
+//!
 //! Now we have a collection, we can insert (or rather upsert) points.
 //! Points have an id, one or more vectors and a payload.
 //! We can usually do that in bulk, but for this example, we'll add a
 //! single point:
-//! ```
+//!
+//! ```no_run
 //!# use qdrant_client::{Qdrant, QdrantError};
 //! use qdrant_client::qdrant::{PointStruct, UpsertPointsBuilder};
-//!# async fn do_upsert(qdrant_client: &Qdrant)
-//!# -> Result<(), QdrantError> {
-//! let point = PointStruct::new(
-//!     42, // The unique ID of our point
-//!     vec![0.0_f32; 512], // The vector
-//!     // Our payload
-//!     [
-//!         ("great", true.into()),
-//!         ("level", 9000.into()),
-//!         ("text", "Hi Qdrant!".into()),
-//!         ("list", vec![1.234f32, 0.815].into()),
-//!     ],
-//! );
 //!
-//! let response = qdrant_client
-//!     .upsert_points(UpsertPointsBuilder::new("my_collection", vec![point]))
+//!# async fn do_upsert(client: &Qdrant)
+//!# -> Result<(), QdrantError> {
+//! let points = vec![
+//!     PointStruct::new(
+//!         42,                 // Uniqe piont ID
+//!         vec![0.0_f32; 512], // Vector to upsert
+//!         // Attached payload
+//!         [
+//!             ("great", true.into()),
+//!             ("level", 9000.into()),
+//!             ("text", "Hi Qdrant!".into()),
+//!             ("list", vec![1.234f32, 0.815].into()),
+//!         ],
+//!     ),
+//! ];
+//!
+//! let response = client
+//!     .upsert_points(UpsertPointsBuilder::new("my_collection", points))
 //!     .await?;
 //!# Ok(())
 //!# }
 //! ```
 //!
-//! Finally, we can retrieve points in various ways, the canonical one being
-//! a plain similarity search:
-//! ```
+//! Documentation: <https://qdrant.tech/documentation/concepts/points/#upload-points>
+//!
+//! # Search
+//!
+//! Finally, we can retrieve points in various ways, the common one being a plain similarity
+//! search:
+//!
+//! ```no_run
 //!# use qdrant_client::{Qdrant, QdrantError};
-//!# use qdrant_client::qdrant::SearchPointsBuilder;
-//!# async fn search(qdrant_client: &Qdrant)
+//! use qdrant_client::qdrant::SearchPointsBuilder;
+//!
+//!# async fn search(client: &Qdrant)
 //!# -> Result<(), QdrantError> {
-//! let search_request =
-//!     SearchPointsBuilder::new("my_collection", vec![0.0_f32; 512], 4).with_payload(true);
-//! let response = qdrant_client.search_points(search_request).await?;
+//! let search_request = SearchPointsBuilder::new(
+//!     "my_collection",    // Collection name
+//!     vec![0.0_f32; 512], // Cearch vector
+//!     4,                  // Search limit, number of results to return
+//! ).with_payload(true);
+//!
+//! let response = client.search_points(search_request).await?;
 //!# Ok(())
 //!# }
 //! ```
+//!
 //! The parameter for [`SearchPointsBuilder::new()`](qdrant::SearchPointsBuilder::new) contsructor
 //! are pretty straightforward: name of the collection, the vector and how many top-k results to
 //! return. The [`with_payload(true)`](qdrant::SearchPointsBuilder::with_payload) call tells qdrant
@@ -88,6 +114,8 @@
 //! [`filter()`](qdrant::SearchPointsBuilder::filter) call to the
 //! [`SearchPointsBuilder`](qdrant::SearchPointsBuilder) to filter the result. See the
 //! [`Filter`](qdrant::Filter) documentation for details.
+//!
+//! Documentation: <https://qdrant.tech/documentation/concepts/search/>
 
 // Generated Qdrant API types
 /// API types
