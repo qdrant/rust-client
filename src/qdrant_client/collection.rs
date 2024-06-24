@@ -15,16 +15,13 @@ use crate::qdrant::{
     ListCollectionsResponse, RenameAlias, UpdateCollection, UpdateCollectionClusterSetupRequest,
     UpdateCollectionClusterSetupResponse,
 };
-use crate::qdrant_client::{Qdrant, Result};
+use crate::qdrant_client::{Qdrant, QdrantResult};
 
 impl Qdrant {
-    pub(crate) async fn with_collections_client<
-        T,
-        O: Future<Output = std::result::Result<T, Status>>,
-    >(
+    pub(crate) async fn with_collections_client<T, O: Future<Output = Result<T, Status>>>(
         &self,
         f: impl Fn(CollectionsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
-    ) -> Result<T> {
+    ) -> QdrantResult<T> {
         let result = self
             .channel
             .with_channel(
@@ -48,7 +45,7 @@ impl Qdrant {
     pub async fn delete_collection(
         &self,
         request: impl Into<DeleteCollection>,
-    ) -> Result<CollectionOperationResponse> {
+    ) -> QdrantResult<CollectionOperationResponse> {
         let delete_collection = &request.into();
 
         self.with_collections_client(|mut collection_api| async move {
@@ -61,7 +58,7 @@ impl Qdrant {
     pub async fn create_collection(
         &self,
         request: impl Into<CreateCollection>,
-    ) -> Result<CollectionOperationResponse> {
+    ) -> QdrantResult<CollectionOperationResponse> {
         let create_collection = request.into();
         let create_collection_ref = &create_collection;
         self.with_collections_client(|mut collection_api| async move {
@@ -71,7 +68,7 @@ impl Qdrant {
         .await
     }
 
-    pub async fn list_collections(&self) -> Result<ListCollectionsResponse> {
+    pub async fn list_collections(&self) -> QdrantResult<ListCollectionsResponse> {
         self.with_collections_client(|mut collection_api| async move {
             let result = collection_api.list(ListCollectionsRequest {}).await?;
             Ok(result.into_inner())
@@ -82,7 +79,7 @@ impl Qdrant {
     pub async fn collection_exists(
         &self,
         request: impl Into<CollectionExistsRequest>,
-    ) -> Result<bool> {
+    ) -> QdrantResult<bool> {
         let request = &request.into();
         self.with_collections_client(|mut collection_api| async move {
             let result = collection_api.collection_exists(request.clone()).await?;
@@ -98,7 +95,7 @@ impl Qdrant {
     pub async fn update_collection(
         &self,
         request: impl Into<UpdateCollection>,
-    ) -> Result<CollectionOperationResponse> {
+    ) -> QdrantResult<CollectionOperationResponse> {
         let request = &request.into();
 
         self.with_collections_client(|mut collection_api| async move {
@@ -111,7 +108,7 @@ impl Qdrant {
     pub async fn collection_info(
         &self,
         request: impl Into<GetCollectionInfoRequest>,
-    ) -> Result<GetCollectionInfoResponse> {
+    ) -> QdrantResult<GetCollectionInfoResponse> {
         let request = &request.into();
         self.with_collections_client(|mut collection_api| async move {
             let result = collection_api.get(request.clone()).await?;
@@ -123,28 +120,28 @@ impl Qdrant {
     pub async fn create_alias(
         &self,
         request: impl Into<CreateAlias>,
-    ) -> Result<CollectionOperationResponse> {
+    ) -> QdrantResult<CollectionOperationResponse> {
         self.update_aliases(request.into()).await
     }
 
     pub async fn delete_alias(
         &self,
         request: impl Into<DeleteAlias>,
-    ) -> Result<CollectionOperationResponse> {
+    ) -> QdrantResult<CollectionOperationResponse> {
         self.update_aliases(request.into()).await
     }
 
     pub async fn rename_alias(
         &self,
         request: impl Into<RenameAlias>,
-    ) -> Result<CollectionOperationResponse> {
+    ) -> QdrantResult<CollectionOperationResponse> {
         self.update_aliases(request.into()).await
     }
 
     pub async fn update_aliases(
         &self,
         change_aliases: impl Into<alias_operations::Action> + Clone,
-    ) -> Result<CollectionOperationResponse> {
+    ) -> QdrantResult<CollectionOperationResponse> {
         let action = change_aliases.into();
         let change = &ChangeAliases {
             actions: vec![AliasOperations {
@@ -162,7 +159,7 @@ impl Qdrant {
     pub async fn list_collection_aliases(
         &self,
         request: impl Into<ListCollectionAliasesRequest>,
-    ) -> Result<ListAliasesResponse> {
+    ) -> QdrantResult<ListAliasesResponse> {
         let request = &request.into();
         self.with_collections_client(|mut collection_api| async move {
             let result = collection_api
@@ -173,7 +170,7 @@ impl Qdrant {
         .await
     }
 
-    pub async fn list_aliases(&self) -> Result<ListAliasesResponse> {
+    pub async fn list_aliases(&self) -> QdrantResult<ListAliasesResponse> {
         self.with_collections_client(|mut collection_api| async move {
             let result = collection_api.list_aliases(ListAliasesRequest {}).await?;
             Ok(result.into_inner())
@@ -184,7 +181,7 @@ impl Qdrant {
     pub async fn collection_cluster_info(
         &self,
         request: impl Into<CollectionClusterInfoRequest>,
-    ) -> Result<CollectionClusterInfoResponse> {
+    ) -> QdrantResult<CollectionClusterInfoResponse> {
         let request = &request.into();
         self.with_collections_client(|mut collection_api| async move {
             let result = collection_api
@@ -198,7 +195,7 @@ impl Qdrant {
     pub async fn update_collection_cluster_setup(
         &self,
         request: impl Into<UpdateCollectionClusterSetupRequest>,
-    ) -> Result<UpdateCollectionClusterSetupResponse> {
+    ) -> QdrantResult<UpdateCollectionClusterSetupResponse> {
         let request = &request.into();
         self.with_collections_client(|mut collection_api| async move {
             let result = collection_api
@@ -226,7 +223,7 @@ mod tests {
     use crate::qdrant_client::config::QdrantConfig;
 
     #[tokio::test]
-    async fn create_collection_and_do_the_search() -> Result<()> {
+    async fn create_collection_and_do_the_search() -> QdrantResult<()> {
         let config = QdrantConfig::from_url("http://localhost:6334");
         let client = Qdrant::new(Some(config))?;
 

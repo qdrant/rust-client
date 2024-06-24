@@ -6,9 +6,9 @@
 //!
 //! To work with a Qdrant server, you'll first need to connect by creating a [`Qdrant`] client:
 //! ```
-//! use qdrant_client::{Qdrant, QdrantConfig, Result};
+//! use qdrant_client::{Qdrant, QdrantConfig, QdrantError};
 //!
-//!# fn establish_connection(url: &str) -> Result<Qdrant> {
+//!# fn establish_connection(url: &str) -> Result<Qdrant, QdrantError> {
 //! let mut config = QdrantConfig::from_url(url);
 //! config.api_key = std::env::var("QDRANT_API_KEY").ok();
 //! Qdrant::new(Some(config))
@@ -19,11 +19,11 @@
 //! create a collection:
 //!
 //! ```
-//!# use qdrant_client::{Qdrant, Result};
+//!# use qdrant_client::{Qdrant, QdrantError};
 //!# use qdrant_client::qdrant::{CreateCollectionBuilder, Distance, VectorParams, VectorParamsBuilder, VectorsConfig};
 //!# use qdrant_client::qdrant::vectors_config::Config;
 //!# async fn create_collection(qdrant_client: &Qdrant)
-//!# -> Result<()> {
+//!# -> Result<(), QdrantError> {
 //! let client = Qdrant::new(None).unwrap();
 //! let response = client
 //!     .create_collection(
@@ -45,10 +45,10 @@
 //! We can usually do that in bulk, but for this example, we'll add a
 //! single point:
 //! ```
-//!# use qdrant_client::{Qdrant, Result};
+//!# use qdrant_client::{Qdrant, QdrantError};
 //! use qdrant_client::qdrant::{PointStruct, UpsertPointsBuilder};
 //!# async fn do_upsert(qdrant_client: &Qdrant)
-//!# -> Result<()> {
+//!# -> Result<(), QdrantError> {
 //! let point = PointStruct::new(
 //!     42, // The unique ID of our point
 //!     vec![0.0_f32; 512], // The vector
@@ -71,10 +71,10 @@
 //! Finally, we can retrieve points in various ways, the canonical one being
 //! a plain similarity search:
 //! ```
-//!# use qdrant_client::{Qdrant, Result};
+//!# use qdrant_client::{Qdrant, QdrantError};
 //!# use qdrant_client::qdrant::SearchPointsBuilder;
 //!# async fn search(qdrant_client: &Qdrant)
-//!# -> Result<()> {
+//!# -> Result<(), QdrantError> {
 //! let search_request =
 //!     SearchPointsBuilder::new("my_collection", vec![0.0_f32; 512], 4).with_payload(true);
 //! let response = qdrant_client.search_points(search_request).await?;
@@ -138,7 +138,7 @@ pub mod serde;
 pub use crate::payload::Payload;
 pub use crate::qdrant_client::config::QdrantConfig;
 pub use crate::qdrant_client::error::QdrantError;
-pub use crate::qdrant_client::{Qdrant, QdrantBuilder, Result};
+pub use crate::qdrant_client::{Qdrant, QdrantBuilder};
 
 #[cfg(test)]
 mod tests {

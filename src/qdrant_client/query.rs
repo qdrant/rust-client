@@ -1,11 +1,9 @@
+use super::QdrantResult;
 use crate::qdrant::{QueryPoints, QueryResponse};
 use crate::qdrant_client::Qdrant;
 
 impl Qdrant {
-    pub async fn query(
-        &self,
-        request: impl Into<QueryPoints>,
-    ) -> crate::qdrant_client::Result<QueryResponse> {
+    pub async fn query(&self, request: impl Into<QueryPoints>) -> QdrantResult<QueryResponse> {
         let request = &request.into();
 
         self.with_points_client(|mut points_api| async move {
