@@ -29,6 +29,34 @@ pub type QdrantBuilder = QdrantConfig;
 /// Qdrant client
 ///
 /// Connects to a Qdrant server and provides an API interface.
+///
+/// # Connect
+///
+/// Connect to a Qdrant instance with just an [URL](Qdrant::from_url):
+///
+/// ```no_run
+/// use qdrant_client::Qdrant;
+///
+///# async fn connect() -> Result<(), qdrant_client::QdrantError> {
+/// let client = Qdrant::from_url("http://localhost:6334").build()?;
+///# Ok(())
+///# }
+/// ```
+///
+/// Connect to a Qdrant instance with an [URL](Qdrant::from_url),
+/// [API key](QdrantBuilder::with_api_key) and [timeout](QdrantBuilder::with_timeout):
+///
+/// ```no_run
+/// use qdrant_client::Qdrant;
+///
+///# async fn connect() -> Result<(), qdrant_client::QdrantError> {
+/// let client = Qdrant::from_url("http://localhost:6334")
+///     .with_api_key(std::env::var("QDRANT_API_KEY"))
+///     .with_timeout(std::time::Duration::from_secs(10))
+///     .build()?;
+///# Ok(())
+///# }
+/// ```
 pub struct Qdrant {
     /// Client configuration
     pub config: QdrantConfig,
