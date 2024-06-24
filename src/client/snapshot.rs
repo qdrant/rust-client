@@ -38,6 +38,10 @@ impl QdrantClient {
             .await
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::create_snapshot` instead"
+    )]
     pub async fn create_snapshot(
         &self,
         collection_name: impl ToString,
@@ -57,6 +61,10 @@ impl QdrantClient {
             .await?)
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::list_snapshot` instead"
+    )]
     pub async fn list_snapshots(
         &self,
         collection_name: impl ToString,
@@ -75,6 +83,10 @@ impl QdrantClient {
             .await?)
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::delete_snapshot` instead"
+    )]
     pub async fn delete_snapshot(
         &self,
         collection_name: impl ToString,
@@ -97,6 +109,10 @@ impl QdrantClient {
             .await?)
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::create_full_snapshot` instead"
+    )]
     pub async fn create_full_snapshot(&self) -> anyhow::Result<CreateSnapshotResponse> {
         Ok(self
             .with_snapshot_client(|mut client| async move {
@@ -107,6 +123,10 @@ impl QdrantClient {
             .await?)
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::list_full_snapshots` instead"
+    )]
     pub async fn list_full_snapshots(&self) -> anyhow::Result<ListSnapshotsResponse> {
         Ok(self
             .with_snapshot_client(|mut client| async move {
@@ -116,6 +136,10 @@ impl QdrantClient {
             .await?)
     }
 
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::delete_full_snapshot` instead"
+    )]
     pub async fn delete_full_snapshot(
         &self,
         snapshot_name: impl ToString,
@@ -135,6 +159,10 @@ impl QdrantClient {
     }
 
     #[cfg(feature = "download_snapshots")]
+    #[deprecated(
+        since = "1.10.0",
+        note = "use new `qdrant_client::Qdrant::download_snapshot` instead"
+    )]
     pub async fn download_snapshot<T>(
         &self,
         out_path: impl Into<PathBuf>,

@@ -29,6 +29,43 @@ pub type QdrantBuilder = QdrantConfig;
 /// Qdrant client
 ///
 /// Connects to a Qdrant server and provides an API interface.
+///
+/// # Connect
+///
+/// Connect to a Qdrant instance with just an [URL](Qdrant::from_url):
+///
+/// ```no_run
+/// use qdrant_client::Qdrant;
+///
+///# async fn connect() -> Result<(), qdrant_client::QdrantError> {
+/// let client = Qdrant::from_url("http://localhost:6334").build()?;
+///# Ok(())
+///# }
+/// ```
+///
+/// Connect to a Qdrant instance with an [URL](Qdrant::from_url),
+/// [API key](QdrantBuilder::with_api_key) and [timeout](QdrantBuilder::with_timeout):
+///
+/// ```no_run
+/// use qdrant_client::Qdrant;
+///
+///# async fn connect() -> Result<(), qdrant_client::QdrantError> {
+/// let client = Qdrant::from_url("http://localhost:6334")
+///     .with_api_key(std::env::var("QDRANT_API_KEY"))
+///     .with_timeout(std::time::Duration::from_secs(10))
+///     .build()?;
+///# Ok(())
+///# }
+/// ```
+///
+/// # Operations
+///
+/// Common operations include:
+///
+/// - [`create_collection`](Qdrant::create_collection) - Create a new collection
+/// - [`upsert_points`](Qdrant::upsert_points) - Insert or update points
+/// - [`search_points`](Qdrant::search_points) - Search points with similarity search
+/// - [All operations](Qdrant#implementations)
 pub struct Qdrant {
     /// Client configuration
     pub config: QdrantConfig,
@@ -37,12 +74,11 @@ pub struct Qdrant {
     channel: ChannelPool,
 }
 
+/// Methods to construct a new Qdrant client.
 impl Qdrant {
-    /// Create a builder to setup the client
-    pub fn from_url(url: &str) -> QdrantBuilder {
-        QdrantBuilder::from_url(url)
-    }
-
+    /// Create a new Qdrant client.
+    ///
+    /// If no client client configuration is given the [default](QdrantConfig::default) is used.
     pub fn new(config: Option<QdrantConfig>) -> QdrantResult<Self> {
         let config = config.unwrap_or_default();
 
@@ -56,6 +92,22 @@ impl Qdrant {
         let client = Self { channel, config };
 
         Ok(client)
+    }
+
+    /// Build a new Qdrant client with the given URL.
+    ///
+    /// ```no_run
+    /// use qdrant_client::Qdrant;
+    ///
+    ///# async fn connect() -> Result<(), qdrant_client::QdrantError> {
+    /// let client = Qdrant::from_url("http://localhost:6334").build()?;
+    ///# Ok(())
+    ///# }
+    /// ```
+    ///
+    /// See more ways to connect [here](Self#connect).
+    pub fn from_url(url: &str) -> QdrantBuilder {
+        QdrantBuilder::from_url(url)
     }
 
     /// Wraps a channel with a token interceptor
@@ -89,6 +141,18 @@ impl Qdrant {
         Ok(result)
     }
 
+    /// Health check.
+    ///
+    /// Do a health check and fetch server information such as the current version and commit.
+    ///
+    /// ```no_run
+    ///# use qdrant_client::{Qdrant, QdrantError};
+    ///# async fn list_collections(client: &Qdrant)
+    ///# -> Result<(), QdrantError> {
+    /// client.health_check().await?;
+    ///# Ok(())
+    ///# }
+    /// ```
     pub async fn health_check(&self) -> QdrantResult<HealthCheckReply> {
         self.with_root_qdrant_client(|mut qdrant_api| async move {
             let result = qdrant_api.health_check(HealthCheckRequest {}).await?;

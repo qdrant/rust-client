@@ -13,7 +13,7 @@ async fn test_delete_shard_key() {
         client
             .delete_shard_key(
                 DeleteShardKeyRequestBuilder::new("{collection_name}")
-                    .key(Key::Keyword("{shard_key".to_string())),
+                    .key(Key::Keyword("{shard_key}".to_string())),
             )
             .await?;
         Ok(())

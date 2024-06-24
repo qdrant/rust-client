@@ -1,5 +1,4 @@
-use qdrant_client::qdrant::ScrollPointsBuilder;
-use qdrant_client::qdrant::{Condition, Filter};
+use qdrant_client::qdrant::{Condition, Filter, ScrollPointsBuilder};
 use qdrant_client::Qdrant;
 
 let client = Qdrant::from_url("http://localhost:6334").build()?;

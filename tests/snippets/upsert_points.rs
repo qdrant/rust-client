@@ -1,6 +1,5 @@
-use qdrant_client::prelude::{Payload, PointStruct};
-use qdrant_client::qdrant::UpsertPointsBuilder;
-use qdrant_client::Qdrant;
+use qdrant_client::qdrant::{PointStruct, UpsertPointsBuilder};
+use qdrant_client::{Qdrant, Payload};
 use serde_json::json;
 
 let client = Qdrant::from_url("http://localhost:6334").build()?;

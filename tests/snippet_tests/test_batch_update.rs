@@ -4,7 +4,6 @@ async fn test_batch_update() {
     async fn batch_update() -> Result<(), Box<dyn std::error::Error>> {
       // WARNING: This is a generated test snippet.
       // Please, modify the snippet in the `../snippets/batch_update.rs` file
-        use qdrant_client::client::Payload;
         use qdrant_client::qdrant::{
             points_selector::PointsSelectorOneOf,
             points_update_operation::{
@@ -13,14 +12,14 @@ async fn test_batch_update() {
             PointStruct, PointVectors, PointsIdsList, PointsSelector, PointsUpdateOperation,
             UpdateBatchPointsBuilder,
         };
-        use qdrant_client::Qdrant;
+        use qdrant_client::{Qdrant, Payload};
         use serde_json::json;
         use std::collections::HashMap;
         
         let client = Qdrant::from_url("http://localhost:6334").build()?;
         
         client
-            .batch_updates(
+            .update_points_batch(
                 UpdateBatchPointsBuilder::new(
                     "{collection_name}",
                     vec![

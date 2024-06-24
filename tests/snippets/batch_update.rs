@@ -1,4 +1,3 @@
-use qdrant_client::client::Payload;
 use qdrant_client::qdrant::{
     points_selector::PointsSelectorOneOf,
     points_update_operation::{
@@ -7,14 +6,14 @@ use qdrant_client::qdrant::{
     PointStruct, PointVectors, PointsIdsList, PointsSelector, PointsUpdateOperation,
     UpdateBatchPointsBuilder,
 };
-use qdrant_client::Qdrant;
+use qdrant_client::{Qdrant, Payload};
 use serde_json::json;
 use std::collections::HashMap;
 
 let client = Qdrant::from_url("http://localhost:6334").build()?;
 
 client
-    .batch_updates(
+    .update_points_batch(
         UpdateBatchPointsBuilder::new(
             "{collection_name}",
             vec![
