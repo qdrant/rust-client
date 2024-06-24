@@ -724,14 +724,22 @@ pub struct TextIndexParams {
     #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub max_token_len: ::core::option::Option<u64>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(
+    build_fn(private, name = "build_inner"),
+    pattern = "owned",
+    custom_constructor
+)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct IntegerIndexParams {
     /// If true - support direct lookups.
     #[prost(bool, tag = "1")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub lookup: bool,
     /// If true - support ranges filters.
     #[prost(bool, tag = "2")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub range: bool,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -4436,44 +4444,74 @@ pub struct CountPoints {
     #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(
+    build_fn(private, error = "std::convert::Infallible", name = "build_inner"),
+    pattern = "owned"
+)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RecommendInput {
     /// Look for vectors closest to the vectors from these points
     #[prost(message, repeated, tag = "1")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub positive: ::prost::alloc::vec::Vec<VectorInput>,
     /// Try to avoid vectors like the vector from these points
     #[prost(message, repeated, tag = "2")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub negative: ::prost::alloc::vec::Vec<VectorInput>,
     /// How to use the provided vectors to find the results
     #[prost(enumeration = "RecommendStrategy", optional, tag = "3")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub strategy: ::core::option::Option<i32>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(
+    build_fn(private, name = "build_inner"),
+    pattern = "owned",
+    custom_constructor
+)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ContextInputPair {
     /// A positive vector
     #[prost(message, optional, tag = "1")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub positive: ::core::option::Option<VectorInput>,
     /// Repel from this vector
     #[prost(message, optional, tag = "2")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub negative: ::core::option::Option<VectorInput>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(
+    build_fn(private, name = "build_inner"),
+    pattern = "owned",
+    custom_constructor
+)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DiscoverInput {
     /// Use this as the primary search objective
     #[prost(message, optional, tag = "1")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub target: ::core::option::Option<VectorInput>,
     /// Search space will be constrained by these pairs of vectors
     #[prost(message, optional, tag = "2")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub context: ::core::option::Option<ContextInput>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(
+    build_fn(private, error = "std::convert::Infallible", name = "build_inner"),
+    pattern = "owned"
+)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ContextInput {
     /// Search space will be constrained by these pairs of vectors
     #[prost(message, repeated, tag = "1")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub pairs: ::prost::alloc::vec::Vec<ContextInputPair>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -4508,6 +4546,10 @@ pub mod query {
     }
 }
 #[derive(derive_builder::Builder)]
+#[builder(
+    build_fn(private, error = "std::convert::Infallible", name = "build_inner"),
+    pattern = "owned"
+)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PrefetchQuery {
@@ -8708,9 +8750,15 @@ builder_type_conversions!(SparseIndexConfig, SparseIndexConfigBuilder);
 builder_type_conversions!(CreateShardKey, CreateShardKeyBuilder);
 builder_type_conversions!(ContextExamplePair, ContextExamplePairBuilder);
 builder_type_conversions!(TextIndexParams, TextIndexParamsBuilder, true);
+builder_type_conversions!(IntegerIndexParams, IntegerIndexParamsBuilder, true);
 builder_type_conversions!(CreateAlias, CreateAliasBuilder, true);
 builder_type_conversions!(RenameAlias, RenameAliasBuilder, true);
 builder_type_conversions!(DeleteSnapshotRequest, DeleteSnapshotRequestBuilder, true);
+builder_type_conversions!(PrefetchQuery, PrefetchQueryBuilder);
+builder_type_conversions!(RecommendInput, RecommendInputBuilder);
+builder_type_conversions!(DiscoverInput, DiscoverInputBuilder, true);
+builder_type_conversions!(ContextInput, ContextInputBuilder);
+builder_type_conversions!(ContextInputPair, ContextInputPairBuilder, true);
 builder_type_conversions!(DeletePoints, DeletePointsBuilder, true);
 
 pub use crate::manual_builder::*;

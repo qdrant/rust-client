@@ -1,7 +1,8 @@
 #![allow(deprecated)]
 
-use crate::client::QdrantClient;
 use std::time::Duration;
+
+use crate::client::QdrantClient;
 
 pub struct QdrantClientConfig {
     pub uri: String,

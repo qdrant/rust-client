@@ -1,10 +1,11 @@
 #![allow(deprecated)]
 
-use crate::qdrant::value::Kind::*;
-use crate::qdrant::{ListValue, Struct, Value};
 use std::error::Error;
 use std::fmt::{Debug, Display, Formatter};
 use std::marker::PhantomData;
+
+use crate::qdrant::value::Kind::*;
+use crate::qdrant::{ListValue, Struct, Value};
 
 /// An error for failed conversions (e.g. calling [`String::try_from(v)`](String::try_from) on an
 /// integer [`Value`])

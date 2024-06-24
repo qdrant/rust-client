@@ -1,6 +1,6 @@
-use crate::Error;
-use crate::Qdrant;
 use std::time::Duration;
+
+use crate::{Qdrant, QdrantError};
 
 /// Qdrant client configuration
 pub struct QdrantConfig {
@@ -104,7 +104,7 @@ impl QdrantConfig {
     }
 
     /// Build the Qdrant
-    pub fn build(self) -> Result<Qdrant, Error> {
+    pub fn build(self) -> Result<Qdrant, QdrantError> {
         Qdrant::new(Some(self))
     }
 }
