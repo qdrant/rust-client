@@ -61,6 +61,26 @@ impl From<Payload> for HashMap<String, Value> {
 }
 
 #[cfg(feature = "serde")]
+impl From<Payload> for serde_json::Value {
+    #[inline]
+    fn from(value: Payload) -> serde_json::Value {
+        serde_json::Value::Object(value.into())
+    }
+}
+
+#[cfg(feature = "serde")]
+impl From<Payload> for serde_json::Map<String, serde_json::Value> {
+    #[inline]
+    fn from(value: Payload) -> serde_json::Map<String, serde_json::Value> {
+        value
+            .0
+            .into_iter()
+            .map(|(k, v)| (k, v.into()))
+            .collect::<serde_json::Map<String, serde_json::Value>>()
+    }
+}
+
+#[cfg(feature = "serde")]
 impl TryFrom<serde_json::Value> for Payload {
     type Error = crate::QdrantError;
 
