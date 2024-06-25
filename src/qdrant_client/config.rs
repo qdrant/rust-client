@@ -67,7 +67,7 @@ impl QdrantConfig {
     ///     .build();
     /// ```
     ///
-    /// Another possibility might be getting it out of some config
+    /// Another possibility might be getting it out of some config:
     ///
     /// ```rust,no_run
     ///# use std::collections::HashMap;
@@ -77,8 +77,8 @@ impl QdrantConfig {
     ///     .with_api_key(config.get("api_key"))
     ///     .build();
     /// ```
-    pub fn with_api_key(mut self, api_key: impl MaybeApiKey) -> Self {
-        self.api_key = api_key.maybe_key();
+    pub fn with_api_key(mut self, api_key: impl AsOptionApiKey) -> Self {
+        self.api_key = api_key.api_key();
         self
     }
 
@@ -184,42 +184,42 @@ impl AsTimeout for u64 {
 ///     .with_api_key(std::env::var("QDRANT_API_KEY"))
 ///     .with_api_key(None::<String>);
 /// ```
-pub trait MaybeApiKey {
-    fn maybe_key(self) -> Option<String>;
+pub trait AsOptionApiKey {
+    fn api_key(self) -> Option<String>;
 }
 
-impl MaybeApiKey for &str {
-    fn maybe_key(self) -> Option<String> {
+impl AsOptionApiKey for &str {
+    fn api_key(self) -> Option<String> {
         Some(self.to_string())
     }
 }
 
-impl MaybeApiKey for String {
-    fn maybe_key(self) -> Option<String> {
+impl AsOptionApiKey for String {
+    fn api_key(self) -> Option<String> {
         Some(self)
     }
 }
 
-impl MaybeApiKey for Option<String> {
-    fn maybe_key(self) -> Option<String> {
+impl AsOptionApiKey for Option<String> {
+    fn api_key(self) -> Option<String> {
         self
     }
 }
 
-impl MaybeApiKey for Option<&String> {
-    fn maybe_key(self) -> Option<String> {
+impl AsOptionApiKey for Option<&String> {
+    fn api_key(self) -> Option<String> {
         self.map(ToOwned::to_owned)
     }
 }
 
-impl MaybeApiKey for Option<&str> {
-    fn maybe_key(self) -> Option<String> {
+impl AsOptionApiKey for Option<&str> {
+    fn api_key(self) -> Option<String> {
         self.map(ToOwned::to_owned)
     }
 }
 
-impl<E: Sized> MaybeApiKey for Result<String, E> {
-    fn maybe_key(self) -> Option<String> {
+impl<E: Sized> AsOptionApiKey for Result<String, E> {
+    fn api_key(self) -> Option<String> {
         self.ok()
     }
 }

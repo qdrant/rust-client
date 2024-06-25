@@ -153,7 +153,7 @@ impl AsTimeout for u64 {
 /// Helper type to allow setting an API key from various types
 #[deprecated(
     since = "1.10.0",
-    note = "use `qdrant_client::config::MaybeApiKey` instead"
+    note = "use `qdrant_client::config::AsOptionApiKey` instead"
 )]
 pub trait MaybeApiKey {
     fn maybe_key(self) -> Option<String>;

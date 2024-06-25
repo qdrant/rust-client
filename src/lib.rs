@@ -171,7 +171,7 @@ pub use crate::qdrant_client::{Qdrant, QdrantBuilder};
 /// Client configuration
 pub mod config {
     pub use crate::qdrant_client::config::{
-        AsTimeout, CompressionEncoding, MaybeApiKey, QdrantConfig,
+        AsOptionApiKey, AsTimeout, CompressionEncoding, QdrantConfig,
     };
 }
 
