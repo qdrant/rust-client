@@ -4572,7 +4572,7 @@ pub struct PrefetchQuery {
     /// Search params for when there is no prefetch.
     #[prost(message, optional, tag = "5")]
     #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
-    pub search_params: ::core::option::Option<SearchParams>,
+    pub params: ::core::option::Option<SearchParams>,
     /// Return points with scores better than this threshold.
     #[prost(float, optional, tag = "6")]
     #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
@@ -4618,7 +4618,7 @@ pub struct QueryPoints {
     /// Search params for when there is no prefetch.
     #[prost(message, optional, tag = "6")]
     #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
-    pub search_params: ::core::option::Option<SearchParams>,
+    pub params: ::core::option::Option<SearchParams>,
     /// Return points with scores better than this threshold.
     #[prost(float, optional, tag = "7")]
     #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
@@ -4672,6 +4672,20 @@ pub struct QueryPoints {
     /// If set, overrides global timeout setting for this request. Unit is seconds.
     #[prost(uint64, optional, tag = "15")]
     #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    pub timeout: ::core::option::Option<u64>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct QueryBatchPoints {
+    #[prost(string, tag = "1")]
+    pub collection_name: ::prost::alloc::string::String,
+    #[prost(message, repeated, tag = "2")]
+    pub query_points: ::prost::alloc::vec::Vec<QueryPoints>,
+    /// Options for specifying read consistency guarantees
+    #[prost(message, optional, tag = "3")]
+    pub read_consistency: ::core::option::Option<ReadConsistency>,
+    /// If set, overrides global timeout setting for this request. Unit is seconds.
+    #[prost(uint64, optional, tag = "4")]
     pub timeout: ::core::option::Option<u64>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -4958,6 +4972,15 @@ pub struct QueryResponse {
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct QueryBatchResponse {
+    #[prost(message, repeated, tag = "1")]
+    pub result: ::prost::alloc::vec::Vec<BatchResult>,
+    /// Time spent to process
+    #[prost(double, tag = "2")]
+    pub time: f64,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BatchResult {
     #[prost(message, repeated, tag = "1")]
     pub result: ::prost::alloc::vec::Vec<ScoredPoint>,
@@ -5019,6 +5042,9 @@ pub struct RetrievedPoint {
     /// Shard key
     #[prost(message, optional, tag = "5")]
     pub shard_key: ::core::option::Option<ShardKey>,
+    /// Order-by value
+    #[prost(message, optional, tag = "6")]
+    pub order_value: ::core::option::Option<OrderValue>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -6249,6 +6275,30 @@ pub mod points_client {
             req.extensions_mut().insert(GrpcMethod::new("qdrant.Points", "Query"));
             self.inner.unary(req, path, codec).await
         }
+        ///
+        /// Universally query points in a batch fashion. This endpoint covers all capabilities of search, recommend, discover, filters. But also enables hybrid and multi-stage queries.
+        pub async fn query_batch(
+            &mut self,
+            request: impl tonic::IntoRequest<super::QueryBatchPoints>,
+        ) -> std::result::Result<
+            tonic::Response<super::QueryBatchResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static("/qdrant.Points/QueryBatch");
+            let mut req = request.into_request();
+            req.extensions_mut().insert(GrpcMethod::new("qdrant.Points", "QueryBatch"));
+            self.inner.unary(req, path, codec).await
+        }
     }
 }
 /// Generated server implementations.
@@ -6464,6 +6514,15 @@ pub mod points_server {
             &self,
             request: tonic::Request<super::QueryPoints>,
         ) -> std::result::Result<tonic::Response<super::QueryResponse>, tonic::Status>;
+        ///
+        /// Universally query points in a batch fashion. This endpoint covers all capabilities of search, recommend, discover, filters. But also enables hybrid and multi-stage queries.
+        async fn query_batch(
+            &self,
+            request: tonic::Request<super::QueryBatchPoints>,
+        ) -> std::result::Result<
+            tonic::Response<super::QueryBatchResponse>,
+            tonic::Status,
+        >;
     }
     #[derive(Debug)]
     pub struct PointsServer<T: Points> {
@@ -7559,6 +7618,50 @@ pub mod points_server {
                     let fut = async move {
                         let inner = inner.0;
                         let method = QuerySvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/qdrant.Points/QueryBatch" => {
+                    #[allow(non_camel_case_types)]
+                    struct QueryBatchSvc<T: Points>(pub Arc<T>);
+                    impl<T: Points> tonic::server::UnaryService<super::QueryBatchPoints>
+                    for QueryBatchSvc<T> {
+                        type Response = super::QueryBatchResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::QueryBatchPoints>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as Points>::query_batch(&inner, request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = QueryBatchSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
