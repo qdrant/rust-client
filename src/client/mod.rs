@@ -1,19 +1,24 @@
 #![allow(deprecated)]
 
 pub mod collection;
+#[deprecated(
+    since = "1.10.0",
+    note = "use new config at `qdrant_client::QdrantConfig` instead"
+)]
+mod config;
 pub mod points;
 pub mod snapshot;
 
 use std::future::Future;
 
 use anyhow::Result;
+pub use config::{AsTimeout, CompressionEncoding, MaybeApiKey, QdrantClientConfig};
 use tonic::codegen::InterceptedService;
 use tonic::transport::{Channel, Uri};
 use tonic::Status;
 
 pub use crate::auth::TokenInterceptor;
 use crate::channel_pool::ChannelPool;
-pub use crate::config::{AsTimeout, CompressionEncoding, MaybeApiKey, QdrantClientConfig};
 pub use crate::payload::Payload;
 use crate::qdrant::{qdrant_client, HealthCheckReply, HealthCheckRequest};
 

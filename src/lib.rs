@@ -146,13 +146,6 @@ mod qdrant_client;
 )]
 #[doc(hidden)]
 pub mod client;
-/// Deprecated Qdrant client config
-#[deprecated(
-    since = "1.10.0",
-    note = "use new config at `qdrant_client::QdrantConfig` instead"
-)]
-#[doc(hidden)]
-pub mod config;
 /// Deprecated error type
 #[deprecated(
     since = "1.10.0",
