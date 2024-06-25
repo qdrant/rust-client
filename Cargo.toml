@@ -41,3 +41,6 @@ required-features = ["serde"]
 [[example]]
 name = "deprecated_search"
 required-features = ["serde"]
+
+[package.metadata.docs.rs]
+all-features = true
