@@ -31,7 +31,7 @@ impl QdrantConfig {
         }
     }
 
-    /// Sets the API key or token
+    /// Set an API key
     pub fn set_api_key(&mut self, api_key: &str) {
         self.api_key = Some(api_key.to_string());
     }
@@ -52,12 +52,11 @@ impl QdrantConfig {
         self.compression = compression;
     }
 
-    /// set the API key, builder-like. The API key argument can be any of
-    /// `&str`, `String`, `Option<&str>`, `Option<String>` or `Result<String>`.
+    /// Set an optional API key
     ///
-    /// # Examples:
+    /// # Examples
     ///
-    /// A typical use case might be getting the key from an env var:
+    /// A typical use case might be getting the key from an environment variable:
     ///
     /// ```rust,no_run
     /// use qdrant_client::Qdrant;
@@ -67,12 +66,12 @@ impl QdrantConfig {
     ///     .build();
     /// ```
     ///
-    /// Another possibility might be getting it out of some config:
+    /// Or you might get it from some configuration:
     ///
     /// ```rust,no_run
     ///# use std::collections::HashMap;
-    /// use qdrant_client::Qdrant;
     ///# let config: HashMap<&str, String> = HashMap::new();
+    ///# use qdrant_client::Qdrant;
     /// let client = Qdrant::from_url("http://localhost:6334")
     ///     .with_api_key(config.get("api_key"))
     ///     .build();
@@ -89,24 +88,49 @@ impl QdrantConfig {
     }
 
     /// Set the timeout for this client
+    ///
+    /// ```rust,no_run
+    /// use qdrant_client::Qdrant;
+    ///
+    /// let client = Qdrant::from_url("http://localhost:6334")
+    ///     .with_timeout(std::time::Duration::from_secs(10))
+    ///     .build();
+    /// ```
     pub fn with_timeout(mut self, timeout: impl AsTimeout) -> Self {
         self.timeout = timeout.timeout();
         self
     }
 
     /// Set the connect timeout for this client
+    ///
+    /// ```rust,no_run
+    /// use qdrant_client::Qdrant;
+    ///
+    /// let client = Qdrant::from_url("http://localhost:6334")
+    ///     .with_connect_timeout(std::time::Duration::from_secs(10))
+    ///     .build();
+    /// ```
     pub fn with_connect_timeout(mut self, timeout: impl AsTimeout) -> Self {
         self.connect_timeout = timeout.timeout();
         self
     }
 
     /// Set the compression to use for this client
+    ///
+    /// ```rust,no_run
+    /// use qdrant_client::Qdrant;
+    /// use qdrant_client::config::CompressionEncoding;
+    ///
+    /// let client = Qdrant::from_url("http://localhost:6334")
+    ///     .with_compression(Some(CompressionEncoding::Gzip))
+    ///     .build();
+    /// ```
     pub fn with_compression(mut self, compression: Option<CompressionEncoding>) -> Self {
         self.compression = compression;
         self
     }
 
-    /// Build the Qdrant
+    /// Build the configured [`Qdrant`] client
     pub fn build(self) -> Result<Qdrant, QdrantError> {
         Qdrant::new(Some(self))
     }
