@@ -3,6 +3,19 @@ use std::time::Duration;
 use crate::{Qdrant, QdrantError};
 
 /// Qdrant client configuration
+///
+/// The client is normally constructed through [`Qdrant::from_url`](crate::Qdrant::from_url):
+///
+/// ```rust,no_run
+/// use qdrant_client::Qdrant;
+/// use qdrant_client::config::CompressionEncoding;
+///
+/// let client = Qdrant::from_url("http://localhost:6334")
+///     .api_key(std::env::var("QDRANT_API_KEY"))
+///     .timeout(std::time::Duration::from_secs(10))
+///     .compression(Some(CompressionEncoding::Gzip))
+///     .build();
+/// ```
 pub struct QdrantConfig {
     /// Qdrant server URI to connect to
     pub uri: String,
@@ -24,6 +37,14 @@ pub struct QdrantConfig {
 }
 
 impl QdrantConfig {
+    /// Start configuring a Qdrant client with an URL
+    ///
+    /// ```rust,no_run
+    ///# use qdrant_client::config::QdrantConfig;
+    /// let client = QdrantConfig::from_url("http://localhost:6334").build();
+    /// ```
+    ///
+    /// This is normally done through [`Qdrant::from_url`](crate::Qdrant::from_url).
     pub fn from_url(url: &str) -> Self {
         QdrantConfig {
             uri: url.to_string(),
