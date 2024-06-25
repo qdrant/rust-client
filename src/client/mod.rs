@@ -3,7 +3,7 @@
 pub mod collection;
 #[deprecated(
     since = "1.10.0",
-    note = "use new config at `qdrant_client::QdrantConfig` instead"
+    note = "use new config types at `qdrant_client::config` instead"
 )]
 mod config;
 pub mod points;

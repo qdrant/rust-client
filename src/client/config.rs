@@ -4,6 +4,10 @@ use std::time::Duration;
 
 use crate::client::QdrantClient;
 
+#[deprecated(
+    since = "1.10.0",
+    note = "use new config at `qdrant_client::config::QdrantConfig` instead"
+)]
 pub struct QdrantClientConfig {
     pub uri: String,
     pub timeout: Duration,

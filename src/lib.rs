@@ -165,9 +165,15 @@ pub mod serde;
 
 // Re-exports
 pub use crate::payload::Payload;
-pub use crate::qdrant_client::config::QdrantConfig;
 pub use crate::qdrant_client::error::QdrantError;
 pub use crate::qdrant_client::{Qdrant, QdrantBuilder};
+
+pub mod config {
+    pub use crate::qdrant_client::config::QdrantConfig;
+    pub use crate::qdrant_client::config::AsTimeout;
+    pub use crate::qdrant_client::config::MaybeApiKey;
+    pub use crate::qdrant_client::config::CompressionEncoding;
+}
 
 #[cfg(test)]
 mod tests {
@@ -181,7 +187,7 @@ mod tests {
         SearchPointsBuilder, SetPayloadPointsBuilder, SnapshotDownloadBuilder, Struct,
         UpsertPointsBuilder, Value, VectorParamsBuilder,
     };
-    use crate::{Qdrant, QdrantConfig};
+    use crate::Qdrant;
 
     #[test]
     fn display() {
@@ -231,7 +237,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_qdrant_queries() -> anyhow::Result<()> {
-        let config = QdrantConfig::from_url("http://localhost:6334");
+        let config = Qdrant::from_url("http://localhost:6334");
         let client = Qdrant::new(Some(config))?;
 
         let health = client.health_check().await?;

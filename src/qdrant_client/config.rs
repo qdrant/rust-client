@@ -68,9 +68,9 @@ impl QdrantConfig {
     /// Another possibility might be getting it out of some config
     /// ```rust, no_run
     ///# use std::collections::HashMap;
-    /// use qdrant_client::QdrantConfig;
+    /// use qdrant_client::Qdrant;
     ///# let config: HashMap<&str, String> = HashMap::new();
-    /// let client = QdrantConfig::from_url("localhost:6334")
+    /// let client = Qdrant::from_url("localhost:6334")
     ///     .with_api_key(config.get("api_key"))
     ///     .build();
     /// ```
