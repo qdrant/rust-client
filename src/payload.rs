@@ -12,6 +12,42 @@ use crate::qdrant::Value;
 /// values during vector search.
 ///
 /// Payload documentation: <https://qdrant.tech/documentation/concepts/payload/>
+///
+/// # Serde
+///
+/// <small><em>Requires `serde` feature</em></small>
+///
+/// [Serde JSON](serde_json) types can be converted to and from [`Payload`]. Note that a valid
+/// payload must be a JSON object, and not another JSON type.
+///
+/// Convert a JSON [`Value`](serde_json::Value) to and from [`Payload`]:
+///
+/// ```rust
+///# use qdrant_client::Payload;
+/// use serde_json::{Value, json};
+///
+/// let value = json!({
+///     "city": "Berlin",
+/// });
+///
+/// let payload: Payload = Payload::try_from(value).expect("not a JSON object");
+/// let value: Value = Value::from(payload);
+/// ```
+///
+/// If the above value is not a JSON object, a [`QdrantError::JsonToPayload`](crate::QdrantError::JsonToPayload) error is returned.
+///
+/// Convert a JSON object ([`Map<String, Value>`](serde_json::Map)) to and from from [`Payload`]:
+///
+/// ```rust
+///# use qdrant_client::Payload;
+/// use serde_json::{Map, Value};
+///
+/// let mut object = Map::new();
+/// object.insert("city".to_string(), "Berlin".into());
+///
+/// let payload: Payload = Payload::from(object);
+/// let object: Map<String, Value> = Map::from(payload);
+/// ```
 #[derive(Clone, PartialEq, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Payload(pub(crate) HashMap<String, Value>);
