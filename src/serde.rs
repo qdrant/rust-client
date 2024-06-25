@@ -6,11 +6,14 @@ use std::fmt::{Display, Formatter};
 use serde::ser::{SerializeMap, SerializeSeq};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use crate::client::Payload;
 use crate::qdrant::value::Kind;
 use crate::qdrant::{ListValue, Struct, Value};
 
 #[derive(Debug)]
+#[deprecated(
+    since = "1.10.0",
+    note = "use `qdrant_client::Error::JsonToPayload` error variant instead"
+)]
 pub struct PayloadConversionError(serde_json::Value);
 
 impl Display for PayloadConversionError {
@@ -96,18 +99,6 @@ impl From<serde_json::Value> for Value {
                         .collect::<HashMap<_, _>>(),
                 })),
             },
-        }
-    }
-}
-
-impl TryFrom<serde_json::Value> for Payload {
-    type Error = PayloadConversionError;
-
-    fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
-        if let serde_json::Value::Object(object) = value {
-            Ok(object.into())
-        } else {
-            Err(PayloadConversionError(value))
         }
     }
 }

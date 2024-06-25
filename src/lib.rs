@@ -166,7 +166,7 @@ pub mod error;
 pub mod prelude;
 /// Deprecated serde helper
 #[cfg(feature = "serde")]
-#[deprecated(since = "1.10.0", note = "use `Payload::from_json_object` instead")]
+#[deprecated(since = "1.10.0", note = "use `Payload::try_from` instead")]
 #[doc(hidden)]
 pub mod serde;
 
