@@ -60,52 +60,43 @@ cargo add qdrant-client anyhow tonic tokio serde-json --features tokio/rt-multi-
 Add search example from [`examples/search.rs`](./examples/search.rs) to your `src/main.rs`:
 
 ```rust
-use anyhow::Result;
-use qdrant_client::prelude::*;
-use qdrant_client::qdrant::vectors_config::Config;
 use qdrant_client::qdrant::{
-    Condition, CreateCollection, Filter, SearchPoints, VectorParams, VectorsConfig,
+    Condition, CreateCollectionBuilder, Distance, Filter, PointStruct, ScalarQuantizationBuilder,
+    SearchParamsBuilder, SearchPointsBuilder, UpsertPointsBuilder, VectorParamsBuilder,
 };
-use serde_json::json;
+use qdrant_client::{Payload, Qdrant, QdrantError};
 
 #[tokio::main]
-async fn main() -> Result<()> {
+async fn main() -> Result<(), QdrantError> {
     // Example of top level client
     // You may also use tonic-generated client from `src/qdrant.rs`
-    let client = QdrantClient::from_url("http://localhost:6334").build()?;
+    let client = Qdrant::from_url("http://localhost:6334").build()?;
 
     let collections_list = client.list_collections().await?;
     dbg!(collections_list);
-    // collections_list = ListCollectionsResponse {
-    //     collections: [
-    //         CollectionDescription {
-    //             name: "test",
-    //         },
-    //     ],
-    //     time: 1.78e-6,
+    // collections_list = {
+    //   "collections": [
+    //     {
+    //       "name": "test"
+    //     }
+    //   ]
     // }
 
     let collection_name = "test";
     client.delete_collection(collection_name).await?;
 
     client
-        .create_collection(&CreateCollection {
-            collection_name: collection_name.into(),
-            vectors_config: Some(VectorsConfig {
-                config: Some(Config::Params(VectorParams {
-                    size: 10,
-                    distance: Distance::Cosine.into(),
-                    ..Default::default()
-                })),
-            }),
-            ..Default::default()
-        })
+        .create_collection(
+            CreateCollectionBuilder::new(collection_name)
+                .vectors_config(VectorParamsBuilder::new(10, Distance::Cosine))
+                .quantization_config(ScalarQuantizationBuilder::default()),
+        )
         .await?;
 
     let collection_info = client.collection_info(collection_name).await?;
     dbg!(collection_info);
 
-    let payload: Payload = json!(
+    let payload: Payload = serde_json::json!(
         {
             "foo": "Bar",
             "bar": 12,
@@ -114,60 +105,37 @@ async fn main() -> Result<()> {
             }
         }
     )
-        .try_into()
-        .unwrap();
+    .try_into()
+    .unwrap();
 
     let points = vec![PointStruct::new(0, vec![12.; 10], payload)];
     client
-        .upsert_points_blocking(collection_name, None, points, None)
+        .upsert_points(UpsertPointsBuilder::new(collection_name, points))
         .await?;
 
     let search_result = client
-        .search_points(&SearchPoints {
-            collection_name: collection_name.into(),
-            vector: vec![11.; 10],
-            filter: Some(Filter::all([Condition::matches("bar", 12)])),
-            limit: 10,
-            with_payload: Some(true.into()),
-            ..Default::default()
-        })
+        .search_points(
+            SearchPointsBuilder::new(collection_name, [11.; 10], 10)
+                .filter(Filter::all([Condition::matches("bar", 12)]))
+                .with_payload(true)
+                .params(SearchParamsBuilder::default().exact(true)),
+        )
         .await?;
     dbg!(&search_result);
-    // search_result = SearchResponse {
-    //     result: [
-    //         ScoredPoint {
-    //             id: Some(
-    //                 PointId {
-    //                     point_id_options: Some(
-    //                         Num(
-    //                             0,
-    //                         ),
-    //                     ),
-    //                 },
-    //             ),
-    //             payload: {
-    //                 "bar": Value {
-    //                     kind: Some(
-    //                         IntegerValue(
-    //                     12,
-    //                     ),
-    //                     ),
-    //                 },
-    //                 "foo": Value {
-    //                     kind: Some(
-    //                         StringValue(
-    //                     "Bar",
-    //                     ),
-    //                     ),
-    //                 },
-    //             },
-    //             score: 1.0000001,
-    //             version: 0,
-    //             vectors: None,
-    //         },
-    //     ],
-    //     time: 9.5394e-5,
-    // }
+    // search_result = [
+    //   {
+    //     "id": 0,
+    //     "version": 0,
+    //     "score": 1.0000001,
+    //     "payload": {
+    //       "bar": 12,
+    //       "baz": {
+    //         "qux": "quux"
+    //       },
+    //       "foo": "Bar"
+    //     }
+    //   }
+    // ]
 
     let found_point = search_result.result.into_iter().next().unwrap();
     let mut payload = found_point.payload;
@@ -195,11 +163,10 @@ The client needs to be configured properly to access the service.
 - make sure to pass your API KEY
 
 ```rust
-async fn make_client() -> Result<QdrantClient> {
-    let client = QdrantClient::from_url("http://xxxxxxxxxx.eu-central.aws.cloud.qdrant.io:6334")
-        // using an env variable for the API KEY for example
-        .with_api_key(std::env::var("QDRANT_API_KEY"))
-        .build()?;
-    Ok(client)
-}
+use qdrant_client::Qdrant;
+
+let client = Qdrant::from_url("http://xxxxxxxxxx.eu-central.aws.cloud.qdrant.io:6334")
+    // Use an environment variable for the API KEY for example
+    .with_api_key(std::env::var("QDRANT_API_KEY"))
+    .build()?;
 ```
