@@ -71,7 +71,10 @@ impl Qdrant {
     /// <!-- TODO: update documentation link to universal search API once released -->
     ///
     /// Documentation: <https://qdrant.tech/documentation/concepts/search/#search-api>
-    pub async fn query_batch(&self, request: impl Into<QueryBatchPoints>) -> QdrantResult<QueryBatchResponse> {
+    pub async fn query_batch(
+        &self,
+        request: impl Into<QueryBatchPoints>,
+    ) -> QdrantResult<QueryBatchResponse> {
         let request = &request.into();
 
         self.with_points_client(|mut points_api| async move {
