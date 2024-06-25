@@ -4674,18 +4674,34 @@ pub struct QueryPoints {
     #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub timeout: ::core::option::Option<u64>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(
+    build_fn(private, name = "build_inner"),
+    pattern = "owned",
+    custom_constructor
+)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct QueryBatchPoints {
     #[prost(string, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub collection_name: ::prost::alloc::string::String,
     #[prost(message, repeated, tag = "2")]
+    #[builder(field(vis = "pub(crate)"))]
     pub query_points: ::prost::alloc::vec::Vec<QueryPoints>,
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "3")]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<read_consistency::Value>",
+            build = "convert_option(&self.read_consistency)"
+        )
+    )]
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// If set, overrides global timeout setting for this request. Unit is seconds.
     #[prost(uint64, optional, tag = "4")]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub timeout: ::core::option::Option<u64>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -8839,6 +8855,7 @@ builder_type_conversions!(RecommendPointGroups, RecommendPointGroupsBuilder, tru
 builder_type_conversions!(DiscoverPoints, DiscoverPointsBuilder, true);
 builder_type_conversions!(DiscoverBatchPoints, DiscoverBatchPointsBuilder, true);
 builder_type_conversions!(QueryPoints, QueryPointsBuilder, true);
+builder_type_conversions!(QueryBatchPoints, QueryBatchPointsBuilder, true);
 builder_type_conversions!(CountPoints, CountPointsBuilder, true);
 builder_type_conversions!(CreateFieldIndexCollection, CreateFieldIndexCollectionBuilder, true);
 builder_type_conversions!(DeleteFieldIndexCollection, DeleteFieldIndexCollectionBuilder, true);

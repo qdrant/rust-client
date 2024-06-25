@@ -571,6 +571,14 @@ fn configure_builder(builder: Builder) -> Builder {
             ("QueryPoints.shard_key_selector", DEFAULT_OPTION_INTO),
             ("QueryPoints.lookup_from", DEFAULT_OPTION_INTO),
             ("QueryPoints.timeout", DEFAULT_OPTION),
+            // QueryBatchPoints
+            ("QueryBatchPoints.collection_name", PUBLIC_ONLY),
+            ("QueryBatchPoints.query_points", PUBLIC_ONLY),
+            (
+                "QueryBatchPoints.read_consistency",
+                builder_custom_into!(read_consistency::Value, self.read_consistency),
+            ),
+            ("QueryBatchPoints.timeout", DEFAULT_OPTION),
             // CountPoints
             ("CountPoints.collection_name", PUBLIC_ONLY),
             ("CountPoints.filter", DEFAULT_OPTION_INTO),
@@ -855,6 +863,11 @@ fn builder_derive_options() -> &'static [BuildDeriveOptions] {
         ),
         (
             "QueryPoints",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::WithDefaultFn,
+        ),
+        (
+            "QueryBatchPoints",
             NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
             MacroConfig::WithDefaultFn,
         ),

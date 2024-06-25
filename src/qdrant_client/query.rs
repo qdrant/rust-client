@@ -1,5 +1,5 @@
 use super::QdrantResult;
-use crate::qdrant::{QueryPoints, QueryResponse};
+use crate::qdrant::{QueryBatchPoints, QueryBatchResponse, QueryPoints, QueryResponse};
 use crate::qdrant_client::Qdrant;
 
 /// Point query operations.
@@ -10,7 +10,7 @@ use crate::qdrant_client::Qdrant;
 ///
 /// Documentation: <https://qdrant.tech/documentation/concepts/search/#search-api>
 impl Qdrant {
-    /// Query a collection.
+    /// Query points in a collection.
     ///
     /// ```no_run
     ///# use qdrant_client::{Qdrant, QdrantError};
