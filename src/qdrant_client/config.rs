@@ -125,7 +125,7 @@ impl Default for QdrantConfig {
     }
 }
 
-/// The type of compression to use for requests.
+/// Type of compression to use for requests
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CompressionEncoding {
     Gzip,
@@ -139,6 +139,18 @@ impl From<CompressionEncoding> for tonic::codec::CompressionEncoding {
     }
 }
 
+/// Set a timeout from various types
+///
+/// For example:
+///
+/// ```rust
+///# use std::time::Duration;
+///# use qdrant_client::Qdrant;
+///# let mut config = Qdrant::from_url("http://localhost:6334");
+/// config
+///     .with_timeout(10)
+///     .with_timeout(Duration::from_secs(10));
+/// ```
 pub trait AsTimeout {
     fn timeout(self) -> Duration;
 }
@@ -155,7 +167,20 @@ impl AsTimeout for u64 {
     }
 }
 
-/// Helper thread to allow setting an API key from various types
+/// Set an optional API key from various types
+///
+/// For example:
+///
+/// ```rust
+///# use std::time::Duration;
+///# use qdrant_client::Qdrant;
+///# let mut config = Qdrant::from_url("http://localhost:6334");
+/// config
+///     .with_api_key("secret")
+///     .with_api_key(String::from("secret"))
+///     .with_api_key(std::env::var("QDRANT_API_KEY"))
+///     .with_api_key(None::<String>);
+/// ```
 pub trait MaybeApiKey {
     fn maybe_key(self) -> Option<String>;
 }
