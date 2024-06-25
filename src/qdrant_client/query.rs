@@ -43,6 +43,43 @@ impl Qdrant {
         })
         .await
     }
+
+    /// Batch multiple point queries in a collection.
+    ///
+    /// ```no_run
+    ///# use qdrant_client::{Qdrant, QdrantError};
+    /// use qdrant_client::qdrant::{Condition, Filter, QueryPointsBuilder, QueryBatchPointsBuilder};
+    ///
+    ///# async fn query_batch(client: &Qdrant)
+    ///# -> Result<(), QdrantError> {
+    /// client
+    ///     .query_batch(
+    ///         QueryBatchPointsBuilder::new("my_collection", vec![
+    ///             QueryPointsBuilder::new("my_collection")
+    ///                 .filter(Filter::must([Condition::matches(
+    ///                     "city",
+    ///                     "London".to_string(),
+    ///                 )]))
+    ///                 .build(),
+    ///         ])
+    ///     )
+    ///     .await?;
+    ///# Ok(())
+    ///# }
+    /// ```
+    ///
+    /// <!-- TODO: update documentation link to universal search API once released -->
+    ///
+    /// Documentation: <https://qdrant.tech/documentation/concepts/search/#search-api>
+    pub async fn query_batch(&self, request: impl Into<QueryBatchPoints>) -> QdrantResult<QueryBatchResponse> {
+        let request = &request.into();
+
+        self.with_points_client(|mut points_api| async move {
+            let result = points_api.query_batch(request.clone()).await?;
+            Ok(result.into_inner())
+        })
+        .await
+    }
 }
 
 #[cfg(test)]
