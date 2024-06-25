@@ -30,8 +30,8 @@ use crate::qdrant::Value;
 ///     "city": "Berlin",
 /// });
 ///
-/// let payload: Payload = Payload::try_from(value).expect("not a JSON object");
-/// let value: Value = Value::from(payload);
+/// let payload = Payload::try_from(value).expect("not a JSON object");
+/// let value = Value::from(payload);
 /// ```
 ///
 /// If the above value is not a JSON object, a [`QdrantError::JsonToPayload`](crate::QdrantError::JsonToPayload) error is returned.
@@ -45,8 +45,8 @@ use crate::qdrant::Value;
 /// let mut object = Map::new();
 /// object.insert("city".to_string(), "Berlin".into());
 ///
-/// let payload: Payload = Payload::from(object);
-/// let object: Map<String, Value> = Map::from(payload);
+/// let payload = Payload::from(object);
+/// let object = Map::from(payload);
 /// ```
 #[derive(Clone, PartialEq, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
