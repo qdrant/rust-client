@@ -8,12 +8,12 @@ use qdrant_client::qdrant::{
     DeletePointsBuilder, DeleteShardKeyRequestBuilder, DeleteSnapshotRequestBuilder,
     DiscoverBatchPointsBuilder, DiscoverInputBuilder, DiscoverPointsBuilder, Distance, FieldType,
     GetPointsBuilder, LookupLocationBuilder, OrderByBuilder, ProductQuantizationBuilder,
-    QueryPointsBuilder, RecommendBatchPointsBuilder, RecommendPointGroupsBuilder,
-    RecommendPointsBuilder, RenameAliasBuilder, ScrollPointsBuilder, SearchBatchPointsBuilder,
-    SearchPointGroupsBuilder, SearchPointsBuilder, SetPayloadPointsBuilder, TextIndexParamsBuilder,
-    TokenizerType, UpdateBatchPointsBuilder, UpdateCollectionBuilder,
-    UpdateCollectionClusterSetupRequestBuilder, UpdatePointVectorsBuilder, UpsertPointsBuilder,
-    VectorParamsBuilder, WithLookupBuilder,
+    QueryBatchPointsBuilder, QueryPointsBuilder, RecommendBatchPointsBuilder,
+    RecommendPointGroupsBuilder, RecommendPointsBuilder, RenameAliasBuilder, ScrollPointsBuilder,
+    SearchBatchPointsBuilder, SearchPointGroupsBuilder, SearchPointsBuilder,
+    SetPayloadPointsBuilder, TextIndexParamsBuilder, TokenizerType, UpdateBatchPointsBuilder,
+    UpdateCollectionBuilder, UpdateCollectionClusterSetupRequestBuilder, UpdatePointVectorsBuilder,
+    UpsertPointsBuilder, VectorParamsBuilder, WithLookupBuilder,
 };
 
 /// TLDR; Ensures new fields introduced in protobuf updates won't cause a panic at runtime due to missing derive_builder attributes.
