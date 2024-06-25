@@ -168,11 +168,11 @@ pub use crate::payload::Payload;
 pub use crate::qdrant_client::error::QdrantError;
 pub use crate::qdrant_client::{Qdrant, QdrantBuilder};
 
+/// Client configuration
 pub mod config {
-    pub use crate::qdrant_client::config::QdrantConfig;
-    pub use crate::qdrant_client::config::AsTimeout;
-    pub use crate::qdrant_client::config::MaybeApiKey;
-    pub use crate::qdrant_client::config::CompressionEncoding;
+    pub use crate::qdrant_client::config::{
+        AsTimeout, CompressionEncoding, MaybeApiKey, QdrantConfig,
+    };
 }
 
 #[cfg(test)]

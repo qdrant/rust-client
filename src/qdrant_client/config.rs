@@ -58,19 +58,22 @@ impl QdrantConfig {
     /// # Examples:
     ///
     /// A typical use case might be getting the key from an env var:
-    /// ```rust, no_run
+    ///
+    /// ```rust,no_run
     /// use qdrant_client::Qdrant;
     ///
-    /// let client = Qdrant::from_url("localhost:6334")
+    /// let client = Qdrant::from_url("http://localhost:6334")
     ///     .with_api_key(std::env::var("QDRANT_API_KEY"))
     ///     .build();
     /// ```
+    ///
     /// Another possibility might be getting it out of some config
-    /// ```rust, no_run
+    ///
+    /// ```rust,no_run
     ///# use std::collections::HashMap;
     /// use qdrant_client::Qdrant;
     ///# let config: HashMap<&str, String> = HashMap::new();
-    /// let client = Qdrant::from_url("localhost:6334")
+    /// let client = Qdrant::from_url("http://localhost:6334")
     ///     .with_api_key(config.get("api_key"))
     ///     .build();
     /// ```
