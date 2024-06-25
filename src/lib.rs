@@ -13,7 +13,7 @@
 //!
 //!# fn establish_connection(url: &str) -> Result<Qdrant, QdrantError> {
 //! let client = Qdrant::from_url("http://localhost:6334")
-//!     .with_api_key(std::env::var("QDRANT_API_KEY"))
+//!     .api_key(std::env::var("QDRANT_API_KEY"))
 //!     .build()?;
 //!# Ok(client)
 //!# }

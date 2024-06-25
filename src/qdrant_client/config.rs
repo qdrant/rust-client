@@ -31,27 +31,6 @@ impl QdrantConfig {
         }
     }
 
-    /// Set an API key
-    pub fn set_api_key(&mut self, api_key: &str) {
-        self.api_key = Some(api_key.to_string());
-    }
-
-    pub fn set_timeout(&mut self, timeout: Duration) {
-        self.timeout = timeout;
-    }
-
-    pub fn set_connect_timeout(&mut self, connect_timeout: Duration) {
-        self.connect_timeout = connect_timeout;
-    }
-
-    pub fn set_keep_alive_while_idle(&mut self, keep_alive_while_idle: bool) {
-        self.keep_alive_while_idle = keep_alive_while_idle;
-    }
-
-    pub fn set_compression(&mut self, compression: Option<CompressionEncoding>) {
-        self.compression = compression;
-    }
-
     /// Set an optional API key
     ///
     /// # Examples
@@ -62,7 +41,7 @@ impl QdrantConfig {
     /// use qdrant_client::Qdrant;
     ///
     /// let client = Qdrant::from_url("http://localhost:6334")
-    ///     .with_api_key(std::env::var("QDRANT_API_KEY"))
+    ///     .api_key(std::env::var("QDRANT_API_KEY"))
     ///     .build();
     /// ```
     ///
@@ -73,15 +52,15 @@ impl QdrantConfig {
     ///# let config: HashMap<&str, String> = HashMap::new();
     ///# use qdrant_client::Qdrant;
     /// let client = Qdrant::from_url("http://localhost:6334")
-    ///     .with_api_key(config.get("api_key"))
+    ///     .api_key(config.get("api_key"))
     ///     .build();
     /// ```
-    pub fn with_api_key(mut self, api_key: impl AsOptionApiKey) -> Self {
+    pub fn api_key(mut self, api_key: impl AsOptionApiKey) -> Self {
         self.api_key = api_key.api_key();
         self
     }
 
-    /// Configure the service to keep the connection alive while idle
+    /// Keep the connection alive while idle
     pub fn keep_alive_while_idle(mut self) -> Self {
         self.keep_alive_while_idle = true;
         self
@@ -93,10 +72,10 @@ impl QdrantConfig {
     /// use qdrant_client::Qdrant;
     ///
     /// let client = Qdrant::from_url("http://localhost:6334")
-    ///     .with_timeout(std::time::Duration::from_secs(10))
+    ///     .timeout(std::time::Duration::from_secs(10))
     ///     .build();
     /// ```
-    pub fn with_timeout(mut self, timeout: impl AsTimeout) -> Self {
+    pub fn timeout(mut self, timeout: impl AsTimeout) -> Self {
         self.timeout = timeout.timeout();
         self
     }
@@ -107,10 +86,10 @@ impl QdrantConfig {
     /// use qdrant_client::Qdrant;
     ///
     /// let client = Qdrant::from_url("http://localhost:6334")
-    ///     .with_connect_timeout(std::time::Duration::from_secs(10))
+    ///     .connect_timeout(std::time::Duration::from_secs(10))
     ///     .build();
     /// ```
-    pub fn with_connect_timeout(mut self, timeout: impl AsTimeout) -> Self {
+    pub fn connect_timeout(mut self, timeout: impl AsTimeout) -> Self {
         self.connect_timeout = timeout.timeout();
         self
     }
@@ -122,12 +101,47 @@ impl QdrantConfig {
     /// use qdrant_client::config::CompressionEncoding;
     ///
     /// let client = Qdrant::from_url("http://localhost:6334")
-    ///     .with_compression(Some(CompressionEncoding::Gzip))
+    ///     .compression(Some(CompressionEncoding::Gzip))
     ///     .build();
     /// ```
-    pub fn with_compression(mut self, compression: Option<CompressionEncoding>) -> Self {
+    pub fn compression(mut self, compression: Option<CompressionEncoding>) -> Self {
         self.compression = compression;
         self
+    }
+
+    /// Set an API key
+    ///
+    /// Also see [`api_key()`](fn@Self::api_key).
+    pub fn set_api_key(&mut self, api_key: &str) {
+        self.api_key = Some(api_key.to_string());
+    }
+
+    /// Set the timeout for this client
+    ///
+    /// Also see [`timeout()`](fn@Self::timeout).
+    pub fn set_timeout(&mut self, timeout: Duration) {
+        self.timeout = timeout;
+    }
+
+    /// Set the connection timeout for this client
+    ///
+    /// Also see [`connect_timeout()`](fn@Self::connect_timeout).
+    pub fn set_connect_timeout(&mut self, connect_timeout: Duration) {
+        self.connect_timeout = connect_timeout;
+    }
+
+    /// Set whether to keep the connection alive when idle
+    ///
+    /// Also see [`keep_alive_while_idle()`](fn@Self::keep_alive_while_idle).
+    pub fn set_keep_alive_while_idle(&mut self, keep_alive_while_idle: bool) {
+        self.keep_alive_while_idle = keep_alive_while_idle;
+    }
+
+    /// Set the compression to use for this client
+    ///
+    /// Also see [`compression()`](fn@Self::compression).
+    pub fn set_compression(&mut self, compression: Option<CompressionEncoding>) {
+        self.compression = compression;
     }
 
     /// Build the configured [`Qdrant`] client
@@ -175,8 +189,8 @@ impl From<CompressionEncoding> for tonic::codec::CompressionEncoding {
 ///# use qdrant_client::Qdrant;
 ///# let mut config = Qdrant::from_url("http://localhost:6334");
 /// config
-///     .with_timeout(10)
-///     .with_timeout(Duration::from_secs(10));
+///     .timeout(10)
+///     .timeout(Duration::from_secs(10));
 /// ```
 pub trait AsTimeout {
     fn timeout(self) -> Duration;
@@ -203,10 +217,10 @@ impl AsTimeout for u64 {
 ///# use qdrant_client::Qdrant;
 ///# let mut config = Qdrant::from_url("http://localhost:6334");
 /// config
-///     .with_api_key("secret")
-///     .with_api_key(String::from("secret"))
-///     .with_api_key(std::env::var("QDRANT_API_KEY"))
-///     .with_api_key(None::<String>);
+///     .api_key("secret")
+///     .api_key(String::from("secret"))
+///     .api_key(std::env::var("QDRANT_API_KEY"))
+///     .api_key(None::<String>);
 /// ```
 pub trait AsOptionApiKey {
     fn api_key(self) -> Option<String>;
