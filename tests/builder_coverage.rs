@@ -1,15 +1,16 @@
 use std::collections::HashMap;
 
 use qdrant_client::qdrant::{
-    BinaryQuantizationBuilder, ClearPayloadPointsBuilder, ContextInputBuilder,
-    ContextInputPairBuilder, CountPointsBuilder, CreateAliasBuilder,
+    AbortShardTransferBuilder, BinaryQuantizationBuilder, ClearPayloadPointsBuilder,
+    ContextInputBuilder, ContextInputPairBuilder, CountPointsBuilder, CreateAliasBuilder,
     CreateFieldIndexCollectionBuilder, CreateShardKeyRequestBuilder, DeleteCollectionBuilder,
     DeleteFieldIndexCollectionBuilder, DeletePayloadPointsBuilder, DeletePointVectorsBuilder,
     DeletePointsBuilder, DeleteShardKeyRequestBuilder, DeleteSnapshotRequestBuilder,
     DiscoverBatchPointsBuilder, DiscoverInputBuilder, DiscoverPointsBuilder, Distance, FieldType,
-    GetPointsBuilder, LookupLocationBuilder, OrderByBuilder, ProductQuantizationBuilder,
-    QueryBatchPointsBuilder, QueryPointsBuilder, RecommendBatchPointsBuilder,
-    RecommendPointGroupsBuilder, RecommendPointsBuilder, RenameAliasBuilder, ScrollPointsBuilder,
+    GetPointsBuilder, LookupLocationBuilder, MoveShardBuilder, OrderByBuilder,
+    ProductQuantizationBuilder, QueryBatchPointsBuilder, QueryPointsBuilder,
+    RecommendBatchPointsBuilder, RecommendPointGroupsBuilder, RecommendPointsBuilder,
+    RenameAliasBuilder, ReplicaBuilder, ReplicateShardBuilder, ScrollPointsBuilder,
     SearchBatchPointsBuilder, SearchPointGroupsBuilder, SearchPointsBuilder,
     SetPayloadPointsBuilder, TextIndexParamsBuilder, TokenizerType, UpdateBatchPointsBuilder,
     UpdateCollectionBuilder, UpdateCollectionClusterSetupRequestBuilder, UpdatePointVectorsBuilder,
@@ -58,6 +59,10 @@ fn builder_coverage() {
     CreateFieldIndexCollectionBuilder::new("my_collection", " myfield", FieldType::Integer).build();
     DeleteFieldIndexCollectionBuilder::new("my_collection", " myfield").build();
     UpdateCollectionClusterSetupRequestBuilder::new("my_collection").build();
+    MoveShardBuilder::new(0, 0, 0).build();
+    ReplicateShardBuilder::new(0, 0, 0).build();
+    ReplicaBuilder::new(0, 0).build();
+    AbortShardTransferBuilder::new(0, 0, 0).build();
     CreateShardKeyRequestBuilder::new("my_collection").build();
     DeleteShardKeyRequestBuilder::new("my_collection").build();
     DeleteCollectionBuilder::new("my_collection").build();
