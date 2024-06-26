@@ -78,10 +78,8 @@ pub struct Qdrant {
 impl Qdrant {
     /// Create a new Qdrant client.
     ///
-    /// If no client client configuration is given the [default](QdrantConfig::default) is used.
-    pub fn new(config: Option<QdrantConfig>) -> QdrantResult<Self> {
-        let config = config.unwrap_or_default();
-
+    /// Constructs the client and connects based on the given [`QdrantConfig`](config::QdrantConfig).
+    pub fn new(config: QdrantConfig) -> QdrantResult<Self> {
         let channel = ChannelPool::new(
             config.uri.parse::<Uri>()?,
             config.timeout,
