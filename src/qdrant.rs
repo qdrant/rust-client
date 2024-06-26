@@ -3143,9 +3143,6 @@ pub mod vector_input {
         MultiDense(super::MultiDenseVector),
     }
 }
-/// ---------------------------------------------
-/// ----------------- ShardKeySelector ----------
-/// ---------------------------------------------
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ShardKeySelector {
@@ -5569,7 +5566,7 @@ impl Direction {
         }
     }
 }
-/// How to use positive and negative vectors to find the results, default is `AverageVector`:
+/// How to use positive and negative vectors to find the results, default is `AverageVector`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
 pub enum RecommendStrategy {
