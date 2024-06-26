@@ -10,18 +10,19 @@ use crate::qdrant::{
     alias_operations, condition, group_id, points_update_operation, quantization_config,
     quantization_config_diff, r#match, read_consistency, shard_key, start_from, target_vector,
     update_collection_cluster_setup_request, vector_example, vectors_config, vectors_config_diff,
-    with_payload_selector, with_vectors_selector, AbortShardTransfer, AliasOperations,
-    BinaryQuantization, BinaryQuantizationBuilder, Condition, CreateAlias, CreateShardKey,
-    DeleteAlias, DeleteShardKey, Disabled, FieldCondition, Filter, GeoLineString, GeoPoint,
-    GroupId, HasIdCondition, IsEmptyCondition, IsNullCondition, ListValue, Match, MoveShard,
-    NestedCondition, PayloadExcludeSelector, PayloadIncludeSelector, PointId, PointsIdsList,
-    PointsSelector, PointsUpdateOperation, ProductQuantization, ProductQuantizationBuilder,
-    QuantizationConfig, QuantizationConfigDiff, ReadConsistency, RenameAlias, Replica,
-    ReplicateShard, RestartTransfer, ScalarQuantization, ScalarQuantizationBuilder, ShardKey,
-    ShardKeySelector, SparseIndexConfig, SparseVectorParams, StartFrom, Struct, TargetVector,
-    Value, Vector, VectorExample, VectorParams, VectorParamsBuilder, VectorParamsDiff,
-    VectorParamsDiffBuilder, VectorParamsDiffMap, VectorParamsMap, VectorsConfig,
-    VectorsConfigDiff, VectorsSelector, WithPayloadSelector, WithVectorsSelector,
+    with_payload_selector, with_vectors_selector, AbortShardTransfer, AbortShardTransferBuilder,
+    AliasOperations, BinaryQuantization, BinaryQuantizationBuilder, Condition, CreateAlias,
+    CreateShardKey, DeleteAlias, DeleteShardKey, Disabled, FieldCondition, Filter, GeoLineString,
+    GeoPoint, GroupId, HasIdCondition, IsEmptyCondition, IsNullCondition, ListValue, Match,
+    MoveShard, MoveShardBuilder, NestedCondition, PayloadExcludeSelector, PayloadIncludeSelector,
+    PointId, PointsIdsList, PointsSelector, PointsUpdateOperation, ProductQuantization,
+    ProductQuantizationBuilder, QuantizationConfig, QuantizationConfigDiff, ReadConsistency,
+    RenameAlias, Replica, ReplicateShard, ReplicateShardBuilder, RestartTransfer,
+    ScalarQuantization, ScalarQuantizationBuilder, ShardKey, ShardKeySelector, SparseIndexConfig,
+    SparseVectorParams, StartFrom, Struct, TargetVector, Value, Vector, VectorExample,
+    VectorParams, VectorParamsBuilder, VectorParamsDiff, VectorParamsDiffBuilder,
+    VectorParamsDiffMap, VectorParamsMap, VectorsConfig, VectorsConfigDiff, VectorsSelector,
+    WithPayloadSelector, WithVectorsSelector,
 };
 
 impl From<Vec<PointId>> for PointsSelector {
@@ -522,15 +523,33 @@ impl From<MoveShard> for update_collection_cluster_setup_request::Operation {
     }
 }
 
+impl From<MoveShardBuilder> for update_collection_cluster_setup_request::Operation {
+    fn from(value: MoveShardBuilder) -> Self {
+        Self::MoveShard(value.build())
+    }
+}
+
 impl From<ReplicateShard> for update_collection_cluster_setup_request::Operation {
     fn from(value: ReplicateShard) -> Self {
         Self::ReplicateShard(value)
     }
 }
 
+impl From<ReplicateShardBuilder> for update_collection_cluster_setup_request::Operation {
+    fn from(value: ReplicateShardBuilder) -> Self {
+        Self::ReplicateShard(value.build())
+    }
+}
+
 impl From<AbortShardTransfer> for update_collection_cluster_setup_request::Operation {
     fn from(value: AbortShardTransfer) -> Self {
         Self::AbortTransfer(value)
+    }
+}
+
+impl From<AbortShardTransferBuilder> for update_collection_cluster_setup_request::Operation {
+    fn from(value: AbortShardTransferBuilder) -> Self {
+        Self::AbortTransfer(value.build())
     }
 }
 

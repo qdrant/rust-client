@@ -612,10 +612,27 @@ fn configure_builder(builder: Builder) -> Builder {
                 "UpdateCollectionClusterSetupRequest.timeout",
                 DEFAULT_OPTION,
             ),
-            (
-                "UpdateCollectionClusterSetupRequest.operation",
-                DEFAULT_OPTION_INTO,
-            ),
+            ("UpdateCollectionClusterSetupRequest.operation", PUBLIC_ONLY),
+            // MoveShard
+            ("MoveShard.shard_id", PUBLIC_ONLY),
+            ("MoveShard.to_shard_id", DEFAULT_OPTION),
+            ("MoveShard.from_peer_id", PUBLIC_ONLY),
+            ("MoveShard.to_peer_id", PUBLIC_ONLY),
+            ("MoveShard.method", DEFAULT_OPTION_INTO),
+            // ReplicateShard
+            ("ReplicateShard.shard_id", PUBLIC_ONLY),
+            ("ReplicateShard.to_shard_id", DEFAULT_OPTION),
+            ("ReplicateShard.from_peer_id", PUBLIC_ONLY),
+            ("ReplicateShard.to_peer_id", PUBLIC_ONLY),
+            ("ReplicateShard.method", DEFAULT_OPTION_INTO),
+            // AbortShardTransfer
+            ("AbortShardTransfer.shard_id", PUBLIC_ONLY),
+            ("AbortShardTransfer.to_shard_id", DEFAULT_OPTION),
+            ("AbortShardTransfer.from_peer_id", PUBLIC_ONLY),
+            ("AbortShardTransfer.to_peer_id", PUBLIC_ONLY),
+            // Replica
+            ("Replica.shard_id", PUBLIC_ONLY),
+            ("Replica.peer_id", PUBLIC_ONLY),
             // CreateShardKeyRequest
             ("CreateShardKeyRequest.collection_name", PUBLIC_ONLY),
             ("CreateShardKeyRequest.request", DEFAULT_OPTION_INTO),
@@ -893,6 +910,26 @@ fn builder_derive_options() -> &'static [BuildDeriveOptions] {
         ),
         (
             "UpdateCollectionClusterSetupRequest",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::WithDefaultFn,
+        ),
+        (
+            "MoveShard",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::WithDefaultFn,
+        ),
+        (
+            "ReplicateShard",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::WithDefaultFn,
+        ),
+        (
+            "AbortShardTransfer",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::WithDefaultFn,
+        ),
+        (
+            "Replica",
             NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
             MacroConfig::WithDefaultFn,
         ),

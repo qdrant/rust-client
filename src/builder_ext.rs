@@ -1,22 +1,23 @@
 use std::collections::HashMap;
 
+use crate::qdrant::update_collection_cluster_setup_request::Operation;
 use crate::qdrant::{
-    shard_key, BinaryQuantizationBuilder, ClearPayloadPointsBuilder, ContextExamplePair,
-    CountPointsBuilder, CreateAliasBuilder, CreateCollectionBuilder,
+    shard_key, AbortShardTransferBuilder, BinaryQuantizationBuilder, ClearPayloadPointsBuilder,
+    ContextExamplePair, CountPointsBuilder, CreateAliasBuilder, CreateCollectionBuilder,
     CreateFieldIndexCollectionBuilder, CreateShardKeyRequestBuilder, DeleteCollectionBuilder,
     DeleteFieldIndexCollectionBuilder, DeletePayloadPointsBuilder, DeletePointVectorsBuilder,
     DeletePointsBuilder, DeleteShardKey, DeleteShardKeyRequestBuilder,
     DeleteSnapshotRequestBuilder, DiscoverBatchPointsBuilder, DiscoverPoints,
     DiscoverPointsBuilder, Distance, FieldType, GetPointsBuilder, LookupLocationBuilder,
-    PayloadExcludeSelector, PayloadIncludeSelector, PointId, PointStruct, PointVectors,
-    PointsUpdateOperation, ProductQuantizationBuilder, QuantizationType, QueryBatchPointsBuilder,
-    QueryPoints, QueryPointsBuilder, RecommendBatchPointsBuilder, RecommendExample,
-    RecommendPointGroupsBuilder, RecommendPoints, RecommendPointsBuilder, RenameAliasBuilder,
-    ScalarQuantizationBuilder, ScrollPointsBuilder, SearchBatchPointsBuilder,
-    SearchPointGroupsBuilder, SearchPoints, SearchPointsBuilder, SetPayloadPointsBuilder, ShardKey,
-    UpdateBatchPointsBuilder, UpdateCollectionBuilder, UpdateCollectionClusterSetupRequestBuilder,
-    UpdatePointVectorsBuilder, UpsertPointsBuilder, Value, VectorParamsBuilder, VectorsSelector,
-    WithLookupBuilder,
+    MoveShardBuilder, PayloadExcludeSelector, PayloadIncludeSelector, PointId, PointStruct,
+    PointVectors, PointsUpdateOperation, ProductQuantizationBuilder, QuantizationType,
+    QueryBatchPointsBuilder, QueryPoints, QueryPointsBuilder, RecommendBatchPointsBuilder,
+    RecommendExample, RecommendPointGroupsBuilder, RecommendPoints, RecommendPointsBuilder,
+    RenameAliasBuilder, ReplicaBuilder, ReplicateShardBuilder, ScalarQuantizationBuilder,
+    ScrollPointsBuilder, SearchBatchPointsBuilder, SearchPointGroupsBuilder, SearchPoints,
+    SearchPointsBuilder, SetPayloadPointsBuilder, ShardKey, UpdateBatchPointsBuilder,
+    UpdateCollectionBuilder, UpdateCollectionClusterSetupRequestBuilder, UpdatePointVectorsBuilder,
+    UpsertPointsBuilder, Value, VectorParamsBuilder, VectorsSelector, WithLookupBuilder,
 };
 
 impl VectorParamsBuilder {
@@ -306,9 +307,49 @@ impl DeleteFieldIndexCollectionBuilder {
 }
 
 impl UpdateCollectionClusterSetupRequestBuilder {
-    pub fn new(collection_name: impl Into<String>) -> Self {
+    pub fn new(collection_name: impl Into<String>, operation: impl Into<Operation>) -> Self {
         let mut builder = Self::empty();
         builder.collection_name = Some(collection_name.into());
+        builder.operation = Some(Some(operation.into()));
+        builder
+    }
+}
+
+impl MoveShardBuilder {
+    pub fn new(shard_id: u32, from_peer_id: u64, to_peer_id: u64) -> Self {
+        let mut builder = Self::empty();
+        builder.shard_id = Some(shard_id);
+        builder.from_peer_id = Some(from_peer_id);
+        builder.to_peer_id = Some(to_peer_id);
+        builder
+    }
+}
+
+impl ReplicateShardBuilder {
+    pub fn new(shard_id: u32, from_peer_id: u64, to_peer_id: u64) -> Self {
+        let mut builder = Self::empty();
+        builder.shard_id = Some(shard_id);
+        builder.from_peer_id = Some(from_peer_id);
+        builder.to_peer_id = Some(to_peer_id);
+        builder
+    }
+}
+
+impl AbortShardTransferBuilder {
+    pub fn new(shard_id: u32, from_peer_id: u64, to_peer_id: u64) -> Self {
+        let mut builder = Self::empty();
+        builder.shard_id = Some(shard_id);
+        builder.from_peer_id = Some(from_peer_id);
+        builder.to_peer_id = Some(to_peer_id);
+        builder
+    }
+}
+
+impl ReplicaBuilder {
+    pub fn new(shard_id: u32, peer_id: u64) -> Self {
+        let mut builder = Self::empty();
+        builder.shard_id = Some(shard_id);
+        builder.peer_id = Some(peer_id);
         builder
     }
 }
