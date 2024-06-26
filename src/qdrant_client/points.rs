@@ -19,7 +19,7 @@ use crate::qdrant::{
 };
 use crate::qdrant_client::{Qdrant, QdrantResult};
 
-/// Point operations.
+/// # Point operations
 ///
 /// Manage points, vectors and payloads. Search and explore them.
 impl Qdrant {

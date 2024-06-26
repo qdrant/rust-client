@@ -2,7 +2,7 @@ use super::QdrantResult;
 use crate::qdrant::{QueryBatchPoints, QueryBatchResponse, QueryPoints, QueryResponse};
 use crate::qdrant_client::Qdrant;
 
-/// Point query operations.
+/// # Query operations
 ///
 /// Query points using the universal search API.
 ///

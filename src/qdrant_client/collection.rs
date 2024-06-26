@@ -17,7 +17,7 @@ use crate::qdrant::{
 };
 use crate::qdrant_client::{Qdrant, QdrantResult};
 
-/// Collection operations.
+/// # Collection operations
 ///
 /// Create, update and delete collections, manage collection aliases and collection cluster
 /// configuration.

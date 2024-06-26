@@ -60,12 +60,19 @@ pub type QdrantBuilder = QdrantConfig;
 ///
 /// # Operations
 ///
+/// Categories:
+///
+/// - [Collection operations](Self#collection-operations) - manage collections, aliases and cluster configuration
+/// - [Point operations](Self#point-operations) - manage points, vectors and payloads, search and explore them
+/// - [Query operations](Self#query-operations) - query points using universal search
+/// - [Snapshot operations](Self#snapshot-operations) - manage instance or collection snapshots
+/// - [Shard key operations](Self#sharding-key-operations) - manage shard keys
+///
 /// Common operations include:
 ///
-/// - [`create_collection`](Qdrant::create_collection) - Create a new collection
-/// - [`upsert_points`](Qdrant::upsert_points) - Insert or update points
-/// - [`search_points`](Qdrant::search_points) - Search points with similarity search
-/// - [All operations](Qdrant#implementations)
+/// - [`create_collection`](Self::create_collection) - create a new collection
+/// - [`upsert_points`](Self::upsert_points) - insert or update points
+/// - [`search_points`](Self::search_points) - search points with similarity search
 pub struct Qdrant {
     /// Client configuration
     pub config: QdrantConfig,

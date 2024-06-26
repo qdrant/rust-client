@@ -13,7 +13,7 @@ use crate::qdrant::{
 };
 use crate::qdrant_client::{Qdrant, QdrantResult};
 
-/// Snapshot operations.
+/// # Snapshot operations
 ///
 /// Create, recover and manage snapshots for collections or a full Qdrant instance.
 ///
