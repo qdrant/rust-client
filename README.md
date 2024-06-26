@@ -30,6 +30,11 @@ cargo add qdrant-client
 
 Package is available in [crates.io](https://crates.io/crates/qdrant-client)
 
+## Examples
+A list of example snippets can be found [here](https://github.com/qdrant/api-reference/tree/main/snippets/rust)
+
+More examples can be found in the [examples folder](https://github.com/qdrant/rust-client/tree/master/examples)
+
 ## Dependencies
 
 The client uses gRPC via the [Tonic](https://github.com/hyperium/tonic) library.
