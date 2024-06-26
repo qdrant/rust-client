@@ -405,8 +405,7 @@ impl Qdrant {
     ///             0, // Shard ID
     ///             0, // From peer ID
     ///             1, // To peer ID
-    ///         )
-    ///         .build(),
+    ///         ),
     ///     ))
     ///     .await?;
     ///# Ok(())
