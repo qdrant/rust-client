@@ -1158,7 +1158,7 @@ pub struct UpdateCollectionClusterSetupRequest {
         oneof = "update_collection_cluster_setup_request::Operation",
         tags = "2, 3, 4, 5, 7, 8, 9"
     )]
-    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
+    #[builder(field(vis = "pub(crate)"))]
     pub operation: ::core::option::Option<
         update_collection_cluster_setup_request::Operation,
     >,

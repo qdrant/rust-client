@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use qdrant_client::qdrant::update_collection_cluster_setup_request::Operation;
 use qdrant_client::qdrant::{
     AbortShardTransferBuilder, BinaryQuantizationBuilder, ClearPayloadPointsBuilder,
     ContextInputBuilder, ContextInputPairBuilder, CountPointsBuilder, CreateAliasBuilder,
@@ -58,7 +59,11 @@ fn builder_coverage() {
     UpsertPointsBuilder::new("my_collection", []).build();
     CreateFieldIndexCollectionBuilder::new("my_collection", " myfield", FieldType::Integer).build();
     DeleteFieldIndexCollectionBuilder::new("my_collection", " myfield").build();
-    UpdateCollectionClusterSetupRequestBuilder::new("my_collection").build();
+    UpdateCollectionClusterSetupRequestBuilder::new(
+        "my_collection",
+        Operation::MoveShard(MoveShardBuilder::new(0, 0, 0).build()),
+    )
+    .build();
     MoveShardBuilder::new(0, 0, 0).build();
     ReplicateShardBuilder::new(0, 0, 0).build();
     ReplicaBuilder::new(0, 0).build();

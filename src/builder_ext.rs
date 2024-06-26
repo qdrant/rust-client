@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use crate::qdrant::update_collection_cluster_setup_request::Operation;
 use crate::qdrant::{
     shard_key, AbortShardTransferBuilder, BinaryQuantizationBuilder, ClearPayloadPointsBuilder,
     ContextExamplePair, CountPointsBuilder, CreateAliasBuilder, CreateCollectionBuilder,
@@ -306,9 +307,10 @@ impl DeleteFieldIndexCollectionBuilder {
 }
 
 impl UpdateCollectionClusterSetupRequestBuilder {
-    pub fn new(collection_name: impl Into<String>) -> Self {
+    pub fn new(collection_name: impl Into<String>, operation: impl Into<Operation>) -> Self {
         let mut builder = Self::empty();
         builder.collection_name = Some(collection_name.into());
+        builder.operation = Some(Some(operation.into()));
         builder
     }
 }

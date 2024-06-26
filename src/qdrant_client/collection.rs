@@ -399,14 +399,15 @@ impl Qdrant {
     ///# async fn update_collection_cluster_setup(client: &Qdrant)
     ///# -> Result<(), QdrantError> {
     /// client
-    ///     .update_collection_cluster_setup(
-    ///         UpdateCollectionClusterSetupRequestBuilder::new("my_collection")
-    ///             .operation(MoveShardBuilder::new(
-    ///                 0, // Shard ID
-    ///                 0, // From peer ID
-    ///                 1, // To peer ID
-    ///             ))
-    ///     )
+    ///     .update_collection_cluster_setup(UpdateCollectionClusterSetupRequestBuilder::new(
+    ///         "my_collection",
+    ///         MoveShardBuilder::new(
+    ///             0, // Shard ID
+    ///             0, // From peer ID
+    ///             1, // To peer ID
+    ///         )
+    ///         .build(),
+    ///     ))
     ///     .await?;
     ///# Ok(())
     ///# }

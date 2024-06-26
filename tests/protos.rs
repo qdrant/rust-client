@@ -612,10 +612,7 @@ fn configure_builder(builder: Builder) -> Builder {
                 "UpdateCollectionClusterSetupRequest.timeout",
                 DEFAULT_OPTION,
             ),
-            (
-                "UpdateCollectionClusterSetupRequest.operation",
-                DEFAULT_OPTION_INTO,
-            ),
+            ("UpdateCollectionClusterSetupRequest.operation", PUBLIC_ONLY),
             // MoveShard
             ("MoveShard.shard_id", PUBLIC_ONLY),
             ("MoveShard.to_shard_id", DEFAULT_OPTION),
