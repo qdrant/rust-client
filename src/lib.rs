@@ -13,7 +13,7 @@
 //!
 //!# fn establish_connection(url: &str) -> Result<Qdrant, QdrantError> {
 //! let client = Qdrant::from_url("http://localhost:6334")
-//!     .with_api_key(std::env::var("QDRANT_API_KEY"))
+//!     .api_key(std::env::var("QDRANT_API_KEY"))
 //!     .build()?;
 //!# Ok(client)
 //!# }
@@ -146,13 +146,6 @@ mod qdrant_client;
 )]
 #[doc(hidden)]
 pub mod client;
-/// Deprecated Qdrant client config
-#[deprecated(
-    since = "1.10.0",
-    note = "use new config at `qdrant_client::QdrantConfig` instead"
-)]
-#[doc(hidden)]
-pub mod config;
 /// Deprecated error type
 #[deprecated(
     since = "1.10.0",
@@ -172,9 +165,15 @@ pub mod serde;
 
 // Re-exports
 pub use crate::payload::Payload;
-pub use crate::qdrant_client::config::QdrantConfig;
 pub use crate::qdrant_client::error::QdrantError;
 pub use crate::qdrant_client::{Qdrant, QdrantBuilder};
+
+/// Client configuration
+pub mod config {
+    pub use crate::qdrant_client::config::{
+        AsOptionApiKey, AsTimeout, CompressionEncoding, QdrantConfig,
+    };
+}
 
 #[cfg(test)]
 mod tests {
@@ -188,7 +187,7 @@ mod tests {
         SearchPointsBuilder, SetPayloadPointsBuilder, SnapshotDownloadBuilder, Struct,
         UpsertPointsBuilder, Value, VectorParamsBuilder,
     };
-    use crate::{Qdrant, QdrantConfig};
+    use crate::Qdrant;
 
     #[test]
     fn display() {
@@ -238,7 +237,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_qdrant_queries() -> anyhow::Result<()> {
-        let config = QdrantConfig::from_url("http://localhost:6334");
+        let config = Qdrant::from_url("http://localhost:6334");
         let client = Qdrant::new(Some(config))?;
 
         let health = client.health_check().await?;

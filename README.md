@@ -172,6 +172,6 @@ use qdrant_client::Qdrant;
 
 let client = Qdrant::from_url("http://xxxxxxxxxx.eu-central.aws.cloud.qdrant.io:6334")
     // Use an environment variable for the API KEY for example
-    .with_api_key(std::env::var("QDRANT_API_KEY"))
+    .api_key(std::env::var("QDRANT_API_KEY"))
     .build()?;
 ```
