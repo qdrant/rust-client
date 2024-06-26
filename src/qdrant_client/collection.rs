@@ -386,7 +386,7 @@ impl Qdrant {
 
     /// Update collection cluster setup.
     ///
-    /// Execute a collection cluster
+    /// Perform a collection cluster
     /// [`Operation`](crate::qdrant::update_collection_cluster_setup_request::Operation), such as
     /// [`MoveShard`](crate::qdrant::MoveShard), [`ReplicateShard`](crate::qdrant::ReplicateShard)
     /// or [`CreateShardKey`](crate::qdrant::CreateShardKey).
