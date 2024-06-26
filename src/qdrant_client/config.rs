@@ -3,6 +3,19 @@ use std::time::Duration;
 use crate::{Qdrant, QdrantError};
 
 /// Qdrant client configuration
+///
+/// The client is normally constructed through [`Qdrant::from_url`](crate::Qdrant::from_url):
+///
+/// ```rust,no_run
+/// use qdrant_client::Qdrant;
+/// use qdrant_client::config::CompressionEncoding;
+///
+/// let client = Qdrant::from_url("http://localhost:6334")
+///     .api_key(std::env::var("QDRANT_API_KEY"))
+///     .timeout(std::time::Duration::from_secs(10))
+///     .compression(Some(CompressionEncoding::Gzip))
+///     .build();
+/// ```
 pub struct QdrantConfig {
     /// Qdrant server URI to connect to
     pub uri: String,
@@ -24,6 +37,14 @@ pub struct QdrantConfig {
 }
 
 impl QdrantConfig {
+    /// Start configuring a Qdrant client with an URL
+    ///
+    /// ```rust,no_run
+    ///# use qdrant_client::config::QdrantConfig;
+    /// let client = QdrantConfig::from_url("http://localhost:6334").build();
+    /// ```
+    ///
+    /// This is normally done through [`Qdrant::from_url`](crate::Qdrant::from_url).
     pub fn from_url(url: &str) -> Self {
         QdrantConfig {
             uri: url.to_string(),
@@ -31,79 +52,120 @@ impl QdrantConfig {
         }
     }
 
-    /// Sets the API key or token
-    pub fn set_api_key(&mut self, api_key: &str) {
-        self.api_key = Some(api_key.to_string());
-    }
-
-    pub fn set_timeout(&mut self, timeout: Duration) {
-        self.timeout = timeout;
-    }
-
-    pub fn set_connect_timeout(&mut self, connect_timeout: Duration) {
-        self.connect_timeout = connect_timeout;
-    }
-
-    pub fn set_keep_alive_while_idle(&mut self, keep_alive_while_idle: bool) {
-        self.keep_alive_while_idle = keep_alive_while_idle;
-    }
-
-    pub fn set_compression(&mut self, compression: Option<CompressionEncoding>) {
-        self.compression = compression;
-    }
-
-    /// set the API key, builder-like. The API key argument can be any of
-    /// `&str`, `String`, `Option<&str>`, `Option<String>` or `Result<String>`.
+    /// Set an optional API key
     ///
-    /// # Examples:
+    /// # Examples
     ///
-    /// A typical use case might be getting the key from an env var:
-    /// ```rust, no_run
+    /// A typical use case might be getting the key from an environment variable:
+    ///
+    /// ```rust,no_run
     /// use qdrant_client::Qdrant;
     ///
-    /// let client = Qdrant::from_url("localhost:6334")
-    ///     .with_api_key(std::env::var("QDRANT_API_KEY"))
+    /// let client = Qdrant::from_url("http://localhost:6334")
+    ///     .api_key(std::env::var("QDRANT_API_KEY"))
     ///     .build();
     /// ```
-    /// Another possibility might be getting it out of some config
-    /// ```rust, no_run
+    ///
+    /// Or you might get it from some configuration:
+    ///
+    /// ```rust,no_run
     ///# use std::collections::HashMap;
-    /// use qdrant_client::QdrantConfig;
     ///# let config: HashMap<&str, String> = HashMap::new();
-    /// let client = QdrantConfig::from_url("localhost:6334")
-    ///     .with_api_key(config.get("api_key"))
+    ///# use qdrant_client::Qdrant;
+    /// let client = Qdrant::from_url("http://localhost:6334")
+    ///     .api_key(config.get("api_key"))
     ///     .build();
     /// ```
-    pub fn with_api_key(mut self, api_key: impl MaybeApiKey) -> Self {
-        self.api_key = api_key.maybe_key();
+    pub fn api_key(mut self, api_key: impl AsOptionApiKey) -> Self {
+        self.api_key = api_key.api_key();
         self
     }
 
-    /// Configure the service to keep the connection alive while idle
+    /// Keep the connection alive while idle
     pub fn keep_alive_while_idle(mut self) -> Self {
         self.keep_alive_while_idle = true;
         self
     }
 
     /// Set the timeout for this client
-    pub fn with_timeout(mut self, timeout: impl AsTimeout) -> Self {
+    ///
+    /// ```rust,no_run
+    /// use qdrant_client::Qdrant;
+    ///
+    /// let client = Qdrant::from_url("http://localhost:6334")
+    ///     .timeout(std::time::Duration::from_secs(10))
+    ///     .build();
+    /// ```
+    pub fn timeout(mut self, timeout: impl AsTimeout) -> Self {
         self.timeout = timeout.timeout();
         self
     }
 
     /// Set the connect timeout for this client
-    pub fn with_connect_timeout(mut self, timeout: impl AsTimeout) -> Self {
+    ///
+    /// ```rust,no_run
+    /// use qdrant_client::Qdrant;
+    ///
+    /// let client = Qdrant::from_url("http://localhost:6334")
+    ///     .connect_timeout(std::time::Duration::from_secs(10))
+    ///     .build();
+    /// ```
+    pub fn connect_timeout(mut self, timeout: impl AsTimeout) -> Self {
         self.connect_timeout = timeout.timeout();
         self
     }
 
     /// Set the compression to use for this client
-    pub fn with_compression(mut self, compression: Option<CompressionEncoding>) -> Self {
+    ///
+    /// ```rust,no_run
+    /// use qdrant_client::Qdrant;
+    /// use qdrant_client::config::CompressionEncoding;
+    ///
+    /// let client = Qdrant::from_url("http://localhost:6334")
+    ///     .compression(Some(CompressionEncoding::Gzip))
+    ///     .build();
+    /// ```
+    pub fn compression(mut self, compression: Option<CompressionEncoding>) -> Self {
         self.compression = compression;
         self
     }
 
-    /// Build the Qdrant
+    /// Set an API key
+    ///
+    /// Also see [`api_key()`](fn@Self::api_key).
+    pub fn set_api_key(&mut self, api_key: &str) {
+        self.api_key = Some(api_key.to_string());
+    }
+
+    /// Set the timeout for this client
+    ///
+    /// Also see [`timeout()`](fn@Self::timeout).
+    pub fn set_timeout(&mut self, timeout: Duration) {
+        self.timeout = timeout;
+    }
+
+    /// Set the connection timeout for this client
+    ///
+    /// Also see [`connect_timeout()`](fn@Self::connect_timeout).
+    pub fn set_connect_timeout(&mut self, connect_timeout: Duration) {
+        self.connect_timeout = connect_timeout;
+    }
+
+    /// Set whether to keep the connection alive when idle
+    ///
+    /// Also see [`keep_alive_while_idle()`](fn@Self::keep_alive_while_idle).
+    pub fn set_keep_alive_while_idle(&mut self, keep_alive_while_idle: bool) {
+        self.keep_alive_while_idle = keep_alive_while_idle;
+    }
+
+    /// Set the compression to use for this client
+    ///
+    /// Also see [`compression()`](fn@Self::compression).
+    pub fn set_compression(&mut self, compression: Option<CompressionEncoding>) {
+        self.compression = compression;
+    }
+
+    /// Build the configured [`Qdrant`] client
     pub fn build(self) -> Result<Qdrant, QdrantError> {
         Qdrant::new(Some(self))
     }
@@ -125,7 +187,7 @@ impl Default for QdrantConfig {
     }
 }
 
-/// The type of compression to use for requests.
+/// Type of compression to use for requests
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CompressionEncoding {
     Gzip,
@@ -139,6 +201,18 @@ impl From<CompressionEncoding> for tonic::codec::CompressionEncoding {
     }
 }
 
+/// Set a timeout from various types
+///
+/// For example:
+///
+/// ```rust
+///# use std::time::Duration;
+///# use qdrant_client::Qdrant;
+///# let mut config = Qdrant::from_url("http://localhost:6334");
+/// config
+///     .timeout(10)
+///     .timeout(Duration::from_secs(10));
+/// ```
 pub trait AsTimeout {
     fn timeout(self) -> Duration;
 }
@@ -155,43 +229,56 @@ impl AsTimeout for u64 {
     }
 }
 
-/// Helper thread to allow setting an API key from various types
-pub trait MaybeApiKey {
-    fn maybe_key(self) -> Option<String>;
+/// Set an optional API key from various types
+///
+/// For example:
+///
+/// ```rust
+///# use std::time::Duration;
+///# use qdrant_client::Qdrant;
+///# let mut config = Qdrant::from_url("http://localhost:6334");
+/// config
+///     .api_key("secret")
+///     .api_key(String::from("secret"))
+///     .api_key(std::env::var("QDRANT_API_KEY"))
+///     .api_key(None::<String>);
+/// ```
+pub trait AsOptionApiKey {
+    fn api_key(self) -> Option<String>;
 }
 
-impl MaybeApiKey for &str {
-    fn maybe_key(self) -> Option<String> {
+impl AsOptionApiKey for &str {
+    fn api_key(self) -> Option<String> {
         Some(self.to_string())
     }
 }
 
-impl MaybeApiKey for String {
-    fn maybe_key(self) -> Option<String> {
+impl AsOptionApiKey for String {
+    fn api_key(self) -> Option<String> {
         Some(self)
     }
 }
 
-impl MaybeApiKey for Option<String> {
-    fn maybe_key(self) -> Option<String> {
+impl AsOptionApiKey for Option<String> {
+    fn api_key(self) -> Option<String> {
         self
     }
 }
 
-impl MaybeApiKey for Option<&String> {
-    fn maybe_key(self) -> Option<String> {
+impl AsOptionApiKey for Option<&String> {
+    fn api_key(self) -> Option<String> {
         self.map(ToOwned::to_owned)
     }
 }
 
-impl MaybeApiKey for Option<&str> {
-    fn maybe_key(self) -> Option<String> {
+impl AsOptionApiKey for Option<&str> {
+    fn api_key(self) -> Option<String> {
         self.map(ToOwned::to_owned)
     }
 }
 
-impl<E: Sized> MaybeApiKey for Result<String, E> {
-    fn maybe_key(self) -> Option<String> {
+impl<E: Sized> AsOptionApiKey for Result<String, E> {
+    fn api_key(self) -> Option<String> {
         self.ok()
     }
 }
