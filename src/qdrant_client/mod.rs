@@ -5,6 +5,7 @@ mod conversions;
 pub mod error;
 mod points;
 mod query;
+mod search;
 mod sharding_keys;
 mod snapshot;
 
@@ -63,7 +64,8 @@ pub type QdrantBuilder = QdrantConfig;
 /// Categories:
 ///
 /// - [Collection operations](Self#collection-operations) - manage collections, aliases and cluster configuration
-/// - [Point operations](Self#point-operations) - manage points, vectors and payloads, search and explore them
+/// - [Point operations](Self#point-operations) - manage points, vectors and payloads
+/// - [Search operations](Self#search-operations) - search and explore points
 /// - [Query operations](Self#query-operations) - query points using universal search
 /// - [Snapshot operations](Self#snapshot-operations) - manage instance or collection snapshots
 /// - [Shard key operations](Self#sharding-key-operations) - manage shard keys

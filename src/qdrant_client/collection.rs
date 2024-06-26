@@ -5,15 +5,14 @@ use tonic::transport::Channel;
 use tonic::Status;
 
 use crate::auth::TokenInterceptor;
-use crate::prelude::{CreateCollection, DeleteCollection};
 use crate::qdrant::collections_client::CollectionsClient;
 use crate::qdrant::{
     alias_operations, AliasOperations, ChangeAliases, CollectionClusterInfoRequest,
     CollectionClusterInfoResponse, CollectionExistsRequest, CollectionOperationResponse,
-    CreateAlias, DeleteAlias, GetCollectionInfoRequest, GetCollectionInfoResponse,
-    ListAliasesRequest, ListAliasesResponse, ListCollectionAliasesRequest, ListCollectionsRequest,
-    ListCollectionsResponse, RenameAlias, UpdateCollection, UpdateCollectionClusterSetupRequest,
-    UpdateCollectionClusterSetupResponse,
+    CreateAlias, CreateCollection, DeleteAlias, DeleteCollection, GetCollectionInfoRequest,
+    GetCollectionInfoResponse, ListAliasesRequest, ListAliasesResponse,
+    ListCollectionAliasesRequest, ListCollectionsRequest, ListCollectionsResponse, RenameAlias,
+    UpdateCollection, UpdateCollectionClusterSetupRequest, UpdateCollectionClusterSetupResponse,
 };
 use crate::qdrant_client::{Qdrant, QdrantResult};
 
@@ -436,9 +435,8 @@ mod tests {
 
     use super::*;
     use crate::payload::Payload;
-    use crate::prelude::Distance;
     use crate::qdrant::{
-        CountPointsBuilder, CreateCollectionBuilder, PointStruct, SearchPointsBuilder,
+        CountPointsBuilder, CreateCollectionBuilder, Distance, PointStruct, SearchPointsBuilder,
         UpsertPointsBuilder, VectorParamsBuilder,
     };
     use crate::qdrant_client::config::QdrantConfig;
