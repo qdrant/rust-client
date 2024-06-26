@@ -1,13 +1,18 @@
-# rust-client
+# Qdrant Rust client
 
-Rust client for Qdrant vector search engine.
+The [Qdrant](https://qdrant.tech/) - High-Performance Vector Search at Scale - client for Rust.
 
 [![Crates.io][crates-badge]][crates-url]
+[![docs.rs][docs-badge]][docs-url]
 [![Apache 2.0 licensed][apache2-badge]][apache2-url]
 
 [crates-badge]: https://img.shields.io/crates/v/qdrant-client.svg
 
 [crates-url]: https://crates.io/crates/qdrant-client
+
+[docs-badge]: https://img.shields.io/docsrs/qdrant-client.svg
+
+[docs-url]: https://docs.rs/qdrant-client
 
 [apache2-badge]: https://img.shields.io/badge/license-apache2-blue.svg
 
