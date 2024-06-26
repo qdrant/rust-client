@@ -265,9 +265,9 @@ impl Qdrant {
         .await
     }
 
-    /// Batch point updates in a collection.
+    /// Batch point operations in a collection.
     ///
-    /// Execute a batch of point [updates](crate::qdrant::points_update_operation::Operation) in a single operation.
+    /// Perform a batch of point [`Operation`](crate::qdrant::points_update_operation::Operation)s in a single request.
     ///
     /// ```no_run
     ///# use std::collections::HashMap;
@@ -283,7 +283,7 @@ impl Qdrant {
     /// };
     /// use serde_json::json;
     ///
-    ///# async fn update_batch_points(client: &Qdrant)
+    ///# async fn update_points_batch(client: &Qdrant)
     ///# -> Result<(), QdrantError> {
     /// client
     ///     .update_points_batch(
