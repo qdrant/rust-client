@@ -3,6 +3,7 @@ mod collection;
 pub mod config;
 mod conversions;
 pub mod error;
+mod index;
 mod points;
 mod query;
 mod search;
@@ -67,6 +68,7 @@ pub type QdrantBuilder = QdrantConfig;
 /// - [Point operations](Self#point-operations) - manage points, vectors and payloads
 /// - [Search operations](Self#search-operations) - search and explore points
 /// - [Query operations](Self#query-operations) - query points using universal search
+/// - [Index operations](Self#index-operations) - manage field and payload indices
 /// - [Snapshot operations](Self#snapshot-operations) - manage instance or collection snapshots
 /// - [Shard key operations](Self#sharding-key-operations) - manage shard keys
 ///
