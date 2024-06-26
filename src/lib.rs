@@ -122,7 +122,7 @@
 
 // Generated Qdrant API types
 /// API types
-#[allow(clippy::all)]
+#[allow(deprecated, clippy::all)]
 #[rustfmt::skip]
 pub mod qdrant;
 
