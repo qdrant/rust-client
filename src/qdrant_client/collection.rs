@@ -394,21 +394,19 @@ impl Qdrant {
     ///
     /// ```no_run
     ///# use qdrant_client::{Qdrant, QdrantError};
-    /// use qdrant_client::qdrant::{MoveShard, UpdateCollectionClusterSetupRequestBuilder};
+    /// use qdrant_client::qdrant::{MoveShardBuilder, UpdateCollectionClusterSetupRequestBuilder};
     ///
     ///# async fn update_collection_cluster_setup(client: &Qdrant)
     ///# -> Result<(), QdrantError> {
     /// client
-    ///     .update_collection_cluster_setup(
-    ///         UpdateCollectionClusterSetupRequestBuilder::new("my_collection")
-    ///             .operation(MoveShard {
-    ///                 shard_id: 0,
-    ///                 to_shard_id: None,
-    ///                 from_peer_id: 0,
-    ///                 to_peer_id: 1,
-    ///                 method: None,
-    ///             })
-    ///     )
+    ///     .update_collection_cluster_setup(UpdateCollectionClusterSetupRequestBuilder::new(
+    ///         "my_collection",
+    ///         MoveShardBuilder::new(
+    ///             0, // Shard ID
+    ///             0, // From peer ID
+    ///             1, // To peer ID
+    ///         ),
+    ///     ))
     ///     .await?;
     ///# Ok(())
     ///# }
