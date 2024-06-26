@@ -12,6 +12,42 @@ use crate::qdrant::Value;
 /// values during vector search.
 ///
 /// Payload documentation: <https://qdrant.tech/documentation/concepts/payload/>
+///
+/// # Serde
+///
+/// <small><em>Requires `serde` feature</em></small>
+///
+/// [Serde JSON](serde_json) types can be converted to and from [`Payload`]. Note that a valid
+/// payload must be a JSON object, and not another JSON type.
+///
+/// Convert a JSON [`Value`](serde_json::Value) to and from [`Payload`]:
+///
+/// ```rust
+///# use qdrant_client::Payload;
+/// use serde_json::{Value, json};
+///
+/// let value = json!({
+///     "city": "Berlin",
+/// });
+///
+/// let payload = Payload::try_from(value).expect("not a JSON object");
+/// let value = Value::from(payload);
+/// ```
+///
+/// If the above value is not a JSON object, a [`QdrantError::JsonToPayload`](crate::QdrantError::JsonToPayload) error is returned.
+///
+/// Convert a JSON object ([`Map<String, Value>`](serde_json::Map)) to and from from [`Payload`]:
+///
+/// ```rust
+///# use qdrant_client::Payload;
+/// use serde_json::{Map, Value};
+///
+/// let mut object = Map::new();
+/// object.insert("city".to_string(), "Berlin".into());
+///
+/// let payload = Payload::from(object);
+/// let object = Map::from(payload);
+/// ```
 #[derive(Clone, PartialEq, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Payload(pub(crate) HashMap<String, Value>);
@@ -26,19 +62,6 @@ impl Payload {
     #[deprecated(since = "1.10.0", note = "use `Payload::from` instead")]
     pub fn new_from_hashmap(payload: HashMap<String, Value>) -> Self {
         Self(payload)
-    }
-
-    /// Convert a JSON object into payload
-    ///
-    /// Returns `None` if the given JSON value is not an object.
-    #[cfg(feature = "serde")]
-    #[inline]
-    pub fn from_json_object(value: serde_json::Value) -> Option<Self> {
-        if let serde_json::Value::Object(object) = value {
-            Some(object.into())
-        } else {
-            None
-        }
     }
 
     /// Insert a payload value at the given key, replacing any existing value
@@ -74,11 +97,60 @@ impl From<Payload> for HashMap<String, Value> {
 }
 
 #[cfg(feature = "serde")]
-impl From<serde_json::Map<String, serde_json::Value>> for Payload {
+impl From<Payload> for serde_json::Value {
     #[inline]
-    fn from(obj: serde_json::Map<String, serde_json::Value>) -> Self {
+    fn from(value: Payload) -> serde_json::Value {
+        serde_json::Value::Object(value.into())
+    }
+}
+
+#[cfg(feature = "serde")]
+impl From<Payload> for serde_json::Map<String, serde_json::Value> {
+    #[inline]
+    fn from(value: Payload) -> serde_json::Map<String, serde_json::Value> {
+        value
+            .0
+            .into_iter()
+            .map(|(k, v)| (k, v.into()))
+            .collect::<serde_json::Map<String, serde_json::Value>>()
+    }
+}
+
+#[cfg(feature = "serde")]
+impl TryFrom<serde_json::Value> for Payload {
+    type Error = crate::QdrantError;
+
+    /// Convert JSON object into payload
+    ///
+    /// The JSON value must be a valid object. A JSON object of type
+    /// [`Map<String, Value>`](serde_json::Map) can be converted without errors using
+    /// [`Payload::from`].
+    ///
+    /// # Errors
+    ///
+    /// Returns an [`QdrantError::JsonToPayload`](crate::QdrantError::JsonToPayload) error if the
+    /// value is not an object.
+    #[inline]
+    fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
+        if let serde_json::Value::Object(object) = value {
+            Ok(object.into())
+        } else {
+            Err(crate::QdrantError::JsonToPayload(value))
+        }
+    }
+}
+
+#[cfg(feature = "serde")]
+impl From<serde_json::Map<String, serde_json::Value>> for Payload {
+    /// Convert JSON object into payload
+    ///
+    /// If you have a JSON object as generic value of type [`Value`](serde_json::Value), you can
+    /// convert it with [`Payload::try_from`].
+    #[inline]
+    fn from(object: serde_json::Map<String, serde_json::Value>) -> Self {
         Payload::from(
-            obj.into_iter()
+            object
+                .into_iter()
                 .map(|(k, v)| (k, v.into()))
                 .collect::<HashMap<String, Value>>(),
         )
@@ -171,7 +243,7 @@ mod tests {
             "some_obj": {"key": "value"}
         });
 
-        let payload: Payload = Payload::from_json_object(json_value).unwrap();
+        let payload: Payload = Payload::try_from(json_value).unwrap();
 
         eprintln!("payload = {:#?}", payload);
     }

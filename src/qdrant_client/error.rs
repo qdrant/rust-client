@@ -33,6 +33,11 @@ pub enum QdrantError {
     #[cfg(feature = "reqwest")]
     #[error("Reqwest error: {}", .0)]
     Reqwest(#[from] reqwest::Error),
+
+    /// JSON to payload conversion error, only JSON objects are supported
+    #[cfg(feature = "serde")]
+    #[error("JSON cannot be converted to payload, only JSON objects are supported")]
+    JsonToPayload(serde_json::Value),
 }
 
 impl From<tonic::Status> for QdrantError {
