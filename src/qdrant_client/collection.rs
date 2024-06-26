@@ -441,12 +441,10 @@ mod tests {
         CountPointsBuilder, CreateCollectionBuilder, PointStruct, SearchPointsBuilder,
         UpsertPointsBuilder, VectorParamsBuilder,
     };
-    use crate::qdrant_client::config::QdrantConfig;
 
     #[tokio::test]
     async fn create_collection_and_do_the_search() -> QdrantResult<()> {
-        let config = QdrantConfig::from_url("http://localhost:6334");
-        let client = Qdrant::new(Some(config))?;
+        let client = Qdrant::from_url("http://localhost:6334").build()?;
 
         let collection_name = "test2";
 
