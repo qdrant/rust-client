@@ -4,6 +4,10 @@ use std::time::Duration;
 
 use crate::client::QdrantClient;
 
+#[deprecated(
+    since = "1.10.0",
+    note = "use new config at `qdrant_client::config::QdrantConfig` instead"
+)]
 pub struct QdrantClientConfig {
     pub uri: String,
     pub timeout: Duration,
@@ -64,6 +68,10 @@ impl QdrantClientConfig {
     ///     .with_api_key(config.get("api_key"))
     ///     .build();
     /// ```
+    #[deprecated(
+        since = "1.10.0",
+        note = "use `qdrant_client::config::QdrantConfig::api_key` instead"
+    )]
     pub fn with_api_key(mut self, api_key: impl MaybeApiKey) -> Self {
         self.api_key = api_key.maybe_key();
         self
@@ -76,18 +84,30 @@ impl QdrantClientConfig {
     }
 
     /// Set the timeout for this client
+    #[deprecated(
+        since = "1.10.0",
+        note = "use `qdrant_client::config::QdrantConfig::timeout` instead"
+    )]
     pub fn with_timeout(mut self, timeout: impl AsTimeout) -> Self {
         self.timeout = timeout.timeout();
         self
     }
 
     /// Set the connect timeout for this client
+    #[deprecated(
+        since = "1.10.0",
+        note = "use `qdrant_client::config::QdrantConfig::connect_timeout` instead"
+    )]
     pub fn with_connect_timeout(mut self, timeout: impl AsTimeout) -> Self {
         self.connect_timeout = timeout.timeout();
         self
     }
 
     /// Set the compression to use for this client
+    #[deprecated(
+        since = "1.10.0",
+        note = "use `qdrant_client::config::QdrantConfig::compression` instead"
+    )]
     pub fn with_compression(mut self, compression: Option<CompressionEncoding>) -> Self {
         self.compression = compression;
         self
@@ -126,6 +146,10 @@ impl From<CompressionEncoding> for tonic::codec::CompressionEncoding {
     }
 }
 
+#[deprecated(
+    since = "1.10.0",
+    note = "use `qdrant_client::config::AsTimeout` instead"
+)]
 pub trait AsTimeout {
     fn timeout(self) -> Duration;
 }
@@ -142,7 +166,11 @@ impl AsTimeout for u64 {
     }
 }
 
-/// Helper thread to allow setting an API key from various types
+/// Helper type to allow setting an API key from various types
+#[deprecated(
+    since = "1.10.0",
+    note = "use `qdrant_client::config::AsOptionApiKey` instead"
+)]
 pub trait MaybeApiKey {
     fn maybe_key(self) -> Option<String>;
 }
