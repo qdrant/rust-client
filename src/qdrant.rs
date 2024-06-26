@@ -999,47 +999,79 @@ pub struct CollectionClusterInfoResponse {
     #[prost(message, repeated, tag = "5")]
     pub shard_transfers: ::prost::alloc::vec::Vec<ShardTransferInfo>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(
+    build_fn(private, name = "build_inner"),
+    pattern = "owned",
+    custom_constructor
+)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct MoveShard {
     /// Local shard id
     #[prost(uint32, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub shard_id: u32,
     #[prost(uint32, optional, tag = "5")]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub to_shard_id: ::core::option::Option<u32>,
     #[prost(uint64, tag = "2")]
+    #[builder(field(vis = "pub(crate)"))]
     pub from_peer_id: u64,
     #[prost(uint64, tag = "3")]
+    #[builder(field(vis = "pub(crate)"))]
     pub to_peer_id: u64,
     #[prost(enumeration = "ShardTransferMethod", optional, tag = "4")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub method: ::core::option::Option<i32>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(
+    build_fn(private, name = "build_inner"),
+    pattern = "owned",
+    custom_constructor
+)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ReplicateShard {
     /// Local shard id
     #[prost(uint32, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub shard_id: u32,
     #[prost(uint32, optional, tag = "5")]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub to_shard_id: ::core::option::Option<u32>,
     #[prost(uint64, tag = "2")]
+    #[builder(field(vis = "pub(crate)"))]
     pub from_peer_id: u64,
     #[prost(uint64, tag = "3")]
+    #[builder(field(vis = "pub(crate)"))]
     pub to_peer_id: u64,
     #[prost(enumeration = "ShardTransferMethod", optional, tag = "4")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub method: ::core::option::Option<i32>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(
+    build_fn(private, name = "build_inner"),
+    pattern = "owned",
+    custom_constructor
+)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct AbortShardTransfer {
     /// Local shard id
     #[prost(uint32, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub shard_id: u32,
     #[prost(uint32, optional, tag = "4")]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub to_shard_id: ::core::option::Option<u32>,
     #[prost(uint64, tag = "2")]
+    #[builder(field(vis = "pub(crate)"))]
     pub from_peer_id: u64,
     #[prost(uint64, tag = "3")]
+    #[builder(field(vis = "pub(crate)"))]
     pub to_peer_id: u64,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -1057,12 +1089,20 @@ pub struct RestartTransfer {
     #[prost(enumeration = "ShardTransferMethod", tag = "4")]
     pub method: i32,
 }
+#[derive(derive_builder::Builder)]
+#[builder(
+    build_fn(private, name = "build_inner"),
+    pattern = "owned",
+    custom_constructor
+)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Replica {
     #[prost(uint32, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub shard_id: u32,
     #[prost(uint64, tag = "2")]
+    #[builder(field(vis = "pub(crate)"))]
     pub peer_id: u64,
 }
 #[derive(derive_builder::Builder)]
@@ -1118,7 +1158,7 @@ pub struct UpdateCollectionClusterSetupRequest {
         oneof = "update_collection_cluster_setup_request::Operation",
         tags = "2, 3, 4, 5, 7, 8, 9"
     )]
-    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
+    #[builder(field(vis = "pub(crate)"))]
     pub operation: ::core::option::Option<
         update_collection_cluster_setup_request::Operation,
     >,
@@ -8860,6 +8900,10 @@ builder_type_conversions!(CountPoints, CountPointsBuilder, true);
 builder_type_conversions!(CreateFieldIndexCollection, CreateFieldIndexCollectionBuilder, true);
 builder_type_conversions!(DeleteFieldIndexCollection, DeleteFieldIndexCollectionBuilder, true);
 builder_type_conversions!(UpdateCollectionClusterSetupRequest, UpdateCollectionClusterSetupRequestBuilder, true);
+builder_type_conversions!(MoveShard, MoveShardBuilder, true);
+builder_type_conversions!(ReplicateShard, ReplicateShardBuilder, true);
+builder_type_conversions!(AbortShardTransfer, AbortShardTransferBuilder, true);
+builder_type_conversions!(Replica, ReplicaBuilder, true);
 builder_type_conversions!(CreateShardKeyRequest, CreateShardKeyRequestBuilder, true);
 builder_type_conversions!(DeleteShardKeyRequest, DeleteShardKeyRequestBuilder, true);
 builder_type_conversions!(DeleteCollection, DeleteCollectionBuilder, true);
