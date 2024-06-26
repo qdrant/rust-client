@@ -4,6 +4,7 @@ pub mod config;
 mod conversions;
 pub mod error;
 mod index;
+mod payload;
 mod points;
 mod query;
 mod search;
@@ -65,7 +66,8 @@ pub type QdrantBuilder = QdrantConfig;
 /// Categories:
 ///
 /// - [Collection operations](Self#collection-operations) - manage collections, aliases and cluster configuration
-/// - [Point operations](Self#point-operations) - manage points, vectors and payloads
+/// - [Point operations](Self#point-operations) - manage points and vectors
+/// - [Payload operations](Self#payload-operations) - manage point payloads
 /// - [Search operations](Self#search-operations) - search and explore points
 /// - [Query operations](Self#query-operations) - query points using universal search
 /// - [Index operations](Self#index-operations) - manage field and payload indices
