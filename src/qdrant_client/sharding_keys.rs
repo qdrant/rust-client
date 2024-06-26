@@ -3,7 +3,7 @@ use crate::qdrant::{
 };
 use crate::qdrant_client::{Qdrant, QdrantResult};
 
-/// Sharding key operations.
+/// # Sharding key operations
 ///
 /// Create or delete shard keys for collections.
 ///
