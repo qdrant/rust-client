@@ -4861,6 +4861,7 @@ pub mod points_update_operation {
         #[prost(message, tag = "1")]
         Upsert(PointStructList),
         #[prost(message, tag = "2")]
+        #[deprecated(since = "1.7.0", note = "use `DeletePoints` instead")]
         DeleteDeprecated(super::PointsSelector),
         #[prost(message, tag = "3")]
         SetPayload(SetPayload),
@@ -4869,6 +4870,7 @@ pub mod points_update_operation {
         #[prost(message, tag = "5")]
         DeletePayload(DeletePayload),
         #[prost(message, tag = "6")]
+        #[deprecated(since = "1.7.0", note = "use `ClearPayload` instead")]
         ClearPayloadDeprecated(super::PointsSelector),
         #[prost(message, tag = "7")]
         UpdateVectors(UpdateVectors),

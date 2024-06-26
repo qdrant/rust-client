@@ -20,6 +20,7 @@ fn protos() {
     }
 
     tonic_build::configure()
+        .configure_deprecations()
         .configure_derive_builder()
         .out_dir("src/") // saves generated structures at this location
         .compile(
@@ -65,6 +66,7 @@ enum MacroConfig {
 
 /// Extension to [`Builder`] to configure builder attributes.
 trait BuilderExt {
+    fn configure_deprecations(self) -> Self;
     fn configure_derive_builder(self) -> Self;
     fn derive_builders(self, paths: &[(&str, &str)], derive_options: &[BuildDeriveOptions])
         -> Self;
@@ -73,6 +75,17 @@ trait BuilderExt {
 }
 
 impl BuilderExt for Builder {
+    fn configure_deprecations(self) -> Self {
+        self.field_attribute(
+            "PointsUpdateOperation.operation.delete_deprecated",
+            "#[deprecated(since = \"1.7.0\", note = \"use `DeletePoints` instead\")]",
+        )
+        .field_attribute(
+            "PointsUpdateOperation.operation.clear_payload_deprecated",
+            "#[deprecated(since = \"1.7.0\", note = \"use `ClearPayload` instead\")]",
+        )
+    }
+
     fn configure_derive_builder(self) -> Self {
         configure_builder(self)
     }
