@@ -138,6 +138,7 @@ impl Qdrant {
     /// ```
     ///
     /// Documentation: <https://qdrant.tech/documentation/concepts/collections/#check-collection-existence>
+    #[doc(alias = "has_collection")]
     pub async fn collection_exists(
         &self,
         request: impl Into<CollectionExistsRequest>,
