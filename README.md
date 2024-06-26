@@ -18,6 +18,10 @@ The [Qdrant](https://qdrant.tech/) - High-Performance Vector Search at Scale - c
 
 [apache2-url]: https://github.com/qdrant/rust-client/blob/master/LICENSE
 
+Documentation:
+- Qdrant documentation: <https://qdrant.tech/documentation/>
+- Crate documentation: <https://docs.rs/qdrant-client>
+
 ## Installation
 
 ```bash
