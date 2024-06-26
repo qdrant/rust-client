@@ -87,6 +87,8 @@ pub struct Qdrant {
     channel: ChannelPool,
 }
 
+/// # Construct and connect
+///
 /// Methods to construct a new Qdrant client.
 impl Qdrant {
     /// Create a new Qdrant client.
