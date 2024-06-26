@@ -5,19 +5,18 @@ use tonic::transport::Channel;
 use tonic::Status;
 
 use crate::auth::TokenInterceptor;
-use crate::prelude::{CreateCollection, DeleteCollection};
 use crate::qdrant::collections_client::CollectionsClient;
 use crate::qdrant::{
     alias_operations, AliasOperations, ChangeAliases, CollectionClusterInfoRequest,
     CollectionClusterInfoResponse, CollectionExistsRequest, CollectionOperationResponse,
-    CreateAlias, DeleteAlias, GetCollectionInfoRequest, GetCollectionInfoResponse,
-    ListAliasesRequest, ListAliasesResponse, ListCollectionAliasesRequest, ListCollectionsRequest,
-    ListCollectionsResponse, RenameAlias, UpdateCollection, UpdateCollectionClusterSetupRequest,
-    UpdateCollectionClusterSetupResponse,
+    CreateAlias, CreateCollection, DeleteAlias, DeleteCollection, GetCollectionInfoRequest,
+    GetCollectionInfoResponse, ListAliasesRequest, ListAliasesResponse,
+    ListCollectionAliasesRequest, ListCollectionsRequest, ListCollectionsResponse, RenameAlias,
+    UpdateCollection, UpdateCollectionClusterSetupRequest, UpdateCollectionClusterSetupResponse,
 };
 use crate::qdrant_client::{Qdrant, QdrantResult};
 
-/// Collection operations.
+/// # Collection operations
 ///
 /// Create, update and delete collections, manage collection aliases and collection cluster
 /// configuration.
@@ -48,31 +47,6 @@ impl Qdrant {
         Ok(result)
     }
 
-    /// Delete an existing collection.
-    ///
-    /// ```no_run
-    ///# use qdrant_client::{Qdrant, QdrantError};
-    ///# async fn delete_collection(client: &Qdrant)
-    ///# -> Result<(), QdrantError> {
-    /// client.delete_collection("my_collection").await?;
-    ///# Ok(())
-    ///# }
-    /// ```
-    ///
-    /// Documentation: <https://qdrant.tech/documentation/concepts/collections/#delete-collection>
-    pub async fn delete_collection(
-        &self,
-        request: impl Into<DeleteCollection>,
-    ) -> QdrantResult<CollectionOperationResponse> {
-        let delete_collection = &request.into();
-
-        self.with_collections_client(|mut collection_api| async move {
-            let result = collection_api.delete(delete_collection.clone()).await?;
-            Ok(result.into_inner())
-        })
-        .await
-    }
-
     /// Create a new collection.
     ///
     /// ```no_run
@@ -100,6 +74,30 @@ impl Qdrant {
         let create_collection_ref = &create_collection;
         self.with_collections_client(|mut collection_api| async move {
             let result = collection_api.create(create_collection_ref.clone()).await?;
+            Ok(result.into_inner())
+        })
+        .await
+    }
+
+    /// Get collection info.
+    ///
+    /// ```no_run
+    ///# use qdrant_client::{Qdrant, QdrantError};
+    ///# async fn collection_info(client: &Qdrant)
+    ///# -> Result<(), QdrantError> {
+    /// client.collection_info("my_collection").await?;
+    ///# Ok(())
+    ///# }
+    /// ```
+    ///
+    /// Documentation: <https://qdrant.tech/documentation/concepts/collections/#collection-info>
+    pub async fn collection_info(
+        &self,
+        request: impl Into<GetCollectionInfoRequest>,
+    ) -> QdrantResult<GetCollectionInfoResponse> {
+        let request = &request.into();
+        self.with_collections_client(|mut collection_api| async move {
+            let result = collection_api.get(request.clone()).await?;
             Ok(result.into_inner())
         })
         .await
@@ -192,25 +190,26 @@ impl Qdrant {
         .await
     }
 
-    /// Get collection info.
+    /// Delete an existing collection.
     ///
     /// ```no_run
     ///# use qdrant_client::{Qdrant, QdrantError};
-    ///# async fn collection_info(client: &Qdrant)
+    ///# async fn delete_collection(client: &Qdrant)
     ///# -> Result<(), QdrantError> {
-    /// client.collection_info("my_collection").await?;
+    /// client.delete_collection("my_collection").await?;
     ///# Ok(())
     ///# }
     /// ```
     ///
-    /// Documentation: <https://qdrant.tech/documentation/concepts/collections/#collection-info>
-    pub async fn collection_info(
+    /// Documentation: <https://qdrant.tech/documentation/concepts/collections/#delete-collection>
+    pub async fn delete_collection(
         &self,
-        request: impl Into<GetCollectionInfoRequest>,
-    ) -> QdrantResult<GetCollectionInfoResponse> {
-        let request = &request.into();
+        request: impl Into<DeleteCollection>,
+    ) -> QdrantResult<CollectionOperationResponse> {
+        let delete_collection = &request.into();
+
         self.with_collections_client(|mut collection_api| async move {
-            let result = collection_api.get(request.clone()).await?;
+            let result = collection_api.delete(delete_collection.clone()).await?;
             Ok(result.into_inner())
         })
         .await
@@ -239,27 +238,53 @@ impl Qdrant {
         self.update_aliases(request.into()).await
     }
 
-    /// Delete existing collection name alias.
+    /// List collection name aliases for all collections.
     ///
     /// ```no_run
     ///# use qdrant_client::{Qdrant, QdrantError};
-    /// use qdrant_client::qdrant::CreateAliasBuilder;
-    ///
-    ///# async fn delete_alias(client: &Qdrant)
+    ///# async fn list_aliases(client: &Qdrant)
     ///# -> Result<(), QdrantError> {
-    /// client
-    ///     .delete_alias("my_alias")
-    ///     .await?;
+    /// client.list_aliases().await?;
     ///# Ok(())
     ///# }
     /// ```
     ///
-    /// Documentation: <https://qdrant.tech/documentation/concepts/collections/#remove-alias>
-    pub async fn delete_alias(
+    /// This only lists collection name aliases. To list collection names, use
+    /// [`list_collections`](Self::list_collections).
+    ///
+    /// Documentation: <https://qdrant.tech/documentation/concepts/collections/#list-all-aliases>
+    pub async fn list_aliases(&self) -> QdrantResult<ListAliasesResponse> {
+        self.with_collections_client(|mut collection_api| async move {
+            let result = collection_api.list_aliases(ListAliasesRequest {}).await?;
+            Ok(result.into_inner())
+        })
+        .await
+    }
+
+    /// List collection name aliases for a specific collection.
+    ///
+    /// ```no_run
+    ///# use qdrant_client::{Qdrant, QdrantError};
+    ///# async fn list_collection_aliases(client: &Qdrant)
+    ///# -> Result<(), QdrantError> {
+    /// client.list_collection_aliases("my_collection").await?;
+    ///# Ok(())
+    ///# }
+    /// ```
+    ///
+    /// Documentation: <https://qdrant.tech/documentation/concepts/collections/#list-collection-aliases>
+    pub async fn list_collection_aliases(
         &self,
-        request: impl Into<DeleteAlias>,
-    ) -> QdrantResult<CollectionOperationResponse> {
-        self.update_aliases(request.into()).await
+        request: impl Into<ListCollectionAliasesRequest>,
+    ) -> QdrantResult<ListAliasesResponse> {
+        let request = &request.into();
+        self.with_collections_client(|mut collection_api| async move {
+            let result = collection_api
+                .list_collection_aliases(request.clone())
+                .await?;
+            Ok(result.into_inner())
+        })
+        .await
     }
 
     /// Rename existing collection name alias.
@@ -310,53 +335,27 @@ impl Qdrant {
         .await
     }
 
-    /// List collection name aliases for a specific collection.
+    /// Delete existing collection name alias.
     ///
     /// ```no_run
     ///# use qdrant_client::{Qdrant, QdrantError};
-    ///# async fn list_collection_aliases(client: &Qdrant)
+    /// use qdrant_client::qdrant::CreateAliasBuilder;
+    ///
+    ///# async fn delete_alias(client: &Qdrant)
     ///# -> Result<(), QdrantError> {
-    /// client.list_collection_aliases("my_collection").await?;
+    /// client
+    ///     .delete_alias("my_alias")
+    ///     .await?;
     ///# Ok(())
     ///# }
     /// ```
     ///
-    /// Documentation: <https://qdrant.tech/documentation/concepts/collections/#list-collection-aliases>
-    pub async fn list_collection_aliases(
+    /// Documentation: <https://qdrant.tech/documentation/concepts/collections/#remove-alias>
+    pub async fn delete_alias(
         &self,
-        request: impl Into<ListCollectionAliasesRequest>,
-    ) -> QdrantResult<ListAliasesResponse> {
-        let request = &request.into();
-        self.with_collections_client(|mut collection_api| async move {
-            let result = collection_api
-                .list_collection_aliases(request.clone())
-                .await?;
-            Ok(result.into_inner())
-        })
-        .await
-    }
-
-    /// List collection name aliases for all collections.
-    ///
-    /// ```no_run
-    ///# use qdrant_client::{Qdrant, QdrantError};
-    ///# async fn list_aliases(client: &Qdrant)
-    ///# -> Result<(), QdrantError> {
-    /// client.list_aliases().await?;
-    ///# Ok(())
-    ///# }
-    /// ```
-    ///
-    /// This only lists collection name aliases. To list collection names, use
-    /// [`list_collections`](Self::list_collections).
-    ///
-    /// Documentation: <https://qdrant.tech/documentation/concepts/collections/#list-all-aliases>
-    pub async fn list_aliases(&self) -> QdrantResult<ListAliasesResponse> {
-        self.with_collections_client(|mut collection_api| async move {
-            let result = collection_api.list_aliases(ListAliasesRequest {}).await?;
-            Ok(result.into_inner())
-        })
-        .await
+        request: impl Into<DeleteAlias>,
+    ) -> QdrantResult<CollectionOperationResponse> {
+        self.update_aliases(request.into()).await
     }
 
     /// List cluster info of a collection.
@@ -436,9 +435,8 @@ mod tests {
 
     use super::*;
     use crate::payload::Payload;
-    use crate::prelude::Distance;
     use crate::qdrant::{
-        CountPointsBuilder, CreateCollectionBuilder, PointStruct, SearchPointsBuilder,
+        CountPointsBuilder, CreateCollectionBuilder, Distance, PointStruct, SearchPointsBuilder,
         UpsertPointsBuilder, VectorParamsBuilder,
     };
 
