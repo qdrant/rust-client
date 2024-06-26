@@ -5,7 +5,8 @@
 //!
 //! # Connect
 //!
-//! First you'll need to [connect](Qdrant#connect) by creating a [`Qdrant`] client:
+//! First you'll need to [set up](Qdrant#set-up) a [`Qdrant`] client, used to connect to a Qdrant
+//! instance:
 //!
 //! ```no_run
 //! use qdrant_client::Qdrant;

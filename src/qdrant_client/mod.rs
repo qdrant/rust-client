@@ -29,13 +29,13 @@ pub type QdrantResult<T> = Result<T, QdrantError>;
 /// A builder for [`Qdrant`]
 pub type QdrantBuilder = QdrantConfig;
 
-/// Qdrant client
+/// API client to interact with a [Qdrant](https://qdrant.tech/) server.
 ///
 /// Connects to a Qdrant server and provides an API interface.
 ///
-/// # Connect
+/// # Set up
 ///
-/// Connect to a Qdrant instance with just an [URL](Qdrant::from_url):
+/// Set up a [`Qdrant`] client to connect to a Qdrant instance with just an [URL](Qdrant::from_url):
 ///
 /// ```no_run
 /// use qdrant_client::Qdrant;
@@ -46,8 +46,8 @@ pub type QdrantBuilder = QdrantConfig;
 ///# }
 /// ```
 ///
-/// Connect to a Qdrant instance with an [URL](Qdrant::from_url),
-/// [API key](fn@QdrantBuilder::api_key) and [timeout](fn@QdrantBuilder::timeout):
+/// Or use an [URL](Qdrant::from_url), [API key](fn@QdrantBuilder::api_key) and
+/// [timeout](fn@QdrantBuilder::timeout):
 ///
 /// ```no_run
 /// use qdrant_client::Qdrant;
@@ -118,7 +118,7 @@ impl Qdrant {
     ///# }
     /// ```
     ///
-    /// See more ways to connect [here](Self#connect).
+    /// See more ways to set up the client [here](Self#set-up).
     pub fn from_url(url: &str) -> QdrantBuilder {
         QdrantBuilder::from_url(url)
     }
