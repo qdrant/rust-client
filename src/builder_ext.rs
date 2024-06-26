@@ -9,13 +9,14 @@ use crate::qdrant::{
     DeleteSnapshotRequestBuilder, DiscoverBatchPointsBuilder, DiscoverPoints,
     DiscoverPointsBuilder, Distance, FieldType, GetPointsBuilder, LookupLocationBuilder,
     PayloadExcludeSelector, PayloadIncludeSelector, PointId, PointStruct, PointVectors,
-    PointsUpdateOperation, ProductQuantizationBuilder, QuantizationType, QueryPointsBuilder,
-    RecommendBatchPointsBuilder, RecommendExample, RecommendPointGroupsBuilder, RecommendPoints,
-    RecommendPointsBuilder, RenameAliasBuilder, ScalarQuantizationBuilder, ScrollPointsBuilder,
-    SearchBatchPointsBuilder, SearchPointGroupsBuilder, SearchPoints, SearchPointsBuilder,
-    SetPayloadPointsBuilder, ShardKey, UpdateBatchPointsBuilder, UpdateCollectionBuilder,
-    UpdateCollectionClusterSetupRequestBuilder, UpdatePointVectorsBuilder, UpsertPointsBuilder,
-    Value, VectorParamsBuilder, VectorsSelector, WithLookupBuilder,
+    PointsUpdateOperation, ProductQuantizationBuilder, QuantizationType, QueryBatchPointsBuilder,
+    QueryPoints, QueryPointsBuilder, RecommendBatchPointsBuilder, RecommendExample,
+    RecommendPointGroupsBuilder, RecommendPoints, RecommendPointsBuilder, RenameAliasBuilder,
+    ScalarQuantizationBuilder, ScrollPointsBuilder, SearchBatchPointsBuilder,
+    SearchPointGroupsBuilder, SearchPoints, SearchPointsBuilder, SetPayloadPointsBuilder, ShardKey,
+    UpdateBatchPointsBuilder, UpdateCollectionBuilder, UpdateCollectionClusterSetupRequestBuilder,
+    UpdatePointVectorsBuilder, UpsertPointsBuilder, Value, VectorParamsBuilder, VectorsSelector,
+    WithLookupBuilder,
 };
 
 impl VectorParamsBuilder {
@@ -466,6 +467,18 @@ impl QueryPointsBuilder {
     pub fn new(collection_name: impl Into<String>) -> Self {
         let mut builder = Self::empty();
         builder.collection_name = Some(collection_name.into());
+        builder
+    }
+}
+
+impl QueryBatchPointsBuilder {
+    pub fn new(
+        collection_name: impl Into<String>,
+        query_points: impl Into<Vec<QueryPoints>>,
+    ) -> Self {
+        let mut builder = Self::empty();
+        builder.collection_name = Some(collection_name.into());
+        builder.query_points = Some(query_points.into());
         builder
     }
 }
