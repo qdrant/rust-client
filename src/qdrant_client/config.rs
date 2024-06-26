@@ -167,7 +167,7 @@ impl QdrantConfig {
 
     /// Build the configured [`Qdrant`] client
     pub fn build(self) -> Result<Qdrant, QdrantError> {
-        Qdrant::new(Some(self))
+        Qdrant::new(self)
     }
 }
 
