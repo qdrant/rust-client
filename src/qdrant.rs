@@ -1010,19 +1010,19 @@ pub struct CollectionClusterInfoResponse {
 pub struct MoveShard {
     /// Local shard id
     #[prost(uint32, tag = "1")]
-    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    #[builder(field(vis = "pub(crate)"))]
     pub shard_id: u32,
     #[prost(uint32, optional, tag = "5")]
     #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub to_shard_id: ::core::option::Option<u32>,
     #[prost(uint64, tag = "2")]
-    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    #[builder(field(vis = "pub(crate)"))]
     pub from_peer_id: u64,
     #[prost(uint64, tag = "3")]
-    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    #[builder(field(vis = "pub(crate)"))]
     pub to_peer_id: u64,
     #[prost(enumeration = "ShardTransferMethod", optional, tag = "4")]
-    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub method: ::core::option::Option<i32>,
 }
 #[derive(derive_builder::Builder)]
@@ -1036,19 +1036,19 @@ pub struct MoveShard {
 pub struct ReplicateShard {
     /// Local shard id
     #[prost(uint32, tag = "1")]
-    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    #[builder(field(vis = "pub(crate)"))]
     pub shard_id: u32,
     #[prost(uint32, optional, tag = "5")]
     #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub to_shard_id: ::core::option::Option<u32>,
     #[prost(uint64, tag = "2")]
-    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    #[builder(field(vis = "pub(crate)"))]
     pub from_peer_id: u64,
     #[prost(uint64, tag = "3")]
-    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    #[builder(field(vis = "pub(crate)"))]
     pub to_peer_id: u64,
     #[prost(enumeration = "ShardTransferMethod", optional, tag = "4")]
-    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub method: ::core::option::Option<i32>,
 }
 #[derive(derive_builder::Builder)]
@@ -1062,16 +1062,16 @@ pub struct ReplicateShard {
 pub struct AbortShardTransfer {
     /// Local shard id
     #[prost(uint32, tag = "1")]
-    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    #[builder(field(vis = "pub(crate)"))]
     pub shard_id: u32,
     #[prost(uint32, optional, tag = "4")]
     #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub to_shard_id: ::core::option::Option<u32>,
     #[prost(uint64, tag = "2")]
-    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    #[builder(field(vis = "pub(crate)"))]
     pub from_peer_id: u64,
     #[prost(uint64, tag = "3")]
-    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    #[builder(field(vis = "pub(crate)"))]
     pub to_peer_id: u64,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -1099,10 +1099,10 @@ pub struct RestartTransfer {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Replica {
     #[prost(uint32, tag = "1")]
-    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    #[builder(field(vis = "pub(crate)"))]
     pub shard_id: u32,
     #[prost(uint64, tag = "2")]
-    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    #[builder(field(vis = "pub(crate)"))]
     pub peer_id: u64,
 }
 #[derive(derive_builder::Builder)]
