@@ -50,6 +50,7 @@ use crate::qdrant::Value;
 /// ```
 #[derive(Clone, PartialEq, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", serde(transparent))]
 pub struct Payload(pub(crate) HashMap<String, Value>);
 
 impl Payload {
