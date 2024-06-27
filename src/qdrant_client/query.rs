@@ -6,9 +6,7 @@ use crate::qdrant_client::Qdrant;
 ///
 /// Query points using the universal search API.
 ///
-/// <!-- TODO: update documentation link to universal search API once released -->
-///
-/// Documentation: <https://qdrant.tech/documentation/concepts/search/#search-api>
+/// Documentation: <https://qdrant.tech/documentation/concepts/search/#query-api>
 impl Qdrant {
     /// Query points in a collection.
     ///
@@ -31,9 +29,7 @@ impl Qdrant {
     ///# }
     /// ```
     ///
-    /// <!-- TODO: update documentation link to universal search API once released -->
-    ///
-    /// Documentation: <https://qdrant.tech/documentation/concepts/search/#search-api>
+    /// Documentation: <https://qdrant.tech/documentation/concepts/search/#query-api>
     pub async fn query(&self, request: impl Into<QueryPoints>) -> QdrantResult<QueryResponse> {
         let request = &request.into();
 
@@ -68,9 +64,7 @@ impl Qdrant {
     ///# }
     /// ```
     ///
-    /// <!-- TODO: update documentation link to universal search API once released -->
-    ///
-    /// Documentation: <https://qdrant.tech/documentation/concepts/search/#search-api>
+    /// Documentation: <https://qdrant.tech/documentation/concepts/search/#query-api>
     pub async fn query_batch(
         &self,
         request: impl Into<QueryBatchPoints>,
