@@ -9,8 +9,10 @@ jobs:
       - name: Install minimal stable
         uses: dtolnay/rust-toolchain@stable
       - uses: actions/checkout@v4
-      - name: Install dependencies
-        run: sudo apt-get update; sudo apt-get upgrade -y; sudo apt-get install protobuf-compiler
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Run integration tests
         run: |
           ./tests/integration-tests.sh
