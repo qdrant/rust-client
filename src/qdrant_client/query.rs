@@ -57,6 +57,12 @@ impl Qdrant {
     ///                     "London".to_string(),
     ///                 )]))
     ///                 .build(),
+    ///             QueryPointsBuilder::new("my_collection")
+    ///                 .filter(Filter::must([Condition::matches(
+    ///                     "city",
+    ///                     "Berlin".to_string(),
+    ///                 )]))
+    ///                 .build(),
     ///         ])
     ///     )
     ///     .await?;
