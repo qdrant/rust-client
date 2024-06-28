@@ -186,6 +186,12 @@ impl From<String> for PointId {
     }
 }
 
+impl From<&str> for PointId {
+    fn from(val: &str) -> Self {
+        Self::from(val.to_string())
+    }
+}
+
 impl From<u64> for PointId {
     fn from(val: u64) -> Self {
         Self {
