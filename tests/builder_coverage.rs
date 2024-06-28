@@ -7,11 +7,11 @@ use qdrant_client::qdrant::{
     DeleteFieldIndexCollectionBuilder, DeletePayloadPointsBuilder, DeletePointVectorsBuilder,
     DeletePointsBuilder, DeleteShardKeyRequestBuilder, DeleteSnapshotRequestBuilder,
     DiscoverBatchPointsBuilder, DiscoverInputBuilder, DiscoverPointsBuilder, Distance, FieldType,
-    GetPointsBuilder, LookupLocationBuilder, MoveShardBuilder, OrderByBuilder,
-    ProductQuantizationBuilder, QueryBatchPointsBuilder, QueryPointsBuilder,
-    RecommendBatchPointsBuilder, RecommendPointGroupsBuilder, RecommendPointsBuilder,
-    RenameAliasBuilder, ReplicaBuilder, ReplicateShardBuilder, ScrollPointsBuilder,
-    SearchBatchPointsBuilder, SearchPointGroupsBuilder, SearchPointsBuilder,
+    GetPointsBuilder, LookupLocationBuilder, MoveShardBuilder, MultiVectorComparator,
+    MultiVectorConfigBuilder, OrderByBuilder, ProductQuantizationBuilder, QueryBatchPointsBuilder,
+    QueryPointsBuilder, RecommendBatchPointsBuilder, RecommendPointGroupsBuilder,
+    RecommendPointsBuilder, RenameAliasBuilder, ReplicaBuilder, ReplicateShardBuilder,
+    ScrollPointsBuilder, SearchBatchPointsBuilder, SearchPointGroupsBuilder, SearchPointsBuilder,
     SetPayloadPointsBuilder, TextIndexParamsBuilder, TokenizerType, UpdateBatchPointsBuilder,
     UpdateCollectionBuilder, UpdateCollectionClusterSetupRequestBuilder, UpdatePointVectorsBuilder,
     UpsertPointsBuilder, VectorParamsBuilder, WithLookupBuilder,
@@ -78,4 +78,5 @@ fn builder_coverage() {
     DeleteSnapshotRequestBuilder::new("my_collection", "snapshot").build();
     ContextInputPairBuilder::new(vec![1.0], vec![2.0]).build();
     DiscoverInputBuilder::new(vec![1.0], ContextInputBuilder::default()).build();
+    MultiVectorConfigBuilder::new(MultiVectorComparator::MaxSim).build();
 }

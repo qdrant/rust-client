@@ -145,11 +145,18 @@ pub struct SparseVectorConfig {
         SparseVectorParams,
     >,
 }
+#[derive(derive_builder::Builder)]
+#[builder(
+    build_fn(private, name = "build_inner"),
+    pattern = "owned",
+    custom_constructor
+)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct MultiVectorConfig {
     /// Comparator for multi-vector search
     #[prost(enumeration = "MultiVectorComparator", tag = "1")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub comparator: i32,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -8838,6 +8845,7 @@ builder_type_conversions!(RecommendInput, RecommendInputBuilder);
 builder_type_conversions!(DiscoverInput, DiscoverInputBuilder, true);
 builder_type_conversions!(ContextInput, ContextInputBuilder);
 builder_type_conversions!(ContextInputPair, ContextInputPairBuilder, true);
+builder_type_conversions!(MultiVectorConfig, MultiVectorConfigBuilder, true);
 builder_type_conversions!(DeletePoints, DeletePointsBuilder, true);
 
 pub use crate::manual_builder::*;

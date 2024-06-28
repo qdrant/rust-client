@@ -1,7 +1,9 @@
 use std::collections::HashMap;
 
 use crate::qdrant::vectors_config::Config;
-use crate::qdrant::{VectorParams, VectorParamsMap, VectorsConfig};
+use crate::qdrant::{
+    MultiVectorComparator, MultiVectorConfigBuilder, VectorParams, VectorParamsMap, VectorsConfig,
+};
 
 const DEFAULT_VECTOR_NAME: &str = "";
 
@@ -46,5 +48,12 @@ impl From<VectorsConfigBuilder> for VectorsConfig {
         VectorsConfig {
             config: Some(Config::from(VectorParamsMap::from(builder.params))),
         }
+    }
+}
+
+impl MultiVectorConfigBuilder {
+    pub fn new(comparator: impl Into<MultiVectorComparator>) -> Self {
+        let builder = Self::empty();
+        builder.comparator(comparator.into() as i32)
     }
 }

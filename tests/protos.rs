@@ -724,6 +724,8 @@ fn configure_builder(builder: Builder) -> Builder {
             // ContextInputPair
             ("ContextInputPair.positive", DEFAULT_OPTION_INTO),
             ("ContextInputPair.negative", DEFAULT_OPTION_INTO),
+            // MultiVectorConfig
+            ("MultiVectorConfig.comparator", DEFAULT_OPTION_INTO),
         ],
         builder_derive_options(),
     )
@@ -1043,6 +1045,11 @@ fn builder_derive_options() -> &'static [BuildDeriveOptions] {
         ),
         (
             "ContextInputPair",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::WithDefaultFn,
+        ),
+        (
+            "MultiVectorConfig",
             NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
             MacroConfig::WithDefaultFn,
         ),
