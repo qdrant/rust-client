@@ -37,13 +37,14 @@ fn protos() {
         additional_builder_derive_options(),
     );
 
-    // import our manual builder here so all builder come from the same module in the end user API.
-    append_to_file(GRPC_OUTPUT_FILE, "pub use crate::manual_builder::*;");
-    append_to_file(GRPC_OUTPUT_FILE, "pub use crate::builder_types::*;");
-    append_to_file(
-        GRPC_OUTPUT_FILE,
+    // Re-export all custom builder here so they are all located in the same module in the end-user
+    // API.
+    let custom_reexports = [
+        "pub use crate::manual_builder::*;",
+        "pub use crate::builder_types::*;",
         "pub use crate::qdrant_client::builders::*;",
-    );
+    ];
+    append_to_file(GRPC_OUTPUT_FILE, &custom_reexports.join("\n"));
 
     // Vendor gRPC types used in our objects
     append_to_file(GRPC_OUTPUT_FILE, "pub use prost_types::Timestamp;");
