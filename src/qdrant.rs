@@ -8926,4 +8926,5 @@ builder_type_conversions!(DeletePoints, DeletePointsBuilder, true);
 
 pub use crate::manual_builder::*;
 pub use crate::builder_types::*;
+pub use crate::qdrant_client::builders::*;
 pub use prost_types::Timestamp;
