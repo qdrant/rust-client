@@ -30,9 +30,10 @@ tonic-build = { version = "0.11.0", features = ["prost"] }
 tokio = { version = "1.36.0", features = ["rt-multi-thread"] }
 
 [features]
-default = ["download_snapshots", "serde"]
+default = ["download_snapshots", "serde", "generate-snippets"]
 download_snapshots = ["reqwest", "futures-util"]
 serde = ["dep:serde", "dep:serde_json"]
+generate-snippets = []
 
 [[example]]
 name = "search"
@@ -43,4 +44,5 @@ name = "deprecated_search"
 required-features = ["serde"]
 
 [package.metadata.docs.rs]
-all-features = true
+features = ["download_snapshots", "serde"]
+no-default-features = true

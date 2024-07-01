@@ -34,6 +34,9 @@ async fn test_{name}() {{
 fn main() {
     println!("cargo:rerun-if-changed=tests/snippets");
 
+    #[cfg(not(feature = "generate-snippets"))]
+    return;
+
     // Open all files in the `./tests/snippets` directory and save them to the `./tests/snippets_converted` directory
     // Wrap text in the `tests/test_snippets.rs` file into { }
     let snippets_dir = Path::new("./tests/snippets");
