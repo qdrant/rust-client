@@ -95,11 +95,9 @@ mod tests {
         DiscoverInputBuilder, Distance, FieldType, Fusion, IntegerIndexParamsBuilder, Modifier,
         MultiVectorConfig, NamedVectors, PointId, PointStruct, PrefetchQueryBuilder, Query,
         QueryPointsBuilder, RecommendInputBuilder, ScalarQuantizationBuilder,
-        SparseIndexConfigBuilder, SparseVectorParamsBuilder, UpsertPointsBuilder, Vector,
-        VectorInput, VectorParamsBuilder,
+        SparseIndexConfigBuilder, SparseVectorParamsBuilder, SparseVectorsConfigBuilder,
+        UpsertPointsBuilder, Vector, VectorInput, VectorParamsBuilder, VectorsConfigBuilder,
     };
-    use crate::qdrant_client::builders::sparse_vectors_config::SparseVectorsConfigBuilder;
-    use crate::qdrant_client::builders::vectors_config::VectorsConfigBuilder;
     use crate::Payload;
 
     #[tokio::test]
