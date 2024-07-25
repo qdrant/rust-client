@@ -729,6 +729,24 @@ fn configure_builder(builder: Builder) -> Builder {
             ("ContextInputPair.negative", DEFAULT_OPTION_INTO),
             // MultiVectorConfig
             ("MultiVectorConfig.comparator", DEFAULT_OPTION_INTO),
+            // QueryPointGroups
+            ("QueryPointGroups.collection_name", PUBLIC_ONLY),
+            ("QueryPointGroups.prefetch", PUBLIC_ONLY),
+            ("QueryPointGroups.group_by", PUBLIC_ONLY),
+            ("QueryPointGroups.query", DEFAULT_OPTION_INTO),
+            ("QueryPointGroups.using", DEFAULT_OPTION_INTO),
+            ("QueryPointGroups.filter", DEFAULT_OPTION_INTO),
+            ("QueryPointGroups.params", DEFAULT_OPTION_INTO),
+            ("QueryPointGroups.score_threshold", DEFAULT_OPTION_INTO),
+            ("QueryPointGroups.with_payload", DEFAULT_OPTION_INTO),
+            ("QueryPointGroups.with_vectors", DEFAULT_OPTION_INTO),
+            ("QueryPointGroups.lookup_from", DEFAULT_OPTION_INTO),
+            ("QueryPointGroups.limit", DEFAULT_OPTION_INTO),
+            ("QueryPointGroups.group_size", DEFAULT_OPTION_INTO),
+            ("QueryPointGroups.read_consistency", DEFAULT_OPTION_INTO),
+            ("QueryPointGroups.with_lookup", DEFAULT_OPTION_INTO),
+            ("QueryPointGroups.timeout", DEFAULT_OPTION_INTO),
+            ("QueryPointGroups.shard_key_selector", DEFAULT_OPTION_INTO),
         ],
         builder_derive_options(),
     )
@@ -1058,6 +1076,11 @@ fn builder_derive_options() -> &'static [BuildDeriveOptions] {
         ),
         (
             "MultiVectorConfig",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::WithDefaultFn,
+        ),
+        (
+            "QueryPointGroups",
             NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
             MacroConfig::WithDefaultFn,
         ),

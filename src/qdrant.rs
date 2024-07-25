@@ -4782,59 +4782,82 @@ pub struct QueryBatchPoints {
     #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub timeout: ::core::option::Option<u64>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(
+    build_fn(private, name = "build_inner"),
+    pattern = "owned",
+    custom_constructor
+)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct QueryPointGroups {
     /// Name of the collection
     #[prost(string, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
     pub collection_name: ::prost::alloc::string::String,
     /// Sub-requests to perform first. If present, the query will be performed on the results of the prefetches.
     #[prost(message, repeated, tag = "2")]
+    #[builder(field(vis = "pub(crate)"))]
     pub prefetch: ::prost::alloc::vec::Vec<PrefetchQuery>,
     /// Query to perform. If missing, returns points ordered by their IDs.
     #[prost(message, optional, tag = "3")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub query: ::core::option::Option<Query>,
     /// Define which vector to use for querying. If missing, the default vector is used.
     #[prost(string, optional, tag = "4")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub using: ::core::option::Option<::prost::alloc::string::String>,
     /// Filter conditions - return only those points that satisfy the specified conditions.
     #[prost(message, optional, tag = "5")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub filter: ::core::option::Option<Filter>,
     /// Search params for when there is no prefetch.
     #[prost(message, optional, tag = "6")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub params: ::core::option::Option<SearchParams>,
     /// Return points with scores better than this threshold.
     #[prost(float, optional, tag = "7")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub score_threshold: ::core::option::Option<f32>,
     /// Options for specifying which payload to include or not
     #[prost(message, optional, tag = "8")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub with_payload: ::core::option::Option<WithPayloadSelector>,
     /// Options for specifying which vectors to include into response
     #[prost(message, optional, tag = "9")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub with_vectors: ::core::option::Option<WithVectorsSelector>,
     /// The location to use for IDs lookup, if not specified - use the current collection and the 'using' vector
     #[prost(message, optional, tag = "10")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub lookup_from: ::core::option::Option<LookupLocation>,
     /// Max number of points. Default is 3.
     #[prost(uint64, optional, tag = "11")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub limit: ::core::option::Option<u64>,
     /// Maximum amount of points to return per group. Default to 10.
     #[prost(uint64, optional, tag = "12")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub group_size: ::core::option::Option<u64>,
     /// Payload field to group by, must be a string or number field. If there are multiple values for the field, all of them will be used. One point can be in multiple groups.
     #[prost(string, tag = "13")]
+    #[builder(field(vis = "pub(crate)"))]
     pub group_by: ::prost::alloc::string::String,
     /// Options for specifying read consistency guarantees
     #[prost(message, optional, tag = "14")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub read_consistency: ::core::option::Option<ReadConsistency>,
     /// Options for specifying how to use the group id to lookup points in another collection
     #[prost(message, optional, tag = "15")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub with_lookup: ::core::option::Option<WithLookup>,
     /// If set, overrides global timeout setting for this request. Unit is seconds.
     #[prost(uint64, optional, tag = "16")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub timeout: ::core::option::Option<u64>,
     /// Specify in which shards to look for the points, if not specified - look in all shards
     #[prost(message, optional, tag = "17")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -9078,6 +9101,7 @@ builder_type_conversions!(DiscoverInput, DiscoverInputBuilder, true);
 builder_type_conversions!(ContextInput, ContextInputBuilder);
 builder_type_conversions!(ContextInputPair, ContextInputPairBuilder, true);
 builder_type_conversions!(MultiVectorConfig, MultiVectorConfigBuilder, true);
+builder_type_conversions!(QueryPointGroups, QueryPointGroupsBuilder, true);
 builder_type_conversions!(DeletePoints, DeletePointsBuilder, true);
 
 pub use crate::manual_builder::*;
