@@ -712,6 +712,9 @@ fn configure_builder(builder: Builder) -> Builder {
             // IntegerIndexParams
             ("IntegerIndexParams.lookup", DEFAULT_OPTION_INTO),
             ("IntegerIndexParams.range", DEFAULT_OPTION_INTO),
+            ("IntegerIndexParams.is_tenant", DEFAULT_OPTION),
+            // KeywordIndexParams
+            ("KeywordIndexParams.is_tenant", DEFAULT_OPTION),
             // RecommendInput
             ("RecommendInput.positive", DEFAULT_OPTION_INTO),
             ("RecommendInput.negative", DEFAULT_OPTION_INTO),
@@ -1007,6 +1010,11 @@ fn builder_derive_options() -> &'static [BuildDeriveOptions] {
             "IntegerIndexParams",
             NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
             MacroConfig::WithDefaultFn,
+        ),
+        (
+            "KeywordIndexParams",
+            DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::DefaultImpl,
         ),
         (
             "CreateAlias",
