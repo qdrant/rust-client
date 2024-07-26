@@ -613,7 +613,7 @@ fn configure_builder(builder: Builder) -> Builder {
             ("CreateFieldIndexCollection.field_type", DEFAULT_OPTION_INTO),
             (
                 "CreateFieldIndexCollection.field_index_params",
-                DEFAULT_OPTION_INTO,
+                builder_custom_into!(payload_index_params::IndexParams, self.field_index_params),
             ),
             ("CreateFieldIndexCollection.ordering", DEFAULT_OPTION_INTO),
             // DeleteFieldIndexCollection
