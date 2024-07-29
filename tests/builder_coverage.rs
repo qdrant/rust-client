@@ -9,12 +9,12 @@ use qdrant_client::qdrant::{
     DiscoverBatchPointsBuilder, DiscoverInputBuilder, DiscoverPointsBuilder, Distance, FieldType,
     GetPointsBuilder, LookupLocationBuilder, MoveShardBuilder, MultiVectorComparator,
     MultiVectorConfigBuilder, OrderByBuilder, ProductQuantizationBuilder, QueryBatchPointsBuilder,
-    QueryPointsBuilder, RecommendBatchPointsBuilder, RecommendPointGroupsBuilder,
-    RecommendPointsBuilder, RenameAliasBuilder, ReplicaBuilder, ReplicateShardBuilder,
-    ScrollPointsBuilder, SearchBatchPointsBuilder, SearchPointGroupsBuilder, SearchPointsBuilder,
-    SetPayloadPointsBuilder, TextIndexParamsBuilder, TokenizerType, UpdateBatchPointsBuilder,
-    UpdateCollectionBuilder, UpdateCollectionClusterSetupRequestBuilder, UpdatePointVectorsBuilder,
-    UpsertPointsBuilder, VectorParamsBuilder, WithLookupBuilder,
+    QueryPointGroupsBuilder, QueryPointsBuilder, RecommendBatchPointsBuilder,
+    RecommendPointGroupsBuilder, RecommendPointsBuilder, RenameAliasBuilder, ReplicaBuilder,
+    ReplicateShardBuilder, ScrollPointsBuilder, SearchBatchPointsBuilder, SearchPointGroupsBuilder,
+    SearchPointsBuilder, SetPayloadPointsBuilder, TextIndexParamsBuilder, TokenizerType,
+    UpdateBatchPointsBuilder, UpdateCollectionBuilder, UpdateCollectionClusterSetupRequestBuilder,
+    UpdatePointVectorsBuilder, UpsertPointsBuilder, VectorParamsBuilder, WithLookupBuilder,
 };
 
 /// TLDR; Ensures new fields introduced in protobuf updates won't cause a panic at runtime due to missing derive_builder attributes.
@@ -79,4 +79,5 @@ fn builder_coverage() {
     ContextInputPairBuilder::new(vec![1.0], vec![2.0]).build();
     DiscoverInputBuilder::new(vec![1.0], ContextInputBuilder::default()).build();
     MultiVectorConfigBuilder::new(MultiVectorComparator::MaxSim).build();
+    QueryPointGroupsBuilder::new("", vec![], "").build();
 }
