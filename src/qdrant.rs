@@ -717,6 +717,10 @@ pub struct KeywordIndexParams {
     #[prost(bool, optional, tag = "3")]
     #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub is_tenant: ::core::option::Option<bool>,
+    /// If true - store index on disk.
+    #[prost(bool, optional, tag = "4")]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    pub on_disk: ::core::option::Option<bool>,
 }
 #[derive(derive_builder::Builder)]
 #[builder(
@@ -739,10 +743,28 @@ pub struct IntegerIndexParams {
     #[prost(bool, optional, tag = "3")]
     #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub is_tenant: ::core::option::Option<bool>,
+    /// If true - store index on disk.
+    #[prost(bool, optional, tag = "4")]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    pub on_disk: ::core::option::Option<bool>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(
+    build_fn(private, error = "std::convert::Infallible", name = "build_inner"),
+    pattern = "owned"
+)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
-pub struct FloatIndexParams {}
+pub struct FloatIndexParams {
+    /// If true - store index on disk.
+    #[prost(bool, optional, tag = "1")]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    pub on_disk: ::core::option::Option<bool>,
+    /// If true - used for tenant optimization.
+    #[prost(bool, optional, tag = "2")]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    pub is_tenant: ::core::option::Option<bool>,
+}
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct GeoIndexParams {}
@@ -775,13 +797,37 @@ pub struct TextIndexParams {
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct BoolIndexParams {}
+#[derive(derive_builder::Builder)]
+#[builder(
+    build_fn(private, error = "std::convert::Infallible", name = "build_inner"),
+    pattern = "owned"
+)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
-pub struct DatetimeIndexParams {}
+pub struct DatetimeIndexParams {
+    /// If true - store index on disk.
+    #[prost(bool, optional, tag = "1")]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    pub on_disk: ::core::option::Option<bool>,
+    /// If true - used for tenant optimization.
+    #[prost(bool, optional, tag = "2")]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    pub is_tenant: ::core::option::Option<bool>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+pub struct UuidIndexParams {
+    /// If true - used for tenant optimization.
+    #[prost(bool, optional, tag = "1")]
+    pub is_tenant: ::core::option::Option<bool>,
+}
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct PayloadIndexParams {
-    #[prost(oneof = "payload_index_params::IndexParams", tags = "3, 2, 4, 5, 1, 6, 7")]
+    #[prost(
+        oneof = "payload_index_params::IndexParams",
+        tags = "3, 2, 4, 5, 1, 6, 7, 8"
+    )]
     pub index_params: ::core::option::Option<payload_index_params::IndexParams>,
 }
 /// Nested message and enum types in `PayloadIndexParams`.
@@ -810,6 +856,9 @@ pub mod payload_index_params {
         /// Parameters for datetime index
         #[prost(message, tag = "7")]
         DatetimeIndexParams(super::DatetimeIndexParams),
+        /// Parameters for uuid index
+        #[prost(message, tag = "8")]
+        UuidIndexParams(super::UuidIndexParams),
     }
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -1474,6 +1523,7 @@ pub enum PayloadSchemaType {
     Text = 5,
     Bool = 6,
     Datetime = 7,
+    Uuid = 8,
 }
 impl PayloadSchemaType {
     /// String value of the enum field names used in the ProtoBuf definition.
@@ -1490,6 +1540,7 @@ impl PayloadSchemaType {
             PayloadSchemaType::Text => "Text",
             PayloadSchemaType::Bool => "Bool",
             PayloadSchemaType::Datetime => "Datetime",
+            PayloadSchemaType::Uuid => "Uuid",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -1503,6 +1554,7 @@ impl PayloadSchemaType {
             "Text" => Some(Self::Text),
             "Bool" => Some(Self::Bool),
             "Datetime" => Some(Self::Datetime),
+            "Uuid" => Some(Self::Uuid),
             _ => None,
         }
     }
@@ -5637,6 +5689,7 @@ pub enum FieldType {
     Text = 4,
     Bool = 5,
     Datetime = 6,
+    Uuid = 7,
 }
 impl FieldType {
     /// String value of the enum field names used in the ProtoBuf definition.
@@ -5652,6 +5705,7 @@ impl FieldType {
             FieldType::Text => "FieldTypeText",
             FieldType::Bool => "FieldTypeBool",
             FieldType::Datetime => "FieldTypeDatetime",
+            FieldType::Uuid => "FieldTypeUuid",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -5664,6 +5718,7 @@ impl FieldType {
             "FieldTypeText" => Some(Self::Text),
             "FieldTypeBool" => Some(Self::Bool),
             "FieldTypeDatetime" => Some(Self::Datetime),
+            "FieldTypeUuid" => Some(Self::Uuid),
             _ => None,
         }
     }
@@ -5771,13 +5826,13 @@ impl Sample {
     /// (if the ProtoBuf definition does not change) and safe for programmatic use.
     pub fn as_str_name(&self) -> &'static str {
         match self {
-            Sample::Random => "RANDOM",
+            Sample::Random => "Random",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
     pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
         match value {
-            "RANDOM" => Some(Self::Random),
+            "Random" => Some(Self::Random),
             _ => None,
         }
     }
@@ -9092,6 +9147,8 @@ builder_type_conversions!(ContextExamplePair, ContextExamplePairBuilder);
 builder_type_conversions!(TextIndexParams, TextIndexParamsBuilder, true);
 builder_type_conversions!(IntegerIndexParams, IntegerIndexParamsBuilder, true);
 builder_type_conversions!(KeywordIndexParams, KeywordIndexParamsBuilder);
+builder_type_conversions!(DatetimeIndexParams, DatetimeIndexParamsBuilder);
+builder_type_conversions!(FloatIndexParams, FloatIndexParamsBuilder);
 builder_type_conversions!(CreateAlias, CreateAliasBuilder, true);
 builder_type_conversions!(RenameAlias, RenameAliasBuilder, true);
 builder_type_conversions!(DeleteSnapshotRequest, DeleteSnapshotRequestBuilder, true);
