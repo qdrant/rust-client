@@ -14,6 +14,7 @@ use crate::qdrant::{ListValue, Struct, Value};
     since = "1.10.0",
     note = "use `qdrant_client::Error::JsonToPayload` error variant instead"
 )]
+#[allow(dead_code)]
 pub struct PayloadConversionError(serde_json::Value);
 
 impl Display for PayloadConversionError {

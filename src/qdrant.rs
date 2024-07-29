@@ -3584,7 +3584,13 @@ pub struct CreateFieldIndexCollection {
     pub field_type: ::core::option::Option<i32>,
     /// Payload index params.
     #[prost(message, optional, tag = "5")]
-    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<payload_index_params::IndexParams>",
+            build = "convert_option(&self.field_index_params)"
+        )
+    )]
     pub field_index_params: ::core::option::Option<PayloadIndexParams>,
     /// Write ordering guarantees
     #[prost(message, optional, tag = "6")]
