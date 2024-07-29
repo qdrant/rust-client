@@ -10,14 +10,15 @@ use crate::qdrant::{
     DeleteSnapshotRequestBuilder, DiscoverBatchPointsBuilder, DiscoverPoints,
     DiscoverPointsBuilder, Distance, FieldType, GetPointsBuilder, LookupLocationBuilder,
     MoveShardBuilder, PayloadExcludeSelector, PayloadIncludeSelector, PointId, PointStruct,
-    PointVectors, PointsUpdateOperation, ProductQuantizationBuilder, QuantizationType,
-    QueryBatchPointsBuilder, QueryPoints, QueryPointsBuilder, RecommendBatchPointsBuilder,
-    RecommendExample, RecommendPointGroupsBuilder, RecommendPoints, RecommendPointsBuilder,
-    RenameAliasBuilder, ReplicaBuilder, ReplicateShardBuilder, ScalarQuantizationBuilder,
-    ScrollPointsBuilder, SearchBatchPointsBuilder, SearchPointGroupsBuilder, SearchPoints,
-    SearchPointsBuilder, SetPayloadPointsBuilder, ShardKey, UpdateBatchPointsBuilder,
-    UpdateCollectionBuilder, UpdateCollectionClusterSetupRequestBuilder, UpdatePointVectorsBuilder,
-    UpsertPointsBuilder, Value, VectorParamsBuilder, VectorsSelector, WithLookupBuilder,
+    PointVectors, PointsUpdateOperation, PrefetchQuery, ProductQuantizationBuilder,
+    QuantizationType, QueryBatchPointsBuilder, QueryPointGroupsBuilder, QueryPoints,
+    QueryPointsBuilder, RecommendBatchPointsBuilder, RecommendExample, RecommendPointGroupsBuilder,
+    RecommendPoints, RecommendPointsBuilder, RenameAliasBuilder, ReplicaBuilder,
+    ReplicateShardBuilder, ScalarQuantizationBuilder, ScrollPointsBuilder,
+    SearchBatchPointsBuilder, SearchPointGroupsBuilder, SearchPoints, SearchPointsBuilder,
+    SetPayloadPointsBuilder, ShardKey, UpdateBatchPointsBuilder, UpdateCollectionBuilder,
+    UpdateCollectionClusterSetupRequestBuilder, UpdatePointVectorsBuilder, UpsertPointsBuilder,
+    Value, VectorParamsBuilder, VectorsSelector, WithLookupBuilder,
 };
 
 impl VectorParamsBuilder {
@@ -529,6 +530,20 @@ impl DeleteSnapshotRequestBuilder {
         let mut builder = Self::empty();
         builder.collection_name = Some(collection_name.into());
         builder.snapshot_name = Some(snapshot_name.into());
+        builder
+    }
+}
+
+impl QueryPointGroupsBuilder {
+    pub fn new(
+        collection_name: impl Into<String>,
+        prefetch: impl Into<Vec<PrefetchQuery>>,
+        group_by: impl Into<String>,
+    ) -> QueryPointGroupsBuilder {
+        let mut builder = Self::empty();
+        builder.collection_name = Some(collection_name.into());
+        builder.prefetch = Some(prefetch.into());
+        builder.group_by = Some(group_by.into());
         builder
     }
 }

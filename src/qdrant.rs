@@ -707,6 +707,69 @@ pub struct CollectionConfig {
 }
 #[derive(derive_builder::Builder)]
 #[builder(
+    build_fn(private, error = "std::convert::Infallible", name = "build_inner"),
+    pattern = "owned"
+)]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+pub struct KeywordIndexParams {
+    /// If true - used for tenant optimization.
+    #[prost(bool, optional, tag = "3")]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    pub is_tenant: ::core::option::Option<bool>,
+    /// If true - store index on disk.
+    #[prost(bool, optional, tag = "4")]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    pub on_disk: ::core::option::Option<bool>,
+}
+#[derive(derive_builder::Builder)]
+#[builder(
+    build_fn(private, name = "build_inner"),
+    pattern = "owned",
+    custom_constructor
+)]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+pub struct IntegerIndexParams {
+    /// If true - support direct lookups.
+    #[prost(bool, tag = "1")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
+    pub lookup: bool,
+    /// If true - support ranges filters.
+    #[prost(bool, tag = "2")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
+    pub range: bool,
+    /// If true - used for tenant optimization.
+    #[prost(bool, optional, tag = "3")]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    pub is_tenant: ::core::option::Option<bool>,
+    /// If true - store index on disk.
+    #[prost(bool, optional, tag = "4")]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    pub on_disk: ::core::option::Option<bool>,
+}
+#[derive(derive_builder::Builder)]
+#[builder(
+    build_fn(private, error = "std::convert::Infallible", name = "build_inner"),
+    pattern = "owned"
+)]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+pub struct FloatIndexParams {
+    /// If true - store index on disk.
+    #[prost(bool, optional, tag = "1")]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    pub on_disk: ::core::option::Option<bool>,
+    /// If true - used for tenant optimization.
+    #[prost(bool, optional, tag = "2")]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    pub is_tenant: ::core::option::Option<bool>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+pub struct GeoIndexParams {}
+#[derive(derive_builder::Builder)]
+#[builder(
     build_fn(private, name = "build_inner"),
     pattern = "owned",
     custom_constructor
@@ -731,28 +794,40 @@ pub struct TextIndexParams {
     #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub max_token_len: ::core::option::Option<u64>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+pub struct BoolIndexParams {}
 #[derive(derive_builder::Builder)]
 #[builder(
-    build_fn(private, name = "build_inner"),
-    pattern = "owned",
-    custom_constructor
+    build_fn(private, error = "std::convert::Infallible", name = "build_inner"),
+    pattern = "owned"
 )]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
-pub struct IntegerIndexParams {
-    /// If true - support direct lookups.
-    #[prost(bool, tag = "1")]
-    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
-    pub lookup: bool,
-    /// If true - support ranges filters.
-    #[prost(bool, tag = "2")]
-    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
-    pub range: bool,
+pub struct DatetimeIndexParams {
+    /// If true - store index on disk.
+    #[prost(bool, optional, tag = "1")]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    pub on_disk: ::core::option::Option<bool>,
+    /// If true - used for tenant optimization.
+    #[prost(bool, optional, tag = "2")]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    pub is_tenant: ::core::option::Option<bool>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+pub struct UuidIndexParams {
+    /// If true - used for tenant optimization.
+    #[prost(bool, optional, tag = "1")]
+    pub is_tenant: ::core::option::Option<bool>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct PayloadIndexParams {
-    #[prost(oneof = "payload_index_params::IndexParams", tags = "1, 2")]
+    #[prost(
+        oneof = "payload_index_params::IndexParams",
+        tags = "3, 2, 4, 5, 1, 6, 7, 8"
+    )]
     pub index_params: ::core::option::Option<payload_index_params::IndexParams>,
 }
 /// Nested message and enum types in `PayloadIndexParams`.
@@ -760,12 +835,30 @@ pub mod payload_index_params {
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, Copy, PartialEq, ::prost::Oneof)]
     pub enum IndexParams {
-        /// Parameters for text index
-        #[prost(message, tag = "1")]
-        TextIndexParams(super::TextIndexParams),
+        /// Parameters for keyword index
+        #[prost(message, tag = "3")]
+        KeywordIndexParams(super::KeywordIndexParams),
         /// Parameters for integer index
         #[prost(message, tag = "2")]
         IntegerIndexParams(super::IntegerIndexParams),
+        /// Parameters for float index
+        #[prost(message, tag = "4")]
+        FloatIndexParams(super::FloatIndexParams),
+        /// Parameters for geo index
+        #[prost(message, tag = "5")]
+        GeoIndexParams(super::GeoIndexParams),
+        /// Parameters for text index
+        #[prost(message, tag = "1")]
+        TextIndexParams(super::TextIndexParams),
+        /// Parameters for bool index
+        #[prost(message, tag = "6")]
+        BoolIndexParams(super::BoolIndexParams),
+        /// Parameters for datetime index
+        #[prost(message, tag = "7")]
+        DatetimeIndexParams(super::DatetimeIndexParams),
+        /// Parameters for uuid index
+        #[prost(message, tag = "8")]
+        UuidIndexParams(super::UuidIndexParams),
     }
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -986,6 +1079,16 @@ pub struct ShardTransferInfo {
     /// If `true` transfer is a synchronization of a replicas; If `false` transfer is a moving of a shard from one peer to another
     #[prost(bool, tag = "4")]
     pub sync: bool,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct ReshardingInfo {
+    #[prost(uint32, tag = "1")]
+    pub shard_id: u32,
+    #[prost(uint64, tag = "2")]
+    pub peer_id: u64,
+    #[prost(message, optional, tag = "3")]
+    pub shard_key: ::core::option::Option<ShardKey>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -1420,6 +1523,7 @@ pub enum PayloadSchemaType {
     Text = 5,
     Bool = 6,
     Datetime = 7,
+    Uuid = 8,
 }
 impl PayloadSchemaType {
     /// String value of the enum field names used in the ProtoBuf definition.
@@ -1436,6 +1540,7 @@ impl PayloadSchemaType {
             PayloadSchemaType::Text => "Text",
             PayloadSchemaType::Bool => "Bool",
             PayloadSchemaType::Datetime => "Datetime",
+            PayloadSchemaType::Uuid => "Uuid",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -1449,6 +1554,7 @@ impl PayloadSchemaType {
             "Text" => Some(Self::Text),
             "Bool" => Some(Self::Bool),
             "Datetime" => Some(Self::Datetime),
+            "Uuid" => Some(Self::Uuid),
             _ => None,
         }
     }
@@ -3478,7 +3584,13 @@ pub struct CreateFieldIndexCollection {
     pub field_type: ::core::option::Option<i32>,
     /// Payload index params.
     #[prost(message, optional, tag = "5")]
-    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
+    #[builder(
+        setter(into, strip_option),
+        field(
+            ty = "Option<payload_index_params::IndexParams>",
+            build = "convert_option(&self.field_index_params)"
+        )
+    )]
     pub field_index_params: ::core::option::Option<PayloadIndexParams>,
     /// Write ordering guarantees
     #[prost(message, optional, tag = "6")]
@@ -4538,7 +4650,7 @@ pub struct ContextInput {
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Query {
-    #[prost(oneof = "query::Variant", tags = "1, 2, 3, 4, 5, 6")]
+    #[prost(oneof = "query::Variant", tags = "1, 2, 3, 4, 5, 6, 7")]
     pub variant: ::core::option::Option<query::Variant>,
 }
 /// Nested message and enum types in `Query`.
@@ -4564,6 +4676,9 @@ pub mod query {
         /// Fuse the results of multiple prefetches.
         #[prost(enumeration = "super::Fusion", tag = "6")]
         Fusion(i32),
+        /// Sample points from the collection.
+        #[prost(enumeration = "super::Sample", tag = "7")]
+        Sample(i32),
     }
 }
 #[derive(derive_builder::Builder)]
@@ -4724,6 +4839,84 @@ pub struct QueryBatchPoints {
     #[prost(uint64, optional, tag = "4")]
     #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub timeout: ::core::option::Option<u64>,
+}
+#[derive(derive_builder::Builder)]
+#[builder(
+    build_fn(private, name = "build_inner"),
+    pattern = "owned",
+    custom_constructor
+)]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct QueryPointGroups {
+    /// Name of the collection
+    #[prost(string, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
+    pub collection_name: ::prost::alloc::string::String,
+    /// Sub-requests to perform first. If present, the query will be performed on the results of the prefetches.
+    #[prost(message, repeated, tag = "2")]
+    #[builder(field(vis = "pub(crate)"))]
+    pub prefetch: ::prost::alloc::vec::Vec<PrefetchQuery>,
+    /// Query to perform. If missing, returns points ordered by their IDs.
+    #[prost(message, optional, tag = "3")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
+    pub query: ::core::option::Option<Query>,
+    /// Define which vector to use for querying. If missing, the default vector is used.
+    #[prost(string, optional, tag = "4")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
+    pub using: ::core::option::Option<::prost::alloc::string::String>,
+    /// Filter conditions - return only those points that satisfy the specified conditions.
+    #[prost(message, optional, tag = "5")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
+    pub filter: ::core::option::Option<Filter>,
+    /// Search params for when there is no prefetch.
+    #[prost(message, optional, tag = "6")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
+    pub params: ::core::option::Option<SearchParams>,
+    /// Return points with scores better than this threshold.
+    #[prost(float, optional, tag = "7")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
+    pub score_threshold: ::core::option::Option<f32>,
+    /// Options for specifying which payload to include or not
+    #[prost(message, optional, tag = "8")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
+    pub with_payload: ::core::option::Option<WithPayloadSelector>,
+    /// Options for specifying which vectors to include into response
+    #[prost(message, optional, tag = "9")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
+    pub with_vectors: ::core::option::Option<WithVectorsSelector>,
+    /// The location to use for IDs lookup, if not specified - use the current collection and the 'using' vector
+    #[prost(message, optional, tag = "10")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
+    pub lookup_from: ::core::option::Option<LookupLocation>,
+    /// Max number of points. Default is 3.
+    #[prost(uint64, optional, tag = "11")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
+    pub limit: ::core::option::Option<u64>,
+    /// Maximum amount of points to return per group. Default to 10.
+    #[prost(uint64, optional, tag = "12")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
+    pub group_size: ::core::option::Option<u64>,
+    /// Payload field to group by, must be a string or number field. If there are multiple values for the field, all of them will be used. One point can be in multiple groups.
+    #[prost(string, tag = "13")]
+    #[builder(field(vis = "pub(crate)"))]
+    pub group_by: ::prost::alloc::string::String,
+    /// Options for specifying read consistency guarantees
+    #[prost(message, optional, tag = "14")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
+    pub read_consistency: ::core::option::Option<ReadConsistency>,
+    /// Options for specifying how to use the group id to lookup points in another collection
+    #[prost(message, optional, tag = "15")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
+    pub with_lookup: ::core::option::Option<WithLookup>,
+    /// If set, overrides global timeout setting for this request. Unit is seconds.
+    #[prost(uint64, optional, tag = "16")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
+    pub timeout: ::core::option::Option<u64>,
+    /// Specify in which shards to look for the points, if not specified - look in all shards
+    #[prost(message, optional, tag = "17")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
+    pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -5014,6 +5207,15 @@ pub struct QueryResponse {
 pub struct QueryBatchResponse {
     #[prost(message, repeated, tag = "1")]
     pub result: ::prost::alloc::vec::Vec<BatchResult>,
+    /// Time spent to process
+    #[prost(double, tag = "2")]
+    pub time: f64,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct QueryGroupsResponse {
+    #[prost(message, optional, tag = "1")]
+    pub result: ::core::option::Option<GroupsResult>,
     /// Time spent to process
     #[prost(double, tag = "2")]
     pub time: f64,
@@ -5493,6 +5695,7 @@ pub enum FieldType {
     Text = 4,
     Bool = 5,
     Datetime = 6,
+    Uuid = 7,
 }
 impl FieldType {
     /// String value of the enum field names used in the ProtoBuf definition.
@@ -5508,6 +5711,7 @@ impl FieldType {
             FieldType::Text => "FieldTypeText",
             FieldType::Bool => "FieldTypeBool",
             FieldType::Datetime => "FieldTypeDatetime",
+            FieldType::Uuid => "FieldTypeUuid",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -5520,6 +5724,7 @@ impl FieldType {
             "FieldTypeText" => Some(Self::Text),
             "FieldTypeBool" => Some(Self::Bool),
             "FieldTypeDatetime" => Some(Self::Datetime),
+            "FieldTypeUuid" => Some(Self::Uuid),
             _ => None,
         }
     }
@@ -5587,6 +5792,8 @@ impl RecommendStrategy {
 pub enum Fusion {
     /// Reciprocal Rank Fusion
     Rrf = 0,
+    /// Distribution-Based Score Fusion
+    Dbsf = 1,
 }
 impl Fusion {
     /// String value of the enum field names used in the ProtoBuf definition.
@@ -5596,12 +5803,42 @@ impl Fusion {
     pub fn as_str_name(&self) -> &'static str {
         match self {
             Fusion::Rrf => "RRF",
+            Fusion::Dbsf => "DBSF",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
     pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
         match value {
             "RRF" => Some(Self::Rrf),
+            "DBSF" => Some(Self::Dbsf),
+            _ => None,
+        }
+    }
+}
+/// / Sample points from the collection
+/// /
+/// / Available sampling methods:
+/// /
+/// / * `random` - Random sampling
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+#[repr(i32)]
+pub enum Sample {
+    Random = 0,
+}
+impl Sample {
+    /// String value of the enum field names used in the ProtoBuf definition.
+    ///
+    /// The values are not transformed in any way and thus are considered stable
+    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+    pub fn as_str_name(&self) -> &'static str {
+        match self {
+            Sample::Random => "Random",
+        }
+    }
+    /// Creates an enum from field names used in the ProtoBuf definition.
+    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+        match value {
+            "Random" => Some(Self::Random),
             _ => None,
         }
     }
@@ -6338,6 +6575,32 @@ pub mod points_client {
             req.extensions_mut().insert(GrpcMethod::new("qdrant.Points", "QueryBatch"));
             self.inner.unary(req, path, codec).await
         }
+        ///
+        /// Universally query points in a group fashion. This endpoint covers all capabilities of search, recommend, discover, filters. But also enables hybrid and multi-stage queries.
+        pub async fn query_groups(
+            &mut self,
+            request: impl tonic::IntoRequest<super::QueryPointGroups>,
+        ) -> std::result::Result<
+            tonic::Response<super::QueryGroupsResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Points/QueryGroups",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut().insert(GrpcMethod::new("qdrant.Points", "QueryGroups"));
+            self.inner.unary(req, path, codec).await
+        }
     }
 }
 /// Generated server implementations.
@@ -6560,6 +6823,15 @@ pub mod points_server {
             request: tonic::Request<super::QueryBatchPoints>,
         ) -> std::result::Result<
             tonic::Response<super::QueryBatchResponse>,
+            tonic::Status,
+        >;
+        ///
+        /// Universally query points in a group fashion. This endpoint covers all capabilities of search, recommend, discover, filters. But also enables hybrid and multi-stage queries.
+        async fn query_groups(
+            &self,
+            request: tonic::Request<super::QueryPointGroups>,
+        ) -> std::result::Result<
+            tonic::Response<super::QueryGroupsResponse>,
             tonic::Status,
         >;
     }
@@ -7674,6 +7946,49 @@ pub mod points_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = QueryBatchSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/qdrant.Points/QueryGroups" => {
+                    #[allow(non_camel_case_types)]
+                    struct QueryGroupsSvc<T: Points>(pub Arc<T>);
+                    impl<T: Points> tonic::server::UnaryService<super::QueryPointGroups>
+                    for QueryGroupsSvc<T> {
+                        type Response = super::QueryGroupsResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::QueryPointGroups>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as Points>::query_groups(&inner, request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let method = QueryGroupsSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
@@ -8837,6 +9152,9 @@ builder_type_conversions!(CreateShardKey, CreateShardKeyBuilder);
 builder_type_conversions!(ContextExamplePair, ContextExamplePairBuilder);
 builder_type_conversions!(TextIndexParams, TextIndexParamsBuilder, true);
 builder_type_conversions!(IntegerIndexParams, IntegerIndexParamsBuilder, true);
+builder_type_conversions!(KeywordIndexParams, KeywordIndexParamsBuilder);
+builder_type_conversions!(DatetimeIndexParams, DatetimeIndexParamsBuilder);
+builder_type_conversions!(FloatIndexParams, FloatIndexParamsBuilder);
 builder_type_conversions!(CreateAlias, CreateAliasBuilder, true);
 builder_type_conversions!(RenameAlias, RenameAliasBuilder, true);
 builder_type_conversions!(DeleteSnapshotRequest, DeleteSnapshotRequestBuilder, true);
@@ -8846,6 +9164,7 @@ builder_type_conversions!(DiscoverInput, DiscoverInputBuilder, true);
 builder_type_conversions!(ContextInput, ContextInputBuilder);
 builder_type_conversions!(ContextInputPair, ContextInputPairBuilder, true);
 builder_type_conversions!(MultiVectorConfig, MultiVectorConfigBuilder, true);
+builder_type_conversions!(QueryPointGroups, QueryPointGroupsBuilder, true);
 builder_type_conversions!(DeletePoints, DeletePointsBuilder, true);
 
 pub use crate::manual_builder::*;

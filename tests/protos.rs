@@ -613,7 +613,7 @@ fn configure_builder(builder: Builder) -> Builder {
             ("CreateFieldIndexCollection.field_type", DEFAULT_OPTION_INTO),
             (
                 "CreateFieldIndexCollection.field_index_params",
-                DEFAULT_OPTION_INTO,
+                builder_custom_into!(payload_index_params::IndexParams, self.field_index_params),
             ),
             ("CreateFieldIndexCollection.ordering", DEFAULT_OPTION_INTO),
             // DeleteFieldIndexCollection
@@ -712,6 +712,17 @@ fn configure_builder(builder: Builder) -> Builder {
             // IntegerIndexParams
             ("IntegerIndexParams.lookup", DEFAULT_OPTION_INTO),
             ("IntegerIndexParams.range", DEFAULT_OPTION_INTO),
+            ("IntegerIndexParams.is_tenant", DEFAULT_OPTION),
+            ("IntegerIndexParams.on_disk", DEFAULT_OPTION),
+            // KeywordIndexParams
+            ("KeywordIndexParams.is_tenant", DEFAULT_OPTION),
+            ("KeywordIndexParams.on_disk", DEFAULT_OPTION),
+            // FloatIndexParams
+            ("FloatIndexParams.is_tenant", DEFAULT_OPTION),
+            ("FloatIndexParams.on_disk", DEFAULT_OPTION),
+            // DatetimeIndexParams
+            ("DatetimeIndexParams.is_tenant", DEFAULT_OPTION),
+            ("DatetimeIndexParams.on_disk", DEFAULT_OPTION),
             // RecommendInput
             ("RecommendInput.positive", DEFAULT_OPTION_INTO),
             ("RecommendInput.negative", DEFAULT_OPTION_INTO),
@@ -726,6 +737,24 @@ fn configure_builder(builder: Builder) -> Builder {
             ("ContextInputPair.negative", DEFAULT_OPTION_INTO),
             // MultiVectorConfig
             ("MultiVectorConfig.comparator", DEFAULT_OPTION_INTO),
+            // QueryPointGroups
+            ("QueryPointGroups.collection_name", PUBLIC_ONLY),
+            ("QueryPointGroups.prefetch", PUBLIC_ONLY),
+            ("QueryPointGroups.group_by", PUBLIC_ONLY),
+            ("QueryPointGroups.query", DEFAULT_OPTION_INTO),
+            ("QueryPointGroups.using", DEFAULT_OPTION_INTO),
+            ("QueryPointGroups.filter", DEFAULT_OPTION_INTO),
+            ("QueryPointGroups.params", DEFAULT_OPTION_INTO),
+            ("QueryPointGroups.score_threshold", DEFAULT_OPTION_INTO),
+            ("QueryPointGroups.with_payload", DEFAULT_OPTION_INTO),
+            ("QueryPointGroups.with_vectors", DEFAULT_OPTION_INTO),
+            ("QueryPointGroups.lookup_from", DEFAULT_OPTION_INTO),
+            ("QueryPointGroups.limit", DEFAULT_OPTION_INTO),
+            ("QueryPointGroups.group_size", DEFAULT_OPTION_INTO),
+            ("QueryPointGroups.read_consistency", DEFAULT_OPTION_INTO),
+            ("QueryPointGroups.with_lookup", DEFAULT_OPTION_INTO),
+            ("QueryPointGroups.timeout", DEFAULT_OPTION_INTO),
+            ("QueryPointGroups.shard_key_selector", DEFAULT_OPTION_INTO),
         ],
         builder_derive_options(),
     )
@@ -1009,6 +1038,21 @@ fn builder_derive_options() -> &'static [BuildDeriveOptions] {
             MacroConfig::WithDefaultFn,
         ),
         (
+            "KeywordIndexParams",
+            DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::DefaultImpl,
+        ),
+        (
+            "DatetimeIndexParams",
+            DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::DefaultImpl,
+        ),
+        (
+            "FloatIndexParams",
+            DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::DefaultImpl,
+        ),
+        (
             "CreateAlias",
             NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
             MacroConfig::WithDefaultFn,
@@ -1050,6 +1094,11 @@ fn builder_derive_options() -> &'static [BuildDeriveOptions] {
         ),
         (
             "MultiVectorConfig",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::WithDefaultFn,
+        ),
+        (
+            "QueryPointGroups",
             NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
             MacroConfig::WithDefaultFn,
         ),
