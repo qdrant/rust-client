@@ -50,8 +50,9 @@ impl ChannelPool {
             .keep_alive_while_idle(self.keep_alive_while_idle);
 
         let endpoint = if tls {
+            let tls_config = ClientTlsConfig::new().with_native_roots();
             endpoint
-                .tls_config(ClientTlsConfig::new())
+                .tls_config(tls_config)
                 .map_err(|e| Status::internal(format!("Failed to create TLS config: {}", e)))?
         } else {
             endpoint
@@ -60,7 +61,7 @@ impl ChannelPool {
         let channel = endpoint
             .connect()
             .await
-            .map_err(|e| Status::internal(format!("Failed to connect to {}: {}", self.uri, e)))?;
+            .map_err(|e| Status::internal(format!("Failed to connect to {}: {:?}", self.uri, e)))?;
         let mut self_channel = self.channel.write().unwrap();
 
         *self_channel = Some(channel.clone());
