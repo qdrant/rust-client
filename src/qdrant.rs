@@ -739,10 +739,10 @@ pub struct IntegerIndexParams {
     #[prost(bool, tag = "2")]
     #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub range: bool,
-    /// If true - used for tenant optimization.
+    /// If true - use this key to organize storage of the collection data. This option assumes that this key will be used in majority of filtered requests.
     #[prost(bool, optional, tag = "3")]
     #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
-    pub is_tenant: ::core::option::Option<bool>,
+    pub is_principal: ::core::option::Option<bool>,
     /// If true - store index on disk.
     #[prost(bool, optional, tag = "4")]
     #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
@@ -760,10 +760,10 @@ pub struct FloatIndexParams {
     #[prost(bool, optional, tag = "1")]
     #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub on_disk: ::core::option::Option<bool>,
-    /// If true - used for tenant optimization.
+    /// If true - use this key to organize storage of the collection data. This option assumes that this key will be used in majority of filtered requests.
     #[prost(bool, optional, tag = "2")]
     #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
-    pub is_tenant: ::core::option::Option<bool>,
+    pub is_principal: ::core::option::Option<bool>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
@@ -809,17 +809,27 @@ pub struct DatetimeIndexParams {
     #[prost(bool, optional, tag = "1")]
     #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub on_disk: ::core::option::Option<bool>,
-    /// If true - used for tenant optimization.
+    /// If true - use this key to organize storage of the collection data. This option assumes that this key will be used in majority of filtered requests.
     #[prost(bool, optional, tag = "2")]
     #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
-    pub is_tenant: ::core::option::Option<bool>,
+    pub is_principal: ::core::option::Option<bool>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(
+    build_fn(private, error = "std::convert::Infallible", name = "build_inner"),
+    pattern = "owned"
+)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct UuidIndexParams {
     /// If true - used for tenant optimization.
     #[prost(bool, optional, tag = "1")]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub is_tenant: ::core::option::Option<bool>,
+    /// If true - store index on disk.
+    #[prost(bool, optional, tag = "2")]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    pub on_disk: ::core::option::Option<bool>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
@@ -4917,6 +4927,32 @@ pub struct QueryPointGroups {
     #[prost(message, optional, tag = "17")]
     #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct FacetValue {
+    #[prost(oneof = "facet_value::Variant", tags = "1")]
+    pub variant: ::core::option::Option<facet_value::Variant>,
+}
+/// Nested message and enum types in `FacetValue`.
+pub mod facet_value {
+    #[allow(clippy::derive_partial_eq_without_eq)]
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
+    pub enum Variant {
+        /// String value from the facet
+        #[prost(string, tag = "1")]
+        StringValue(::prost::alloc::string::String),
+    }
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct FacetValueHit {
+    /// Value from the facet
+    #[prost(message, optional, tag = "1")]
+    pub value: ::core::option::Option<FacetValue>,
+    /// Number of points with this value
+    #[prost(uint64, tag = "2")]
+    pub count: u64,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -9154,6 +9190,7 @@ builder_type_conversions!(TextIndexParams, TextIndexParamsBuilder, true);
 builder_type_conversions!(IntegerIndexParams, IntegerIndexParamsBuilder, true);
 builder_type_conversions!(KeywordIndexParams, KeywordIndexParamsBuilder);
 builder_type_conversions!(DatetimeIndexParams, DatetimeIndexParamsBuilder);
+builder_type_conversions!(UuidIndexParams, UuidIndexParamsBuilder);
 builder_type_conversions!(FloatIndexParams, FloatIndexParamsBuilder);
 builder_type_conversions!(CreateAlias, CreateAliasBuilder, true);
 builder_type_conversions!(RenameAlias, RenameAliasBuilder, true);

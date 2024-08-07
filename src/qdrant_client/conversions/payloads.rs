@@ -2,7 +2,8 @@ use crate::qdrant::payload_index_params::IndexParams;
 use crate::qdrant::{
     DatetimeIndexParams, DatetimeIndexParamsBuilder, FloatIndexParams, FloatIndexParamsBuilder,
     IntegerIndexParams, IntegerIndexParamsBuilder, KeywordIndexParams, KeywordIndexParamsBuilder,
-    PayloadIndexParams, TextIndexParams, TextIndexParamsBuilder,
+    PayloadIndexParams, TextIndexParams, TextIndexParamsBuilder, UuidIndexParams,
+    UuidIndexParamsBuilder,
 };
 
 impl From<IndexParams> for PayloadIndexParams {
@@ -86,5 +87,17 @@ impl From<DatetimeIndexParams> for IndexParams {
 impl From<DatetimeIndexParamsBuilder> for IndexParams {
     fn from(value: DatetimeIndexParamsBuilder) -> Self {
         Self::DatetimeIndexParams(value.build())
+    }
+}
+
+impl From<UuidIndexParams> for IndexParams {
+    fn from(value: UuidIndexParams) -> Self {
+        Self::UuidIndexParams(value)
+    }
+}
+
+impl From<UuidIndexParamsBuilder> for IndexParams {
+    fn from(value: UuidIndexParamsBuilder) -> Self {
+        Self::UuidIndexParams(value.build())
     }
 }
