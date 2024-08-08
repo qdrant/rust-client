@@ -4134,6 +4134,7 @@ pub struct ScrollPoints {
     pub order_by: ::core::option::Option<OrderBy>,
     /// If set, overrides global timeout setting for this request. Unit is seconds.
     #[prost(uint64, optional, tag = "11")]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub timeout: ::core::option::Option<u64>,
 }
 #[derive(derive_builder::Builder)]

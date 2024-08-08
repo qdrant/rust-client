@@ -444,6 +444,7 @@ fn configure_builder(builder: Builder) -> Builder {
             ),
             ("ScrollPoints.shard_key_selector", DEFAULT_OPTION_INTO),
             ("ScrollPoints.order_by", DEFAULT_OPTION_INTO),
+            ("ScrollPoints.timeout", DEFAULT_OPTION),
             // OrderBy
             ("OrderBy.key", PUBLIC_ONLY),
             ("OrderBy.direction", DEFAULT_OPTION),
