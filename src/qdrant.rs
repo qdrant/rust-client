@@ -4595,6 +4595,7 @@ pub struct CountPoints {
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
     /// If set, overrides global timeout setting for this request. Unit is seconds.
     #[prost(uint64, optional, tag = "6")]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub timeout: ::core::option::Option<u64>,
 }
 #[derive(derive_builder::Builder)]

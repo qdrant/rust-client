@@ -607,6 +607,7 @@ fn configure_builder(builder: Builder) -> Builder {
                 builder_custom_into!(read_consistency::Value, self.read_consistency),
             ),
             ("CountPoints.shard_key_selector", DEFAULT_OPTION_INTO),
+            ("CountPoints.timeout", DEFAULT_OPTION),
             // CreateFieldIndexCollection
             ("CreateFieldIndexCollection.collection_name", PUBLIC_ONLY),
             ("CreateFieldIndexCollection.field_name", PUBLIC_ONLY),
