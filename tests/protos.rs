@@ -352,6 +352,7 @@ fn configure_builder(builder: Builder) -> Builder {
                 builder_custom_into!(read_consistency::Value, self.read_consistency),
             ),
             ("GetPoints.shard_key_selector", DEFAULT_OPTION_INTO),
+            ("GetPoints.timeout", DEFAULT_OPTION),
             // SearchBatchPoints
             ("SearchBatchPoints.collection_name", PUBLIC_ONLY),
             ("SearchBatchPoints.search_points", PUBLIC_ONLY),
