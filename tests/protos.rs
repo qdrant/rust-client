@@ -712,17 +712,20 @@ fn configure_builder(builder: Builder) -> Builder {
             // IntegerIndexParams
             ("IntegerIndexParams.lookup", DEFAULT_OPTION_INTO),
             ("IntegerIndexParams.range", DEFAULT_OPTION_INTO),
-            ("IntegerIndexParams.is_tenant", DEFAULT_OPTION),
+            ("IntegerIndexParams.is_principal", DEFAULT_OPTION),
             ("IntegerIndexParams.on_disk", DEFAULT_OPTION),
             // KeywordIndexParams
             ("KeywordIndexParams.is_tenant", DEFAULT_OPTION),
             ("KeywordIndexParams.on_disk", DEFAULT_OPTION),
             // FloatIndexParams
-            ("FloatIndexParams.is_tenant", DEFAULT_OPTION),
+            ("FloatIndexParams.is_principal", DEFAULT_OPTION),
             ("FloatIndexParams.on_disk", DEFAULT_OPTION),
             // DatetimeIndexParams
-            ("DatetimeIndexParams.is_tenant", DEFAULT_OPTION),
+            ("DatetimeIndexParams.is_principal", DEFAULT_OPTION),
             ("DatetimeIndexParams.on_disk", DEFAULT_OPTION),
+            // UuidIndexParams
+            ("UuidIndexParams.is_tenant", DEFAULT_OPTION),
+            ("UuidIndexParams.on_disk", DEFAULT_OPTION),
             // RecommendInput
             ("RecommendInput.positive", DEFAULT_OPTION_INTO),
             ("RecommendInput.negative", DEFAULT_OPTION_INTO),
@@ -1044,6 +1047,11 @@ fn builder_derive_options() -> &'static [BuildDeriveOptions] {
         ),
         (
             "DatetimeIndexParams",
+            DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::DefaultImpl,
+        ),
+        (
+            "UuidIndexParams",
             DEFAULT_BUILDER_DERIVE_OPTIONS,
             MacroConfig::DefaultImpl,
         ),
