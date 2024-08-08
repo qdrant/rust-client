@@ -3366,6 +3366,9 @@ pub struct GetPoints {
     #[prost(message, optional, tag = "7")]
     #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
+    /// If set, overrides global timeout setting for this request. Unit is seconds.
+    #[prost(uint64, optional, tag = "8")]
+    pub timeout: ::core::option::Option<u64>,
 }
 #[derive(derive_builder::Builder)]
 #[builder(
@@ -4128,6 +4131,9 @@ pub struct ScrollPoints {
     #[prost(message, optional, tag = "10")]
     #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub order_by: ::core::option::Option<OrderBy>,
+    /// If set, overrides global timeout setting for this request. Unit is seconds.
+    #[prost(uint64, optional, tag = "11")]
+    pub timeout: ::core::option::Option<u64>,
 }
 #[derive(derive_builder::Builder)]
 #[builder(
@@ -4586,6 +4592,9 @@ pub struct CountPoints {
     #[prost(message, optional, tag = "5")]
     #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
+    /// If set, overrides global timeout setting for this request. Unit is seconds.
+    #[prost(uint64, optional, tag = "6")]
+    pub timeout: ::core::option::Option<u64>,
 }
 #[derive(derive_builder::Builder)]
 #[builder(
