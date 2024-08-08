@@ -662,6 +662,7 @@ impl QdrantClient {
                         with_vectors: with_vectors_ref.cloned(),
                         read_consistency: read_consistency_ref.cloned(),
                         shard_key_selector: shard_keys_ref.clone(),
+                        timeout: None,
                     })
                     .await?;
 
