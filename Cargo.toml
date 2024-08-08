@@ -16,18 +16,17 @@ keywords = ["qdrant", "vector-search", "search-engine", "client", "grpc"]
 tonic = { version = "0.12.1", features = ["tls", "tls-roots", "gzip"] }
 prost = "0.13.1"
 prost-types = "0.13.1"
-anyhow = "1"
-
-serde = { version = "1", features = ["derive"], optional = true }
-serde_json = { version = "1", optional = true }
-reqwest = { version = "0.12.3", optional = true, default-features = false, features = ["stream", "rustls-tls", "http2"] }
+anyhow = "1.0.86"
+serde = { version = "1.0.205", features = ["derive"], optional = true }
+serde_json = { version = "1.0.122", optional = true }
+reqwest = { version = "0.12.5", optional = true, default-features = false, features = ["stream", "rustls-tls", "http2"] }
 futures-util = { version = "0.3.30", optional = true }
-derive_builder = { version = "0.20" }
-thiserror = "1.0.60"
+derive_builder = { version = "0.20.0" }
+thiserror = "1.0.63"
 
 [dev-dependencies]
-tonic-build = { version = "0.12.0", features = ["prost"] }
-tokio = { version = "1.36.0", features = ["rt-multi-thread"] }
+tonic-build = { version = "0.12.1", features = ["prost"] }
+tokio = { version = "1.39.2", features = ["rt-multi-thread"] }
 
 [features]
 default = ["download_snapshots", "serde", "generate-snippets"]
