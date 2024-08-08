@@ -18,14 +18,22 @@ macro_rules! builder_type_conversions {
     ($main_type:ident,$builder_type:ident,$build_fn:ident) => {
         impl From<$builder_type> for $main_type {
             fn from(value: $builder_type) -> Self {
-                value.$build_fn().unwrap()
+                value.$build_fn().expect(&format!(
+                    "Failed to convert {} to {}",
+                    stringify!($builder_type),
+                    stringify!($main_type)
+                ))
             }
         }
 
         impl $builder_type {
             /// Builds the desired type. Can often be omitted.
             pub fn build(self) -> $main_type {
-                self.$build_fn().unwrap()
+                self.$build_fn().expect(&format!(
+                    "Failed to build {} into {}",
+                    stringify!($builder_type),
+                    stringify!($main_type)
+                ))
             }
         }
     };
