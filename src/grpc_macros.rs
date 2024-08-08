@@ -18,7 +18,11 @@ macro_rules! builder_type_conversions {
     ($main_type:ident,$builder_type:ident,$build_fn:ident) => {
         impl From<$builder_type> for $main_type {
             fn from(value: $builder_type) -> Self {
-                value.$build_fn().expect(&format!("Failed to convert {} to {}", stringify!($builder_type), stringify!($main_type)))
+                value.$build_fn().expect(&format!(
+                    "Failed to convert {} to {}",
+                    stringify!($builder_type),
+                    stringify!($main_type)
+                ))
             }
         }
 
