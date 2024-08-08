@@ -12,9 +12,10 @@ const GRPC_OUTPUT_FILE: &str = "src/qdrant.rs";
 fn protos() {
     let out_time = timestamp(GRPC_OUTPUT_FILE);
     let mut protos = std::fs::read_dir("proto").unwrap();
-    if !protos.any(|d| timestamp(d.unwrap().path()) > out_time)
-        && timestamp("tests/protos.rs") <= out_time
-    {
+    // Make sure the proto files are not dirty
+    let protos_files_synced = !protos.any(|d| timestamp(d.unwrap().path()) > out_time);
+    let protos_test_synced = timestamp("tests/protos.rs") <= out_time;
+    if protos_files_synced && protos_test_synced {
         println!("protobuf files not changed. Exiting early!");
         return;
     }
@@ -49,6 +50,7 @@ fn protos() {
     // Vendor gRPC types used in our objects
     append_to_file(GRPC_OUTPUT_FILE, "pub use prost_types::Timestamp;");
 
+    eprintln!("protos_files_synced:{protos_files_synced}, protos_test_synced:{protos_test_synced}");
     panic!("proto definitions changed. Stubs recompiled. Please commit the changes.")
 }
 
