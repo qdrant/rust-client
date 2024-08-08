@@ -29,7 +29,11 @@ macro_rules! builder_type_conversions {
         impl $builder_type {
             /// Builds the desired type. Can often be omitted.
             pub fn build(self) -> $main_type {
-                self.$build_fn().unwrap()
+                self.$build_fn().expect(&format!(
+                    "Failed to build {} into {}",
+                    stringify!($builder_type),
+                    stringify!($main_type)
+                ))
             }
         }
     };
