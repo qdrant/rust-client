@@ -12,7 +12,9 @@ impl From<&[(u32, f32)]> for Query {
     fn from(value: &[(u32, f32)]) -> Self {
         let (indices, values): (Vec<_>, Vec<_>) = value.iter().copied().unzip();
         Query {
-            variant: Some(query::Variant::Nearest(VectorInput::new_sparse(indices, values))),
+            variant: Some(query::Variant::Nearest(VectorInput::new_sparse(
+                indices, values,
+            ))),
         }
     }
 }
