@@ -238,7 +238,9 @@ mod tests {
 
     #[tokio::test]
     async fn test_qdrant_queries() -> anyhow::Result<()> {
-        let client = Qdrant::from_url("http://localhost:6334").build()?;
+        let client = Qdrant::from_url("http://localhost:6334")
+            .timeout(10u64) // larger timeout to account for the slow snapshot creation
+            .build()?;
 
         let health = client.health_check().await?;
         println!("{:?}", health);
@@ -285,8 +287,7 @@ mod tests {
         // Keyword filter result
         search_points.filter = Some(Filter::all([Condition::matches("foo", "Bar".to_string())]));
         let search_result = client.search_points(search_points.clone()).await?;
-        println!("{:#?}", search_result);
-
+        eprintln!("search_result = {:#?}", search_result);
         assert!(!search_result.result.is_empty());
 
         // Existing implementations full text search filter result (`Condition::matches`)
@@ -295,6 +296,7 @@ mod tests {
             "Not ".to_string(),
         )]));
         let search_result = client.search_points(search_points.clone()).await?;
+        eprintln!("search_result = {:#?}", search_result);
         assert!(!search_result.result.is_empty());
 
         // Full text search filter result (`Condition::matches_text`)
@@ -303,9 +305,8 @@ mod tests {
             "Not",
         )]));
         let search_result = client.search_points(search_points).await?;
-        assert!(!search_result.result.is_empty());
-
         eprintln!("search_result = {:#?}", search_result);
+        assert!(!search_result.result.is_empty());
 
         // Override payload of the existing point
         let new_payload: Payload = vec![("foo", "BAZ".into())]
@@ -313,11 +314,12 @@ mod tests {
             .collect::<HashMap<_, Value>>()
             .into();
 
-        client
+        let payload_result = client
             .set_payload(
                 SetPayloadPointsBuilder::new(collection_name, new_payload).points_selector([0]),
             )
             .await?;
+        eprintln!("payload_result = {:#?}", payload_result);
 
         // Delete some payload fields
         client
@@ -327,26 +329,27 @@ mod tests {
             )
             .await?;
 
-        let points = client
+        let get_points_result = client
             .get_points(
                 GetPointsBuilder::new(collection_name, [0.into()])
                     .with_vectors(true)
                     .with_payload(true),
             )
             .await?;
-
-        assert_eq!(points.result.len(), 1);
-        let point = points.result[0].clone();
+        eprintln!("get_points_result = {:#?}", get_points_result);
+        assert_eq!(get_points_result.result.len(), 1);
+        let point = get_points_result.result[0].clone();
         assert!(point.payload.contains_key("foo"));
         assert!(!point.payload.contains_key("sub_payload"));
 
-        client
+        let delete_points_result = client
             .delete_points(
                 DeletePointsBuilder::new(collection_name)
                     .points([0])
                     .wait(true),
             )
             .await?;
+        eprintln!("delete_points_result = {:#?}", delete_points_result);
 
         // Access raw point api with client
         client
@@ -364,7 +367,9 @@ mod tests {
             })
             .await?;
 
-        client.create_snapshot(collection_name).await?;
+        // slow operation
+        let snapshot_result = client.create_snapshot(collection_name).await?;
+        eprintln!("snapshot_result = {:#?}", snapshot_result);
 
         #[cfg(feature = "download_snapshots")]
         client
