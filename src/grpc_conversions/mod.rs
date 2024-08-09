@@ -1,6 +1,5 @@
 mod extensions;
 mod primitives;
-mod query;
 
 use crate::client::Payload;
 use crate::qdrant::point_id::PointIdOptions;
