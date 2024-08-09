@@ -79,5 +79,5 @@ fn builder_coverage() {
     ContextInputPairBuilder::new(vec![1.0], vec![2.0]).build();
     DiscoverInputBuilder::new(vec![1.0], ContextInputBuilder::default()).build();
     MultiVectorConfigBuilder::new(MultiVectorComparator::MaxSim).build();
-    QueryPointGroupsBuilder::new("", vec![], "").build();
+    QueryPointGroupsBuilder::new("", "").build();
 }

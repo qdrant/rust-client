@@ -1,5 +1,8 @@
 use super::QdrantResult;
-use crate::qdrant::{QueryBatchPoints, QueryBatchResponse, QueryPoints, QueryResponse};
+use crate::qdrant::{
+    QueryBatchPoints, QueryBatchResponse, QueryGroupsResponse, QueryPointGroups, QueryPoints,
+    QueryResponse,
+};
 use crate::qdrant_client::Qdrant;
 
 /// # Query operations
@@ -79,6 +82,40 @@ impl Qdrant {
 
         self.with_points_client(|mut points_api| async move {
             let result = points_api.query_batch(request.clone()).await?;
+            Ok(result.into_inner())
+        })
+        .await
+    }
+
+    /// Query points in a collection.
+    ///
+    /// ```no_run
+    ///# use qdrant_client::{Qdrant, QdrantError};
+    /// use qdrant_client::qdrant::{Condition, Filter, QueryPointGroupsBuilder, QueryPointsBuilder};
+    ///
+    ///# async fn query(client: &Qdrant)
+    ///# -> Result<(), QdrantError> {
+    /// client
+    ///     .query_groups(
+    ///         QueryPointGroupsBuilder::new(
+    ///             "my_collection", // Collection name
+    ///             "city",          // Group by field
+    ///          ).query(vec![0.1, 0.2, 0.3, 0.4]) // Query vector
+    ///     )
+    ///     .await?;
+    ///# Ok(())
+    ///# }
+    /// ```
+    ///
+    /// Documentation: <https://qdrant.tech/documentation/concepts/search/#query-api>
+    pub async fn query_groups(
+        &self,
+        request: impl Into<QueryPointGroups>,
+    ) -> QdrantResult<QueryGroupsResponse> {
+        let request = &request.into();
+
+        self.with_points_client(|mut points_api| async move {
+            let result = points_api.query_groups(request.clone()).await?;
             Ok(result.into_inner())
         })
         .await
