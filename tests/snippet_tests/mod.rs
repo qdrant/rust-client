@@ -26,6 +26,7 @@ mod test_list_full_snapshots;
 mod test_list_snapshots;
 mod test_overwrite_payload;
 mod test_query_point_groups;
+mod test_query_points;
 mod test_recommend_batch_points;
 mod test_recommend_point_groups;
 mod test_recommend_points;
