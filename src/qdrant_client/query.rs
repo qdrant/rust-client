@@ -91,7 +91,7 @@ impl Qdrant {
     ///
     /// ```no_run
     ///# use qdrant_client::{Qdrant, QdrantError};
-    /// use qdrant_client::qdrant::{Condition, Filter, QueryPointGroupsBuilder, QueryPointsBuilder};
+    /// use qdrant_client::qdrant::QueryPointGroupsBuilder;
     ///
     ///# async fn query_groups(client: &Qdrant)
     ///# -> Result<(), QdrantError> {
