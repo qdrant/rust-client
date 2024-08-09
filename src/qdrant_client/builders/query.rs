@@ -60,6 +60,12 @@ impl Query {
             variant: Some(crate::qdrant::query::Variant::Fusion(value.into())),
         }
     }
+
+    pub fn new_sample(value: crate::qdrant::Sample) -> Self {
+        Self {
+            variant: Some(crate::qdrant::query::Variant::Sample(value.into())),
+        }
+    }
 }
 
 impl RecommendInputBuilder {
