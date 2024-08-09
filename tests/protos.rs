@@ -747,7 +747,7 @@ fn configure_builder(builder: Builder) -> Builder {
             ("MultiVectorConfig.comparator", DEFAULT_OPTION_INTO),
             // QueryPointGroups
             ("QueryPointGroups.collection_name", PUBLIC_ONLY),
-            ("QueryPointGroups.prefetch", PUBLIC_ONLY),
+            ("QueryPointGroups.prefetch", DEFAULT_OPTION_INTO),
             ("QueryPointGroups.group_by", PUBLIC_ONLY),
             ("QueryPointGroups.query", DEFAULT_OPTION_INTO),
             ("QueryPointGroups.using", DEFAULT_OPTION_INTO),

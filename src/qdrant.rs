@@ -4877,7 +4877,7 @@ pub struct QueryPointGroups {
     pub collection_name: ::prost::alloc::string::String,
     /// Sub-requests to perform first. If present, the query will be performed on the results of the prefetches.
     #[prost(message, repeated, tag = "2")]
-    #[builder(field(vis = "pub(crate)"))]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub prefetch: ::prost::alloc::vec::Vec<PrefetchQuery>,
     /// Query to perform. If missing, returns points ordered by their IDs.
     #[prost(message, optional, tag = "3")]
