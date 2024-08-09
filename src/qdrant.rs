@@ -714,11 +714,11 @@ pub struct CollectionConfig {
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct KeywordIndexParams {
     /// If true - used for tenant optimization.
-    #[prost(bool, optional, tag = "3")]
+    #[prost(bool, optional, tag = "1")]
     #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub is_tenant: ::core::option::Option<bool>,
     /// If true - store index on disk.
-    #[prost(bool, optional, tag = "4")]
+    #[prost(bool, optional, tag = "2")]
     #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub on_disk: ::core::option::Option<bool>,
 }
