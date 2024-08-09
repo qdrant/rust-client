@@ -87,7 +87,7 @@ impl Qdrant {
         .await
     }
 
-    /// Query points in a collection.
+    /// Query points in a collection and group results by a payload field.
     ///
     /// ```no_run
     ///# use qdrant_client::{Qdrant, QdrantError};
