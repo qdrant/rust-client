@@ -12,7 +12,7 @@ async fn test_query_points() {
         // Query nearest by ID
         client.query(
             QueryPointsBuilder::new("{collection_name}")
-                .query(Query::new_nearest(PointId::from("43cf51e2-8777-4f52-bc74-c2cbde0c8b04")))
+                .query(PointId::from("43cf51e2-8777-4f52-bc74-c2cbde0c8b04"))
         ).await?;
         
         // Recommend on the average of these vectors
