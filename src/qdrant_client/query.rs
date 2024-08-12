@@ -91,7 +91,7 @@ impl Qdrant {
     ///
     /// ```no_run
     ///# use qdrant_client::{Qdrant, QdrantError};
-    /// use qdrant_client::qdrant::QueryPointGroupsBuilder;
+    /// use qdrant_client::qdrant::{PrefetchQueryBuilder, QueryPointGroupsBuilder};
     ///
     ///# async fn query_groups(client: &Qdrant)
     ///# -> Result<(), QdrantError> {
@@ -100,7 +100,13 @@ impl Qdrant {
     ///         QueryPointGroupsBuilder::new(
     ///             "my_collection", // Collection name
     ///             "city",          // Group by field
-    ///          ).query(vec![0.1, 0.2, 0.3, 0.4]) // Query vector
+    ///          )
+    ///          .add_prefetch(
+    ///              PrefetchQueryBuilder::default()
+    ///                  .query(vec![0.01, 0.45, 0.67])
+    ///                  .limit(100u64)
+    ///          )
+    ///          .query(vec![0.1, 0.2, 0.3, 0.4]) // Query vector
     ///     )
     ///     .await?;
     ///# Ok(())
