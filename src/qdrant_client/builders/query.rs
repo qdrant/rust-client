@@ -7,20 +7,18 @@ use crate::qdrant::{
 
 impl QueryPointsBuilder {
     pub fn add_prefetch(mut self, prefetch_query: impl Into<PrefetchQuery>) -> Self {
-        match self.prefetch {
-            Some(ref mut prefetch) => prefetch.push(prefetch_query.into()),
-            None => self.prefetch = Some(vec![prefetch_query.into()]),
-        }
+        self.prefetch
+            .get_or_insert_with(Vec::new)
+            .push(prefetch_query.into());
         self
     }
 }
 
 impl QueryPointGroupsBuilder {
     pub fn add_prefetch(mut self, prefetch_query: impl Into<PrefetchQuery>) -> Self {
-        match self.prefetch {
-            Some(ref mut prefetch) => prefetch.push(prefetch_query.into()),
-            None => self.prefetch = Some(vec![prefetch_query.into()]),
-        }
+        self.prefetch
+            .get_or_insert_with(Vec::new)
+            .push(prefetch_query.into());
         self
     }
 }
