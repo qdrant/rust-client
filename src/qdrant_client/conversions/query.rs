@@ -1,6 +1,6 @@
 use crate::qdrant::{
-    query, ContextInput, DiscoverInput, Fusion, OrderBy, OrderByBuilder, Query, RecommendInput,
-    VectorInput,
+    query, ContextInput, DiscoverInput, Fusion, OrderBy, OrderByBuilder, PointId, Query,
+    RecommendInput, VectorInput,
 };
 
 impl From<VectorInput> for Query {
@@ -54,5 +54,40 @@ impl From<Fusion> for Query {
 impl<T: Into<String>> From<T> for OrderBy {
     fn from(value: T) -> Self {
         OrderByBuilder::new(value).build()
+    }
+}
+
+impl From<Vec<f32>> for Query {
+    fn from(value: Vec<f32>) -> Self {
+        Query {
+            variant: Some(query::Variant::Nearest(VectorInput::new_dense(value))),
+        }
+    }
+}
+
+impl From<Vec<(u32, f32)>> for Query {
+    fn from(value: Vec<(u32, f32)>) -> Self {
+        let (indices, values): (Vec<_>, Vec<_>) = value.iter().copied().unzip();
+        Query {
+            variant: Some(query::Variant::Nearest(VectorInput::new_sparse(
+                indices, values,
+            ))),
+        }
+    }
+}
+
+impl From<Vec<Vec<f32>>> for Query {
+    fn from(value: Vec<Vec<f32>>) -> Self {
+        Query {
+            variant: Some(query::Variant::Nearest(VectorInput::new_multi(value))),
+        }
+    }
+}
+
+impl From<PointId> for Query {
+    fn from(value: PointId) -> Self {
+        Query {
+            variant: Some(query::Variant::Nearest(VectorInput::new_id(value))),
+        }
     }
 }
