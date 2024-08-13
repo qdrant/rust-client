@@ -120,14 +120,13 @@ impl Qdrant {
         chunk_size: usize,
     ) -> QdrantResult<PointsOperationResponse> {
         let mut request = request.into();
-        let points = std::mem::take(&mut request.points);
 
-        if points.len() < chunk_size {
+        if request.points.len() < chunk_size {
             return self.upsert_points(request).await;
         }
 
+        let points = &std::mem::take(&mut request.points);
         let request = &request;
-        let points = &points;
 
         self.with_points_client(|mut points_api| async move {
             let mut resp = PointsOperationResponse {
