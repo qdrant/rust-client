@@ -7,9 +7,10 @@ use tonic::Status;
 use crate::auth::TokenInterceptor;
 use crate::qdrant::points_client::PointsClient;
 use crate::qdrant::{
-    CountPoints, CountResponse, DeletePointVectors, DeletePoints, GetPoints, GetResponse,
-    PointsOperationResponse, ScrollPoints, ScrollResponse, UpdateBatchPoints, UpdateBatchResponse,
-    UpdatePointVectors, UpsertPoints,
+    CountPoints, CountResponse, DeletePointVectors, DeletePoints, FacetCounts, FacetResponse,
+    GetPoints, GetResponse, PointsOperationResponse, ScrollPoints, ScrollResponse,
+    SearchMatrixOffsetsResponse, SearchMatrixPairsResponse, SearchMatrixPoints, UpdateBatchPoints,
+    UpdateBatchResponse, UpdatePointVectors, UpsertPoints,
 };
 use crate::qdrant_client::{Qdrant, QdrantResult};
 
@@ -496,6 +497,42 @@ impl Qdrant {
 
         self.with_points_client(|mut points_api| async move {
             let result = points_api.delete_vectors(request.clone()).await?;
+            Ok(result.into_inner())
+        })
+        .await
+    }
+
+    pub async fn facet(&self, request: impl Into<FacetCounts>) -> QdrantResult<FacetResponse> {
+        let request = &request.into();
+
+        self.with_points_client(|mut points_api| async move {
+            let result = points_api.facet(request.clone()).await?;
+            Ok(result.into_inner())
+        })
+        .await
+    }
+
+    pub async fn search_matrix_pairs(
+        &self,
+        request: impl Into<SearchMatrixPoints>,
+    ) -> QdrantResult<SearchMatrixPairsResponse> {
+        let request = &request.into();
+
+        self.with_points_client(|mut points_api| async move {
+            let result = points_api.search_matrix_pairs(request.clone()).await?;
+            Ok(result.into_inner())
+        })
+        .await
+    }
+
+    pub async fn search_matrix_offsets(
+        &self,
+        request: impl Into<SearchMatrixPoints>,
+    ) -> QdrantResult<SearchMatrixOffsetsResponse> {
+        let request = &request.into();
+
+        self.with_points_client(|mut points_api| async move {
+            let result = points_api.search_matrix_offsets(request.clone()).await?;
             Ok(result.into_inner())
         })
         .await
