@@ -206,6 +206,10 @@ fn configure_builder(builder: Builder) -> Builder {
                 "CreateCollection.sparse_vectors_config",
                 DEFAULT_OPTION_INTO,
             ),
+            ("CreateCollection.strict_mode_config", DEFAULT_OPTION_INTO),
+            ("StrictModeConfig.search_max_hnsw_ef", DEFAULT_OPTION),
+            ("StrictModeConfig.search_allow_exact", DEFAULT_OPTION),
+            ("StrictModeConfig.search_max_oversampling", DEFAULT_OPTION),
             // HnswConfig
             ("HnswConfigDiff.m", DEFAULT_OPTION),
             ("HnswConfigDiff.ef_construct", DEFAULT_OPTION),
@@ -705,6 +709,7 @@ fn configure_builder(builder: Builder) -> Builder {
             ("TextIndexParams.lowercase", DEFAULT_OPTION),
             ("TextIndexParams.min_token_len", DEFAULT_OPTION),
             ("TextIndexParams.max_token_len", DEFAULT_OPTION),
+            ("TextIndexParams.on_disk", DEFAULT_OPTION),
             // CreateAlias
             ("CreateAlias.collection_name", PUBLIC_ONLY),
             ("CreateAlias.alias_name", PUBLIC_ONLY),
@@ -763,6 +768,36 @@ fn configure_builder(builder: Builder) -> Builder {
             ("QueryPointGroups.with_lookup", DEFAULT_OPTION_INTO),
             ("QueryPointGroups.timeout", DEFAULT_OPTION_INTO),
             ("QueryPointGroups.shard_key_selector", DEFAULT_OPTION_INTO),
+            // StrictModeConfig
+            ("StrictModeConfig.enabled", DEFAULT_OPTION),
+            ("StrictModeConfig.max_query_limit", DEFAULT_OPTION),
+            ("StrictModeConfig.max_timeout", DEFAULT_OPTION),
+            (
+                "StrictModeConfig.unindexed_filtering_retrieve",
+                DEFAULT_OPTION,
+            ),
+            (
+                "StrictModeConfig.unindexed_filtering_update",
+                DEFAULT_OPTION,
+            ),
+            // FacetCounts
+            ("FacetCounts.collection_name", PUBLIC_ONLY),
+            ("FacetCounts.key", PUBLIC_ONLY),
+            ("FacetCounts.filter", DEFAULT_OPTION_INTO),
+            ("FacetCounts.limit", DEFAULT_OPTION),
+            ("FacetCounts.exact", DEFAULT_OPTION),
+            ("FacetCounts.timeout", DEFAULT_OPTION),
+            ("FacetCounts.read_consistency", DEFAULT_OPTION_INTO),
+            ("FacetCounts.shard_key_selector", DEFAULT_OPTION_INTO),
+            // SearchMatrixPoints
+            ("SearchMatrixPoints.collection_name", PUBLIC_ONLY),
+            ("SearchMatrixPoints.filter", DEFAULT_OPTION_INTO),
+            ("SearchMatrixPoints.sample", DEFAULT_OPTION),
+            ("SearchMatrixPoints.limit", DEFAULT_OPTION),
+            ("SearchMatrixPoints.using", DEFAULT_OPTION_INTO),
+            ("SearchMatrixPoints.timeout", DEFAULT_OPTION),
+            ("SearchMatrixPoints.read_consistency", DEFAULT_OPTION_INTO),
+            ("SearchMatrixPoints.shard_key_selector", DEFAULT_OPTION_INTO),
         ],
         builder_derive_options(),
     )
@@ -1112,6 +1147,21 @@ fn builder_derive_options() -> &'static [BuildDeriveOptions] {
         ),
         (
             "QueryPointGroups",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::WithDefaultFn,
+        ),
+        (
+            "StrictModeConfig",
+            DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::DefaultImpl,
+        ),
+        (
+            "FacetCounts",
+            NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::WithDefaultFn,
+        ),
+        (
+            "SearchMatrixPoints",
             NO_DEFAULT_BUILDER_DERIVE_OPTIONS,
             MacroConfig::WithDefaultFn,
         ),

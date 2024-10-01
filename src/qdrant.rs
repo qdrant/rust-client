@@ -492,6 +492,39 @@ pub mod quantization_config_diff {
     pattern = "owned"
 )]
 #[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+pub struct StrictModeConfig {
+    #[prost(bool, optional, tag = "1")]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    pub enabled: ::core::option::Option<bool>,
+    #[prost(uint32, optional, tag = "2")]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    pub max_query_limit: ::core::option::Option<u32>,
+    #[prost(uint32, optional, tag = "3")]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    pub max_timeout: ::core::option::Option<u32>,
+    #[prost(bool, optional, tag = "4")]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    pub unindexed_filtering_retrieve: ::core::option::Option<bool>,
+    #[prost(bool, optional, tag = "5")]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    pub unindexed_filtering_update: ::core::option::Option<bool>,
+    #[prost(uint32, optional, tag = "6")]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    pub search_max_hnsw_ef: ::core::option::Option<u32>,
+    #[prost(bool, optional, tag = "7")]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    pub search_allow_exact: ::core::option::Option<bool>,
+    #[prost(float, optional, tag = "8")]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    pub search_max_oversampling: ::core::option::Option<f32>,
+}
+#[derive(derive_builder::Builder)]
+#[builder(
+    build_fn(private, error = "std::convert::Infallible", name = "build_inner"),
+    pattern = "owned"
+)]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateCollection {
     /// Name of the collection
@@ -556,6 +589,10 @@ pub struct CreateCollection {
     #[prost(message, optional, tag = "16")]
     #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub sparse_vectors_config: ::core::option::Option<SparseVectorConfig>,
+    /// Configuration for strict mode
+    #[prost(message, optional, tag = "17")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
+    pub strict_mode_config: ::core::option::Option<StrictModeConfig>,
 }
 #[derive(derive_builder::Builder)]
 #[builder(
@@ -704,6 +741,9 @@ pub struct CollectionConfig {
     /// Configuration of the vector quantization
     #[prost(message, optional, tag = "5")]
     pub quantization_config: ::core::option::Option<QuantizationConfig>,
+    /// Configuration of strict mode.
+    #[prost(message, optional, tag = "6")]
+    pub strict_mode_config: ::core::option::Option<StrictModeConfig>,
 }
 #[derive(derive_builder::Builder)]
 #[builder(
@@ -732,13 +772,13 @@ pub struct KeywordIndexParams {
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct IntegerIndexParams {
     /// If true - support direct lookups.
-    #[prost(bool, tag = "1")]
+    #[prost(bool, optional, tag = "1")]
     #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
-    pub lookup: bool,
+    pub lookup: ::core::option::Option<bool>,
     /// If true - support ranges filters.
-    #[prost(bool, tag = "2")]
+    #[prost(bool, optional, tag = "2")]
     #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
-    pub range: bool,
+    pub range: ::core::option::Option<bool>,
     /// If true - use this key to organize storage of the collection data. This option assumes that this key will be used in majority of filtered requests.
     #[prost(bool, optional, tag = "3")]
     #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
@@ -793,6 +833,10 @@ pub struct TextIndexParams {
     #[prost(uint64, optional, tag = "4")]
     #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub max_token_len: ::core::option::Option<u64>,
+    /// If true - store index on disk.
+    #[prost(bool, optional, tag = "5")]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    pub on_disk: ::core::option::Option<bool>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
@@ -4940,10 +4984,52 @@ pub struct QueryPointGroups {
     #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(
+    build_fn(private, name = "build_inner"),
+    pattern = "owned",
+    custom_constructor
+)]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct FacetCounts {
+    /// Name of the collection
+    #[prost(string, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
+    pub collection_name: ::prost::alloc::string::String,
+    /// Payload key of the facet
+    #[prost(string, tag = "2")]
+    #[builder(field(vis = "pub(crate)"))]
+    pub key: ::prost::alloc::string::String,
+    /// Filter conditions - return only those points that satisfy the specified conditions.
+    #[prost(message, optional, tag = "3")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
+    pub filter: ::core::option::Option<Filter>,
+    /// Max number of facets. Default is 10.
+    #[prost(uint64, optional, tag = "4")]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    pub limit: ::core::option::Option<u64>,
+    /// If true, return exact counts, slower but useful for debugging purposes. Default is false.
+    #[prost(bool, optional, tag = "5")]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    pub exact: ::core::option::Option<bool>,
+    /// If set, overrides global timeout setting for this request. Unit is seconds.
+    #[prost(uint64, optional, tag = "6")]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    pub timeout: ::core::option::Option<u64>,
+    /// Options for specifying read consistency guarantees
+    #[prost(message, optional, tag = "7")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
+    pub read_consistency: ::core::option::Option<ReadConsistency>,
+    /// Specify in which shards to look for the points, if not specified - look in all shards
+    #[prost(message, optional, tag = "8")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
+    pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
+}
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct FacetValue {
-    #[prost(oneof = "facet_value::Variant", tags = "1")]
+    #[prost(oneof = "facet_value::Variant", tags = "1, 2, 3")]
     pub variant: ::core::option::Option<facet_value::Variant>,
 }
 /// Nested message and enum types in `FacetValue`.
@@ -4954,17 +5040,101 @@ pub mod facet_value {
         /// String value from the facet
         #[prost(string, tag = "1")]
         StringValue(::prost::alloc::string::String),
+        /// Integer value from the facet
+        #[prost(int64, tag = "2")]
+        IntegerValue(i64),
+        /// Boolean value from the facet
+        #[prost(bool, tag = "3")]
+        BoolValue(bool),
     }
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct FacetValueHit {
+pub struct FacetHit {
     /// Value from the facet
     #[prost(message, optional, tag = "1")]
     pub value: ::core::option::Option<FacetValue>,
     /// Number of points with this value
     #[prost(uint64, tag = "2")]
     pub count: u64,
+}
+#[derive(derive_builder::Builder)]
+#[builder(
+    build_fn(private, name = "build_inner"),
+    pattern = "owned",
+    custom_constructor
+)]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct SearchMatrixPoints {
+    /// Name of the collection
+    #[prost(string, tag = "1")]
+    #[builder(field(vis = "pub(crate)"))]
+    pub collection_name: ::prost::alloc::string::String,
+    /// Filter conditions - return only those points that satisfy the specified conditions.
+    #[prost(message, optional, tag = "2")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
+    pub filter: ::core::option::Option<Filter>,
+    /// How many points to select and search within. Default is 10.
+    #[prost(uint64, optional, tag = "3")]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    pub sample: ::core::option::Option<u64>,
+    /// How many neighbours per sample to find. Default is 3.
+    #[prost(uint64, optional, tag = "4")]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    pub limit: ::core::option::Option<u64>,
+    /// Define which vector to use for querying. If missing, the default vector is is used.
+    #[prost(string, optional, tag = "5")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
+    pub using: ::core::option::Option<::prost::alloc::string::String>,
+    /// If set, overrides global timeout setting for this request. Unit is seconds.
+    #[prost(uint64, optional, tag = "6")]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    pub timeout: ::core::option::Option<u64>,
+    /// Options for specifying read consistency guarantees
+    #[prost(message, optional, tag = "7")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
+    pub read_consistency: ::core::option::Option<ReadConsistency>,
+    /// Specify in which shards to look for the points, if not specified - look in all shards
+    #[prost(message, optional, tag = "8")]
+    #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
+    pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct SearchMatrixPairs {
+    /// List of pairs of points with scores
+    #[prost(message, repeated, tag = "1")]
+    pub pairs: ::prost::alloc::vec::Vec<SearchMatrixPair>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct SearchMatrixPair {
+    /// first id of the pair
+    #[prost(message, optional, tag = "1")]
+    pub a: ::core::option::Option<PointId>,
+    /// second id of the pair
+    #[prost(message, optional, tag = "2")]
+    pub b: ::core::option::Option<PointId>,
+    /// score of the pair
+    #[prost(float, tag = "3")]
+    pub score: f32,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct SearchMatrixOffsets {
+    /// Row indices of the matrix
+    #[prost(uint64, repeated, tag = "1")]
+    pub offsets_row: ::prost::alloc::vec::Vec<u64>,
+    /// Column indices of the matrix
+    #[prost(uint64, repeated, tag = "2")]
+    pub offsets_col: ::prost::alloc::vec::Vec<u64>,
+    /// Scores associated with matrix coordinates
+    #[prost(float, repeated, tag = "3")]
+    pub scores: ::prost::alloc::vec::Vec<f32>,
+    /// Ids of the points in order
+    #[prost(message, repeated, tag = "4")]
+    pub ids: ::prost::alloc::vec::Vec<PointId>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -5394,6 +5564,33 @@ pub struct RecommendGroupsResponse {
 pub struct UpdateBatchResponse {
     #[prost(message, repeated, tag = "1")]
     pub result: ::prost::alloc::vec::Vec<UpdateResult>,
+    /// Time spent to process
+    #[prost(double, tag = "2")]
+    pub time: f64,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct FacetResponse {
+    #[prost(message, repeated, tag = "1")]
+    pub hits: ::prost::alloc::vec::Vec<FacetHit>,
+    /// Time spent to process
+    #[prost(double, tag = "2")]
+    pub time: f64,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct SearchMatrixPairsResponse {
+    #[prost(message, optional, tag = "1")]
+    pub result: ::core::option::Option<SearchMatrixPairs>,
+    /// Time spent to process
+    #[prost(double, tag = "2")]
+    pub time: f64,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct SearchMatrixOffsetsResponse {
+    #[prost(message, optional, tag = "1")]
+    pub result: ::core::option::Option<SearchMatrixOffsets>,
     /// Time spent to process
     #[prost(double, tag = "2")]
     pub time: f64,
@@ -6649,6 +6846,81 @@ pub mod points_client {
             req.extensions_mut().insert(GrpcMethod::new("qdrant.Points", "QueryGroups"));
             self.inner.unary(req, path, codec).await
         }
+        ///
+        /// Perform facet counts. For each value in the field, count the number of points that have this value and match the conditions.
+        pub async fn facet(
+            &mut self,
+            request: impl tonic::IntoRequest<super::FacetCounts>,
+        ) -> std::result::Result<tonic::Response<super::FacetResponse>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static("/qdrant.Points/Facet");
+            let mut req = request.into_request();
+            req.extensions_mut().insert(GrpcMethod::new("qdrant.Points", "Facet"));
+            self.inner.unary(req, path, codec).await
+        }
+        ///
+        /// Compute distance matrix for sampled points with a pair based output format
+        pub async fn search_matrix_pairs(
+            &mut self,
+            request: impl tonic::IntoRequest<super::SearchMatrixPoints>,
+        ) -> std::result::Result<
+            tonic::Response<super::SearchMatrixPairsResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Points/SearchMatrixPairs",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("qdrant.Points", "SearchMatrixPairs"));
+            self.inner.unary(req, path, codec).await
+        }
+        ///
+        /// Compute distance matrix for sampled points with an offset based output format
+        pub async fn search_matrix_offsets(
+            &mut self,
+            request: impl tonic::IntoRequest<super::SearchMatrixPoints>,
+        ) -> std::result::Result<
+            tonic::Response<super::SearchMatrixOffsetsResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Points/SearchMatrixOffsets",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("qdrant.Points", "SearchMatrixOffsets"));
+            self.inner.unary(req, path, codec).await
+        }
     }
 }
 /// Generated server implementations.
@@ -6880,6 +7152,30 @@ pub mod points_server {
             request: tonic::Request<super::QueryPointGroups>,
         ) -> std::result::Result<
             tonic::Response<super::QueryGroupsResponse>,
+            tonic::Status,
+        >;
+        ///
+        /// Perform facet counts. For each value in the field, count the number of points that have this value and match the conditions.
+        async fn facet(
+            &self,
+            request: tonic::Request<super::FacetCounts>,
+        ) -> std::result::Result<tonic::Response<super::FacetResponse>, tonic::Status>;
+        ///
+        /// Compute distance matrix for sampled points with a pair based output format
+        async fn search_matrix_pairs(
+            &self,
+            request: tonic::Request<super::SearchMatrixPoints>,
+        ) -> std::result::Result<
+            tonic::Response<super::SearchMatrixPairsResponse>,
+            tonic::Status,
+        >;
+        ///
+        /// Compute distance matrix for sampled points with an offset based output format
+        async fn search_matrix_offsets(
+            &self,
+            request: tonic::Request<super::SearchMatrixPoints>,
+        ) -> std::result::Result<
+            tonic::Response<super::SearchMatrixOffsetsResponse>,
             tonic::Status,
         >;
     }
@@ -8037,6 +8333,139 @@ pub mod points_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = QueryGroupsSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/qdrant.Points/Facet" => {
+                    #[allow(non_camel_case_types)]
+                    struct FacetSvc<T: Points>(pub Arc<T>);
+                    impl<T: Points> tonic::server::UnaryService<super::FacetCounts>
+                    for FacetSvc<T> {
+                        type Response = super::FacetResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::FacetCounts>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as Points>::facet(&inner, request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let method = FacetSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/qdrant.Points/SearchMatrixPairs" => {
+                    #[allow(non_camel_case_types)]
+                    struct SearchMatrixPairsSvc<T: Points>(pub Arc<T>);
+                    impl<
+                        T: Points,
+                    > tonic::server::UnaryService<super::SearchMatrixPoints>
+                    for SearchMatrixPairsSvc<T> {
+                        type Response = super::SearchMatrixPairsResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::SearchMatrixPoints>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as Points>::search_matrix_pairs(&inner, request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let method = SearchMatrixPairsSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/qdrant.Points/SearchMatrixOffsets" => {
+                    #[allow(non_camel_case_types)]
+                    struct SearchMatrixOffsetsSvc<T: Points>(pub Arc<T>);
+                    impl<
+                        T: Points,
+                    > tonic::server::UnaryService<super::SearchMatrixPoints>
+                    for SearchMatrixOffsetsSvc<T> {
+                        type Response = super::SearchMatrixOffsetsResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::SearchMatrixPoints>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as Points>::search_matrix_offsets(&inner, request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let method = SearchMatrixOffsetsSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
@@ -9214,6 +9643,9 @@ builder_type_conversions!(ContextInput, ContextInputBuilder);
 builder_type_conversions!(ContextInputPair, ContextInputPairBuilder, true);
 builder_type_conversions!(MultiVectorConfig, MultiVectorConfigBuilder, true);
 builder_type_conversions!(QueryPointGroups, QueryPointGroupsBuilder, true);
+builder_type_conversions!(StrictModeConfig, StrictModeConfigBuilder);
+builder_type_conversions!(FacetCounts, FacetCountsBuilder, true);
+builder_type_conversions!(SearchMatrixPoints, SearchMatrixPointsBuilder, true);
 builder_type_conversions!(DeletePoints, DeletePointsBuilder, true);
 
 pub use crate::manual_builder::*;
