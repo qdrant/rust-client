@@ -24,7 +24,7 @@ fn protos() {
         .configure_deprecations()
         .configure_derive_builder()
         .out_dir("src/") // saves generated structures at this location
-        .compile(
+        .compile_protos(
             &["proto/qdrant.proto"], // proto entry point
             &["proto"],              // specify the root location to search proto dependencies
         )
