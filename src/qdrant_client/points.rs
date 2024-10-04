@@ -502,6 +502,28 @@ impl Qdrant {
         .await
     }
 
+    /// Get the amount of records for each unique value of a field.
+    ///
+    /// ```no_run
+    ///# use qdrant_client::{Qdrant, QdrantError};
+    /// use qdrant_client::qdrant::{Condition, FacetCountsBuilder, Filter};
+    ///
+    ///# async fn facets(client: &Qdrant)
+    ///# -> Result<(), QdrantError> {
+    /// let ten_countries_with_most_points_in_europe = client
+    ///    .facet(
+    ///         FacetCountsBuilder::new("world_data", "country")
+    ///             .limit(10)
+    ///             .filter(Filter::must(vec![Condition::matches(
+    ///                 "continent",
+    ///                 "Europe".to_string(),
+    ///             )])),
+    ///     )
+    ///     .await
+    ///     .unwrap();
+    ///# Ok(())
+    ///# }
+    /// ```
     pub async fn facet(&self, request: impl Into<FacetCounts>) -> QdrantResult<FacetResponse> {
         let request = &request.into();
 
@@ -512,6 +534,28 @@ impl Qdrant {
         .await
     }
 
+    /// Get a (sparse) matrix of points with closest distance, returned as pairs.
+    ///
+    /// ```no_run
+    ///# use qdrant_client::{Qdrant, QdrantError};
+    /// use qdrant_client::qdrant::{Condition, SearchMatrixPointsBuilder, Filter};
+    ///
+    ///# async fn search_matrix_pairs(client: &Qdrant)
+    ///# -> Result<(), QdrantError> {
+    /// let matrix = client
+    ///     .search_matrix_pairs(
+    ///         SearchMatrixPointsBuilder::new("collection_name")
+    ///             .filter(Filter::must(vec![Condition::matches(
+    ///                 "color",
+    ///                 "red".to_string(),
+    ///             )]))
+    ///             .sample(1000)
+    ///             .limit(10),
+    ///     )
+    ///     .await?;
+    ///# Ok(())
+    ///# }
+    /// ```
     pub async fn search_matrix_pairs(
         &self,
         request: impl Into<SearchMatrixPoints>,
@@ -525,6 +569,28 @@ impl Qdrant {
         .await
     }
 
+    /// Get a (sparse) matrix of points with closest distance.
+    ///
+    /// ```no_run
+    ///# use qdrant_client::{Qdrant, QdrantError};
+    /// use qdrant_client::qdrant::{Condition, SearchMatrixPointsBuilder, Filter};
+    ///
+    ///# async fn search_matrix_offsets(client: &Qdrant)
+    ///# -> Result<(), QdrantError> {
+    /// let matrix = client
+    ///     .search_matrix_offsets(
+    ///         SearchMatrixPointsBuilder::new("collection_name")
+    ///             .filter(Filter::must(vec![Condition::matches(
+    ///                 "color",
+    ///                 "red".to_string(),
+    ///             )]))
+    ///             .sample(1000)
+    ///             .limit(10),
+    ///     )
+    ///     .await?;
+    ///# Ok(())
+    ///# }
+    /// ```
     pub async fn search_matrix_offsets(
         &self,
         request: impl Into<SearchMatrixPoints>,
