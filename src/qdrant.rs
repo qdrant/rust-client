@@ -762,8 +762,18 @@ pub struct FloatIndexParams {
     #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub is_principal: ::core::option::Option<bool>,
 }
+#[derive(derive_builder::Builder)]
+#[builder(
+    build_fn(private, error = "std::convert::Infallible", name = "build_inner"),
+    pattern = "owned"
+)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
-pub struct GeoIndexParams {}
+pub struct GeoIndexParams {
+    /// If true - store index on disk.
+    #[prost(bool, optional, tag = "1")]
+    #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
+    pub on_disk: ::core::option::Option<bool>,
+}
 #[derive(derive_builder::Builder)]
 #[builder(
     build_fn(private, name = "build_inner"),
@@ -9409,6 +9419,7 @@ builder_type_conversions!(KeywordIndexParams, KeywordIndexParamsBuilder);
 builder_type_conversions!(DatetimeIndexParams, DatetimeIndexParamsBuilder);
 builder_type_conversions!(UuidIndexParams, UuidIndexParamsBuilder);
 builder_type_conversions!(FloatIndexParams, FloatIndexParamsBuilder);
+builder_type_conversions!(GeoIndexParams, GeoIndexParamsBuilder);
 builder_type_conversions!(CreateAlias, CreateAliasBuilder, true);
 builder_type_conversions!(RenameAlias, RenameAliasBuilder, true);
 builder_type_conversions!(DeleteSnapshotRequest, DeleteSnapshotRequestBuilder, true);

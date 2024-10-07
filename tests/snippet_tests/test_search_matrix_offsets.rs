@@ -9,7 +9,7 @@ async fn test_search_matrix_offsets() {
         
         let client = Qdrant::from_url("http://localhost:6334").build()?;
         
-        let matrix = client
+        client
             .search_matrix_offsets(
                 SearchMatrixPointsBuilder::new("collection_name")
                    .filter(Filter::must(vec![Condition::matches(

@@ -9,7 +9,7 @@ async fn test_facets() {
         
         let client = Qdrant::from_url("http://localhost:6334").build()?;
         
-        let ten_countries_with_most_poins_in_europe = client
+        client
             .facet(
                  FacetCountsBuilder::new("world_data", "country")
                      .limit(10)

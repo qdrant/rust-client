@@ -3,7 +3,7 @@ use qdrant_client::Qdrant;
 
 let client = Qdrant::from_url("http://localhost:6334").build()?;
 
-let matrix = client
+client
     .search_matrix_pairs(
         SearchMatrixPointsBuilder::new("collection_name")
            .filter(Filter::must(vec![Condition::matches(

@@ -195,7 +195,6 @@ fn configure_builder(builder: Builder) -> Builder {
             ("CreateCollection.replication_factor", DEFAULT_OPTION),
             ("CreateCollection.write_consistency_factor", DEFAULT_OPTION),
             ("CreateCollection.init_from_collection", DEFAULT_OPTION_INTO),
-            // ("CreateCollection.quantization_config", DEFAULT_OPTION_INTO),  (
             (
                 "CreateCollection.quantization_config",
                 builder_custom_into!(quantization_config::Quantization, self.quantization_config),
@@ -206,9 +205,6 @@ fn configure_builder(builder: Builder) -> Builder {
                 DEFAULT_OPTION_INTO,
             ),
             ("CreateCollection.strict_mode_config", DEFAULT_OPTION_INTO),
-            ("StrictModeConfig.search_max_hnsw_ef", DEFAULT_OPTION),
-            ("StrictModeConfig.search_allow_exact", DEFAULT_OPTION),
-            ("StrictModeConfig.search_max_oversampling", DEFAULT_OPTION),
             // HnswConfig
             ("HnswConfigDiff.m", DEFAULT_OPTION),
             ("HnswConfigDiff.ef_construct", DEFAULT_OPTION),
@@ -729,6 +725,8 @@ fn configure_builder(builder: Builder) -> Builder {
             // FloatIndexParams
             ("FloatIndexParams.is_principal", DEFAULT_OPTION),
             ("FloatIndexParams.on_disk", DEFAULT_OPTION),
+            // GeoIndexParams
+            ("GeoIndexParams.on_disk", DEFAULT_OPTION),
             // DatetimeIndexParams
             ("DatetimeIndexParams.is_principal", DEFAULT_OPTION),
             ("DatetimeIndexParams.on_disk", DEFAULT_OPTION),
@@ -779,6 +777,9 @@ fn configure_builder(builder: Builder) -> Builder {
                 "StrictModeConfig.unindexed_filtering_update",
                 DEFAULT_OPTION,
             ),
+            ("StrictModeConfig.search_max_hnsw_ef", DEFAULT_OPTION),
+            ("StrictModeConfig.search_allow_exact", DEFAULT_OPTION),
+            ("StrictModeConfig.search_max_oversampling", DEFAULT_OPTION),
             // FacetCounts
             ("FacetCounts.collection_name", PUBLIC_ONLY),
             ("FacetCounts.key", PUBLIC_ONLY),
@@ -1096,6 +1097,11 @@ fn builder_derive_options() -> &'static [BuildDeriveOptions] {
         ),
         (
             "FloatIndexParams",
+            DEFAULT_BUILDER_DERIVE_OPTIONS,
+            MacroConfig::DefaultImpl,
+        ),
+        (
+            "GeoIndexParams",
             DEFAULT_BUILDER_DERIVE_OPTIONS,
             MacroConfig::DefaultImpl,
         ),
