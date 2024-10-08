@@ -7,9 +7,10 @@ use tonic::Status;
 use crate::auth::TokenInterceptor;
 use crate::qdrant::points_client::PointsClient;
 use crate::qdrant::{
-    CountPoints, CountResponse, DeletePointVectors, DeletePoints, GetPoints, GetResponse,
-    PointsOperationResponse, ScrollPoints, ScrollResponse, UpdateBatchPoints, UpdateBatchResponse,
-    UpdatePointVectors, UpsertPoints,
+    CountPoints, CountResponse, DeletePointVectors, DeletePoints, FacetCounts, FacetResponse,
+    GetPoints, GetResponse, PointsOperationResponse, ScrollPoints, ScrollResponse,
+    SearchMatrixOffsetsResponse, SearchMatrixPairsResponse, SearchMatrixPoints, UpdateBatchPoints,
+    UpdateBatchResponse, UpdatePointVectors, UpsertPoints,
 };
 use crate::qdrant_client::{Qdrant, QdrantResult};
 
@@ -496,6 +497,108 @@ impl Qdrant {
 
         self.with_points_client(|mut points_api| async move {
             let result = points_api.delete_vectors(request.clone()).await?;
+            Ok(result.into_inner())
+        })
+        .await
+    }
+
+    /// Get the amount of records for each unique value of a field.
+    ///
+    /// ```no_run
+    ///# use qdrant_client::{Qdrant, QdrantError};
+    /// use qdrant_client::qdrant::{Condition, FacetCountsBuilder, Filter};
+    ///
+    ///# async fn facets(client: &Qdrant)
+    ///# -> Result<(), QdrantError> {
+    /// let ten_countries_with_most_points_in_europe = client
+    ///    .facet(
+    ///         FacetCountsBuilder::new("world_data", "country")
+    ///             .limit(10)
+    ///             .filter(Filter::must(vec![Condition::matches(
+    ///                 "continent",
+    ///                 "Europe".to_string(),
+    ///             )])),
+    ///     )
+    ///     .await
+    ///     .unwrap();
+    ///# Ok(())
+    ///# }
+    /// ```
+    pub async fn facet(&self, request: impl Into<FacetCounts>) -> QdrantResult<FacetResponse> {
+        let request = &request.into();
+
+        self.with_points_client(|mut points_api| async move {
+            let result = points_api.facet(request.clone()).await?;
+            Ok(result.into_inner())
+        })
+        .await
+    }
+
+    /// Get a (sparse) matrix of points with closest distance, returned as pairs.
+    ///
+    /// ```no_run
+    ///# use qdrant_client::{Qdrant, QdrantError};
+    /// use qdrant_client::qdrant::{Condition, SearchMatrixPointsBuilder, Filter};
+    ///
+    ///# async fn search_matrix_pairs(client: &Qdrant)
+    ///# -> Result<(), QdrantError> {
+    /// let matrix = client
+    ///     .search_matrix_pairs(
+    ///         SearchMatrixPointsBuilder::new("collection_name")
+    ///             .filter(Filter::must(vec![Condition::matches(
+    ///                 "color",
+    ///                 "red".to_string(),
+    ///             )]))
+    ///             .sample(1000)
+    ///             .limit(10),
+    ///     )
+    ///     .await?;
+    ///# Ok(())
+    ///# }
+    /// ```
+    pub async fn search_matrix_pairs(
+        &self,
+        request: impl Into<SearchMatrixPoints>,
+    ) -> QdrantResult<SearchMatrixPairsResponse> {
+        let request = &request.into();
+
+        self.with_points_client(|mut points_api| async move {
+            let result = points_api.search_matrix_pairs(request.clone()).await?;
+            Ok(result.into_inner())
+        })
+        .await
+    }
+
+    /// Get a (sparse) matrix of points with closest distance.
+    ///
+    /// ```no_run
+    ///# use qdrant_client::{Qdrant, QdrantError};
+    /// use qdrant_client::qdrant::{Condition, SearchMatrixPointsBuilder, Filter};
+    ///
+    ///# async fn search_matrix_offsets(client: &Qdrant)
+    ///# -> Result<(), QdrantError> {
+    /// let matrix = client
+    ///     .search_matrix_offsets(
+    ///         SearchMatrixPointsBuilder::new("collection_name")
+    ///             .filter(Filter::must(vec![Condition::matches(
+    ///                 "color",
+    ///                 "red".to_string(),
+    ///             )]))
+    ///             .sample(1000)
+    ///             .limit(10),
+    ///     )
+    ///     .await?;
+    ///# Ok(())
+    ///# }
+    /// ```
+    pub async fn search_matrix_offsets(
+        &self,
+        request: impl Into<SearchMatrixPoints>,
+    ) -> QdrantResult<SearchMatrixOffsetsResponse> {
+        let request = &request.into();
+
+        self.with_points_client(|mut points_api| async move {
+            let result = points_api.search_matrix_offsets(request.clone()).await?;
             Ok(result.into_inner())
         })
         .await
