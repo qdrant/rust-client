@@ -8,17 +8,17 @@ use crate::qdrant::{
     DeleteFieldIndexCollectionBuilder, DeletePayloadPointsBuilder, DeletePointVectorsBuilder,
     DeletePointsBuilder, DeleteShardKey, DeleteShardKeyRequestBuilder,
     DeleteSnapshotRequestBuilder, DiscoverBatchPointsBuilder, DiscoverPoints,
-    DiscoverPointsBuilder, Distance, FieldType, GetPointsBuilder, LookupLocationBuilder,
-    MoveShardBuilder, PayloadExcludeSelector, PayloadIncludeSelector, PointId, PointStruct,
-    PointVectors, PointsUpdateOperation, ProductQuantizationBuilder, QuantizationType,
-    QueryBatchPointsBuilder, QueryPointGroupsBuilder, QueryPoints, QueryPointsBuilder,
-    RecommendBatchPointsBuilder, RecommendExample, RecommendPointGroupsBuilder, RecommendPoints,
-    RecommendPointsBuilder, RenameAliasBuilder, ReplicaBuilder, ReplicateShardBuilder,
-    ScalarQuantizationBuilder, ScrollPointsBuilder, SearchBatchPointsBuilder,
-    SearchPointGroupsBuilder, SearchPoints, SearchPointsBuilder, SetPayloadPointsBuilder, ShardKey,
-    UpdateBatchPointsBuilder, UpdateCollectionBuilder, UpdateCollectionClusterSetupRequestBuilder,
-    UpdatePointVectorsBuilder, UpsertPointsBuilder, Value, VectorParamsBuilder, VectorsSelector,
-    WithLookupBuilder,
+    DiscoverPointsBuilder, Distance, FacetCountsBuilder, FieldType, GetPointsBuilder,
+    LookupLocationBuilder, MoveShardBuilder, PayloadExcludeSelector, PayloadIncludeSelector,
+    PointId, PointStruct, PointVectors, PointsUpdateOperation, ProductQuantizationBuilder,
+    QuantizationType, QueryBatchPointsBuilder, QueryPointGroupsBuilder, QueryPoints,
+    QueryPointsBuilder, RecommendBatchPointsBuilder, RecommendExample, RecommendPointGroupsBuilder,
+    RecommendPoints, RecommendPointsBuilder, RenameAliasBuilder, ReplicaBuilder,
+    ReplicateShardBuilder, ScalarQuantizationBuilder, ScrollPointsBuilder,
+    SearchBatchPointsBuilder, SearchMatrixPointsBuilder, SearchPointGroupsBuilder, SearchPoints,
+    SearchPointsBuilder, SetPayloadPointsBuilder, ShardKey, UpdateBatchPointsBuilder,
+    UpdateCollectionBuilder, UpdateCollectionClusterSetupRequestBuilder, UpdatePointVectorsBuilder,
+    UpsertPointsBuilder, Value, VectorParamsBuilder, VectorsSelector, WithLookupBuilder,
 };
 
 impl VectorParamsBuilder {
@@ -542,6 +542,23 @@ impl QueryPointGroupsBuilder {
         let mut builder = Self::empty();
         builder.collection_name = Some(collection_name.into());
         builder.group_by = Some(group_by.into());
+        builder
+    }
+}
+
+impl FacetCountsBuilder {
+    pub fn new(collection_name: impl Into<String>, key: impl Into<String>) -> FacetCountsBuilder {
+        let mut builder = Self::empty();
+        builder.collection_name = Some(collection_name.into());
+        builder.key = Some(key.into());
+        builder
+    }
+}
+
+impl SearchMatrixPointsBuilder {
+    pub fn new(collection_name: impl Into<String>) -> SearchMatrixPointsBuilder {
+        let mut builder = Self::empty();
+        builder.collection_name = Some(collection_name.into());
         builder
     }
 }

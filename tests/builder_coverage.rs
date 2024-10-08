@@ -6,12 +6,13 @@ use qdrant_client::qdrant::{
     CreateFieldIndexCollectionBuilder, CreateShardKeyRequestBuilder, DeleteCollectionBuilder,
     DeleteFieldIndexCollectionBuilder, DeletePayloadPointsBuilder, DeletePointVectorsBuilder,
     DeletePointsBuilder, DeleteShardKeyRequestBuilder, DeleteSnapshotRequestBuilder,
-    DiscoverBatchPointsBuilder, DiscoverInputBuilder, DiscoverPointsBuilder, Distance, FieldType,
-    GetPointsBuilder, LookupLocationBuilder, MoveShardBuilder, MultiVectorComparator,
-    MultiVectorConfigBuilder, OrderByBuilder, ProductQuantizationBuilder, QueryBatchPointsBuilder,
-    QueryPointGroupsBuilder, QueryPointsBuilder, RecommendBatchPointsBuilder,
-    RecommendPointGroupsBuilder, RecommendPointsBuilder, RenameAliasBuilder, ReplicaBuilder,
-    ReplicateShardBuilder, ScrollPointsBuilder, SearchBatchPointsBuilder, SearchPointGroupsBuilder,
+    DiscoverBatchPointsBuilder, DiscoverInputBuilder, DiscoverPointsBuilder, Distance,
+    FacetCountsBuilder, FieldType, GetPointsBuilder, LookupLocationBuilder, MoveShardBuilder,
+    MultiVectorComparator, MultiVectorConfigBuilder, OrderByBuilder, ProductQuantizationBuilder,
+    QueryBatchPointsBuilder, QueryPointGroupsBuilder, QueryPointsBuilder,
+    RecommendBatchPointsBuilder, RecommendPointGroupsBuilder, RecommendPointsBuilder,
+    RenameAliasBuilder, ReplicaBuilder, ReplicateShardBuilder, ScrollPointsBuilder,
+    SearchBatchPointsBuilder, SearchMatrixPointsBuilder, SearchPointGroupsBuilder,
     SearchPointsBuilder, SetPayloadPointsBuilder, TextIndexParamsBuilder, TokenizerType,
     UpdateBatchPointsBuilder, UpdateCollectionBuilder, UpdateCollectionClusterSetupRequestBuilder,
     UpdatePointVectorsBuilder, UpsertPointsBuilder, VectorParamsBuilder, WithLookupBuilder,
@@ -80,4 +81,6 @@ fn builder_coverage() {
     DiscoverInputBuilder::new(vec![1.0], ContextInputBuilder::default()).build();
     MultiVectorConfigBuilder::new(MultiVectorComparator::MaxSim).build();
     QueryPointGroupsBuilder::new("", "").build();
+    FacetCountsBuilder::new("", "").build();
+    SearchMatrixPointsBuilder::new("").build();
 }
