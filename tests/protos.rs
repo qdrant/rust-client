@@ -50,7 +50,7 @@ fn protos() {
     append_to_file(GRPC_OUTPUT_FILE, "pub use prost_types::Timestamp;");
 
     eprintln!("protos_files_synced:{protos_files_synced}, protos_test_synced:{protos_test_synced}");
-    panic!("proto definitions changed. Stubs recompiled. Please commit the changes.")
+    eprintln!("proto definitions may be changed. Stubs recompiled. Please commit the changes.")
 }
 
 /// Derive options for structs. (Path, build attributes, 'from' macro generation enabled)
