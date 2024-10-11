@@ -1,9 +1,9 @@
 use crate::qdrant::payload_index_params::IndexParams;
 use crate::qdrant::{
     DatetimeIndexParams, DatetimeIndexParamsBuilder, FloatIndexParams, FloatIndexParamsBuilder,
-    IntegerIndexParams, IntegerIndexParamsBuilder, KeywordIndexParams, KeywordIndexParamsBuilder,
-    PayloadIndexParams, TextIndexParams, TextIndexParamsBuilder, UuidIndexParams,
-    UuidIndexParamsBuilder,
+    GeoIndexParamsBuilder, IntegerIndexParams, IntegerIndexParamsBuilder, KeywordIndexParams,
+    KeywordIndexParamsBuilder, PayloadIndexParams, TextIndexParams, TextIndexParamsBuilder,
+    UuidIndexParams, UuidIndexParamsBuilder,
 };
 
 impl From<IndexParams> for PayloadIndexParams {
@@ -99,5 +99,11 @@ impl From<UuidIndexParams> for IndexParams {
 impl From<UuidIndexParamsBuilder> for IndexParams {
     fn from(value: UuidIndexParamsBuilder) -> Self {
         Self::UuidIndexParams(value.build())
+    }
+}
+
+impl From<GeoIndexParamsBuilder> for IndexParams {
+    fn from(value: GeoIndexParamsBuilder) -> Self {
+        Self::GeoIndexParams(value.build())
     }
 }
