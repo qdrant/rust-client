@@ -5,6 +5,7 @@
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct VectorParams {
     /// Size of the vectors
@@ -47,6 +48,7 @@ pub struct VectorParams {
     build_fn(private, error = "std::convert::Infallible", name = "build_inner"),
     pattern = "owned"
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct VectorParamsDiff {
     /// Update params for HNSW index. If empty object - it will be unset
@@ -68,11 +70,13 @@ pub struct VectorParamsDiff {
     #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub on_disk: ::core::option::Option<bool>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct VectorParamsMap {
     #[prost(map = "string, message", tag = "1")]
     pub map: ::std::collections::HashMap<::prost::alloc::string::String, VectorParams>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct VectorParamsDiffMap {
     #[prost(map = "string, message", tag = "1")]
@@ -81,6 +85,7 @@ pub struct VectorParamsDiffMap {
         VectorParamsDiff,
     >,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct VectorsConfig {
     #[prost(oneof = "vectors_config::Config", tags = "1, 2")]
@@ -88,6 +93,7 @@ pub struct VectorsConfig {
 }
 /// Nested message and enum types in `VectorsConfig`.
 pub mod vectors_config {
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Config {
         #[prost(message, tag = "1")]
@@ -96,6 +102,7 @@ pub mod vectors_config {
         ParamsMap(super::VectorParamsMap),
     }
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct VectorsConfigDiff {
     #[prost(oneof = "vectors_config_diff::Config", tags = "1, 2")]
@@ -103,6 +110,7 @@ pub struct VectorsConfigDiff {
 }
 /// Nested message and enum types in `VectorsConfigDiff`.
 pub mod vectors_config_diff {
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Config {
         #[prost(message, tag = "1")]
@@ -116,6 +124,7 @@ pub mod vectors_config_diff {
     build_fn(private, error = "std::convert::Infallible", name = "build_inner"),
     pattern = "owned"
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct SparseVectorParams {
     /// Configuration of sparse index
@@ -127,6 +136,7 @@ pub struct SparseVectorParams {
     #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub modifier: ::core::option::Option<i32>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SparseVectorConfig {
     #[prost(map = "string, message", tag = "1")]
@@ -141,6 +151,7 @@ pub struct SparseVectorConfig {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct MultiVectorConfig {
     /// Comparator for multi-vector search
@@ -148,22 +159,26 @@ pub struct MultiVectorConfig {
     #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub comparator: i32,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GetCollectionInfoRequest {
     /// Name of the collection
     #[prost(string, tag = "1")]
     pub collection_name: ::prost::alloc::string::String,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CollectionExistsRequest {
     #[prost(string, tag = "1")]
     pub collection_name: ::prost::alloc::string::String,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct CollectionExists {
     #[prost(bool, tag = "1")]
     pub exists: bool,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct CollectionExistsResponse {
     #[prost(message, optional, tag = "1")]
@@ -172,14 +187,17 @@ pub struct CollectionExistsResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct ListCollectionsRequest {}
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CollectionDescription {
     /// Name of the collection
     #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GetCollectionInfoResponse {
     #[prost(message, optional, tag = "1")]
@@ -188,6 +206,7 @@ pub struct GetCollectionInfoResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListCollectionsResponse {
     #[prost(message, repeated, tag = "1")]
@@ -196,6 +215,7 @@ pub struct ListCollectionsResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct OptimizerStatus {
     #[prost(bool, tag = "1")]
@@ -208,6 +228,7 @@ pub struct OptimizerStatus {
     build_fn(private, error = "std::convert::Infallible", name = "build_inner"),
     pattern = "owned"
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct HnswConfigDiff {
     ///
@@ -252,6 +273,7 @@ pub struct HnswConfigDiff {
     build_fn(private, error = "std::convert::Infallible", name = "build_inner"),
     pattern = "owned"
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct SparseIndexConfig {
     ///
@@ -276,6 +298,7 @@ pub struct SparseIndexConfig {
     build_fn(private, error = "std::convert::Infallible", name = "build_inner"),
     pattern = "owned"
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct WalConfigDiff {
     /// Size of a single WAL block file
@@ -292,6 +315,7 @@ pub struct WalConfigDiff {
     build_fn(private, error = "std::convert::Infallible", name = "build_inner"),
     pattern = "owned"
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct OptimizersConfigDiff {
     ///
@@ -371,6 +395,7 @@ pub struct OptimizersConfigDiff {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct ScalarQuantization {
     /// Type of quantization
@@ -392,6 +417,7 @@ pub struct ScalarQuantization {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct ProductQuantization {
     /// Compression ratio
@@ -409,6 +435,7 @@ pub struct ProductQuantization {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct BinaryQuantization {
     /// If true - quantized vectors always will be stored in RAM, ignoring the config of main storage
@@ -416,6 +443,7 @@ pub struct BinaryQuantization {
     #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub always_ram: ::core::option::Option<bool>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct QuantizationConfig {
     #[prost(oneof = "quantization_config::Quantization", tags = "1, 2, 3")]
@@ -423,6 +451,7 @@ pub struct QuantizationConfig {
 }
 /// Nested message and enum types in `QuantizationConfig`.
 pub mod quantization_config {
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, Copy, PartialEq, ::prost::Oneof)]
     pub enum Quantization {
         #[prost(message, tag = "1")]
@@ -433,8 +462,10 @@ pub mod quantization_config {
         Binary(super::BinaryQuantization),
     }
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct Disabled {}
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct QuantizationConfigDiff {
     #[prost(oneof = "quantization_config_diff::Quantization", tags = "1, 2, 3, 4")]
@@ -442,6 +473,7 @@ pub struct QuantizationConfigDiff {
 }
 /// Nested message and enum types in `QuantizationConfigDiff`.
 pub mod quantization_config_diff {
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, Copy, PartialEq, ::prost::Oneof)]
     pub enum Quantization {
         #[prost(message, tag = "1")]
@@ -459,6 +491,7 @@ pub mod quantization_config_diff {
     build_fn(private, error = "std::convert::Infallible", name = "build_inner"),
     pattern = "owned"
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct StrictModeConfig {
     #[prost(bool, optional, tag = "1")]
@@ -491,6 +524,7 @@ pub struct StrictModeConfig {
     build_fn(private, error = "std::convert::Infallible", name = "build_inner"),
     pattern = "owned"
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateCollection {
     /// Name of the collection
@@ -566,6 +600,7 @@ pub struct CreateCollection {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpdateCollection {
     /// Name of the collection
@@ -613,6 +648,7 @@ pub struct UpdateCollection {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeleteCollection {
     /// Name of the collection
@@ -624,6 +660,7 @@ pub struct DeleteCollection {
     #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub timeout: ::core::option::Option<u64>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct CollectionOperationResponse {
     /// if operation made changes
@@ -633,6 +670,7 @@ pub struct CollectionOperationResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CollectionParams {
     /// Number of shards in collection
@@ -665,6 +703,7 @@ pub struct CollectionParams {
     build_fn(private, error = "std::convert::Infallible", name = "build_inner"),
     pattern = "owned"
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct CollectionParamsDiff {
     /// Number of replicas of each shard that network tries to maintain
@@ -684,6 +723,7 @@ pub struct CollectionParamsDiff {
     #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub read_fan_out_factor: ::core::option::Option<u32>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CollectionConfig {
     /// Collection parameters
@@ -710,6 +750,7 @@ pub struct CollectionConfig {
     build_fn(private, error = "std::convert::Infallible", name = "build_inner"),
     pattern = "owned"
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct KeywordIndexParams {
     /// If true - used for tenant optimization.
@@ -727,6 +768,7 @@ pub struct KeywordIndexParams {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct IntegerIndexParams {
     /// If true - support direct lookups.
@@ -751,6 +793,7 @@ pub struct IntegerIndexParams {
     build_fn(private, error = "std::convert::Infallible", name = "build_inner"),
     pattern = "owned"
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct FloatIndexParams {
     /// If true - store index on disk.
@@ -767,6 +810,7 @@ pub struct FloatIndexParams {
     build_fn(private, error = "std::convert::Infallible", name = "build_inner"),
     pattern = "owned"
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct GeoIndexParams {
     /// If true - store index on disk.
@@ -780,6 +824,7 @@ pub struct GeoIndexParams {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct TextIndexParams {
     /// Tokenizer type
@@ -803,6 +848,7 @@ pub struct TextIndexParams {
     #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub on_disk: ::core::option::Option<bool>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct BoolIndexParams {}
 #[derive(derive_builder::Builder)]
@@ -810,6 +856,7 @@ pub struct BoolIndexParams {}
     build_fn(private, error = "std::convert::Infallible", name = "build_inner"),
     pattern = "owned"
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct DatetimeIndexParams {
     /// If true - store index on disk.
@@ -826,6 +873,7 @@ pub struct DatetimeIndexParams {
     build_fn(private, error = "std::convert::Infallible", name = "build_inner"),
     pattern = "owned"
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct UuidIndexParams {
     /// If true - used for tenant optimization.
@@ -837,6 +885,7 @@ pub struct UuidIndexParams {
     #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub on_disk: ::core::option::Option<bool>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct PayloadIndexParams {
     #[prost(
@@ -847,6 +896,7 @@ pub struct PayloadIndexParams {
 }
 /// Nested message and enum types in `PayloadIndexParams`.
 pub mod payload_index_params {
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, Copy, PartialEq, ::prost::Oneof)]
     pub enum IndexParams {
         /// Parameters for keyword index
@@ -875,6 +925,7 @@ pub mod payload_index_params {
         UuidIndexParams(super::UuidIndexParams),
     }
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct PayloadSchemaInfo {
     /// Field data type
@@ -887,6 +938,7 @@ pub struct PayloadSchemaInfo {
     #[prost(uint64, optional, tag = "3")]
     pub points: ::core::option::Option<u64>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CollectionInfo {
     /// operating condition of the collection
@@ -917,6 +969,7 @@ pub struct CollectionInfo {
     #[prost(uint64, optional, tag = "10")]
     pub indexed_vectors_count: ::core::option::Option<u64>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ChangeAliases {
     /// List of actions
@@ -926,6 +979,7 @@ pub struct ChangeAliases {
     #[prost(uint64, optional, tag = "2")]
     pub timeout: ::core::option::Option<u64>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct AliasOperations {
     #[prost(oneof = "alias_operations::Action", tags = "1, 2, 3")]
@@ -933,6 +987,7 @@ pub struct AliasOperations {
 }
 /// Nested message and enum types in `AliasOperations`.
 pub mod alias_operations {
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Action {
         #[prost(message, tag = "1")]
@@ -949,6 +1004,7 @@ pub mod alias_operations {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateAlias {
     /// Name of the collection
@@ -966,6 +1022,7 @@ pub struct CreateAlias {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RenameAlias {
     /// Name of the alias to rename
@@ -977,20 +1034,24 @@ pub struct RenameAlias {
     #[builder(field(vis = "pub(crate)"))]
     pub new_alias_name: ::prost::alloc::string::String,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeleteAlias {
     /// Name of the alias
     #[prost(string, tag = "1")]
     pub alias_name: ::prost::alloc::string::String,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct ListAliasesRequest {}
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListCollectionAliasesRequest {
     /// Name of the collection
     #[prost(string, tag = "1")]
     pub collection_name: ::prost::alloc::string::String,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct AliasDescription {
     /// Name of the alias
@@ -1000,6 +1061,7 @@ pub struct AliasDescription {
     #[prost(string, tag = "2")]
     pub collection_name: ::prost::alloc::string::String,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListAliasesResponse {
     #[prost(message, repeated, tag = "1")]
@@ -1008,12 +1070,14 @@ pub struct ListAliasesResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CollectionClusterInfoRequest {
     /// Name of the collection
     #[prost(string, tag = "1")]
     pub collection_name: ::prost::alloc::string::String,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ShardKey {
     #[prost(oneof = "shard_key::Key", tags = "1, 2")]
@@ -1021,6 +1085,7 @@ pub struct ShardKey {
 }
 /// Nested message and enum types in `ShardKey`.
 pub mod shard_key {
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Key {
         /// String key
@@ -1031,6 +1096,7 @@ pub mod shard_key {
         Number(u64),
     }
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct LocalShardInfo {
     /// Local shard id
@@ -1046,6 +1112,7 @@ pub struct LocalShardInfo {
     #[prost(message, optional, tag = "4")]
     pub shard_key: ::core::option::Option<ShardKey>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RemoteShardInfo {
     /// Local shard id
@@ -1061,6 +1128,7 @@ pub struct RemoteShardInfo {
     #[prost(message, optional, tag = "4")]
     pub shard_key: ::core::option::Option<ShardKey>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct ShardTransferInfo {
     /// Local shard id
@@ -1076,6 +1144,7 @@ pub struct ShardTransferInfo {
     #[prost(bool, tag = "4")]
     pub sync: bool,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ReshardingInfo {
     #[prost(uint32, tag = "1")]
@@ -1085,6 +1154,7 @@ pub struct ReshardingInfo {
     #[prost(message, optional, tag = "3")]
     pub shard_key: ::core::option::Option<ShardKey>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CollectionClusterInfoResponse {
     /// ID of this peer
@@ -1109,6 +1179,7 @@ pub struct CollectionClusterInfoResponse {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct MoveShard {
     /// Local shard id
@@ -1134,6 +1205,7 @@ pub struct MoveShard {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct ReplicateShard {
     /// Local shard id
@@ -1159,6 +1231,7 @@ pub struct ReplicateShard {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct AbortShardTransfer {
     /// Local shard id
@@ -1175,6 +1248,7 @@ pub struct AbortShardTransfer {
     #[builder(field(vis = "pub(crate)"))]
     pub to_peer_id: u64,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct RestartTransfer {
     /// Local shard id
@@ -1195,6 +1269,7 @@ pub struct RestartTransfer {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct Replica {
     #[prost(uint32, tag = "1")]
@@ -1209,6 +1284,7 @@ pub struct Replica {
     build_fn(private, error = "std::convert::Infallible", name = "build_inner"),
     pattern = "owned"
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateShardKey {
     /// User-defined shard key
@@ -1228,6 +1304,7 @@ pub struct CreateShardKey {
     #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub placement: ::prost::alloc::vec::Vec<u64>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeleteShardKey {
     /// Shard key to delete
@@ -1240,6 +1317,7 @@ pub struct DeleteShardKey {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpdateCollectionClusterSetupRequest {
     /// Name of the collection
@@ -1261,6 +1339,7 @@ pub struct UpdateCollectionClusterSetupRequest {
 }
 /// Nested message and enum types in `UpdateCollectionClusterSetupRequest`.
 pub mod update_collection_cluster_setup_request {
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Operation {
         #[prost(message, tag = "2")]
@@ -1279,6 +1358,7 @@ pub mod update_collection_cluster_setup_request {
         RestartTransfer(super::RestartTransfer),
     }
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct UpdateCollectionClusterSetupResponse {
     #[prost(bool, tag = "1")]
@@ -1290,6 +1370,7 @@ pub struct UpdateCollectionClusterSetupResponse {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateShardKeyRequest {
     /// Name of the collection
@@ -1311,6 +1392,7 @@ pub struct CreateShardKeyRequest {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeleteShardKeyRequest {
     /// Name of the collection
@@ -1326,11 +1408,13 @@ pub struct DeleteShardKeyRequest {
     #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub timeout: ::core::option::Option<u64>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct CreateShardKeyResponse {
     #[prost(bool, tag = "1")]
     pub result: bool,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct DeleteShardKeyResponse {
     #[prost(bool, tag = "1")]
@@ -1351,10 +1435,10 @@ impl Datatype {
     /// (if the ProtoBuf definition does not change) and safe for programmatic use.
     pub fn as_str_name(&self) -> &'static str {
         match self {
-            Self::Default => "Default",
-            Self::Float32 => "Float32",
-            Self::Uint8 => "Uint8",
-            Self::Float16 => "Float16",
+            Datatype::Default => "Default",
+            Datatype::Float32 => "Float32",
+            Datatype::Uint8 => "Uint8",
+            Datatype::Float16 => "Float16",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -1382,8 +1466,8 @@ impl Modifier {
     /// (if the ProtoBuf definition does not change) and safe for programmatic use.
     pub fn as_str_name(&self) -> &'static str {
         match self {
-            Self::None => "None",
-            Self::Idf => "Idf",
+            Modifier::None => "None",
+            Modifier::Idf => "Idf",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -1407,7 +1491,7 @@ impl MultiVectorComparator {
     /// (if the ProtoBuf definition does not change) and safe for programmatic use.
     pub fn as_str_name(&self) -> &'static str {
         match self {
-            Self::MaxSim => "MaxSim",
+            MultiVectorComparator::MaxSim => "MaxSim",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -1434,11 +1518,11 @@ impl Distance {
     /// (if the ProtoBuf definition does not change) and safe for programmatic use.
     pub fn as_str_name(&self) -> &'static str {
         match self {
-            Self::UnknownDistance => "UnknownDistance",
-            Self::Cosine => "Cosine",
-            Self::Euclid => "Euclid",
-            Self::Dot => "Dot",
-            Self::Manhattan => "Manhattan",
+            Distance::UnknownDistance => "UnknownDistance",
+            Distance::Cosine => "Cosine",
+            Distance::Euclid => "Euclid",
+            Distance::Dot => "Dot",
+            Distance::Manhattan => "Manhattan",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -1473,11 +1557,11 @@ impl CollectionStatus {
     /// (if the ProtoBuf definition does not change) and safe for programmatic use.
     pub fn as_str_name(&self) -> &'static str {
         match self {
-            Self::UnknownCollectionStatus => "UnknownCollectionStatus",
-            Self::Green => "Green",
-            Self::Yellow => "Yellow",
-            Self::Red => "Red",
-            Self::Grey => "Grey",
+            CollectionStatus::UnknownCollectionStatus => "UnknownCollectionStatus",
+            CollectionStatus::Green => "Green",
+            CollectionStatus::Yellow => "Yellow",
+            CollectionStatus::Red => "Red",
+            CollectionStatus::Grey => "Grey",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -1512,15 +1596,15 @@ impl PayloadSchemaType {
     /// (if the ProtoBuf definition does not change) and safe for programmatic use.
     pub fn as_str_name(&self) -> &'static str {
         match self {
-            Self::UnknownType => "UnknownType",
-            Self::Keyword => "Keyword",
-            Self::Integer => "Integer",
-            Self::Float => "Float",
-            Self::Geo => "Geo",
-            Self::Text => "Text",
-            Self::Bool => "Bool",
-            Self::Datetime => "Datetime",
-            Self::Uuid => "Uuid",
+            PayloadSchemaType::UnknownType => "UnknownType",
+            PayloadSchemaType::Keyword => "Keyword",
+            PayloadSchemaType::Integer => "Integer",
+            PayloadSchemaType::Float => "Float",
+            PayloadSchemaType::Geo => "Geo",
+            PayloadSchemaType::Text => "Text",
+            PayloadSchemaType::Bool => "Bool",
+            PayloadSchemaType::Datetime => "Datetime",
+            PayloadSchemaType::Uuid => "Uuid",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -1552,8 +1636,8 @@ impl QuantizationType {
     /// (if the ProtoBuf definition does not change) and safe for programmatic use.
     pub fn as_str_name(&self) -> &'static str {
         match self {
-            Self::UnknownQuantization => "UnknownQuantization",
-            Self::Int8 => "Int8",
+            QuantizationType::UnknownQuantization => "UnknownQuantization",
+            QuantizationType::Int8 => "Int8",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -1581,11 +1665,11 @@ impl CompressionRatio {
     /// (if the ProtoBuf definition does not change) and safe for programmatic use.
     pub fn as_str_name(&self) -> &'static str {
         match self {
-            Self::X4 => "x4",
-            Self::X8 => "x8",
-            Self::X16 => "x16",
-            Self::X32 => "x32",
-            Self::X64 => "x64",
+            CompressionRatio::X4 => "x4",
+            CompressionRatio::X8 => "x8",
+            CompressionRatio::X16 => "x16",
+            CompressionRatio::X32 => "x32",
+            CompressionRatio::X64 => "x64",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -1615,8 +1699,8 @@ impl ShardingMethod {
     /// (if the ProtoBuf definition does not change) and safe for programmatic use.
     pub fn as_str_name(&self) -> &'static str {
         match self {
-            Self::Auto => "Auto",
-            Self::Custom => "Custom",
+            ShardingMethod::Auto => "Auto",
+            ShardingMethod::Custom => "Custom",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -1644,11 +1728,11 @@ impl TokenizerType {
     /// (if the ProtoBuf definition does not change) and safe for programmatic use.
     pub fn as_str_name(&self) -> &'static str {
         match self {
-            Self::Unknown => "Unknown",
-            Self::Prefix => "Prefix",
-            Self::Whitespace => "Whitespace",
-            Self::Word => "Word",
-            Self::Multilingual => "Multilingual",
+            TokenizerType::Unknown => "Unknown",
+            TokenizerType::Prefix => "Prefix",
+            TokenizerType::Whitespace => "Whitespace",
+            TokenizerType::Word => "Word",
+            TokenizerType::Multilingual => "Multilingual",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -1690,14 +1774,14 @@ impl ReplicaState {
     /// (if the ProtoBuf definition does not change) and safe for programmatic use.
     pub fn as_str_name(&self) -> &'static str {
         match self {
-            Self::Active => "Active",
-            Self::Dead => "Dead",
-            Self::Partial => "Partial",
-            Self::Initializing => "Initializing",
-            Self::Listener => "Listener",
-            Self::PartialSnapshot => "PartialSnapshot",
-            Self::Recovery => "Recovery",
-            Self::Resharding => "Resharding",
+            ReplicaState::Active => "Active",
+            ReplicaState::Dead => "Dead",
+            ReplicaState::Partial => "Partial",
+            ReplicaState::Initializing => "Initializing",
+            ReplicaState::Listener => "Listener",
+            ReplicaState::PartialSnapshot => "PartialSnapshot",
+            ReplicaState::Recovery => "Recovery",
+            ReplicaState::Resharding => "Resharding",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -1734,10 +1818,10 @@ impl ShardTransferMethod {
     /// (if the ProtoBuf definition does not change) and safe for programmatic use.
     pub fn as_str_name(&self) -> &'static str {
         match self {
-            Self::StreamRecords => "StreamRecords",
-            Self::Snapshot => "Snapshot",
-            Self::WalDelta => "WalDelta",
-            Self::ReshardingStreamRecords => "ReshardingStreamRecords",
+            ShardTransferMethod::StreamRecords => "StreamRecords",
+            ShardTransferMethod::Snapshot => "Snapshot",
+            ShardTransferMethod::WalDelta => "WalDelta",
+            ShardTransferMethod::ReshardingStreamRecords => "ReshardingStreamRecords",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -3022,6 +3106,7 @@ pub mod collections_server {
 /// with the proto support for the language.
 ///
 /// The JSON representation for `Struct` is a JSON object.
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Struct {
     /// Unordered map of dynamically typed values.
@@ -3034,6 +3119,7 @@ pub struct Struct {
 /// variants, absence of any variant indicates an error.
 ///
 /// The JSON representation for `Value` is a JSON value.
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Value {
     /// The kind of value.
@@ -3043,6 +3129,7 @@ pub struct Value {
 /// Nested message and enum types in `Value`.
 pub mod value {
     /// The kind of value.
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Kind {
         /// Represents a null value.
@@ -3071,6 +3158,7 @@ pub mod value {
 /// `ListValue` is a wrapper around a repeated field of values.
 ///
 /// The JSON representation for `ListValue` is a JSON array.
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListValue {
     /// Repeated field of dynamically typed values.
@@ -3094,7 +3182,7 @@ impl NullValue {
     /// (if the ProtoBuf definition does not change) and safe for programmatic use.
     pub fn as_str_name(&self) -> &'static str {
         match self {
-            Self::NullValue => "NULL_VALUE",
+            NullValue::NullValue => "NULL_VALUE",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -3105,12 +3193,14 @@ impl NullValue {
         }
     }
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct WriteOrdering {
     /// Write ordering guarantees
     #[prost(enumeration = "WriteOrderingType", tag = "1")]
     pub r#type: i32,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct ReadConsistency {
     #[prost(oneof = "read_consistency::Value", tags = "1, 2")]
@@ -3118,6 +3208,7 @@ pub struct ReadConsistency {
 }
 /// Nested message and enum types in `ReadConsistency`.
 pub mod read_consistency {
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, Copy, PartialEq, ::prost::Oneof)]
     pub enum Value {
         /// Common read consistency configurations
@@ -3128,6 +3219,7 @@ pub mod read_consistency {
         Factor(u64),
     }
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PointId {
     #[prost(oneof = "point_id::PointIdOptions", tags = "1, 2")]
@@ -3135,6 +3227,7 @@ pub struct PointId {
 }
 /// Nested message and enum types in `PointId`.
 pub mod point_id {
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum PointIdOptions {
         /// Numerical ID of the point
@@ -3145,12 +3238,14 @@ pub mod point_id {
         Uuid(::prost::alloc::string::String),
     }
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SparseIndices {
     #[prost(uint32, repeated, tag = "1")]
     pub data: ::prost::alloc::vec::Vec<u32>,
 }
 /// Legacy vector format, which determines the vector type by the configuration of its fields.
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Vector {
     /// Vector data (flatten for multi vectors)
@@ -3163,11 +3258,13 @@ pub struct Vector {
     #[prost(uint32, optional, tag = "3")]
     pub vectors_count: ::core::option::Option<u32>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DenseVector {
     #[prost(float, repeated, tag = "1")]
     pub data: ::prost::alloc::vec::Vec<f32>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SparseVector {
     #[prost(float, repeated, tag = "1")]
@@ -3175,12 +3272,14 @@ pub struct SparseVector {
     #[prost(uint32, repeated, tag = "2")]
     pub indices: ::prost::alloc::vec::Vec<u32>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct MultiDenseVector {
     #[prost(message, repeated, tag = "1")]
     pub vectors: ::prost::alloc::vec::Vec<DenseVector>,
 }
 /// Vector type to be used in queries. Ids will be substituted with their corresponding vectors from the collection.
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct VectorInput {
     #[prost(oneof = "vector_input::Variant", tags = "1, 2, 3, 4")]
@@ -3188,6 +3287,7 @@ pub struct VectorInput {
 }
 /// Nested message and enum types in `VectorInput`.
 pub mod vector_input {
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Variant {
         #[prost(message, tag = "1")]
@@ -3200,6 +3300,7 @@ pub mod vector_input {
         MultiDense(super::MultiDenseVector),
     }
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ShardKeySelector {
     /// List of shard keys which should be used in the request
@@ -3212,6 +3313,7 @@ pub struct ShardKeySelector {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpsertPoints {
     /// name of the collection
@@ -3240,6 +3342,7 @@ pub struct UpsertPoints {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeletePoints {
     /// name of the collection
@@ -3275,6 +3378,7 @@ pub struct DeletePoints {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GetPoints {
     /// name of the collection
@@ -3330,6 +3434,7 @@ pub struct GetPoints {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpdatePointVectors {
     /// name of the collection
@@ -3353,6 +3458,7 @@ pub struct UpdatePointVectors {
     #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PointVectors {
     /// ID to update vectors for
@@ -3368,6 +3474,7 @@ pub struct PointVectors {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeletePointVectors {
     /// name of the collection
@@ -3407,6 +3514,7 @@ pub struct DeletePointVectors {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SetPayloadPoints {
     /// name of the collection
@@ -3450,6 +3558,7 @@ pub struct SetPayloadPoints {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeletePayloadPoints {
     /// name of the collection
@@ -3489,6 +3598,7 @@ pub struct DeletePayloadPoints {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ClearPayloadPoints {
     /// name of the collection
@@ -3524,6 +3634,7 @@ pub struct ClearPayloadPoints {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateFieldIndexCollection {
     /// name of the collection
@@ -3563,6 +3674,7 @@ pub struct CreateFieldIndexCollection {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeleteFieldIndexCollection {
     /// name of the collection
@@ -3582,18 +3694,21 @@ pub struct DeleteFieldIndexCollection {
     #[builder(default, setter(strip_option), field(vis = "pub(crate)"))]
     pub ordering: ::core::option::Option<WriteOrdering>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PayloadIncludeSelector {
     /// List of payload keys to include into result
     #[prost(string, repeated, tag = "1")]
     pub fields: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PayloadExcludeSelector {
     /// List of payload keys to exclude from the result
     #[prost(string, repeated, tag = "1")]
     pub fields: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct WithPayloadSelector {
     #[prost(oneof = "with_payload_selector::SelectorOptions", tags = "1, 2, 3")]
@@ -3601,6 +3716,7 @@ pub struct WithPayloadSelector {
 }
 /// Nested message and enum types in `WithPayloadSelector`.
 pub mod with_payload_selector {
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum SelectorOptions {
         /// If `true` - return all payload, if `false` - none
@@ -3612,11 +3728,13 @@ pub mod with_payload_selector {
         Exclude(super::PayloadExcludeSelector),
     }
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct NamedVectors {
     #[prost(map = "string, message", tag = "1")]
     pub vectors: ::std::collections::HashMap<::prost::alloc::string::String, Vector>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Vectors {
     #[prost(oneof = "vectors::VectorsOptions", tags = "1, 2")]
@@ -3624,6 +3742,7 @@ pub struct Vectors {
 }
 /// Nested message and enum types in `Vectors`.
 pub mod vectors {
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum VectorsOptions {
         #[prost(message, tag = "1")]
@@ -3632,12 +3751,14 @@ pub mod vectors {
         Vectors(super::NamedVectors),
     }
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct VectorsSelector {
     /// List of vectors to include into result
     #[prost(string, repeated, tag = "1")]
     pub names: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct WithVectorsSelector {
     #[prost(oneof = "with_vectors_selector::SelectorOptions", tags = "1, 2")]
@@ -3645,6 +3766,7 @@ pub struct WithVectorsSelector {
 }
 /// Nested message and enum types in `WithVectorsSelector`.
 pub mod with_vectors_selector {
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum SelectorOptions {
         /// If `true` - return all vectors, if `false` - none
@@ -3660,6 +3782,7 @@ pub mod with_vectors_selector {
     build_fn(private, error = "std::convert::Infallible", name = "build_inner"),
     pattern = "owned"
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct QuantizationSearchParams {
     ///
@@ -3689,6 +3812,7 @@ pub struct QuantizationSearchParams {
     build_fn(private, error = "std::convert::Infallible", name = "build_inner"),
     pattern = "owned"
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct SearchParams {
     ///
@@ -3721,6 +3845,7 @@ pub struct SearchParams {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SearchPoints {
     /// name of the collection
@@ -3803,6 +3928,7 @@ pub struct SearchPoints {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SearchBatchPoints {
     /// Name of the collection
@@ -3833,6 +3959,7 @@ pub struct SearchBatchPoints {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct WithLookup {
     /// Name of the collection to use for points lookup
@@ -3866,6 +3993,7 @@ pub struct WithLookup {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SearchPointGroups {
     /// Name of the collection
@@ -3950,6 +4078,7 @@ pub struct SearchPointGroups {
     #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub sparse_indices: ::core::option::Option<SparseIndices>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct StartFrom {
     #[prost(oneof = "start_from::Value", tags = "1, 2, 3, 4")]
@@ -3957,6 +4086,7 @@ pub struct StartFrom {
 }
 /// Nested message and enum types in `StartFrom`.
 pub mod start_from {
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Value {
         #[prost(double, tag = "1")]
@@ -3975,6 +4105,7 @@ pub mod start_from {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct OrderBy {
     /// Payload key to order by
@@ -4002,6 +4133,7 @@ pub struct OrderBy {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ScrollPoints {
     #[prost(string, tag = "1")]
@@ -4068,6 +4200,7 @@ pub struct ScrollPoints {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct LookupLocation {
     #[prost(string, tag = "1")]
@@ -4088,6 +4221,7 @@ pub struct LookupLocation {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RecommendPoints {
     /// name of the collection
@@ -4187,6 +4321,7 @@ pub struct RecommendPoints {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RecommendBatchPoints {
     /// Name of the collection
@@ -4217,6 +4352,7 @@ pub struct RecommendBatchPoints {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RecommendPointGroups {
     /// Name of the collection
@@ -4318,6 +4454,7 @@ pub struct RecommendPointGroups {
     #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct TargetVector {
     #[prost(oneof = "target_vector::Target", tags = "1")]
@@ -4325,12 +4462,14 @@ pub struct TargetVector {
 }
 /// Nested message and enum types in `TargetVector`.
 pub mod target_vector {
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Target {
         #[prost(message, tag = "1")]
         Single(super::VectorExample),
     }
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct VectorExample {
     #[prost(oneof = "vector_example::Example", tags = "1, 2")]
@@ -4338,6 +4477,7 @@ pub struct VectorExample {
 }
 /// Nested message and enum types in `VectorExample`.
 pub mod vector_example {
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Example {
         #[prost(message, tag = "1")]
@@ -4351,6 +4491,7 @@ pub mod vector_example {
     build_fn(private, error = "std::convert::Infallible", name = "build_inner"),
     pattern = "owned"
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ContextExamplePair {
     #[prost(message, optional, tag = "1")]
@@ -4366,6 +4507,7 @@ pub struct ContextExamplePair {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DiscoverPoints {
     /// name of the collection
@@ -4449,6 +4591,7 @@ pub struct DiscoverPoints {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DiscoverBatchPoints {
     /// Name of the collection
@@ -4479,6 +4622,7 @@ pub struct DiscoverBatchPoints {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CountPoints {
     /// Name of the collection
@@ -4517,6 +4661,7 @@ pub struct CountPoints {
     build_fn(private, error = "std::convert::Infallible", name = "build_inner"),
     pattern = "owned"
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RecommendInput {
     /// Look for vectors closest to the vectors from these points
@@ -4538,6 +4683,7 @@ pub struct RecommendInput {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ContextInputPair {
     /// A positive vector
@@ -4555,6 +4701,7 @@ pub struct ContextInputPair {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DiscoverInput {
     /// Use this as the primary search objective
@@ -4571,6 +4718,7 @@ pub struct DiscoverInput {
     build_fn(private, error = "std::convert::Infallible", name = "build_inner"),
     pattern = "owned"
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ContextInput {
     /// Search space will be constrained by these pairs of vectors
@@ -4578,6 +4726,7 @@ pub struct ContextInput {
     #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub pairs: ::prost::alloc::vec::Vec<ContextInputPair>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Query {
     #[prost(oneof = "query::Variant", tags = "1, 2, 3, 4, 5, 6, 7")]
@@ -4585,6 +4734,7 @@ pub struct Query {
 }
 /// Nested message and enum types in `Query`.
 pub mod query {
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Variant {
         /// Find the nearest neighbors to this vector.
@@ -4615,6 +4765,7 @@ pub mod query {
     build_fn(private, error = "std::convert::Infallible", name = "build_inner"),
     pattern = "owned"
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PrefetchQuery {
     /// Sub-requests to perform first. If present, the query will be performed on the results of the prefetches.
@@ -4656,6 +4807,7 @@ pub struct PrefetchQuery {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct QueryPoints {
     /// Name of the collection
@@ -4743,6 +4895,7 @@ pub struct QueryPoints {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct QueryBatchPoints {
     #[prost(string, tag = "1")]
@@ -4772,6 +4925,7 @@ pub struct QueryBatchPoints {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct QueryPointGroups {
     /// Name of the collection
@@ -4849,6 +5003,7 @@ pub struct QueryPointGroups {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct FacetCounts {
     /// Name of the collection
@@ -4884,6 +5039,7 @@ pub struct FacetCounts {
     #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct FacetValue {
     #[prost(oneof = "facet_value::Variant", tags = "1, 2, 3")]
@@ -4891,6 +5047,7 @@ pub struct FacetValue {
 }
 /// Nested message and enum types in `FacetValue`.
 pub mod facet_value {
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Variant {
         /// String value from the facet
@@ -4904,6 +5061,7 @@ pub mod facet_value {
         BoolValue(bool),
     }
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct FacetHit {
     /// Value from the facet
@@ -4919,6 +5077,7 @@ pub struct FacetHit {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SearchMatrixPoints {
     /// Name of the collection
@@ -4954,12 +5113,14 @@ pub struct SearchMatrixPoints {
     #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub shard_key_selector: ::core::option::Option<ShardKeySelector>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SearchMatrixPairs {
     /// List of pairs of points with scores
     #[prost(message, repeated, tag = "1")]
     pub pairs: ::prost::alloc::vec::Vec<SearchMatrixPair>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SearchMatrixPair {
     /// first id of the pair
@@ -4972,6 +5133,7 @@ pub struct SearchMatrixPair {
     #[prost(float, tag = "3")]
     pub score: f32,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SearchMatrixOffsets {
     /// Row indices of the matrix
@@ -4987,6 +5149,7 @@ pub struct SearchMatrixOffsets {
     #[prost(message, repeated, tag = "4")]
     pub ids: ::prost::alloc::vec::Vec<PointId>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PointsUpdateOperation {
     #[prost(
@@ -4997,6 +5160,7 @@ pub struct PointsUpdateOperation {
 }
 /// Nested message and enum types in `PointsUpdateOperation`.
 pub mod points_update_operation {
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct PointStructList {
         #[prost(message, repeated, tag = "1")]
@@ -5005,6 +5169,7 @@ pub mod points_update_operation {
         #[prost(message, optional, tag = "2")]
         pub shard_key_selector: ::core::option::Option<super::ShardKeySelector>,
     }
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct SetPayload {
         #[prost(map = "string, message", tag = "1")]
@@ -5022,6 +5187,7 @@ pub mod points_update_operation {
         #[prost(string, optional, tag = "4")]
         pub key: ::core::option::Option<::prost::alloc::string::String>,
     }
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct OverwritePayload {
         #[prost(map = "string, message", tag = "1")]
@@ -5039,6 +5205,7 @@ pub mod points_update_operation {
         #[prost(string, optional, tag = "4")]
         pub key: ::core::option::Option<::prost::alloc::string::String>,
     }
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct DeletePayload {
         #[prost(string, repeated, tag = "1")]
@@ -5050,6 +5217,7 @@ pub mod points_update_operation {
         #[prost(message, optional, tag = "3")]
         pub shard_key_selector: ::core::option::Option<super::ShardKeySelector>,
     }
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct UpdateVectors {
         /// List of points and vectors to update
@@ -5059,6 +5227,7 @@ pub mod points_update_operation {
         #[prost(message, optional, tag = "2")]
         pub shard_key_selector: ::core::option::Option<super::ShardKeySelector>,
     }
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct DeleteVectors {
         /// Affected points
@@ -5071,6 +5240,7 @@ pub mod points_update_operation {
         #[prost(message, optional, tag = "3")]
         pub shard_key_selector: ::core::option::Option<super::ShardKeySelector>,
     }
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct DeletePoints {
         /// Affected points
@@ -5080,6 +5250,7 @@ pub mod points_update_operation {
         #[prost(message, optional, tag = "2")]
         pub shard_key_selector: ::core::option::Option<super::ShardKeySelector>,
     }
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct ClearPayload {
         /// Affected points
@@ -5089,6 +5260,7 @@ pub mod points_update_operation {
         #[prost(message, optional, tag = "2")]
         pub shard_key_selector: ::core::option::Option<super::ShardKeySelector>,
     }
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Operation {
         #[prost(message, tag = "1")]
@@ -5121,6 +5293,7 @@ pub mod points_update_operation {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpdateBatchPoints {
     /// name of the collection
@@ -5139,6 +5312,7 @@ pub struct UpdateBatchPoints {
     #[builder(default, setter(into, strip_option), field(vis = "pub(crate)"))]
     pub ordering: ::core::option::Option<WriteOrdering>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct PointsOperationResponse {
     #[prost(message, optional, tag = "1")]
@@ -5147,6 +5321,7 @@ pub struct PointsOperationResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct UpdateResult {
     /// Number of operation
@@ -5156,6 +5331,7 @@ pub struct UpdateResult {
     #[prost(enumeration = "UpdateStatus", tag = "2")]
     pub status: i32,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct OrderValue {
     #[prost(oneof = "order_value::Variant", tags = "1, 2")]
@@ -5163,6 +5339,7 @@ pub struct OrderValue {
 }
 /// Nested message and enum types in `OrderValue`.
 pub mod order_value {
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, Copy, PartialEq, ::prost::Oneof)]
     pub enum Variant {
         #[prost(int64, tag = "1")]
@@ -5171,6 +5348,7 @@ pub mod order_value {
         Float(f64),
     }
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ScoredPoint {
     /// Point id
@@ -5195,6 +5373,7 @@ pub struct ScoredPoint {
     #[prost(message, optional, tag = "8")]
     pub order_value: ::core::option::Option<OrderValue>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GroupId {
     #[prost(oneof = "group_id::Kind", tags = "1, 2, 3")]
@@ -5202,6 +5381,7 @@ pub struct GroupId {
 }
 /// Nested message and enum types in `GroupId`.
 pub mod group_id {
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Kind {
         /// Represents a double value.
@@ -5215,6 +5395,7 @@ pub mod group_id {
         StringValue(::prost::alloc::string::String),
     }
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PointGroup {
     /// Group id
@@ -5227,12 +5408,14 @@ pub struct PointGroup {
     #[prost(message, optional, tag = "3")]
     pub lookup: ::core::option::Option<RetrievedPoint>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GroupsResult {
     /// Groups
     #[prost(message, repeated, tag = "1")]
     pub groups: ::prost::alloc::vec::Vec<PointGroup>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SearchResponse {
     #[prost(message, repeated, tag = "1")]
@@ -5241,6 +5424,7 @@ pub struct SearchResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct QueryResponse {
     #[prost(message, repeated, tag = "1")]
@@ -5249,6 +5433,7 @@ pub struct QueryResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct QueryBatchResponse {
     #[prost(message, repeated, tag = "1")]
@@ -5257,6 +5442,7 @@ pub struct QueryBatchResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct QueryGroupsResponse {
     #[prost(message, optional, tag = "1")]
@@ -5265,11 +5451,13 @@ pub struct QueryGroupsResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BatchResult {
     #[prost(message, repeated, tag = "1")]
     pub result: ::prost::alloc::vec::Vec<ScoredPoint>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SearchBatchResponse {
     #[prost(message, repeated, tag = "1")]
@@ -5278,6 +5466,7 @@ pub struct SearchBatchResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SearchGroupsResponse {
     #[prost(message, optional, tag = "1")]
@@ -5286,6 +5475,7 @@ pub struct SearchGroupsResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct CountResponse {
     #[prost(message, optional, tag = "1")]
@@ -5294,6 +5484,7 @@ pub struct CountResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ScrollResponse {
     /// Use this offset for the next query
@@ -5305,11 +5496,13 @@ pub struct ScrollResponse {
     #[prost(double, tag = "3")]
     pub time: f64,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct CountResult {
     #[prost(uint64, tag = "1")]
     pub count: u64,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RetrievedPoint {
     #[prost(message, optional, tag = "1")]
@@ -5325,6 +5518,7 @@ pub struct RetrievedPoint {
     #[prost(message, optional, tag = "6")]
     pub order_value: ::core::option::Option<OrderValue>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GetResponse {
     #[prost(message, repeated, tag = "1")]
@@ -5333,6 +5527,7 @@ pub struct GetResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RecommendResponse {
     #[prost(message, repeated, tag = "1")]
@@ -5341,6 +5536,7 @@ pub struct RecommendResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RecommendBatchResponse {
     #[prost(message, repeated, tag = "1")]
@@ -5349,6 +5545,7 @@ pub struct RecommendBatchResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DiscoverResponse {
     #[prost(message, repeated, tag = "1")]
@@ -5357,6 +5554,7 @@ pub struct DiscoverResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DiscoverBatchResponse {
     #[prost(message, repeated, tag = "1")]
@@ -5365,6 +5563,7 @@ pub struct DiscoverBatchResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RecommendGroupsResponse {
     #[prost(message, optional, tag = "1")]
@@ -5373,6 +5572,7 @@ pub struct RecommendGroupsResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpdateBatchResponse {
     #[prost(message, repeated, tag = "1")]
@@ -5381,6 +5581,7 @@ pub struct UpdateBatchResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct FacetResponse {
     #[prost(message, repeated, tag = "1")]
@@ -5389,6 +5590,7 @@ pub struct FacetResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SearchMatrixPairsResponse {
     #[prost(message, optional, tag = "1")]
@@ -5397,6 +5599,7 @@ pub struct SearchMatrixPairsResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SearchMatrixOffsetsResponse {
     #[prost(message, optional, tag = "1")]
@@ -5405,6 +5608,7 @@ pub struct SearchMatrixOffsetsResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Filter {
     /// At least one of those conditions should match
@@ -5420,6 +5624,7 @@ pub struct Filter {
     #[prost(message, optional, tag = "4")]
     pub min_should: ::core::option::Option<MinShould>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct MinShould {
     #[prost(message, repeated, tag = "1")]
@@ -5427,6 +5632,7 @@ pub struct MinShould {
     #[prost(uint64, tag = "2")]
     pub min_count: u64,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Condition {
     #[prost(oneof = "condition::ConditionOneOf", tags = "1, 2, 3, 4, 5, 6")]
@@ -5434,6 +5640,7 @@ pub struct Condition {
 }
 /// Nested message and enum types in `Condition`.
 pub mod condition {
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum ConditionOneOf {
         #[prost(message, tag = "1")]
@@ -5450,21 +5657,25 @@ pub mod condition {
         Nested(super::NestedCondition),
     }
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct IsEmptyCondition {
     #[prost(string, tag = "1")]
     pub key: ::prost::alloc::string::String,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct IsNullCondition {
     #[prost(string, tag = "1")]
     pub key: ::prost::alloc::string::String,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct HasIdCondition {
     #[prost(message, repeated, tag = "1")]
     pub has_id: ::prost::alloc::vec::Vec<PointId>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct NestedCondition {
     /// Path to nested object
@@ -5474,6 +5685,7 @@ pub struct NestedCondition {
     #[prost(message, optional, tag = "2")]
     pub filter: ::core::option::Option<Filter>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct FieldCondition {
     #[prost(string, tag = "1")]
@@ -5500,6 +5712,7 @@ pub struct FieldCondition {
     #[prost(message, optional, tag = "8")]
     pub datetime_range: ::core::option::Option<DatetimeRange>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Match {
     #[prost(oneof = "r#match::MatchValue", tags = "1, 2, 3, 4, 5, 6, 7, 8")]
@@ -5507,6 +5720,7 @@ pub struct Match {
 }
 /// Nested message and enum types in `Match`.
 pub mod r#match {
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum MatchValue {
         /// Match string keyword
@@ -5535,16 +5749,19 @@ pub mod r#match {
         ExceptKeywords(super::RepeatedStrings),
     }
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RepeatedStrings {
     #[prost(string, repeated, tag = "1")]
     pub strings: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RepeatedIntegers {
     #[prost(int64, repeated, tag = "1")]
     pub integers: ::prost::alloc::vec::Vec<i64>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct Range {
     #[prost(double, optional, tag = "1")]
@@ -5556,6 +5773,7 @@ pub struct Range {
     #[prost(double, optional, tag = "4")]
     pub lte: ::core::option::Option<f64>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct DatetimeRange {
     #[prost(message, optional, tag = "1")]
@@ -5567,6 +5785,7 @@ pub struct DatetimeRange {
     #[prost(message, optional, tag = "4")]
     pub lte: ::core::option::Option<::prost_types::Timestamp>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct GeoBoundingBox {
     /// north-west corner
@@ -5576,6 +5795,7 @@ pub struct GeoBoundingBox {
     #[prost(message, optional, tag = "2")]
     pub bottom_right: ::core::option::Option<GeoPoint>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct GeoRadius {
     /// Center of the circle
@@ -5585,6 +5805,7 @@ pub struct GeoRadius {
     #[prost(float, tag = "2")]
     pub radius: f32,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GeoLineString {
     /// Ordered sequence of GeoPoints representing the line
@@ -5593,6 +5814,7 @@ pub struct GeoLineString {
 }
 /// For a valid GeoPolygon, both the exterior and interior GeoLineStrings must consist of a minimum of 4 points.
 /// Additionally, the first and last points of each GeoLineString must be the same.
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GeoPolygon {
     /// The exterior line bounds the surface
@@ -5602,6 +5824,7 @@ pub struct GeoPolygon {
     #[prost(message, repeated, tag = "2")]
     pub interiors: ::prost::alloc::vec::Vec<GeoLineString>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct ValuesCount {
     #[prost(uint64, optional, tag = "1")]
@@ -5613,6 +5836,7 @@ pub struct ValuesCount {
     #[prost(uint64, optional, tag = "4")]
     pub lte: ::core::option::Option<u64>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PointsSelector {
     #[prost(oneof = "points_selector::PointsSelectorOneOf", tags = "1, 2")]
@@ -5622,6 +5846,7 @@ pub struct PointsSelector {
 }
 /// Nested message and enum types in `PointsSelector`.
 pub mod points_selector {
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum PointsSelectorOneOf {
         #[prost(message, tag = "1")]
@@ -5630,11 +5855,13 @@ pub mod points_selector {
         Filter(super::Filter),
     }
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PointsIdsList {
     #[prost(message, repeated, tag = "1")]
     pub ids: ::prost::alloc::vec::Vec<PointId>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PointStruct {
     #[prost(message, optional, tag = "1")]
@@ -5644,6 +5871,7 @@ pub struct PointStruct {
     #[prost(message, optional, tag = "4")]
     pub vectors: ::core::option::Option<Vectors>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct GeoPoint {
     #[prost(double, tag = "1")]
@@ -5668,9 +5896,9 @@ impl WriteOrderingType {
     /// (if the ProtoBuf definition does not change) and safe for programmatic use.
     pub fn as_str_name(&self) -> &'static str {
         match self {
-            Self::Weak => "Weak",
-            Self::Medium => "Medium",
-            Self::Strong => "Strong",
+            WriteOrderingType::Weak => "Weak",
+            WriteOrderingType::Medium => "Medium",
+            WriteOrderingType::Strong => "Strong",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -5700,9 +5928,9 @@ impl ReadConsistencyType {
     /// (if the ProtoBuf definition does not change) and safe for programmatic use.
     pub fn as_str_name(&self) -> &'static str {
         match self {
-            Self::All => "All",
-            Self::Majority => "Majority",
-            Self::Quorum => "Quorum",
+            ReadConsistencyType::All => "All",
+            ReadConsistencyType::Majority => "Majority",
+            ReadConsistencyType::Quorum => "Quorum",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -5734,14 +5962,14 @@ impl FieldType {
     /// (if the ProtoBuf definition does not change) and safe for programmatic use.
     pub fn as_str_name(&self) -> &'static str {
         match self {
-            Self::Keyword => "FieldTypeKeyword",
-            Self::Integer => "FieldTypeInteger",
-            Self::Float => "FieldTypeFloat",
-            Self::Geo => "FieldTypeGeo",
-            Self::Text => "FieldTypeText",
-            Self::Bool => "FieldTypeBool",
-            Self::Datetime => "FieldTypeDatetime",
-            Self::Uuid => "FieldTypeUuid",
+            FieldType::Keyword => "FieldTypeKeyword",
+            FieldType::Integer => "FieldTypeInteger",
+            FieldType::Float => "FieldTypeFloat",
+            FieldType::Geo => "FieldTypeGeo",
+            FieldType::Text => "FieldTypeText",
+            FieldType::Bool => "FieldTypeBool",
+            FieldType::Datetime => "FieldTypeDatetime",
+            FieldType::Uuid => "FieldTypeUuid",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -5772,8 +6000,8 @@ impl Direction {
     /// (if the ProtoBuf definition does not change) and safe for programmatic use.
     pub fn as_str_name(&self) -> &'static str {
         match self {
-            Self::Asc => "Asc",
-            Self::Desc => "Desc",
+            Direction::Asc => "Asc",
+            Direction::Desc => "Desc",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -5804,8 +6032,8 @@ impl RecommendStrategy {
     /// (if the ProtoBuf definition does not change) and safe for programmatic use.
     pub fn as_str_name(&self) -> &'static str {
         match self {
-            Self::AverageVector => "AverageVector",
-            Self::BestScore => "BestScore",
+            RecommendStrategy::AverageVector => "AverageVector",
+            RecommendStrategy::BestScore => "BestScore",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -5832,8 +6060,8 @@ impl Fusion {
     /// (if the ProtoBuf definition does not change) and safe for programmatic use.
     pub fn as_str_name(&self) -> &'static str {
         match self {
-            Self::Rrf => "RRF",
-            Self::Dbsf => "DBSF",
+            Fusion::Rrf => "RRF",
+            Fusion::Dbsf => "DBSF",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -5862,7 +6090,7 @@ impl Sample {
     /// (if the ProtoBuf definition does not change) and safe for programmatic use.
     pub fn as_str_name(&self) -> &'static str {
         match self {
-            Self::Random => "Random",
+            Sample::Random => "Random",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -5891,10 +6119,10 @@ impl UpdateStatus {
     /// (if the ProtoBuf definition does not change) and safe for programmatic use.
     pub fn as_str_name(&self) -> &'static str {
         match self {
-            Self::UnknownUpdateStatus => "UnknownUpdateStatus",
-            Self::Acknowledged => "Acknowledged",
-            Self::Completed => "Completed",
-            Self::ClockRejected => "ClockRejected",
+            UpdateStatus::UnknownUpdateStatus => "UnknownUpdateStatus",
+            UpdateStatus::Acknowledged => "Acknowledged",
+            UpdateStatus::Completed => "Completed",
+            UpdateStatus::ClockRejected => "ClockRejected",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -8288,22 +8516,27 @@ pub mod points_server {
         const NAME: &'static str = SERVICE_NAME;
     }
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct CreateFullSnapshotRequest {}
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct ListFullSnapshotsRequest {}
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeleteFullSnapshotRequest {
     /// Name of the full snapshot
     #[prost(string, tag = "1")]
     pub snapshot_name: ::prost::alloc::string::String,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateSnapshotRequest {
     /// Name of the collection
     #[prost(string, tag = "1")]
     pub collection_name: ::prost::alloc::string::String,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListSnapshotsRequest {
     /// Name of the collection
@@ -8316,6 +8549,7 @@ pub struct ListSnapshotsRequest {
     pattern = "owned",
     custom_constructor
 )]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeleteSnapshotRequest {
     /// Name of the collection
@@ -8327,6 +8561,7 @@ pub struct DeleteSnapshotRequest {
     #[builder(field(vis = "pub(crate)"))]
     pub snapshot_name: ::prost::alloc::string::String,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SnapshotDescription {
     /// Name of the snapshot
@@ -8342,6 +8577,7 @@ pub struct SnapshotDescription {
     #[prost(string, optional, tag = "4")]
     pub checksum: ::core::option::Option<::prost::alloc::string::String>,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateSnapshotResponse {
     #[prost(message, optional, tag = "1")]
@@ -8350,6 +8586,7 @@ pub struct CreateSnapshotResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListSnapshotsResponse {
     #[prost(message, repeated, tag = "1")]
@@ -8358,6 +8595,7 @@ pub struct ListSnapshotsResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct DeleteSnapshotResponse {
     /// Time spent to process
@@ -9055,8 +9293,10 @@ pub mod snapshots_server {
         const NAME: &'static str = SERVICE_NAME;
     }
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct HealthCheckRequest {}
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct HealthCheckReply {
     #[prost(string, tag = "1")]
