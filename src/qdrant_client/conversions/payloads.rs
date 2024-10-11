@@ -1,9 +1,9 @@
 use crate::qdrant::payload_index_params::IndexParams;
 use crate::qdrant::{
-    DatetimeIndexParams, DatetimeIndexParamsBuilder, FloatIndexParams, FloatIndexParamsBuilder,
-    IntegerIndexParams, IntegerIndexParamsBuilder, KeywordIndexParams, KeywordIndexParamsBuilder,
-    PayloadIndexParams, TextIndexParams, TextIndexParamsBuilder, UuidIndexParams,
-    UuidIndexParamsBuilder,
+    BoolIndexParams, DatetimeIndexParams, DatetimeIndexParamsBuilder, FloatIndexParams,
+    FloatIndexParamsBuilder, GeoIndexParams, GeoIndexParamsBuilder, IntegerIndexParams,
+    IntegerIndexParamsBuilder, KeywordIndexParams, KeywordIndexParamsBuilder, PayloadIndexParams,
+    TextIndexParams, TextIndexParamsBuilder, UuidIndexParams, UuidIndexParamsBuilder,
 };
 
 impl From<IndexParams> for PayloadIndexParams {
@@ -99,5 +99,23 @@ impl From<UuidIndexParams> for IndexParams {
 impl From<UuidIndexParamsBuilder> for IndexParams {
     fn from(value: UuidIndexParamsBuilder) -> Self {
         Self::UuidIndexParams(value.build())
+    }
+}
+
+impl From<GeoIndexParams> for IndexParams {
+    fn from(value: GeoIndexParams) -> Self {
+        Self::GeoIndexParams(value)
+    }
+}
+
+impl From<GeoIndexParamsBuilder> for IndexParams {
+    fn from(value: GeoIndexParamsBuilder) -> Self {
+        Self::GeoIndexParams(value.build())
+    }
+}
+
+impl From<BoolIndexParams> for IndexParams {
+    fn from(value: BoolIndexParams) -> Self {
+        Self::BoolIndexParams(value)
     }
 }
