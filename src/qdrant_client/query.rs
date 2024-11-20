@@ -133,13 +133,14 @@ mod tests {
     use serde_json::json;
 
     use super::*;
+    use crate::builders::CreateCollectionBuilder;
     use crate::qdrant::{
-        ContextInputBuilder, CreateCollectionBuilder, CreateFieldIndexCollectionBuilder, Datatype,
-        DiscoverInputBuilder, Distance, FieldType, Fusion, IntegerIndexParamsBuilder, Modifier,
-        MultiVectorConfig, NamedVectors, PointId, PointStruct, PrefetchQueryBuilder, Query,
-        QueryPointsBuilder, RecommendInputBuilder, ScalarQuantizationBuilder,
-        SparseIndexConfigBuilder, SparseVectorParamsBuilder, SparseVectorsConfigBuilder,
-        UpsertPointsBuilder, Vector, VectorInput, VectorParamsBuilder, VectorsConfigBuilder,
+        ContextInputBuilder, CreateFieldIndexCollectionBuilder, Datatype, DiscoverInputBuilder,
+        Distance, FieldType, Fusion, IntegerIndexParamsBuilder, Modifier, MultiVectorConfig,
+        NamedVectors, PointId, PointStruct, PrefetchQueryBuilder, Query, QueryPointsBuilder,
+        RecommendInputBuilder, ScalarQuantizationBuilder, SparseIndexConfigBuilder,
+        SparseVectorParamsBuilder, SparseVectorsConfigBuilder, UpsertPointsBuilder, Vector,
+        VectorInput, VectorParamsBuilder, VectorsConfigBuilder,
     };
     use crate::Payload;
 
