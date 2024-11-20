@@ -9602,8 +9602,16 @@ pub mod qdrant_server {
         const NAME: &'static str = SERVICE_NAME;
     }
 }
+
+// Removed Macros
+impl From<CreateCollectionBuilder> for CreateCollection {
+    fn from(value: CreateCollectionBuilder) -> Self {
+        value.build_inner().expect(
+            &format!("Failed to convert CreateCollectionBuilder to CreateCollection")
+        )
+    }
+}
 use crate::grpc_macros::*;
-builder_type_conversions!(CreateCollection, CreateCollectionBuilder);
 builder_type_conversions!(VectorParams, VectorParamsBuilder, true);
 builder_type_conversions!(HnswConfigDiff, HnswConfigDiffBuilder);
 builder_type_conversions!(ScalarQuantization, ScalarQuantizationBuilder, true);
