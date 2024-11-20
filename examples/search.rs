@@ -1,6 +1,7 @@
+use qdrant_client::builders::CreateCollectionBuilder;
 use qdrant_client::qdrant::{
-    Condition, CreateCollectionBuilder, Distance, Filter, PointStruct, ScalarQuantizationBuilder,
-    SearchParamsBuilder, SearchPointsBuilder, UpsertPointsBuilder, VectorParamsBuilder,
+    Condition, Distance, Filter, PointStruct, ScalarQuantizationBuilder, SearchParamsBuilder,
+    SearchPointsBuilder, UpsertPointsBuilder, VectorParamsBuilder,
 };
 use qdrant_client::{Payload, Qdrant, QdrantError};
 
