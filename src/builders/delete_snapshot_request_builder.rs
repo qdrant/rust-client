@@ -54,20 +54,24 @@ impl DeleteSnapshotRequestBuilder {
 
 impl From<DeleteSnapshotRequestBuilder> for DeleteSnapshotRequest {
     fn from(value: DeleteSnapshotRequestBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "DeleteSnapshotRequestBuilder", "DeleteSnapshotRequest",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "DeleteSnapshotRequestBuilder", "DeleteSnapshotRequest"
+            )
+        })
     }
 }
 
 impl DeleteSnapshotRequestBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> DeleteSnapshotRequest {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "DeleteSnapshotRequestBuilder", "DeleteSnapshotRequest",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "DeleteSnapshotRequestBuilder", "DeleteSnapshotRequest"
+            )
+        })
     }
 }
 

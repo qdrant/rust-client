@@ -163,53 +163,20 @@ impl QueryPointsBuilder {
                     ));
                 }
             },
-            prefetch: match self.prefetch {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            query: match self.query {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            using: match self.using {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            filter: match self.filter {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            params: match self.params {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            score_threshold: match self.score_threshold {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            limit: match self.limit {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            offset: match self.offset {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            prefetch: self.prefetch.unwrap_or_default(),
+            query: self.query.unwrap_or_default(),
+            using: self.using.unwrap_or_default(),
+            filter: self.filter.unwrap_or_default(),
+            params: self.params.unwrap_or_default(),
+            score_threshold: self.score_threshold.unwrap_or_default(),
+            limit: self.limit.unwrap_or_default(),
+            offset: self.offset.unwrap_or_default(),
             with_vectors: { convert_option(&self.with_vectors) },
             with_payload: { convert_option(&self.with_payload) },
             read_consistency: { convert_option(&self.read_consistency) },
-            shard_key_selector: match self.shard_key_selector {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            lookup_from: match self.lookup_from {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            timeout: match self.timeout {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            shard_key_selector: self.shard_key_selector.unwrap_or_default(),
+            lookup_from: self.lookup_from.unwrap_or_default(),
+            timeout: self.timeout.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -236,20 +203,24 @@ impl QueryPointsBuilder {
 
 impl From<QueryPointsBuilder> for QueryPoints {
     fn from(value: QueryPointsBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "QueryPointsBuilder", "QueryPoints",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "QueryPointsBuilder", "QueryPoints"
+            )
+        })
     }
 }
 
 impl QueryPointsBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> QueryPoints {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "QueryPointsBuilder", "QueryPoints",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "QueryPointsBuilder", "QueryPoints"
+            )
+        })
     }
 }
 

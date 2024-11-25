@@ -21,14 +21,8 @@ impl ContextExamplePairBuilder {
 
     fn build_inner(self) -> Result<ContextExamplePair, std::convert::Infallible> {
         Ok(ContextExamplePair {
-            positive: match self.positive {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            negative: match self.negative {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            positive: self.positive.unwrap_or_default(),
+            negative: self.negative.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -42,20 +36,24 @@ impl ContextExamplePairBuilder {
 
 impl From<ContextExamplePairBuilder> for ContextExamplePair {
     fn from(value: ContextExamplePairBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "ContextExamplePairBuilder", "ContextExamplePair",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "ContextExamplePairBuilder", "ContextExamplePair"
+            )
+        })
     }
 }
 
 impl ContextExamplePairBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> ContextExamplePair {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "ContextExamplePairBuilder", "ContextExamplePair",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "ContextExamplePairBuilder", "ContextExamplePair"
+            )
+        })
     }
 }
 

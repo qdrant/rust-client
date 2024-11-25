@@ -52,10 +52,7 @@ impl ReplicateShardBuilder {
                     ));
                 }
             },
-            to_shard_id: match self.to_shard_id {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            to_shard_id: self.to_shard_id.unwrap_or_default(),
             from_peer_id: match self.from_peer_id {
                 Some(value) => value,
                 None => {
@@ -72,10 +69,7 @@ impl ReplicateShardBuilder {
                     ));
                 }
             },
-            method: match self.method {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            method: self.method.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -92,20 +86,24 @@ impl ReplicateShardBuilder {
 
 impl From<ReplicateShardBuilder> for ReplicateShard {
     fn from(value: ReplicateShardBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "ReplicateShardBuilder", "ReplicateShard",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "ReplicateShardBuilder", "ReplicateShard"
+            )
+        })
     }
 }
 
 impl ReplicateShardBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> ReplicateShard {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "ReplicateShardBuilder", "ReplicateShard",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "ReplicateShardBuilder", "ReplicateShard"
+            )
+        })
     }
 }
 

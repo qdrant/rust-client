@@ -25,14 +25,8 @@ impl SparseVectorParamsBuilder {
 
     fn build_inner(self) -> Result<SparseVectorParams, std::convert::Infallible> {
         Ok(SparseVectorParams {
-            index: match self.index {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            modifier: match self.modifier {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            index: self.index.unwrap_or_default(),
+            modifier: self.modifier.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -46,20 +40,24 @@ impl SparseVectorParamsBuilder {
 
 impl From<SparseVectorParamsBuilder> for SparseVectorParams {
     fn from(value: SparseVectorParamsBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "SparseVectorParamsBuilder", "SparseVectorParams",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "SparseVectorParamsBuilder", "SparseVectorParams"
+            )
+        })
     }
 }
 
 impl SparseVectorParamsBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> SparseVectorParams {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "SparseVectorParamsBuilder", "SparseVectorParams",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "SparseVectorParamsBuilder", "SparseVectorParams"
+            )
+        })
     }
 }
 

@@ -155,38 +155,14 @@ impl OptimizersConfigDiffBuilder {
 
     fn build_inner(self) -> Result<OptimizersConfigDiff, std::convert::Infallible> {
         Ok(OptimizersConfigDiff {
-            deleted_threshold: match self.deleted_threshold {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            vacuum_min_vector_number: match self.vacuum_min_vector_number {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            default_segment_number: match self.default_segment_number {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            max_segment_size: match self.max_segment_size {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            memmap_threshold: match self.memmap_threshold {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            indexing_threshold: match self.indexing_threshold {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            flush_interval_sec: match self.flush_interval_sec {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            max_optimization_threads: match self.max_optimization_threads {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            deleted_threshold: self.deleted_threshold.unwrap_or_default(),
+            vacuum_min_vector_number: self.vacuum_min_vector_number.unwrap_or_default(),
+            default_segment_number: self.default_segment_number.unwrap_or_default(),
+            max_segment_size: self.max_segment_size.unwrap_or_default(),
+            memmap_threshold: self.memmap_threshold.unwrap_or_default(),
+            indexing_threshold: self.indexing_threshold.unwrap_or_default(),
+            flush_interval_sec: self.flush_interval_sec.unwrap_or_default(),
+            max_optimization_threads: self.max_optimization_threads.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -206,20 +182,24 @@ impl OptimizersConfigDiffBuilder {
 
 impl From<OptimizersConfigDiffBuilder> for OptimizersConfigDiff {
     fn from(value: OptimizersConfigDiffBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "OptimizersConfigDiffBuilder", "OptimizersConfigDiff",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "OptimizersConfigDiffBuilder", "OptimizersConfigDiff"
+            )
+        })
     }
 }
 
 impl OptimizersConfigDiffBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> OptimizersConfigDiff {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "OptimizersConfigDiffBuilder", "OptimizersConfigDiff",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "OptimizersConfigDiffBuilder", "OptimizersConfigDiff"
+            )
+        })
     }
 }
 

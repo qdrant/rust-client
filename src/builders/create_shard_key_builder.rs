@@ -42,22 +42,10 @@ impl CreateShardKeyBuilder {
     }
     fn build_inner(self) -> Result<CreateShardKey, std::convert::Infallible> {
         Ok(CreateShardKey {
-            shard_key: match self.shard_key {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            shards_number: match self.shards_number {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            replication_factor: match self.replication_factor {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            placement: match self.placement {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            shard_key: self.shard_key.unwrap_or_default(),
+            shards_number: self.shards_number.unwrap_or_default(),
+            replication_factor: self.replication_factor.unwrap_or_default(),
+            placement: self.placement.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -73,20 +61,24 @@ impl CreateShardKeyBuilder {
 
 impl From<CreateShardKeyBuilder> for CreateShardKey {
     fn from(value: CreateShardKeyBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "CreateShardKeyBuilder", "CreateShardKey",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "CreateShardKeyBuilder", "CreateShardKey"
+            )
+        })
     }
 }
 
 impl CreateShardKeyBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> CreateShardKey {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "CreateShardKeyBuilder", "CreateShardKey",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "CreateShardKeyBuilder", "CreateShardKey"
+            )
+        })
     }
 }
 

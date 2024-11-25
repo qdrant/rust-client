@@ -162,18 +162,9 @@ impl RecommendPointsBuilder {
                     ));
                 }
             },
-            positive: match self.positive {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            negative: match self.negative {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            filter: match self.filter {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            positive: self.positive.unwrap_or_default(),
+            negative: self.negative.unwrap_or_default(),
+            filter: self.filter.unwrap_or_default(),
             limit: match self.limit {
                 Some(value) => value,
                 None => {
@@ -183,48 +174,18 @@ impl RecommendPointsBuilder {
                 }
             },
             with_payload: { convert_option(&self.with_payload) },
-            params: match self.params {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            score_threshold: match self.score_threshold {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            offset: match self.offset {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            using: match self.using {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            params: self.params.unwrap_or_default(),
+            score_threshold: self.score_threshold.unwrap_or_default(),
+            offset: self.offset.unwrap_or_default(),
+            using: self.using.unwrap_or_default(),
             with_vectors: { convert_option(&self.with_vectors) },
-            lookup_from: match self.lookup_from {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            lookup_from: self.lookup_from.unwrap_or_default(),
             read_consistency: { convert_option(&self.read_consistency) },
-            strategy: match self.strategy {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            positive_vectors: match self.positive_vectors {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            negative_vectors: match self.negative_vectors {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            timeout: match self.timeout {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            shard_key_selector: match self.shard_key_selector {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            strategy: self.strategy.unwrap_or_default(),
+            positive_vectors: self.positive_vectors.unwrap_or_default(),
+            negative_vectors: self.negative_vectors.unwrap_or_default(),
+            timeout: self.timeout.unwrap_or_default(),
+            shard_key_selector: self.shard_key_selector.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -254,20 +215,24 @@ impl RecommendPointsBuilder {
 
 impl From<RecommendPointsBuilder> for RecommendPoints {
     fn from(value: RecommendPointsBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "RecommendPointsBuilder", "RecommendPoints",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "RecommendPointsBuilder", "RecommendPoints"
+            )
+        })
     }
 }
 
 impl RecommendPointsBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> RecommendPoints {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "RecommendPointsBuilder", "RecommendPoints",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "RecommendPointsBuilder", "RecommendPoints"
+            )
+        })
     }
 }
 

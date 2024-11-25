@@ -76,19 +76,23 @@ impl CollectionParamsDiffBuilder {
 
 impl From<CollectionParamsDiffBuilder> for CollectionParamsDiff {
     fn from(value: CollectionParamsDiffBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "CollectionParamsDiffBuilder", "CollectionParamsDiff",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "CollectionParamsDiffBuilder", "CollectionParamsDiff"
+            )
+        })
     }
 }
 
 impl CollectionParamsDiffBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> CollectionParamsDiff {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "CollectionParamsDiffBuilder", "CollectionParamsDiff",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "CollectionParamsDiffBuilder", "CollectionParamsDiff"
+            )
+        })
     }
 }

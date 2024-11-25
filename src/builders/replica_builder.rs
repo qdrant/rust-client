@@ -50,20 +50,17 @@ impl ReplicaBuilder {
 
 impl From<ReplicaBuilder> for Replica {
     fn from(value: ReplicaBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "ReplicaBuilder", "Replica",
-        ))
+        value
+            .build_inner()
+            .unwrap_or_else(|_| panic!("Failed to convert {0} to {1}", "ReplicaBuilder", "Replica"))
     }
 }
 
 impl ReplicaBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> Replica {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "ReplicaBuilder", "Replica",
-        ))
+        self.build_inner()
+            .unwrap_or_else(|_| panic!("Failed to build {0} into {1}", "ReplicaBuilder", "Replica"))
     }
 }
 

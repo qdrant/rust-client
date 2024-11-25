@@ -77,31 +77,13 @@ impl VectorParamsBuilder {
 
     fn build_inner(self) -> Result<VectorParams, VectorParamsBuilderError> {
         Ok(VectorParams {
-            size: match self.size {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            distance: match self.distance {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            hnsw_config: match self.hnsw_config {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            size: self.size.unwrap_or_default(),
+            distance: self.distance.unwrap_or_default(),
+            hnsw_config: self.hnsw_config.unwrap_or_default(),
             quantization_config: { convert_option(&self.quantization_config) },
-            on_disk: match self.on_disk {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            datatype: match self.datatype {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            multivector_config: match self.multivector_config {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            on_disk: self.on_disk.unwrap_or_default(),
+            datatype: self.datatype.unwrap_or_default(),
+            multivector_config: self.multivector_config.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -120,20 +102,24 @@ impl VectorParamsBuilder {
 
 impl From<VectorParamsBuilder> for VectorParams {
     fn from(value: VectorParamsBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "VectorParamsBuilder", "VectorParams",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "VectorParamsBuilder", "VectorParams"
+            )
+        })
     }
 }
 
 impl VectorParamsBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> VectorParams {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "VectorParamsBuilder", "VectorParams",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "VectorParamsBuilder", "VectorParams"
+            )
+        })
     }
 }
 

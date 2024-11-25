@@ -25,14 +25,8 @@ impl DiscoverInputBuilder {
 
     fn build_inner(self) -> Result<DiscoverInput, DiscoverInputBuilderError> {
         Ok(DiscoverInput {
-            target: match self.target {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            context: match self.context {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            target: self.target.unwrap_or_default(),
+            context: self.context.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -46,20 +40,24 @@ impl DiscoverInputBuilder {
 
 impl From<DiscoverInputBuilder> for DiscoverInput {
     fn from(value: DiscoverInputBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "DiscoverInputBuilder", "DiscoverInput",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "DiscoverInputBuilder", "DiscoverInput"
+            )
+        })
     }
 }
 
 impl DiscoverInputBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> DiscoverInput {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "DiscoverInputBuilder", "DiscoverInput",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "DiscoverInputBuilder", "DiscoverInput"
+            )
+        })
     }
 }
 

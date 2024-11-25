@@ -43,14 +43,8 @@ impl LookupLocationBuilder {
                     ));
                 }
             },
-            vector_name: match self.vector_name {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            shard_key_selector: match self.shard_key_selector {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            vector_name: self.vector_name.unwrap_or_default(),
+            shard_key_selector: self.shard_key_selector.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -65,20 +59,24 @@ impl LookupLocationBuilder {
 
 impl From<LookupLocationBuilder> for LookupLocation {
     fn from(value: LookupLocationBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "LookupLocationBuilder", "LookupLocation",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "LookupLocationBuilder", "LookupLocation"
+            )
+        })
     }
 }
 
 impl LookupLocationBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> LookupLocation {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "LookupLocationBuilder", "LookupLocation",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "LookupLocationBuilder", "LookupLocation"
+            )
+        })
     }
 }
 

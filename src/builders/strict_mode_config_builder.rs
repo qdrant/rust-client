@@ -63,38 +63,14 @@ impl StrictModeConfigBuilder {
 
     fn build_inner(self) -> Result<StrictModeConfig, std::convert::Infallible> {
         Ok(StrictModeConfig {
-            enabled: match self.enabled {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            max_query_limit: match self.max_query_limit {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            max_timeout: match self.max_timeout {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            unindexed_filtering_retrieve: match self.unindexed_filtering_retrieve {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            unindexed_filtering_update: match self.unindexed_filtering_update {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            search_max_hnsw_ef: match self.search_max_hnsw_ef {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            search_allow_exact: match self.search_allow_exact {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            search_max_oversampling: match self.search_max_oversampling {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            enabled: self.enabled.unwrap_or_default(),
+            max_query_limit: self.max_query_limit.unwrap_or_default(),
+            max_timeout: self.max_timeout.unwrap_or_default(),
+            unindexed_filtering_retrieve: self.unindexed_filtering_retrieve.unwrap_or_default(),
+            unindexed_filtering_update: self.unindexed_filtering_update.unwrap_or_default(),
+            search_max_hnsw_ef: self.search_max_hnsw_ef.unwrap_or_default(),
+            search_allow_exact: self.search_allow_exact.unwrap_or_default(),
+            search_max_oversampling: self.search_max_oversampling.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -112,21 +88,31 @@ impl StrictModeConfigBuilder {
     }
 }
 
+impl Default for StrictModeConfigBuilder {
+    fn default() -> Self {
+        Self::create_empty()
+    }
+}
+
 impl From<StrictModeConfigBuilder> for StrictModeConfig {
     fn from(value: StrictModeConfigBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "StrictModeConfigBuilder", "StrictModeConfig",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "StrictModeConfigBuilder", "StrictModeConfig"
+            )
+        })
     }
 }
 
 impl StrictModeConfigBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> StrictModeConfig {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "StrictModeConfigBuilder", "StrictModeConfig",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "StrictModeConfigBuilder", "StrictModeConfig"
+            )
+        })
     }
 }

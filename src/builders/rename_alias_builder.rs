@@ -54,20 +54,24 @@ impl RenameAliasBuilder {
 
 impl From<RenameAliasBuilder> for RenameAlias {
     fn from(value: RenameAliasBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "RenameAliasBuilder", "RenameAlias",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "RenameAliasBuilder", "RenameAlias"
+            )
+        })
     }
 }
 
 impl RenameAliasBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> RenameAlias {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "RenameAliasBuilder", "RenameAlias",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "RenameAliasBuilder", "RenameAlias"
+            )
+        })
     }
 }
 

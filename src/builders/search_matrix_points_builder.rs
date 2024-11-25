@@ -93,34 +93,13 @@ impl SearchMatrixPointsBuilder {
                     ));
                 }
             },
-            filter: match self.filter {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            sample: match self.sample {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            limit: match self.limit {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            using: match self.using {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            timeout: match self.timeout {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            read_consistency: match self.read_consistency {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            shard_key_selector: match self.shard_key_selector {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            filter: self.filter.unwrap_or_default(),
+            sample: self.sample.unwrap_or_default(),
+            limit: self.limit.unwrap_or_default(),
+            using: self.using.unwrap_or_default(),
+            timeout: self.timeout.unwrap_or_default(),
+            read_consistency: self.read_consistency.unwrap_or_default(),
+            shard_key_selector: self.shard_key_selector.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -140,20 +119,24 @@ impl SearchMatrixPointsBuilder {
 
 impl From<SearchMatrixPointsBuilder> for SearchMatrixPoints {
     fn from(value: SearchMatrixPointsBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "SearchMatrixPointsBuilder", "SearchMatrixPoints",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "SearchMatrixPointsBuilder", "SearchMatrixPoints"
+            )
+        })
     }
 }
 
 impl SearchMatrixPointsBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> SearchMatrixPoints {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "SearchMatrixPointsBuilder", "SearchMatrixPoints",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "SearchMatrixPointsBuilder", "SearchMatrixPoints"
+            )
+        })
     }
 }
 

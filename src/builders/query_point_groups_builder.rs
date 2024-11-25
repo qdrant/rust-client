@@ -180,50 +180,17 @@ impl QueryPointGroupsBuilder {
                     ));
                 }
             },
-            prefetch: match self.prefetch {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            query: match self.query {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            using: match self.using {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            filter: match self.filter {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            params: match self.params {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            score_threshold: match self.score_threshold {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            with_payload: match self.with_payload {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            with_vectors: match self.with_vectors {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            lookup_from: match self.lookup_from {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            limit: match self.limit {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            group_size: match self.group_size {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            prefetch: self.prefetch.unwrap_or_default(),
+            query: self.query.unwrap_or_default(),
+            using: self.using.unwrap_or_default(),
+            filter: self.filter.unwrap_or_default(),
+            params: self.params.unwrap_or_default(),
+            score_threshold: self.score_threshold.unwrap_or_default(),
+            with_payload: self.with_payload.unwrap_or_default(),
+            with_vectors: self.with_vectors.unwrap_or_default(),
+            lookup_from: self.lookup_from.unwrap_or_default(),
+            limit: self.limit.unwrap_or_default(),
+            group_size: self.group_size.unwrap_or_default(),
             group_by: match self.group_by {
                 Some(value) => value,
                 None => {
@@ -232,22 +199,10 @@ impl QueryPointGroupsBuilder {
                     ));
                 }
             },
-            read_consistency: match self.read_consistency {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            with_lookup: match self.with_lookup {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            timeout: match self.timeout {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            shard_key_selector: match self.shard_key_selector {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            read_consistency: self.read_consistency.unwrap_or_default(),
+            with_lookup: self.with_lookup.unwrap_or_default(),
+            timeout: self.timeout.unwrap_or_default(),
+            shard_key_selector: self.shard_key_selector.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -276,20 +231,24 @@ impl QueryPointGroupsBuilder {
 
 impl From<QueryPointGroupsBuilder> for QueryPointGroups {
     fn from(value: QueryPointGroupsBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "QueryPointGroupsBuilder", "QueryPointGroups",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "QueryPointGroupsBuilder", "QueryPointGroups"
+            )
+        })
     }
 }
 
 impl QueryPointGroupsBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> QueryPointGroups {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "QueryPointGroupsBuilder", "QueryPointGroups",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "QueryPointGroupsBuilder", "QueryPointGroups"
+            )
+        })
     }
 }
 

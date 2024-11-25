@@ -42,14 +42,8 @@ impl ScalarQuantizationBuilder {
                     ));
                 }
             },
-            quantile: match self.quantile {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            always_ram: match self.always_ram {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            quantile: self.quantile.unwrap_or_default(),
+            always_ram: self.always_ram.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -64,20 +58,24 @@ impl ScalarQuantizationBuilder {
 
 impl From<ScalarQuantizationBuilder> for ScalarQuantization {
     fn from(value: ScalarQuantizationBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "ScalarQuantizationBuilder", "ScalarQuantization",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "ScalarQuantizationBuilder", "ScalarQuantization"
+            )
+        })
     }
 }
 
 impl ScalarQuantizationBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> ScalarQuantization {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "ScalarQuantizationBuilder", "ScalarQuantization",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "ScalarQuantizationBuilder", "ScalarQuantization"
+            )
+        })
     }
 }
 

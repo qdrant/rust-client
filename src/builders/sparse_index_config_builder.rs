@@ -42,18 +42,9 @@ impl SparseIndexConfigBuilder {
 
     fn build_inner(self) -> Result<SparseIndexConfig, std::convert::Infallible> {
         Ok(SparseIndexConfig {
-            full_scan_threshold: match self.full_scan_threshold {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            on_disk: match self.on_disk {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            datatype: match self.datatype {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            full_scan_threshold: self.full_scan_threshold.unwrap_or_default(),
+            on_disk: self.on_disk.unwrap_or_default(),
+            datatype: self.datatype.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -68,20 +59,24 @@ impl SparseIndexConfigBuilder {
 
 impl From<SparseIndexConfigBuilder> for SparseIndexConfig {
     fn from(value: SparseIndexConfigBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "SparseIndexConfigBuilder", "SparseIndexConfig",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "SparseIndexConfigBuilder", "SparseIndexConfig"
+            )
+        })
     }
 }
 
 impl SparseIndexConfigBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> SparseIndexConfig {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "SparseIndexConfigBuilder", "SparseIndexConfig",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "SparseIndexConfigBuilder", "SparseIndexConfig"
+            )
+        })
     }
 }
 

@@ -40,15 +40,9 @@ impl VectorParamsDiffBuilder {
 
     fn build_inner(self) -> Result<VectorParamsDiff, std::convert::Infallible> {
         Ok(VectorParamsDiff {
-            hnsw_config: match self.hnsw_config {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            hnsw_config: self.hnsw_config.unwrap_or_default(),
             quantization_config: { convert_option(&self.quantization_config) },
-            on_disk: match self.on_disk {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            on_disk: self.on_disk.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -61,21 +55,31 @@ impl VectorParamsDiffBuilder {
     }
 }
 
+impl Default for VectorParamsDiffBuilder {
+    fn default() -> Self {
+        Self::create_empty()
+    }
+}
+
 impl From<VectorParamsDiffBuilder> for VectorParamsDiff {
     fn from(value: VectorParamsDiffBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "VectorParamsDiffBuilder", "VectorParamsDiff",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "VectorParamsDiffBuilder", "VectorParamsDiff"
+            )
+        })
     }
 }
 
 impl VectorParamsDiffBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> VectorParamsDiff {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "VectorParamsDiffBuilder", "VectorParamsDiff",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "VectorParamsDiffBuilder", "VectorParamsDiff"
+            )
+        })
     }
 }

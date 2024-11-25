@@ -102,14 +102,8 @@ impl GetPointsBuilder {
             with_payload: { convert_option(&self.with_payload) },
             with_vectors: { convert_option(&self.with_vectors) },
             read_consistency: { convert_option(&self.read_consistency) },
-            shard_key_selector: match self.shard_key_selector {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            timeout: match self.timeout {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            shard_key_selector: self.shard_key_selector.unwrap_or_default(),
+            timeout: self.timeout.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -128,20 +122,24 @@ impl GetPointsBuilder {
 
 impl From<GetPointsBuilder> for GetPoints {
     fn from(value: GetPointsBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "GetPointsBuilder", "GetPoints",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "GetPointsBuilder", "GetPoints"
+            )
+        })
     }
 }
 
 impl GetPointsBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> GetPoints {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "GetPointsBuilder", "GetPoints",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "GetPointsBuilder", "GetPoints"
+            )
+        })
     }
 }
 

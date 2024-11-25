@@ -241,20 +241,24 @@ impl CreateCollectionBuilder {
 
 impl From<CreateCollectionBuilder> for CreateCollection {
     fn from(value: CreateCollectionBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "CreateCollectionBuilder", "CreateCollection",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "CreateCollectionBuilder", "CreateCollection"
+            )
+        })
     }
 }
 
 impl CreateCollectionBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> CreateCollection {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "CreateCollectionBuilder", "CreateCollection",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "CreateCollectionBuilder", "CreateCollection"
+            )
+        })
     }
 }
 

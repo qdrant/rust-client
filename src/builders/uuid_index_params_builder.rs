@@ -25,14 +25,8 @@ impl UuidIndexParamsBuilder {
 
     fn build_inner(self) -> Result<UuidIndexParams, std::convert::Infallible> {
         Ok(UuidIndexParams {
-            is_tenant: match self.is_tenant {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            on_disk: match self.on_disk {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            is_tenant: self.is_tenant.unwrap_or_default(),
+            on_disk: self.on_disk.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -44,21 +38,31 @@ impl UuidIndexParamsBuilder {
     }
 }
 
+impl Default for UuidIndexParamsBuilder {
+    fn default() -> Self {
+        Self::create_empty()
+    }
+}
+
 impl From<UuidIndexParamsBuilder> for UuidIndexParams {
     fn from(value: UuidIndexParamsBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "UuidIndexParamsBuilder", "UuidIndexParams",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "UuidIndexParamsBuilder", "UuidIndexParams"
+            )
+        })
     }
 }
 
 impl UuidIndexParamsBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> UuidIndexParams {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "UuidIndexParamsBuilder", "UuidIndexParams",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "UuidIndexParamsBuilder", "UuidIndexParams"
+            )
+        })
     }
 }

@@ -12,6 +12,10 @@ pub struct IntegerIndexParamsBuilder {
 }
 
 impl IntegerIndexParamsBuilder {
+    pub fn new(lookup: bool, range: bool) -> Self {
+        Self::create_empty().lookup(lookup).range(range)
+    }
+
     /// If true - support direct lookups.
     #[allow(unused_mut)]
     pub fn lookup<VALUE: core::convert::Into<bool>>(self, value: VALUE) -> Self {
@@ -43,22 +47,10 @@ impl IntegerIndexParamsBuilder {
 
     fn build_inner(self) -> Result<IntegerIndexParams, IntegerIndexParamsBuilderError> {
         Ok(IntegerIndexParams {
-            lookup: match self.lookup {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            range: match self.range {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            is_principal: match self.is_principal {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            on_disk: match self.on_disk {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            lookup: self.lookup.unwrap_or_default(),
+            range: self.range.unwrap_or_default(),
+            is_principal: self.is_principal.unwrap_or_default(),
+            on_disk: self.on_disk.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -74,25 +66,29 @@ impl IntegerIndexParamsBuilder {
 
 impl From<IntegerIndexParamsBuilder> for IntegerIndexParams {
     fn from(value: IntegerIndexParamsBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "IntegerIndexParamsBuilder", "IntegerIndexParams",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "IntegerIndexParamsBuilder", "IntegerIndexParams"
+            )
+        })
     }
 }
 
 impl IntegerIndexParamsBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> IntegerIndexParams {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "IntegerIndexParamsBuilder", "IntegerIndexParams",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "IntegerIndexParamsBuilder", "IntegerIndexParams"
+            )
+        })
     }
 }
 
-impl IntegerIndexParamsBuilder {
-    pub(crate) fn empty() -> Self {
+impl Default for IntegerIndexParamsBuilder {
+    fn default() -> Self {
         Self::create_empty()
     }
 }

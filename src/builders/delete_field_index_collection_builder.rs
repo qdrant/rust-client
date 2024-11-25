@@ -53,10 +53,7 @@ impl DeleteFieldIndexCollectionBuilder {
                     ));
                 }
             },
-            wait: match self.wait {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            wait: self.wait.unwrap_or_default(),
             field_name: match self.field_name {
                 Some(value) => value,
                 None => {
@@ -65,10 +62,7 @@ impl DeleteFieldIndexCollectionBuilder {
                     ));
                 }
             },
-            ordering: match self.ordering {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            ordering: self.ordering.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -84,20 +78,24 @@ impl DeleteFieldIndexCollectionBuilder {
 
 impl From<DeleteFieldIndexCollectionBuilder> for DeleteFieldIndexCollection {
     fn from(value: DeleteFieldIndexCollectionBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "DeleteFieldIndexCollectionBuilder", "DeleteFieldIndexCollection",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "DeleteFieldIndexCollectionBuilder", "DeleteFieldIndexCollection"
+            )
+        })
     }
 }
 
 impl DeleteFieldIndexCollectionBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> DeleteFieldIndexCollection {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "DeleteFieldIndexCollectionBuilder", "DeleteFieldIndexCollection",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "DeleteFieldIndexCollectionBuilder", "DeleteFieldIndexCollection"
+            )
+        })
     }
 }
 

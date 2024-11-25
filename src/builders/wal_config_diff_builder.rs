@@ -25,14 +25,8 @@ impl WalConfigDiffBuilder {
 
     fn build_inner(self) -> Result<WalConfigDiff, std::convert::Infallible> {
         Ok(WalConfigDiff {
-            wal_capacity_mb: match self.wal_capacity_mb {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            wal_segments_ahead: match self.wal_segments_ahead {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            wal_capacity_mb: self.wal_capacity_mb.unwrap_or_default(),
+            wal_segments_ahead: self.wal_segments_ahead.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -44,21 +38,31 @@ impl WalConfigDiffBuilder {
     }
 }
 
+impl Default for WalConfigDiffBuilder {
+    fn default() -> Self {
+        Self::create_empty()
+    }
+}
+
 impl From<WalConfigDiffBuilder> for WalConfigDiff {
     fn from(value: WalConfigDiffBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "WalConfigDiffBuilder", "WalConfigDiff",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "WalConfigDiffBuilder", "WalConfigDiff"
+            )
+        })
     }
 }
 
 impl WalConfigDiffBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> WalConfigDiff {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "WalConfigDiffBuilder", "WalConfigDiff",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "WalConfigDiffBuilder", "WalConfigDiff"
+            )
+        })
     }
 }

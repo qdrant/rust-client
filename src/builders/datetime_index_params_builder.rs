@@ -25,14 +25,8 @@ impl DatetimeIndexParamsBuilder {
 
     fn build_inner(self) -> Result<DatetimeIndexParams, std::convert::Infallible> {
         Ok(DatetimeIndexParams {
-            on_disk: match self.on_disk {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            is_principal: match self.is_principal {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            on_disk: self.on_disk.unwrap_or_default(),
+            is_principal: self.is_principal.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -44,21 +38,31 @@ impl DatetimeIndexParamsBuilder {
     }
 }
 
+impl Default for DatetimeIndexParamsBuilder {
+    fn default() -> Self {
+        Self::create_empty()
+    }
+}
+
 impl From<DatetimeIndexParamsBuilder> for DatetimeIndexParams {
     fn from(value: DatetimeIndexParamsBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "DatetimeIndexParamsBuilder", "DatetimeIndexParams",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "DatetimeIndexParamsBuilder", "DatetimeIndexParams"
+            )
+        })
     }
 }
 
 impl DatetimeIndexParamsBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> DatetimeIndexParams {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "DatetimeIndexParamsBuilder", "DatetimeIndexParams",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "DatetimeIndexParamsBuilder", "DatetimeIndexParams"
+            )
+        })
     }
 }

@@ -62,10 +62,7 @@ impl DiscoverBatchPointsBuilder {
                 }
             },
             read_consistency: { convert_option(&self.read_consistency) },
-            timeout: match self.timeout {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            timeout: self.timeout.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -81,20 +78,24 @@ impl DiscoverBatchPointsBuilder {
 
 impl From<DiscoverBatchPointsBuilder> for DiscoverBatchPoints {
     fn from(value: DiscoverBatchPointsBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "DiscoverBatchPointsBuilder", "DiscoverBatchPoints",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "DiscoverBatchPointsBuilder", "DiscoverBatchPoints"
+            )
+        })
     }
 }
 
 impl DiscoverBatchPointsBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> DiscoverBatchPoints {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "DiscoverBatchPointsBuilder", "DiscoverBatchPoints",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "DiscoverBatchPointsBuilder", "DiscoverBatchPoints"
+            )
+        })
     }
 }
 

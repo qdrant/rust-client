@@ -61,10 +61,7 @@ impl UpsertPointsBuilder {
                     ));
                 }
             },
-            wait: match self.wait {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            wait: self.wait.unwrap_or_default(),
             points: match self.points {
                 Some(value) => value,
                 None => {
@@ -73,14 +70,8 @@ impl UpsertPointsBuilder {
                     ));
                 }
             },
-            ordering: match self.ordering {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            shard_key_selector: match self.shard_key_selector {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            ordering: self.ordering.unwrap_or_default(),
+            shard_key_selector: self.shard_key_selector.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -97,20 +88,24 @@ impl UpsertPointsBuilder {
 
 impl From<UpsertPointsBuilder> for UpsertPoints {
     fn from(value: UpsertPointsBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "UpsertPointsBuilder", "UpsertPoints",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "UpsertPointsBuilder", "UpsertPoints"
+            )
+        })
     }
 }
 
 impl UpsertPointsBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> UpsertPoints {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "UpsertPointsBuilder", "UpsertPoints",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "UpsertPointsBuilder", "UpsertPoints"
+            )
+        })
     }
 }
 

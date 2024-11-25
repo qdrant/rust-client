@@ -67,19 +67,10 @@ impl DeletePointsBuilder {
                     ));
                 }
             },
-            wait: match self.wait {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            wait: self.wait.unwrap_or_default(),
             points: { convert_option(&self.points) },
-            ordering: match self.ordering {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            shard_key_selector: match self.shard_key_selector {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            ordering: self.ordering.unwrap_or_default(),
+            shard_key_selector: self.shard_key_selector.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -96,20 +87,24 @@ impl DeletePointsBuilder {
 
 impl From<DeletePointsBuilder> for DeletePoints {
     fn from(value: DeletePointsBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "DeletePointsBuilder", "DeletePoints",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "DeletePointsBuilder", "DeletePoints"
+            )
+        })
     }
 }
 
 impl DeletePointsBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> DeletePoints {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "DeletePointsBuilder", "DeletePoints",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "DeletePointsBuilder", "DeletePoints"
+            )
+        })
     }
 }
 

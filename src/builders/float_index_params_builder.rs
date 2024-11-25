@@ -7,7 +7,17 @@ pub struct FloatIndexParamsBuilder {
     pub(crate) is_principal: Option<Option<bool>>,
 }
 
+impl Default for FloatIndexParamsBuilder {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl FloatIndexParamsBuilder {
+    pub fn new() -> Self {
+        Self::create_empty()
+    }
+
     /// If true - store index on disk.
     #[allow(unused_mut)]
     pub fn on_disk(self, value: bool) -> Self {
@@ -25,14 +35,8 @@ impl FloatIndexParamsBuilder {
 
     fn build_inner(self) -> Result<FloatIndexParams, std::convert::Infallible> {
         Ok(FloatIndexParams {
-            on_disk: match self.on_disk {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            is_principal: match self.is_principal {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            on_disk: self.on_disk.unwrap_or_default(),
+            is_principal: self.is_principal.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -46,19 +50,23 @@ impl FloatIndexParamsBuilder {
 
 impl From<FloatIndexParamsBuilder> for FloatIndexParams {
     fn from(value: FloatIndexParamsBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "FloatIndexParamsBuilder", "FloatIndexParams",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "FloatIndexParamsBuilder", "FloatIndexParams"
+            )
+        })
     }
 }
 
 impl FloatIndexParamsBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> FloatIndexParams {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "FloatIndexParamsBuilder", "FloatIndexParams",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "FloatIndexParamsBuilder", "FloatIndexParams"
+            )
+        })
     }
 }

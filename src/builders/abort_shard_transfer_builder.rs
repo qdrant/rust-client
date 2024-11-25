@@ -44,10 +44,7 @@ impl AbortShardTransferBuilder {
                     ));
                 }
             },
-            to_shard_id: match self.to_shard_id {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            to_shard_id: self.to_shard_id.unwrap_or_default(),
             from_peer_id: match self.from_peer_id {
                 Some(value) => value,
                 None => {
@@ -79,20 +76,24 @@ impl AbortShardTransferBuilder {
 
 impl From<AbortShardTransferBuilder> for AbortShardTransfer {
     fn from(value: AbortShardTransferBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "AbortShardTransferBuilder", "AbortShardTransfer",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "AbortShardTransferBuilder", "AbortShardTransfer"
+            )
+        })
     }
 }
 
 impl AbortShardTransferBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> AbortShardTransfer {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "AbortShardTransferBuilder", "AbortShardTransfer",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "AbortShardTransferBuilder", "AbortShardTransfer"
+            )
+        })
     }
 }
 

@@ -154,10 +154,7 @@ impl DiscoverPointsBuilder {
                     ));
                 }
             },
-            target: match self.target {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            target: self.target.unwrap_or_default(),
             context: match self.context {
                 Some(value) => value,
                 None => {
@@ -166,10 +163,7 @@ impl DiscoverPointsBuilder {
                     ));
                 }
             },
-            filter: match self.filter {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            filter: self.filter.unwrap_or_default(),
             limit: match self.limit {
                 Some(value) => value,
                 None => {
@@ -179,32 +173,14 @@ impl DiscoverPointsBuilder {
                 }
             },
             with_payload: { convert_option(&self.with_payload) },
-            params: match self.params {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            offset: match self.offset {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            using: match self.using {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            params: self.params.unwrap_or_default(),
+            offset: self.offset.unwrap_or_default(),
+            using: self.using.unwrap_or_default(),
             with_vectors: { convert_option(&self.with_vectors) },
-            lookup_from: match self.lookup_from {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            lookup_from: self.lookup_from.unwrap_or_default(),
             read_consistency: { convert_option(&self.read_consistency) },
-            timeout: match self.timeout {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            shard_key_selector: match self.shard_key_selector {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            timeout: self.timeout.unwrap_or_default(),
+            shard_key_selector: self.shard_key_selector.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -230,20 +206,24 @@ impl DiscoverPointsBuilder {
 
 impl From<DiscoverPointsBuilder> for DiscoverPoints {
     fn from(value: DiscoverPointsBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "DiscoverPointsBuilder", "DiscoverPoints",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "DiscoverPointsBuilder", "DiscoverPoints"
+            )
+        })
     }
 }
 
 impl DiscoverPointsBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> DiscoverPoints {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "DiscoverPointsBuilder", "DiscoverPoints",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "DiscoverPointsBuilder", "DiscoverPoints"
+            )
+        })
     }
 }
 

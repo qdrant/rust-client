@@ -79,38 +79,14 @@ impl PrefetchQueryBuilder {
 
     fn build_inner(self) -> Result<PrefetchQuery, std::convert::Infallible> {
         Ok(PrefetchQuery {
-            prefetch: match self.prefetch {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            query: match self.query {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            using: match self.using {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            filter: match self.filter {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            params: match self.params {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            score_threshold: match self.score_threshold {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            limit: match self.limit {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            lookup_from: match self.lookup_from {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            prefetch: self.prefetch.unwrap_or_default(),
+            query: self.query.unwrap_or_default(),
+            using: self.using.unwrap_or_default(),
+            filter: self.filter.unwrap_or_default(),
+            params: self.params.unwrap_or_default(),
+            score_threshold: self.score_threshold.unwrap_or_default(),
+            limit: self.limit.unwrap_or_default(),
+            lookup_from: self.lookup_from.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -130,20 +106,24 @@ impl PrefetchQueryBuilder {
 
 impl From<PrefetchQueryBuilder> for PrefetchQuery {
     fn from(value: PrefetchQueryBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "PrefetchQueryBuilder", "PrefetchQuery",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "PrefetchQueryBuilder", "PrefetchQuery"
+            )
+        })
     }
 }
 
 impl PrefetchQueryBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> PrefetchQuery {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "PrefetchQueryBuilder", "PrefetchQuery",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "PrefetchQueryBuilder", "PrefetchQuery"
+            )
+        })
     }
 }
 

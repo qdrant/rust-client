@@ -75,10 +75,7 @@ impl CreateFieldIndexCollectionBuilder {
                     ));
                 }
             },
-            wait: match self.wait {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            wait: self.wait.unwrap_or_default(),
             field_name: match self.field_name {
                 Some(value) => value,
                 None => {
@@ -87,15 +84,9 @@ impl CreateFieldIndexCollectionBuilder {
                     ));
                 }
             },
-            field_type: match self.field_type {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            field_type: self.field_type.unwrap_or_default(),
             field_index_params: { convert_option(&self.field_index_params) },
-            ordering: match self.ordering {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            ordering: self.ordering.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -113,20 +104,24 @@ impl CreateFieldIndexCollectionBuilder {
 
 impl From<CreateFieldIndexCollectionBuilder> for CreateFieldIndexCollection {
     fn from(value: CreateFieldIndexCollectionBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "CreateFieldIndexCollectionBuilder", "CreateFieldIndexCollection",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "CreateFieldIndexCollectionBuilder", "CreateFieldIndexCollection"
+            )
+        })
     }
 }
 
 impl CreateFieldIndexCollectionBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> CreateFieldIndexCollection {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "CreateFieldIndexCollectionBuilder", "CreateFieldIndexCollection",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "CreateFieldIndexCollectionBuilder", "CreateFieldIndexCollection"
+            )
+        })
     }
 }
 

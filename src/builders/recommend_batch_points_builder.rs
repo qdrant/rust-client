@@ -62,10 +62,7 @@ impl RecommendBatchPointsBuilder {
                 }
             },
             read_consistency: { convert_option(&self.read_consistency) },
-            timeout: match self.timeout {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            timeout: self.timeout.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -81,20 +78,24 @@ impl RecommendBatchPointsBuilder {
 
 impl From<RecommendBatchPointsBuilder> for RecommendBatchPoints {
     fn from(value: RecommendBatchPointsBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "RecommendBatchPointsBuilder", "RecommendBatchPoints",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "RecommendBatchPointsBuilder", "RecommendBatchPoints"
+            )
+        })
     }
 }
 
 impl RecommendBatchPointsBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> RecommendBatchPoints {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "RecommendBatchPointsBuilder", "RecommendBatchPoints",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "RecommendBatchPointsBuilder", "RecommendBatchPoints"
+            )
+        })
     }
 }
 

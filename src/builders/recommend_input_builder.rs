@@ -34,18 +34,9 @@ impl RecommendInputBuilder {
 
     fn build_inner(self) -> Result<RecommendInput, std::convert::Infallible> {
         Ok(RecommendInput {
-            positive: match self.positive {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            negative: match self.negative {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            strategy: match self.strategy {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            positive: self.positive.unwrap_or_default(),
+            negative: self.negative.unwrap_or_default(),
+            strategy: self.strategy.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -60,20 +51,24 @@ impl RecommendInputBuilder {
 
 impl From<RecommendInputBuilder> for RecommendInput {
     fn from(value: RecommendInputBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "RecommendInputBuilder", "RecommendInput",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "RecommendInputBuilder", "RecommendInput"
+            )
+        })
     }
 }
 
 impl RecommendInputBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> RecommendInput {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "RecommendInputBuilder", "RecommendInput",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "RecommendInputBuilder", "RecommendInput"
+            )
+        })
     }
 }
 

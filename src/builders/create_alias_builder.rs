@@ -54,20 +54,24 @@ impl CreateAliasBuilder {
 
 impl From<CreateAliasBuilder> for CreateAlias {
     fn from(value: CreateAliasBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "CreateAliasBuilder", "CreateAlias",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "CreateAliasBuilder", "CreateAlias"
+            )
+        })
     }
 }
 
 impl CreateAliasBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> CreateAlias {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "CreateAliasBuilder", "CreateAlias",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "CreateAliasBuilder", "CreateAlias"
+            )
+        })
     }
 }
 

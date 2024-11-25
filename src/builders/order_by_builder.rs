@@ -43,10 +43,7 @@ impl OrderByBuilder {
                     ));
                 }
             },
-            direction: match self.direction {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            direction: self.direction.unwrap_or_default(),
             start_from: { convert_option(&self.start_from) },
         })
     }
@@ -62,20 +59,17 @@ impl OrderByBuilder {
 
 impl From<OrderByBuilder> for OrderBy {
     fn from(value: OrderByBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "OrderByBuilder", "OrderBy",
-        ))
+        value
+            .build_inner()
+            .unwrap_or_else(|_| panic!("Failed to convert {0} to {1}", "OrderByBuilder", "OrderBy"))
     }
 }
 
 impl OrderByBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> OrderBy {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "OrderByBuilder", "OrderBy",
-        ))
+        self.build_inner()
+            .unwrap_or_else(|_| panic!("Failed to build {0} into {1}", "OrderByBuilder", "OrderBy"))
     }
 }
 

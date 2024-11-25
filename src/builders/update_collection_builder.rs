@@ -102,31 +102,13 @@ impl UpdateCollectionBuilder {
                     ));
                 }
             },
-            optimizers_config: match self.optimizers_config {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            timeout: match self.timeout {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            params: match self.params {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            hnsw_config: match self.hnsw_config {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            vectors_config: match self.vectors_config {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            optimizers_config: self.optimizers_config.unwrap_or_default(),
+            timeout: self.timeout.unwrap_or_default(),
+            params: self.params.unwrap_or_default(),
+            hnsw_config: self.hnsw_config.unwrap_or_default(),
+            vectors_config: self.vectors_config.unwrap_or_default(),
             quantization_config: { convert_option(&self.quantization_config) },
-            sparse_vectors_config: match self.sparse_vectors_config {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            sparse_vectors_config: self.sparse_vectors_config.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -146,20 +128,24 @@ impl UpdateCollectionBuilder {
 
 impl From<UpdateCollectionBuilder> for UpdateCollection {
     fn from(value: UpdateCollectionBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "UpdateCollectionBuilder", "UpdateCollection",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "UpdateCollectionBuilder", "UpdateCollection"
+            )
+        })
     }
 }
 
 impl UpdateCollectionBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> UpdateCollection {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "UpdateCollectionBuilder", "UpdateCollection",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "UpdateCollectionBuilder", "UpdateCollection"
+            )
+        })
     }
 }
 

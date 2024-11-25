@@ -14,6 +14,12 @@ pub struct TextIndexParamsBuilder {
 }
 
 impl TextIndexParamsBuilder {
+    pub fn new(tokenizer: TokenizerType) -> Self {
+        let mut builder = Self::create_empty();
+        builder.tokenizer = Some(tokenizer.into());
+        builder
+    }
+
     /// Tokenizer type
     #[allow(unused_mut)]
     pub fn tokenizer(self, value: i32) -> Self {
@@ -60,22 +66,10 @@ impl TextIndexParamsBuilder {
                     ));
                 }
             },
-            lowercase: match self.lowercase {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            min_token_len: match self.min_token_len {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            max_token_len: match self.max_token_len {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            on_disk: match self.on_disk {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            lowercase: self.lowercase.unwrap_or_default(),
+            min_token_len: self.min_token_len.unwrap_or_default(),
+            max_token_len: self.max_token_len.unwrap_or_default(),
+            on_disk: self.on_disk.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -92,26 +86,24 @@ impl TextIndexParamsBuilder {
 
 impl From<TextIndexParamsBuilder> for TextIndexParams {
     fn from(value: TextIndexParamsBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "TextIndexParamsBuilder", "TextIndexParams",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "TextIndexParamsBuilder", "TextIndexParams"
+            )
+        })
     }
 }
 
 impl TextIndexParamsBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> TextIndexParams {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "TextIndexParamsBuilder", "TextIndexParams",
-        ))
-    }
-}
-
-impl TextIndexParamsBuilder {
-    pub(crate) fn empty() -> Self {
-        Self::create_empty()
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "TextIndexParamsBuilder", "TextIndexParams"
+            )
+        })
     }
 }
 

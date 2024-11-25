@@ -60,22 +60,10 @@ impl SearchParamsBuilder {
 
     fn build_inner(self) -> Result<SearchParams, std::convert::Infallible> {
         Ok(SearchParams {
-            hnsw_ef: match self.hnsw_ef {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            exact: match self.exact {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            quantization: match self.quantization {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            indexed_only: match self.indexed_only {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            hnsw_ef: self.hnsw_ef.unwrap_or_default(),
+            exact: self.exact.unwrap_or_default(),
+            quantization: self.quantization.unwrap_or_default(),
+            indexed_only: self.indexed_only.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -91,20 +79,24 @@ impl SearchParamsBuilder {
 
 impl From<SearchParamsBuilder> for SearchParams {
     fn from(value: SearchParamsBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "SearchParamsBuilder", "SearchParams",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "SearchParamsBuilder", "SearchParams"
+            )
+        })
     }
 }
 
 impl SearchParamsBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> SearchParams {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "SearchParamsBuilder", "SearchParams",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "SearchParamsBuilder", "SearchParams"
+            )
+        })
     }
 }
 

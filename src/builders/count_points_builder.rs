@@ -76,23 +76,11 @@ impl CountPointsBuilder {
                     ));
                 }
             },
-            filter: match self.filter {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            exact: match self.exact {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            filter: self.filter.unwrap_or_default(),
+            exact: self.exact.unwrap_or_default(),
             read_consistency: { convert_option(&self.read_consistency) },
-            shard_key_selector: match self.shard_key_selector {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            timeout: match self.timeout {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            shard_key_selector: self.shard_key_selector.unwrap_or_default(),
+            timeout: self.timeout.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -110,20 +98,24 @@ impl CountPointsBuilder {
 
 impl From<CountPointsBuilder> for CountPoints {
     fn from(value: CountPointsBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "CountPointsBuilder", "CountPoints",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "CountPointsBuilder", "CountPoints"
+            )
+        })
     }
 }
 
 impl CountPointsBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> CountPoints {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "CountPointsBuilder", "CountPoints",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "CountPointsBuilder", "CountPoints"
+            )
+        })
     }
 }
 

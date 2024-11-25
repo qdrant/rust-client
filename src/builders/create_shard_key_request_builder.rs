@@ -42,14 +42,8 @@ impl CreateShardKeyRequestBuilder {
                     ));
                 }
             },
-            request: match self.request {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            timeout: match self.timeout {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            request: self.request.unwrap_or_default(),
+            timeout: self.timeout.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -64,20 +58,24 @@ impl CreateShardKeyRequestBuilder {
 
 impl From<CreateShardKeyRequestBuilder> for CreateShardKeyRequest {
     fn from(value: CreateShardKeyRequestBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "CreateShardKeyRequestBuilder", "CreateShardKeyRequest",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "CreateShardKeyRequestBuilder", "CreateShardKeyRequest"
+            )
+        })
     }
 }
 
 impl CreateShardKeyRequestBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> CreateShardKeyRequest {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "CreateShardKeyRequestBuilder", "CreateShardKeyRequest",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "CreateShardKeyRequestBuilder", "CreateShardKeyRequest"
+            )
+        })
     }
 }
 

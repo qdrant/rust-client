@@ -63,10 +63,7 @@ impl UpdatePointVectorsBuilder {
                     ));
                 }
             },
-            wait: match self.wait {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            wait: self.wait.unwrap_or_default(),
             points: match self.points {
                 Some(value) => value,
                 None => {
@@ -75,14 +72,8 @@ impl UpdatePointVectorsBuilder {
                     ));
                 }
             },
-            ordering: match self.ordering {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            shard_key_selector: match self.shard_key_selector {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            ordering: self.ordering.unwrap_or_default(),
+            shard_key_selector: self.shard_key_selector.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -99,20 +90,24 @@ impl UpdatePointVectorsBuilder {
 
 impl From<UpdatePointVectorsBuilder> for UpdatePointVectors {
     fn from(value: UpdatePointVectorsBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "UpdatePointVectorsBuilder", "UpdatePointVectors",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "UpdatePointVectorsBuilder", "UpdatePointVectors"
+            )
+        })
     }
 }
 
 impl UpdatePointVectorsBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> UpdatePointVectors {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "UpdatePointVectorsBuilder", "UpdatePointVectors",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "UpdatePointVectorsBuilder", "UpdatePointVectors"
+            )
+        })
     }
 }
 

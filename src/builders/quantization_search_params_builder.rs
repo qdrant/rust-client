@@ -52,18 +52,9 @@ impl QuantizationSearchParamsBuilder {
 
     fn build_inner(self) -> Result<QuantizationSearchParams, std::convert::Infallible> {
         Ok(QuantizationSearchParams {
-            ignore: match self.ignore {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            rescore: match self.rescore {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            oversampling: match self.oversampling {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            ignore: self.ignore.unwrap_or_default(),
+            rescore: self.rescore.unwrap_or_default(),
+            oversampling: self.oversampling.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -76,21 +67,31 @@ impl QuantizationSearchParamsBuilder {
     }
 }
 
+impl Default for QuantizationSearchParamsBuilder {
+    fn default() -> Self {
+        Self::create_empty()
+    }
+}
+
 impl From<QuantizationSearchParamsBuilder> for QuantizationSearchParams {
     fn from(value: QuantizationSearchParamsBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "QuantizationSearchParamsBuilder", "QuantizationSearchParams",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "QuantizationSearchParamsBuilder", "QuantizationSearchParams"
+            )
+        })
     }
 }
 
 impl QuantizationSearchParamsBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> QuantizationSearchParams {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "QuantizationSearchParamsBuilder", "QuantizationSearchParams",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "QuantizationSearchParamsBuilder", "QuantizationSearchParams"
+            )
+        })
     }
 }

@@ -33,10 +33,7 @@ impl ProductQuantizationBuilder {
                     ));
                 }
             },
-            always_ram: match self.always_ram {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            always_ram: self.always_ram.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -50,20 +47,24 @@ impl ProductQuantizationBuilder {
 
 impl From<ProductQuantizationBuilder> for ProductQuantization {
     fn from(value: ProductQuantizationBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "ProductQuantizationBuilder", "ProductQuantization",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "ProductQuantizationBuilder", "ProductQuantization"
+            )
+        })
     }
 }
 
 impl ProductQuantizationBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> ProductQuantization {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "ProductQuantizationBuilder", "ProductQuantization",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "ProductQuantizationBuilder", "ProductQuantization"
+            )
+        })
     }
 }
 

@@ -46,10 +46,7 @@ impl UpdateCollectionClusterSetupRequestBuilder {
                     ));
                 }
             },
-            timeout: match self.timeout {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            timeout: self.timeout.unwrap_or_default(),
             operation: match self.operation {
                 Some(value) => value,
                 None => {
@@ -72,20 +69,24 @@ impl UpdateCollectionClusterSetupRequestBuilder {
 
 impl From<UpdateCollectionClusterSetupRequestBuilder> for UpdateCollectionClusterSetupRequest {
     fn from(value: UpdateCollectionClusterSetupRequestBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "UpdateCollectionClusterSetupRequestBuilder", "UpdateCollectionClusterSetupRequest",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "UpdateCollectionClusterSetupRequestBuilder", "UpdateCollectionClusterSetupRequest"
+            )
+        })
     }
 }
 
 impl UpdateCollectionClusterSetupRequestBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> UpdateCollectionClusterSetupRequest {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "UpdateCollectionClusterSetupRequestBuilder", "UpdateCollectionClusterSetupRequest",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "UpdateCollectionClusterSetupRequestBuilder", "UpdateCollectionClusterSetupRequest"
+            )
+        })
     }
 }
 

@@ -49,10 +49,7 @@ impl UpdateBatchPointsBuilder {
                     ));
                 }
             },
-            wait: match self.wait {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            wait: self.wait.unwrap_or_default(),
             operations: match self.operations {
                 Some(value) => value,
                 None => {
@@ -61,10 +58,7 @@ impl UpdateBatchPointsBuilder {
                     ));
                 }
             },
-            ordering: match self.ordering {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            ordering: self.ordering.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -80,20 +74,24 @@ impl UpdateBatchPointsBuilder {
 
 impl From<UpdateBatchPointsBuilder> for UpdateBatchPoints {
     fn from(value: UpdateBatchPointsBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "UpdateBatchPointsBuilder", "UpdateBatchPoints",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "UpdateBatchPointsBuilder", "UpdateBatchPoints"
+            )
+        })
     }
 }
 
 impl UpdateBatchPointsBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> UpdateBatchPoints {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "UpdateBatchPointsBuilder", "UpdateBatchPoints",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "UpdateBatchPointsBuilder", "UpdateBatchPoints"
+            )
+        })
     }
 }
 

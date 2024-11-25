@@ -35,14 +35,8 @@ impl DeleteShardKeyRequestBuilder {
                     ));
                 }
             },
-            request: match self.request {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            timeout: match self.timeout {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            request: self.request.unwrap_or_default(),
+            timeout: self.timeout.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -57,20 +51,24 @@ impl DeleteShardKeyRequestBuilder {
 
 impl From<DeleteShardKeyRequestBuilder> for DeleteShardKeyRequest {
     fn from(value: DeleteShardKeyRequestBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "DeleteShardKeyRequestBuilder", "DeleteShardKeyRequest",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "DeleteShardKeyRequestBuilder", "DeleteShardKeyRequest"
+            )
+        })
     }
 }
 
 impl DeleteShardKeyRequestBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> DeleteShardKeyRequest {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "DeleteShardKeyRequestBuilder", "DeleteShardKeyRequest",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "DeleteShardKeyRequestBuilder", "DeleteShardKeyRequest"
+            )
+        })
     }
 }
 

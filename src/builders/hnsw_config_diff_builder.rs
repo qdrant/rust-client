@@ -128,19 +128,23 @@ impl HnswConfigDiffBuilder {
 
 impl From<HnswConfigDiffBuilder> for HnswConfigDiff {
     fn from(value: HnswConfigDiffBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "HnswConfigDiffBuilder", "HnswConfigDiff",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "HnswConfigDiffBuilder", "HnswConfigDiff"
+            )
+        })
     }
 }
 
 impl HnswConfigDiffBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> HnswConfigDiff {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "HnswConfigDiffBuilder", "HnswConfigDiff",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "HnswConfigDiffBuilder", "HnswConfigDiff"
+            )
+        })
     }
 }

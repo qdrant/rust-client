@@ -178,10 +178,7 @@ impl SearchPointGroupsBuilder {
                     ));
                 }
             },
-            filter: match self.filter {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            filter: self.filter.unwrap_or_default(),
             limit: match self.limit {
                 Some(value) => value,
                 None => {
@@ -191,18 +188,9 @@ impl SearchPointGroupsBuilder {
                 }
             },
             with_payload: { convert_option(&self.with_payload) },
-            params: match self.params {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            score_threshold: match self.score_threshold {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            vector_name: match self.vector_name {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            params: self.params.unwrap_or_default(),
+            score_threshold: self.score_threshold.unwrap_or_default(),
+            vector_name: self.vector_name.unwrap_or_default(),
             with_vectors: { convert_option(&self.with_vectors) },
             group_by: match self.group_by {
                 Some(value) => value,
@@ -221,22 +209,10 @@ impl SearchPointGroupsBuilder {
                 }
             },
             read_consistency: { convert_option(&self.read_consistency) },
-            with_lookup: match self.with_lookup {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            timeout: match self.timeout {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            shard_key_selector: match self.shard_key_selector {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            sparse_indices: match self.sparse_indices {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            with_lookup: self.with_lookup.unwrap_or_default(),
+            timeout: self.timeout.unwrap_or_default(),
+            shard_key_selector: self.shard_key_selector.unwrap_or_default(),
+            sparse_indices: self.sparse_indices.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -264,20 +240,24 @@ impl SearchPointGroupsBuilder {
 
 impl From<SearchPointGroupsBuilder> for SearchPointGroups {
     fn from(value: SearchPointGroupsBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "SearchPointGroupsBuilder", "SearchPointGroups",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "SearchPointGroupsBuilder", "SearchPointGroups"
+            )
+        })
     }
 }
 
 impl SearchPointGroupsBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> SearchPointGroups {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "SearchPointGroupsBuilder", "SearchPointGroups",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "SearchPointGroupsBuilder", "SearchPointGroups"
+            )
+        })
     }
 }
 

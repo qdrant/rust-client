@@ -85,10 +85,7 @@ impl SetPayloadPointsBuilder {
                     ));
                 }
             },
-            wait: match self.wait {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            wait: self.wait.unwrap_or_default(),
             payload: match self.payload {
                 Some(value) => value,
                 None => {
@@ -98,18 +95,9 @@ impl SetPayloadPointsBuilder {
                 }
             },
             points_selector: { convert_option(&self.points_selector) },
-            ordering: match self.ordering {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            shard_key_selector: match self.shard_key_selector {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            key: match self.key {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            ordering: self.ordering.unwrap_or_default(),
+            shard_key_selector: self.shard_key_selector.unwrap_or_default(),
+            key: self.key.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -128,20 +116,24 @@ impl SetPayloadPointsBuilder {
 
 impl From<SetPayloadPointsBuilder> for SetPayloadPoints {
     fn from(value: SetPayloadPointsBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "SetPayloadPointsBuilder", "SetPayloadPoints",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "SetPayloadPointsBuilder", "SetPayloadPoints"
+            )
+        })
     }
 }
 
 impl SetPayloadPointsBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> SetPayloadPoints {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "SetPayloadPointsBuilder", "SetPayloadPoints",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "SetPayloadPointsBuilder", "SetPayloadPoints"
+            )
+        })
     }
 }
 

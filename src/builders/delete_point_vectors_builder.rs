@@ -76,23 +76,11 @@ impl DeletePointVectorsBuilder {
                     ));
                 }
             },
-            wait: match self.wait {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            wait: self.wait.unwrap_or_default(),
             points_selector: { convert_option(&self.points_selector) },
-            vectors: match self.vectors {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            ordering: match self.ordering {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
-            shard_key_selector: match self.shard_key_selector {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
+            vectors: self.vectors.unwrap_or_default(),
+            ordering: self.ordering.unwrap_or_default(),
+            shard_key_selector: self.shard_key_selector.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -110,20 +98,24 @@ impl DeletePointVectorsBuilder {
 
 impl From<DeletePointVectorsBuilder> for DeletePointVectors {
     fn from(value: DeletePointVectorsBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "DeletePointVectorsBuilder", "DeletePointVectors",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "DeletePointVectorsBuilder", "DeletePointVectors"
+            )
+        })
     }
 }
 
 impl DeletePointVectorsBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> DeletePointVectors {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "DeletePointVectorsBuilder", "DeletePointVectors",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "DeletePointVectorsBuilder", "DeletePointVectors"
+            )
+        })
     }
 }
 

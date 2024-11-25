@@ -65,20 +65,24 @@ impl WithLookupBuilder {
 
 impl From<WithLookupBuilder> for WithLookup {
     fn from(value: WithLookupBuilder) -> Self {
-        value.build_inner().expect(&format!(
-            "Failed to convert {0} to {1}",
-            "WithLookupBuilder", "WithLookup",
-        ))
+        value.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to convert {0} to {1}",
+                "WithLookupBuilder", "WithLookup"
+            )
+        })
     }
 }
 
 impl WithLookupBuilder {
     /// Builds the desired type. Can often be omitted.
     pub fn build(self) -> WithLookup {
-        self.build_inner().expect(&format!(
-            "Failed to build {0} into {1}",
-            "WithLookupBuilder", "WithLookup",
-        ))
+        self.build_inner().unwrap_or_else(|_| {
+            panic!(
+                "Failed to build {0} into {1}",
+                "WithLookupBuilder", "WithLookup"
+            )
+        })
     }
 }
 
