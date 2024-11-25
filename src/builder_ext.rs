@@ -21,8 +21,6 @@ use crate::qdrant::{
     UpsertPointsBuilder, Value, VectorParamsBuilder, VectorsSelector, WithLookupBuilder,
 };
 
-//use crate::builders::CreateCollectionBuilder;
-
 impl VectorParamsBuilder {
     pub fn new(size: u64, distance: Distance) -> Self {
         let mut builder = Self::empty();

@@ -131,7 +131,7 @@ pub mod qdrant;
 mod auth;
 mod builder_ext;
 mod builder_types;
-pub mod builders;
+mod builders;
 mod channel_pool;
 mod filters;
 mod grpc_conversions;
