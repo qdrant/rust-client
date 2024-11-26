@@ -131,6 +131,7 @@ pub mod qdrant;
 mod auth;
 mod builder_ext;
 mod builder_types;
+mod builders;
 mod channel_pool;
 mod filters;
 mod grpc_conversions;
@@ -138,7 +139,6 @@ mod grpc_macros;
 mod manual_builder;
 mod payload;
 mod qdrant_client;
-
 // Deprecated modules
 /// Deprecated Qdrant client
 #[deprecated(
@@ -180,13 +180,14 @@ pub mod config {
 mod tests {
     use std::collections::HashMap;
 
+    use crate::builders::CreateCollectionBuilder;
     use crate::payload::Payload;
     use crate::qdrant::value::Kind::*;
     use crate::qdrant::{
-        Condition, CreateCollectionBuilder, CreateFieldIndexCollection, DeletePayloadPointsBuilder,
-        DeletePointsBuilder, Distance, FieldType, Filter, GetPointsBuilder, ListValue, PointStruct,
-        SearchPointsBuilder, SetPayloadPointsBuilder, SnapshotDownloadBuilder, Struct,
-        UpsertPointsBuilder, Value, VectorParamsBuilder,
+        Condition, CreateFieldIndexCollection, DeletePayloadPointsBuilder, DeletePointsBuilder,
+        Distance, FieldType, Filter, GetPointsBuilder, ListValue, PointStruct, SearchPointsBuilder,
+        SetPayloadPointsBuilder, SnapshotDownloadBuilder, Struct, UpsertPointsBuilder, Value,
+        VectorParamsBuilder,
     };
     use crate::Qdrant;
 

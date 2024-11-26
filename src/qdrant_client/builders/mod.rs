@@ -1,4 +1,3 @@
-mod payloads;
 mod query;
 // Keeping this public because 1.10-1.10.1 users may use it
 pub mod sparse_vectors_config;
