@@ -435,10 +435,11 @@ mod tests {
     use tokio::time::sleep;
 
     use super::*;
+    use crate::builders::CreateCollectionBuilder;
     use crate::payload::Payload;
     use crate::qdrant::{
-        CountPointsBuilder, CreateCollectionBuilder, Distance, PointStruct, SearchPointsBuilder,
-        UpsertPointsBuilder, VectorParamsBuilder,
+        CountPointsBuilder, Distance, PointStruct, SearchPointsBuilder, UpsertPointsBuilder,
+        VectorParamsBuilder,
     };
 
     #[tokio::test]
