@@ -12,7 +12,6 @@ pub struct CollectionParamsDiffBuilder {
 }
 #[allow(clippy::all)]
 #[allow(clippy::derive_partial_eq_without_eq)]
-#[allow(dead_code)]
 impl CollectionParamsDiffBuilder {
     /// Number of replicas of each shard that network tries to maintain
     #[allow(unused_mut)]
@@ -94,5 +93,11 @@ impl CollectionParamsDiffBuilder {
                 "CollectionParamsDiffBuilder", "CollectionParamsDiff"
             )
         })
+    }
+}
+
+impl Default for CollectionParamsDiffBuilder {
+    fn default() -> Self {
+        Self::create_empty()
     }
 }

@@ -36,7 +36,6 @@ pub struct CreateCollectionBuilder {
 }
 #[allow(clippy::all)]
 #[allow(clippy::derive_partial_eq_without_eq)]
-#[allow(dead_code)]
 impl CreateCollectionBuilder {
     /// Name of the collection
     #[allow(unused_mut)]

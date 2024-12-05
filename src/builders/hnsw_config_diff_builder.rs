@@ -28,7 +28,6 @@ pub struct HnswConfigDiffBuilder {
 }
 #[allow(clippy::all)]
 #[allow(clippy::derive_partial_eq_without_eq)]
-#[allow(dead_code)]
 impl HnswConfigDiffBuilder {
     ///
     /// Number of edges per node in the index graph. Larger the value - more accurate the search, more space required.
@@ -146,5 +145,11 @@ impl HnswConfigDiffBuilder {
                 "HnswConfigDiffBuilder", "HnswConfigDiff"
             )
         })
+    }
+}
+
+impl Default for HnswConfigDiffBuilder {
+    fn default() -> Self {
+        Self::create_empty()
     }
 }
