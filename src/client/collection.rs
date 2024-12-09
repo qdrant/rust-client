@@ -4,7 +4,7 @@ use tonic::codegen::InterceptedService;
 use tonic::transport::Channel;
 use tonic::Status;
 
-use crate::auth::TokenInterceptor;
+use crate::interceptor::MetadataInterceptor;
 use crate::client::QdrantClient;
 use crate::qdrant::alias_operations::Action;
 use crate::qdrant::collections_client::CollectionsClient;
@@ -25,7 +25,7 @@ impl QdrantClient {
     // Access to raw collection API
     pub async fn with_collections_client<T, O: Future<Output = anyhow::Result<T, Status>>>(
         &self,
-        f: impl Fn(CollectionsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
+        f: impl Fn(CollectionsClient<InterceptedService<Channel, MetadataInterceptor>>) -> O,
     ) -> anyhow::Result<T, Status> {
         self.channel
             .with_channel(

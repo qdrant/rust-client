@@ -6,7 +6,7 @@ use tonic::codegen::InterceptedService;
 use tonic::transport::Channel;
 use tonic::Status;
 
-use crate::auth::TokenInterceptor;
+use crate::interceptor::MetadataInterceptor;
 use crate::client::QdrantClient;
 use crate::qdrant::snapshots_client::SnapshotsClient;
 use crate::qdrant::{
@@ -18,7 +18,7 @@ use crate::qdrant::{
 impl QdrantClient {
     pub async fn with_snapshot_client<T, O: Future<Output = anyhow::Result<T, Status>>>(
         &self,
-        f: impl Fn(SnapshotsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
+        f: impl Fn(SnapshotsClient<InterceptedService<Channel, MetadataInterceptor>>) -> O,
     ) -> anyhow::Result<T, Status> {
         self.channel
             .with_channel(

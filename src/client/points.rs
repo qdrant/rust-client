@@ -4,7 +4,7 @@ use tonic::codegen::InterceptedService;
 use tonic::transport::Channel;
 use tonic::Status;
 
-use crate::auth::TokenInterceptor;
+use crate::interceptor::MetadataInterceptor;
 use crate::client::{Payload, QdrantClient};
 use crate::prelude::{PointStruct, SearchPoints};
 use crate::qdrant::points_client::PointsClient;
@@ -25,7 +25,7 @@ impl QdrantClient {
     // Access to raw points API
     pub async fn with_points_client<T, O: Future<Output = anyhow::Result<T, Status>>>(
         &self,
-        f: impl Fn(PointsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
+        f: impl Fn(PointsClient<InterceptedService<Channel, MetadataInterceptor>>) -> O,
     ) -> anyhow::Result<T, Status> {
         self.channel
             .with_channel(

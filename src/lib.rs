@@ -128,7 +128,7 @@
 pub mod qdrant;
 
 // Internal modules
-mod auth;
+mod interceptor;
 mod builder_ext;
 mod builder_types;
 mod channel_pool;

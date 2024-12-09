@@ -4,7 +4,7 @@ use tonic::codegen::InterceptedService;
 use tonic::transport::Channel;
 use tonic::Status;
 
-use crate::auth::TokenInterceptor;
+use crate::interceptor::MetadataInterceptor;
 use crate::qdrant::collections_client::CollectionsClient;
 use crate::qdrant::{
     alias_operations, AliasOperations, ChangeAliases, CollectionClusterInfoRequest,
@@ -25,13 +25,13 @@ use crate::qdrant_client::{Qdrant, QdrantResult};
 impl Qdrant {
     pub(super) async fn with_collections_client<T, O: Future<Output = Result<T, Status>>>(
         &self,
-        f: impl Fn(CollectionsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
+        f: impl Fn(CollectionsClient<InterceptedService<Channel, MetadataInterceptor>>) -> O,
     ) -> QdrantResult<T> {
         let result = self
             .channel
             .with_channel(
                 |channel| {
-                    let service = self.with_api_key(channel);
+                    let service = self.with_metadata_interceptor(channel);
                     let mut client =
                         CollectionsClient::new(service).max_decoding_message_size(usize::MAX);
                     if let Some(compression) = self.config.compression {
