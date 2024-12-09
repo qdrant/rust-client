@@ -14,16 +14,25 @@ use crate::qdrant::{
     DeleteFullSnapshotRequest, DeleteSnapshotRequest, DeleteSnapshotResponse,
     ListFullSnapshotsRequest, ListSnapshotsRequest, ListSnapshotsResponse,
 };
+use crate::user_agent::UserAgentInterceptor;
 
 impl QdrantClient {
     pub async fn with_snapshot_client<T, O: Future<Output = anyhow::Result<T, Status>>>(
         &self,
-        f: impl Fn(SnapshotsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
+        f: impl Fn(
+            SnapshotsClient<
+                InterceptedService<
+                    InterceptedService<Channel, TokenInterceptor>,
+                    UserAgentInterceptor,
+                >,
+            >,
+        ) -> O,
     ) -> anyhow::Result<T, Status> {
         self.channel
             .with_channel(
                 |channel| {
                     let service = self.with_api_key(channel);
+                    let service = InterceptedService::new(service, UserAgentInterceptor::new());
                     let mut client =
                         SnapshotsClient::new(service).max_decoding_message_size(usize::MAX);
                     if let Some(compression) = self.cfg.compression {

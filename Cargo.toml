@@ -23,6 +23,7 @@ reqwest = { version = "0.12.8", optional = true, default-features = false, featu
 futures-util = { version = "0.3.31", optional = true }
 derive_builder = { version = "0.20.2" }
 thiserror = "1.0.64"
+rustc_version = "0.4"
 
 [dev-dependencies]
 tonic-build = { version = "0.12.3", features = ["prost"] }

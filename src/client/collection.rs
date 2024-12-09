@@ -20,17 +20,26 @@ use crate::qdrant::{
     SparseVectorConfig, UpdateCollection, UpdateCollectionClusterSetupRequest,
     UpdateCollectionClusterSetupResponse, VectorsConfigDiff,
 };
+use crate::user_agent::UserAgentInterceptor;
 
 impl QdrantClient {
     // Access to raw collection API
     pub async fn with_collections_client<T, O: Future<Output = anyhow::Result<T, Status>>>(
         &self,
-        f: impl Fn(CollectionsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
+        f: impl Fn(
+            CollectionsClient<
+                InterceptedService<
+                    InterceptedService<Channel, TokenInterceptor>,
+                    UserAgentInterceptor,
+                >,
+            >,
+        ) -> O,
     ) -> anyhow::Result<T, Status> {
         self.channel
             .with_channel(
                 |channel| {
                     let service = self.with_api_key(channel);
+                    let service = InterceptedService::new(service, UserAgentInterceptor::new());
                     let mut client =
                         CollectionsClient::new(service).max_decoding_message_size(usize::MAX);
                     if let Some(compression) = self.cfg.compression {

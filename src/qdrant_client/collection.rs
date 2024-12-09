@@ -15,6 +15,7 @@ use crate::qdrant::{
     UpdateCollection, UpdateCollectionClusterSetupRequest, UpdateCollectionClusterSetupResponse,
 };
 use crate::qdrant_client::{Qdrant, QdrantResult};
+use crate::user_agent::UserAgentInterceptor;
 
 /// # Collection operations
 ///
@@ -25,13 +26,21 @@ use crate::qdrant_client::{Qdrant, QdrantResult};
 impl Qdrant {
     pub(super) async fn with_collections_client<T, O: Future<Output = Result<T, Status>>>(
         &self,
-        f: impl Fn(CollectionsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
+        f: impl Fn(
+            CollectionsClient<
+                InterceptedService<
+                    InterceptedService<Channel, TokenInterceptor>,
+                    UserAgentInterceptor,
+                >,
+            >,
+        ) -> O,
     ) -> QdrantResult<T> {
         let result = self
             .channel
             .with_channel(
                 |channel| {
                     let service = self.with_api_key(channel);
+                    let service = InterceptedService::new(service, UserAgentInterceptor::new());
                     let mut client =
                         CollectionsClient::new(service).max_decoding_message_size(usize::MAX);
                     if let Some(compression) = self.config.compression {

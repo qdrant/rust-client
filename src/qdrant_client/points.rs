@@ -13,6 +13,7 @@ use crate::qdrant::{
     UpdateBatchResponse, UpdatePointVectors, UpsertPoints,
 };
 use crate::qdrant_client::{Qdrant, QdrantResult};
+use crate::user_agent::UserAgentInterceptor;
 
 /// # Point operations
 ///
@@ -22,13 +23,21 @@ use crate::qdrant_client::{Qdrant, QdrantResult};
 impl Qdrant {
     pub(crate) async fn with_points_client<T, O: Future<Output = Result<T, Status>>>(
         &self,
-        f: impl Fn(PointsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
+        f: impl Fn(
+            PointsClient<
+                InterceptedService<
+                    InterceptedService<Channel, TokenInterceptor>,
+                    UserAgentInterceptor,
+                >,
+            >,
+        ) -> O,
     ) -> QdrantResult<T> {
         let result = self
             .channel
             .with_channel(
                 |channel| {
                     let service = self.with_api_key(channel);
+                    let service = InterceptedService::new(service, UserAgentInterceptor::new());
                     let mut client =
                         PointsClient::new(service).max_decoding_message_size(usize::MAX);
                     if let Some(compression) = self.config.compression {

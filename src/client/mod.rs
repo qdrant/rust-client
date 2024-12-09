@@ -21,6 +21,7 @@ pub use crate::auth::TokenInterceptor;
 use crate::channel_pool::ChannelPool;
 pub use crate::payload::Payload;
 use crate::qdrant::{qdrant_client, HealthCheckReply, HealthCheckRequest};
+use crate::user_agent::UserAgentInterceptor;
 
 /// A builder for `QdrantClient`s
 #[deprecated(since = "1.10.0", note = "use `qdrant_client::QdrantBuilder` instead")]
@@ -81,12 +82,20 @@ impl QdrantClient {
     // Access to raw root qdrant API
     pub async fn with_root_qdrant_client<T, O: Future<Output = Result<T, Status>>>(
         &self,
-        f: impl Fn(qdrant_client::QdrantClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
+        f: impl Fn(
+            qdrant_client::QdrantClient<
+                InterceptedService<
+                    InterceptedService<Channel, TokenInterceptor>,
+                    UserAgentInterceptor,
+                >,
+            >,
+        ) -> O,
     ) -> Result<T, Status> {
         self.channel
             .with_channel(
                 |channel| {
                     let service = self.with_api_key(channel);
+                    let service = InterceptedService::new(service, UserAgentInterceptor::new());
                     let mut client = qdrant_client::QdrantClient::new(service)
                         .max_decoding_message_size(usize::MAX);
                     if let Some(compression) = self.cfg.compression {

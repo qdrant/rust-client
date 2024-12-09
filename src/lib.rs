@@ -139,6 +139,7 @@ mod grpc_macros;
 mod manual_builder;
 mod payload;
 mod qdrant_client;
+mod user_agent;
 // Deprecated modules
 /// Deprecated Qdrant client
 #[deprecated(

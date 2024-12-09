@@ -21,6 +21,7 @@ use crate::auth::TokenInterceptor;
 use crate::channel_pool::ChannelPool;
 use crate::qdrant::{qdrant_client, HealthCheckReply, HealthCheckRequest};
 use crate::qdrant_client::config::QdrantConfig;
+use crate::user_agent::UserAgentInterceptor;
 use crate::QdrantError;
 
 /// [`Qdrant`] client result
@@ -132,13 +133,21 @@ impl Qdrant {
     // Access to raw root qdrant API
     async fn with_root_qdrant_client<T, O: Future<Output = Result<T, Status>>>(
         &self,
-        f: impl Fn(qdrant_client::QdrantClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
+        f: impl Fn(
+            qdrant_client::QdrantClient<
+                InterceptedService<
+                    InterceptedService<Channel, TokenInterceptor>,
+                    UserAgentInterceptor,
+                >,
+            >,
+        ) -> O,
     ) -> QdrantResult<T> {
         let result = self
             .channel
             .with_channel(
                 |channel| {
                     let service = self.with_api_key(channel);
+                    let service = InterceptedService::new(service, UserAgentInterceptor::new());
                     let mut client = qdrant_client::QdrantClient::new(service)
                         .max_decoding_message_size(usize::MAX);
                     if let Some(compression) = self.config.compression {
