@@ -45,7 +45,7 @@ impl ChannelPool {
         };
 
         let rust_client_version = env!("CARGO_PKG_VERSION").to_string();
-        let version_info = format!("rust-client/{}", rust_client_version);
+        let version_info = format!("rust-client/{rust_client_version}");
 
         let endpoint = Channel::builder(self.uri.clone())
             .timeout(self.grpc_timeout)
