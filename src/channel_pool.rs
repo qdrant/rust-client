@@ -2,7 +2,6 @@ use std::future::Future;
 use std::sync::RwLock;
 use std::time::Duration;
 
-use rustc_version::version_meta;
 use tonic::transport::{Channel, ClientTlsConfig, Uri};
 use tonic::{Code, Status};
 
@@ -45,9 +44,8 @@ impl ChannelPool {
             },
         };
 
-        let rust_version = version_meta().unwrap().semver.to_string();
         let rust_client_version = env!("CARGO_PKG_VERSION").to_string();
-        let version_info = format!("rust-client/{} rust/{}", rust_version, rust_client_version);
+        let version_info = format!("rust-client/{}", rust_client_version);
 
         let endpoint = Channel::builder(self.uri.clone())
             .timeout(self.grpc_timeout)
