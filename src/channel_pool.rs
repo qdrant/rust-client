@@ -44,10 +44,15 @@ impl ChannelPool {
             },
         };
 
+        let rust_client_version = env!("CARGO_PKG_VERSION").to_string();
+        let version_info = format!("rust-client/{rust_client_version}");
+
         let endpoint = Channel::builder(self.uri.clone())
             .timeout(self.grpc_timeout)
             .connect_timeout(self.connection_timeout)
-            .keep_alive_while_idle(self.keep_alive_while_idle);
+            .keep_alive_while_idle(self.keep_alive_while_idle)
+            .user_agent(version_info)
+            .expect("Version info should be a valid header value");
 
         let endpoint = if tls {
             let tls_config = ClientTlsConfig::new().with_native_roots();
