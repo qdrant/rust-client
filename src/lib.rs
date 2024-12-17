@@ -65,7 +65,7 @@
 //!# -> Result<(), QdrantError> {
 //! let points = vec![
 //!     PointStruct::new(
-//!         42,                 // Uniqe piont ID
+//!         42,                 // Uniqe point ID
 //!         vec![0.0_f32; 512], // Vector to upsert
 //!         // Attached payload
 //!         [
