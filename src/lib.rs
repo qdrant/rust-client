@@ -99,7 +99,7 @@
 //!# -> Result<(), QdrantError> {
 //! let search_request = SearchPointsBuilder::new(
 //!     "my_collection",    // Collection name
-//!     vec![0.0_f32; 512], // Cearch vector
+//!     vec![0.0_f32; 512], // Search vector
 //!     4,                  // Search limit, number of results to return
 //! ).with_payload(true);
 //!
@@ -108,7 +108,7 @@
 //!# }
 //! ```
 //!
-//! The parameter for [`SearchPointsBuilder::new()`](qdrant::SearchPointsBuilder::new) contsructor
+//! The parameter for [`SearchPointsBuilder::new()`](qdrant::SearchPointsBuilder::new) constructor
 //! are pretty straightforward: name of the collection, the vector and how many top-k results to
 //! return. The [`with_payload(true)`](qdrant::SearchPointsBuilder::with_payload) call tells qdrant
 //! to also return the (full) payload data for each point. You can also add a
