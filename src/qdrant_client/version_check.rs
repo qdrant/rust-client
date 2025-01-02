@@ -84,3 +84,63 @@ pub fn is_compatible(client_version: Option<&str>, server_version: Option<&str>)
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_is_compatible() {
+        let test_cases = vec![
+            (Some("1.9.3.dev0"), Some("2.8.1.dev12-something"), false),
+            (Some("1.9"), Some("2.8"), false),
+            (Some("1"), Some("2"), false),
+            (Some("1.9.0"), Some("2.9.0"), false),
+            (Some("1.1.0"), Some("1.2.9"), true),
+            (Some("1.2.7"), Some("1.1.8.dev0"), true),
+            (Some("1.2.1"), Some("1.2.29"), true),
+            (Some("1.2.0"), Some("1.2.0"), true),
+            (Some("1.2.0"), Some("1.4.0"), false),
+            (Some("1.4.0"), Some("1.2.0"), false),
+            (Some("1.9.0"), Some("3.7.0"), false),
+            (Some("3.0.0"), Some("1.0.0"), false),
+            (None, Some("1.0.0"), false),
+            (Some("1.0.0"), None, false),
+            (None, None, false),
+        ];
+
+        for (client_version, server_version, expected_result) in test_cases {
+            let result = is_compatible(client_version, server_version);
+            assert_eq!(
+                result, expected_result,
+                "Failed for client: {:?}, server: {:?}",
+                client_version, server_version
+            );
+        }
+    }
+
+    #[test]
+    fn test_version_parse_errors() {
+        let test_cases = vec![
+            ("1", VersionParseError::InvalidFormat("1".to_string())),
+            ("1.", VersionParseError::InvalidFormat("1.".to_string())),
+            (".1", VersionParseError::InvalidFormat(".1".to_string())),
+            (".1.", VersionParseError::InvalidFormat(".1.".to_string())),
+            (
+                "1.a.1",
+                VersionParseError::InvalidFormat("1.a.1".to_string()),
+            ),
+            (
+                "a.1.1",
+                VersionParseError::InvalidFormat("a.1.1".to_string()),
+            ),
+            ("", VersionParseError::EmptyVersion),
+        ];
+
+        for (input, expected_error) in test_cases {
+            let result = Version::parse(input);
+            assert!(result.is_err());
+            assert_eq!(result.unwrap_err().to_string(), expected_error.to_string());
+        }
+    }
+}
