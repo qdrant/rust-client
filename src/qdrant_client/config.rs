@@ -34,6 +34,9 @@ pub struct QdrantConfig {
 
     /// Optional compression schema to use for API requests
     pub compression: Option<CompressionEncoding>,
+
+    /// Whether to check compatibility between the client and server versions
+    pub check_compatibility: bool,
 }
 
 impl QdrantConfig {
@@ -169,6 +172,11 @@ impl QdrantConfig {
     pub fn build(self) -> Result<Qdrant, QdrantError> {
         Qdrant::new(self)
     }
+
+    pub fn skip_compatibility_check(mut self) -> Self {
+        self.check_compatibility = false;
+        self
+    }
 }
 
 /// Default Qdrant client configuration.
@@ -183,6 +191,7 @@ impl Default for QdrantConfig {
             keep_alive_while_idle: true,
             api_key: None,
             compression: None,
+            check_compatibility: true,
         }
     }
 }

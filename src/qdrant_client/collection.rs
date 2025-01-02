@@ -14,6 +14,7 @@ use crate::qdrant::{
     ListCollectionAliasesRequest, ListCollectionsRequest, ListCollectionsResponse, RenameAlias,
     UpdateCollection, UpdateCollectionClusterSetupRequest, UpdateCollectionClusterSetupResponse,
 };
+use crate::qdrant_client::version_check::is_compatible;
 use crate::qdrant_client::{Qdrant, QdrantResult};
 
 /// # Collection operations
@@ -27,6 +28,27 @@ impl Qdrant {
         &self,
         f: impl Fn(CollectionsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
     ) -> QdrantResult<T> {
+        if self.config.check_compatibility && self.is_compatible().is_none() {
+            let client_version = env!("CARGO_PKG_VERSION").to_string();
+            let server_version = match self.health_check().await {
+                Ok(info) => info.version,
+                Err(_) => "Unknown".to_string(),
+            };
+            if server_version == "Unknown" {
+                println!(
+                    "Failed to obtain server version. \
+                Unable to check client-server compatibility. \
+                Set check_compatibility=false to skip version check."
+                );
+            } else {
+                let is_compatible = is_compatible(Some(&client_version), Some(&server_version));
+                self.set_is_compatible(Some(is_compatible));
+                println!("Client version {client_version} is not compatible with server version {server_version}. \
+                Major versions should match and minor version difference must not exceed 1. \
+                Set check_compatibility=false to skip version check.");
+            }
+        }
+
         let result = self
             .channel
             .with_channel(

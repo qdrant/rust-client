@@ -10,7 +10,9 @@ mod query;
 mod search;
 mod sharding_keys;
 mod snapshot;
+mod version_check;
 
+use std::cell::RefCell;
 use std::future::Future;
 
 use tonic::codegen::InterceptedService;
@@ -85,6 +87,9 @@ pub struct Qdrant {
 
     /// Internal connection pool
     channel: ChannelPool,
+
+    /// Internal flag for checking compatibility with the server
+    is_compatible: RefCell<Option<bool>>,
 }
 
 /// # Construct and connect
@@ -102,9 +107,21 @@ impl Qdrant {
             config.keep_alive_while_idle,
         );
 
-        let client = Self { channel, config };
+        let client = Self {
+            channel,
+            config,
+            is_compatible: RefCell::new(None),
+        };
 
         Ok(client)
+    }
+
+    fn set_is_compatible(&self, value: Option<bool>) {
+        *self.is_compatible.borrow_mut() = value;
+    }
+
+    fn is_compatible(&self) -> Option<bool> {
+        *self.is_compatible.borrow()
     }
 
     /// Build a new Qdrant client with the given URL.
