@@ -12,9 +12,9 @@ mod sharding_keys;
 mod snapshot;
 mod version_check;
 
-use std::cell::RefCell;
 use std::future::Future;
 
+use futures::executor::block_on;
 use tonic::codegen::InterceptedService;
 use tonic::transport::{Channel, Uri};
 use tonic::Status;
@@ -23,6 +23,7 @@ use crate::auth::TokenInterceptor;
 use crate::channel_pool::ChannelPool;
 use crate::qdrant::{qdrant_client, HealthCheckReply, HealthCheckRequest};
 use crate::qdrant_client::config::QdrantConfig;
+use crate::qdrant_client::version_check::is_compatible;
 use crate::QdrantError;
 
 /// [`Qdrant`] client result
@@ -87,9 +88,6 @@ pub struct Qdrant {
 
     /// Internal connection pool
     channel: ChannelPool,
-
-    /// Internal flag for checking compatibility with the server
-    is_compatible: RefCell<Option<bool>>,
 }
 
 /// # Construct and connect
@@ -100,6 +98,7 @@ impl Qdrant {
     ///
     /// Constructs the client and connects based on the given [`QdrantConfig`](config::QdrantConfig).
     pub fn new(config: QdrantConfig) -> QdrantResult<Self> {
+        let check_compatibility = config.check_compatibility;
         let channel = ChannelPool::new(
             config.uri.parse::<Uri>()?,
             config.timeout,
@@ -107,21 +106,31 @@ impl Qdrant {
             config.keep_alive_while_idle,
         );
 
-        let client = Self {
-            channel,
-            config,
-            is_compatible: RefCell::new(None),
-        };
+        let client = Self { channel, config };
+
+        if check_compatibility {
+            let client_version = env!("CARGO_PKG_VERSION").to_string();
+            let server_version = match block_on(async { client.health_check().await }) {
+                Ok(server_info) => server_info.version,
+                Err(_) => "Unknown".to_string(),
+            };
+            if server_version == "Unknown" {
+                println!(
+                    "Failed to obtain server version. \
+                    Unable to check client-server compatibility. \
+                    Set check_compatibility=false to skip version check."
+                );
+            } else {
+                let is_compatible = is_compatible(Some(&client_version), Some(&server_version));
+                if !is_compatible {
+                    println!("Client version {client_version} is not compatible with server version {server_version}. \
+                    Major versions should match and minor version difference must not exceed 1. \
+                    Set check_compatibility=false to skip version check.");
+                }
+            }
+        }
 
         Ok(client)
-    }
-
-    fn set_is_compatible(&self, value: Option<bool>) {
-        *self.is_compatible.borrow_mut() = value;
-    }
-
-    fn is_compatible(&self) -> Option<bool> {
-        *self.is_compatible.borrow()
     }
 
     /// Build a new Qdrant client with the given URL.
