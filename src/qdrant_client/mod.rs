@@ -14,7 +14,6 @@ mod version_check;
 
 use std::future::Future;
 
-use futures::executor::block_on;
 use tonic::codegen::InterceptedService;
 use tonic::transport::{Channel, Uri};
 use tonic::Status;
@@ -109,24 +108,31 @@ impl Qdrant {
         let client = Self { channel, config };
 
         if check_compatibility {
-            let client_version = env!("CARGO_PKG_VERSION").to_string();
-            let server_version = match block_on(async { client.health_check().await }) {
-                Ok(server_info) => server_info.version,
-                Err(_) => "Unknown".to_string(),
+            let health_check_future = client.health_check();
+
+            // Run future on current or new runtime depending on current context
+            let server_version = match tokio::runtime::Handle::try_current() {
+                Ok(_) => futures::executor::block_on(health_check_future),
+                Err(_) => tokio::runtime::Runtime::new()
+                    .unwrap()
+                    .block_on(health_check_future),
             };
-            if server_version == "Unknown" {
-                println!(
-                    "Failed to obtain server version. \
-                    Unable to check client-server compatibility. \
-                    Set check_compatibility=false to skip version check."
-                );
-            } else {
+            let server_version = server_version.map(|info| info.version).ok();
+
+            let client_version = env!("CARGO_PKG_VERSION").to_string();
+            if let Some(server_version) = server_version {
                 let is_compatible = is_compatible(Some(&client_version), Some(&server_version));
                 if !is_compatible {
                     println!("Client version {client_version} is not compatible with server version {server_version}. \
                     Major versions should match and minor version difference must not exceed 1. \
                     Set check_compatibility=false to skip version check.");
                 }
+            } else {
+                println!(
+                    "Failed to obtain server version. \
+                    Unable to check client-server compatibility. \
+                    Set check_compatibility=false to skip version check."
+                );
             }
         }
 
