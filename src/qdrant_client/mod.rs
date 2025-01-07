@@ -13,6 +13,7 @@ mod snapshot;
 mod version_check;
 
 use std::future::Future;
+use std::thread;
 
 use tonic::codegen::InterceptedService;
 use tonic::transport::{Channel, Uri};
@@ -108,16 +109,21 @@ impl Qdrant {
         let client = Self { channel, config };
 
         if check_compatibility {
-            let health_check_future = client.health_check();
-
-            // Run future on current or new runtime depending on current context
-            let server_version = match tokio::runtime::Handle::try_current() {
-                Ok(_) => futures::executor::block_on(health_check_future),
-                Err(_) => tokio::runtime::Runtime::new()
-                    .unwrap()
-                    .block_on(health_check_future),
-            };
-            let server_version = server_version.map(|info| info.version).ok();
+            // We're in sync context, spawn temporary runtime in thread to do async health check
+            let server_version = thread::scope(|s| {
+                s.spawn(|| {
+                    tokio::runtime::Builder::new_current_thread()
+                        .enable_io()
+                        .enable_time()
+                        .build()
+                        .map_err(QdrantError::Io)?
+                        .block_on(client.health_check())
+                })
+                .join()
+                .unwrap()
+            })
+            .ok()
+            .map(|info| info.version);
 
             let client_version = env!("CARGO_PKG_VERSION").to_string();
             if let Some(server_version) = server_version {
