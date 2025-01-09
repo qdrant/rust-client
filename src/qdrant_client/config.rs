@@ -16,6 +16,7 @@ use crate::{Qdrant, QdrantError};
 ///     .compression(Some(CompressionEncoding::Gzip))
 ///     .build();
 /// ```
+#[derive(Clone)]
 pub struct QdrantConfig {
     /// Qdrant server URI to connect to
     pub uri: String,

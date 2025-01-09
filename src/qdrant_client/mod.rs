@@ -98,17 +98,16 @@ impl Qdrant {
     ///
     /// Constructs the client and connects based on the given [`QdrantConfig`](config::QdrantConfig).
     pub fn new(config: QdrantConfig) -> QdrantResult<Self> {
-        let check_compatibility = config.check_compatibility;
-        let channel = ChannelPool::new(
-            config.uri.parse::<Uri>()?,
-            config.timeout,
-            config.connect_timeout,
-            config.keep_alive_while_idle,
-        );
+        if config.check_compatibility {
+            // create a temporary client to check compatibility
+            let channel = ChannelPool::new(
+                config.uri.parse::<Uri>()?,
+                config.timeout,
+                config.connect_timeout,
+                config.keep_alive_while_idle,
+            );
+            let client = Self { channel, config: config.clone() };
 
-        let client = Self { channel, config };
-
-        if check_compatibility {
             // We're in sync context, spawn temporary runtime in thread to do async health check
             let server_version = thread::scope(|s| {
                 s.spawn(|| {
@@ -120,7 +119,7 @@ impl Qdrant {
                         .block_on(client.health_check())
                 })
                 .join()
-                .unwrap()
+                .expect("Failed to join health check thread")
             })
             .ok()
             .map(|info| info.version);
@@ -141,6 +140,15 @@ impl Qdrant {
                 );
             }
         }
+
+        let channel = ChannelPool::new(
+            config.uri.parse::<Uri>()?,
+            config.timeout,
+            config.connect_timeout,
+            config.keep_alive_while_idle,
+        );
+
+        let client = Self { channel, config };
 
         Ok(client)
     }
