@@ -106,7 +106,10 @@ impl Qdrant {
                 config.connect_timeout,
                 config.keep_alive_while_idle,
             );
-            let client = Self { channel, config: config.clone() };
+            let client = Self {
+                channel,
+                config: config.clone(),
+            };
 
             // We're in sync context, spawn temporary runtime in thread to do async health check
             let server_version = thread::scope(|s| {
