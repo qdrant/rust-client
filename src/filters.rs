@@ -61,7 +61,7 @@ impl From<NestedCondition> for Condition {
             !&nested_condition
                 .filter
                 .as_ref()
-                .map_or(false, |f| f.check_has_id()),
+                .is_some_and(|f| f.check_has_id()),
             "Filters containing a `has_id` condition are not supported for nested filtering."
         );
 
@@ -84,7 +84,7 @@ impl qdrant::Filter {
                 Some(ConditionOneOf::Nested(nested)) => nested
                     .filter
                     .as_ref()
-                    .map_or(false, |filter| filter.check_has_id()),
+                    .is_some_and(|filter| filter.check_has_id()),
                 Some(ConditionOneOf::Filter(filter)) => filter.check_has_id(),
                 _ => false,
             })
