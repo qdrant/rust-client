@@ -10,8 +10,10 @@ mod query;
 mod search;
 mod sharding_keys;
 mod snapshot;
+mod version_check;
 
 use std::future::Future;
+use std::thread;
 
 use tonic::codegen::InterceptedService;
 use tonic::transport::{Channel, Uri};
@@ -21,6 +23,7 @@ use crate::auth::TokenInterceptor;
 use crate::channel_pool::ChannelPool;
 use crate::qdrant::{qdrant_client, HealthCheckReply, HealthCheckRequest};
 use crate::qdrant_client::config::QdrantConfig;
+use crate::qdrant_client::version_check::is_compatible;
 use crate::QdrantError;
 
 /// [`Qdrant`] client result
@@ -95,6 +98,52 @@ impl Qdrant {
     ///
     /// Constructs the client and connects based on the given [`QdrantConfig`](config::QdrantConfig).
     pub fn new(config: QdrantConfig) -> QdrantResult<Self> {
+        if config.check_compatibility {
+            // create a temporary client to check compatibility
+            let channel = ChannelPool::new(
+                config.uri.parse::<Uri>()?,
+                config.timeout,
+                config.connect_timeout,
+                config.keep_alive_while_idle,
+            );
+            let client = Self {
+                channel,
+                config: config.clone(),
+            };
+
+            // We're in sync context, spawn temporary runtime in thread to do async health check
+            let server_version = thread::scope(|s| {
+                s.spawn(|| {
+                    tokio::runtime::Builder::new_current_thread()
+                        .enable_io()
+                        .enable_time()
+                        .build()
+                        .map_err(QdrantError::Io)?
+                        .block_on(client.health_check())
+                })
+                .join()
+                .expect("Failed to join health check thread")
+            })
+            .ok()
+            .map(|info| info.version);
+
+            let client_version = env!("CARGO_PKG_VERSION").to_string();
+            if let Some(server_version) = server_version {
+                let is_compatible = is_compatible(Some(&client_version), Some(&server_version));
+                if !is_compatible {
+                    println!("Client version {client_version} is not compatible with server version {server_version}. \
+                    Major versions should match and minor version difference must not exceed 1. \
+                    Set check_compatibility=false to skip version check.");
+                }
+            } else {
+                println!(
+                    "Failed to obtain server version. \
+                    Unable to check client-server compatibility. \
+                    Set check_compatibility=false to skip version check."
+                );
+            }
+        }
+
         let channel = ChannelPool::new(
             config.uri.parse::<Uri>()?,
             config.timeout,

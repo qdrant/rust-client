@@ -20,13 +20,15 @@ anyhow = "1.0.89"
 serde = { version = "1.0.210", features = ["derive"], optional = true }
 serde_json = { version = "1.0.128", optional = true }
 reqwest = { version = "0.12.8", optional = true, default-features = false, features = ["stream", "rustls-tls", "http2"] }
+futures = { version = "0.3.31" }
+tokio = { version = "1.40.0", features = ["rt-multi-thread"] }
 futures-util = { version = "0.3.31", optional = true }
 derive_builder = { version = "0.20.2" }
 thiserror = "1.0.64"
+semver = "1.0.24"
 
 [dev-dependencies]
 tonic-build = { version = "0.12.3", features = ["prost"] }
-tokio = { version = "1.40.0", features = ["rt-multi-thread"] }
 
 [features]
 default = ["download_snapshots", "serde", "generate-snippets"]
