@@ -1,30 +1,14 @@
 use std::error::Error;
 use std::fmt;
+use semver::Version;
 
-#[derive(Debug, Clone)]
-pub struct Version {
-    pub major: u32,
-    pub minor: u32,
-}
-
-impl Version {
-    pub fn parse(version: &str) -> Result<Version, VersionParseError> {
-        if version.is_empty() {
-            return Err(VersionParseError::EmptyVersion);
-        }
-        let parts: Vec<&str> = version.split('.').collect();
-        if parts.len() < 2 {
-            return Err(VersionParseError::InvalidFormat(version.to_string()));
-        }
-
-        let major = parts[0]
-            .parse::<u32>()
-            .map_err(|_| VersionParseError::InvalidFormat(version.to_string()))?;
-        let minor = parts[1]
-            .parse::<u32>()
-            .map_err(|_| VersionParseError::InvalidFormat(version.to_string()))?;
-
-        Ok(Version { major, minor })
+pub fn parse(version: &str) -> Result<Version, VersionParseError> {
+    if version.is_empty() {
+        return Err(VersionParseError::EmptyVersion);
+    }
+    match Version::parse(version) {
+        Ok(v) => Ok(v),
+        Err(_) => Err(VersionParseError::InvalidFormat(version.to_string())),
     }
 }
 
@@ -68,8 +52,8 @@ pub fn is_compatible(client_version: Option<&str>, server_version: Option<&str>)
     }
 
     match (
-        Version::parse(client_version),
-        Version::parse(server_version),
+        parse(client_version),
+        parse(server_version),
     ) {
         (Ok(client), Ok(server)) => {
             let major_dif = (client.major as i32 - server.major as i32).abs();
@@ -92,12 +76,12 @@ mod tests {
     #[test]
     fn test_is_compatible() {
         let test_cases = vec![
-            (Some("1.9.3.dev0"), Some("2.8.1.dev12-something"), false),
+            (Some("1.9.3.dev0"), Some("2.8.1-dev12"), false),
             (Some("1.9"), Some("2.8"), false),
             (Some("1"), Some("2"), false),
             (Some("1.9.0"), Some("2.9.0"), false),
             (Some("1.1.0"), Some("1.2.9"), true),
-            (Some("1.2.7"), Some("1.1.8.dev0"), true),
+            (Some("1.2.7"), Some("1.1.8-dev0"), true),
             (Some("1.2.1"), Some("1.2.29"), true),
             (Some("1.2.0"), Some("1.2.0"), true),
             (Some("1.2.0"), Some("1.4.0"), false),
@@ -138,7 +122,7 @@ mod tests {
         ];
 
         for (input, expected_error) in test_cases {
-            let result = Version::parse(input);
+            let result = parse(input);
             assert!(result.is_err());
             assert_eq!(result.unwrap_err().to_string(), expected_error.to_string());
         }
