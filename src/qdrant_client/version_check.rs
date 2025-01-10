@@ -1,5 +1,6 @@
 use std::error::Error;
 use std::fmt;
+
 use semver::Version;
 
 pub fn parse(version: &str) -> Result<Version, VersionParseError> {
@@ -51,10 +52,7 @@ pub fn is_compatible(client_version: Option<&str>, server_version: Option<&str>)
         return true;
     }
 
-    match (
-        parse(client_version),
-        parse(server_version),
-    ) {
+    match (parse(client_version), parse(server_version)) {
         (Ok(client), Ok(server)) => {
             let major_dif = (client.major as i32 - server.major as i32).abs();
             if major_dif >= 1 {
