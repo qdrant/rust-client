@@ -71,6 +71,7 @@ mod rename_alias_builder;
 pub use rename_alias_builder::RenameAliasBuilder;
 
 mod max_optimization_threads_builder;
+pub use max_optimization_threads_builder::MaxOptimizationThreadsBuilder;
 
 mod move_shard_builder;
 pub use move_shard_builder::MoveShardBuilder;
