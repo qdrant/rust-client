@@ -216,3 +216,6 @@ pub use create_collection_builder::CreateCollectionBuilder;
 
 pub mod count_points_builder;
 pub use count_points_builder::*;
+
+pub mod has_vector_condition_builder;
+pub use has_vector_condition_builder::HasVectorConditionBuilder;
