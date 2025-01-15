@@ -54,7 +54,7 @@ pub struct OptimizersConfigDiffBuilder {
     /// Note: each optimization job will also use `max_indexing_threads` threads by itself for index building.
     /// If null - have no limit and choose dynamically to saturate CPU.
     /// If 0 - no optimization threads, optimizations will be disabled.
-    pub(crate) max_optimization_threads: Option<Option<u64>>,
+    pub(crate) max_optimization_threads: Option<Option<MaxOptimizationThreads>>,
 }
 
 impl OptimizersConfigDiffBuilder {
@@ -147,9 +147,12 @@ impl OptimizersConfigDiffBuilder {
     /// If null - have no limit and choose dynamically to saturate CPU.
     /// If 0 - no optimization threads, optimizations will be disabled.
     #[allow(unused_mut)]
-    pub fn max_optimization_threads(self, value: u64) -> Self {
+    pub fn max_optimization_threads<VALUE: Into<MaxOptimizationThreads>>(
+        self,
+        value: VALUE,
+    ) -> Self {
         let mut new = self;
-        new.max_optimization_threads = Option::Some(Option::Some(value));
+        new.max_optimization_threads = Option::Some(Option::Some(value.into()));
         new
     }
 
@@ -163,6 +166,8 @@ impl OptimizersConfigDiffBuilder {
             indexing_threshold: self.indexing_threshold.unwrap_or_default(),
             flush_interval_sec: self.flush_interval_sec.unwrap_or_default(),
             max_optimization_threads: self.max_optimization_threads.unwrap_or_default(),
+            // Deprecated: replaced with max_optimization_threads
+            deprecated_max_optimization_threads: None,
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.

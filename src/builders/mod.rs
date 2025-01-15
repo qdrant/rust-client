@@ -70,6 +70,8 @@ pub use create_alias_builder::CreateAliasBuilder;
 mod rename_alias_builder;
 pub use rename_alias_builder::RenameAliasBuilder;
 
+mod max_optimization_threads_builder;
+
 mod move_shard_builder;
 pub use move_shard_builder::MoveShardBuilder;
 
