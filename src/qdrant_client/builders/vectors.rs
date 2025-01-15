@@ -1,50 +1,27 @@
-use crate::qdrant::{DenseVector, MultiDenseVector, NamedVectors, SparseVector, Vector};
+use crate::qdrant::{
+    DenseVectorBuilder, MultiDenseVector, NamedVectors, SparseVectorBuilder, Vector,
+};
 use crate::QdrantError;
 
 impl Vector {
+    #[inline]
     pub fn new(values: Vec<f32>) -> Self {
         Self::new_dense(values)
     }
 
-    pub fn new_dense(values: Vec<f32>) -> Self {
-        Vector {
-            vector: Some(crate::qdrant::vector::Vector::Dense(DenseVector {
-                data: values,
-            })),
-            // Deprecated
-            data: vec![],
-            indices: None,
-            vectors_count: None,
-        }
+    #[inline]
+    pub fn new_dense(values: impl Into<Vec<f32>>) -> Self {
+        DenseVectorBuilder::new(values.into()).build().into()
     }
 
+    #[inline]
     pub fn new_sparse(indices: impl Into<Vec<u32>>, values: impl Into<Vec<f32>>) -> Self {
-        Vector {
-            vector: Some(crate::qdrant::vector::Vector::Sparse(SparseVector {
-                values: values.into(),
-                indices: indices.into(),
-            })),
-            // Deprecated
-            data: vec![],
-            indices: None,
-            vectors_count: None,
-        }
+        SparseVectorBuilder::new(indices, values).build().into()
     }
 
-    pub fn new_multi(values: Vec<Vec<f32>>) -> Self {
-        let vectors = values
-            .into_iter()
-            .map(|data| DenseVector { data })
-            .collect();
-        Vector {
-            vector: Some(crate::qdrant::vector::Vector::MultiDense(
-                MultiDenseVector { vectors },
-            )),
-            // Deprecated
-            data: vec![],
-            indices: None,
-            vectors_count: None,
-        }
+    #[inline]
+    pub fn new_multi(vectors: impl Into<Vec<Vec<f32>>>) -> Self {
+        MultiDenseVector::from(vectors.into()).into()
     }
 
     pub fn try_into_dense(self) -> Result<Vec<f32>, QdrantError> {
@@ -118,5 +95,17 @@ impl NamedVectors {
     pub fn add_vector(mut self, name: impl Into<String>, vector: impl Into<Vector>) -> Self {
         self.vectors.insert(name.into(), vector.into());
         self
+    }
+}
+
+impl From<crate::qdrant::vector::Vector> for Vector {
+    fn from(vector: crate::qdrant::vector::Vector) -> Self {
+        Vector {
+            vector: Some(vector),
+            // Deprecated
+            data: vec![],
+            indices: None,
+            vectors_count: None,
+        }
     }
 }

@@ -219,3 +219,12 @@ pub use count_points_builder::*;
 
 pub mod has_vector_condition_builder;
 pub use has_vector_condition_builder::HasVectorConditionBuilder;
+
+pub mod dense_vector_builder;
+pub use dense_vector_builder::DenseVectorBuilder;
+
+pub mod sparse_vector_builder;
+pub use sparse_vector_builder::SparseVectorBuilder;
+
+pub mod multi_dense_vector_builder;
+pub use multi_dense_vector_builder::MultiDenseVectorBuilder;
