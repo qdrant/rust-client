@@ -52,6 +52,9 @@ pub use integer_index_params_builder::IntegerIndexParamsBuilder;
 mod float_index_params_builder;
 pub use float_index_params_builder::FloatIndexParamsBuilder;
 
+mod bool_index_params_builder;
+pub use bool_index_params_builder::BoolIndexParamsBuilder;
+
 mod geo_index_params_builder;
 pub use geo_index_params_builder::GeoIndexParamsBuilder;
 
