@@ -140,6 +140,7 @@ impl QdrantClient {
                         hnsw_config: hnsw_config.cloned(),
                         vectors_config: vectors_config.cloned(),
                         quantization_config: quantization_config.cloned(),
+                        strict_mode_config: None,
                     })
                     .await?;
 

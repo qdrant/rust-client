@@ -51,10 +51,11 @@ pub struct OptimizersConfigDiffBuilder {
     pub(crate) flush_interval_sec: Option<Option<u64>>,
     ///
     /// Max number of threads (jobs) for running optimizations per shard.
-    /// Note: each optimization job will also use `max_indexing_threads` threads by itself for index building.
-    /// If null - have no limit and choose dynamically to saturate CPU.
-    /// If 0 - no optimization threads, optimizations will be disabled.
-    pub(crate) max_optimization_threads: Option<Option<u64>>,
+    /// Each optimization job will also use `max_indexing_threads` threads by itself for index building.
+    ///
+    /// - If `auto` - have no limit and choose dynamically to saturate CPU.
+    /// - If `disabled` or `0` - no optimization threads, optimizations will be disabled.
+    pub(crate) max_optimization_threads: Option<Option<MaxOptimizationThreads>>,
 }
 
 impl OptimizersConfigDiffBuilder {
@@ -143,13 +144,40 @@ impl OptimizersConfigDiffBuilder {
     }
     ///
     /// Max number of threads (jobs) for running optimizations per shard.
-    /// Note: each optimization job will also use `max_indexing_threads` threads by itself for index building.
-    /// If null - have no limit and choose dynamically to saturate CPU.
-    /// If 0 - no optimization threads, optimizations will be disabled.
+    /// Each optimization job will also use `max_indexing_threads` threads by itself for index building.
+    ///
+    /// - If `auto` - have no limit and choose dynamically to saturate CPU.
+    /// - If `disabled` or `0` - no optimization threads, optimizations will be disabled.
+    ///
+    /// ```no_run
+    ///# use qdrant_client::{Qdrant, QdrantError};
+    /// use qdrant_client::qdrant::{OptimizersConfigDiffBuilder, UpdateCollectionBuilder, MaxOptimizationThreadsBuilder};
+    ///
+    ///# async fn create_collection(client: &Qdrant)
+    ///# -> Result<(), QdrantError> {
+    /// let optimizers_config = OptimizersConfigDiffBuilder::default()
+    ///     // Use exactly 8 threads
+    ///     .max_optimization_threads(8)
+    ///     // Or automatically choose
+    ///     .max_optimization_threads(MaxOptimizationThreadsBuilder::auto())
+    ///     // Or disable
+    ///     .max_optimization_threads(MaxOptimizationThreadsBuilder::disabled());
+    ///
+    /// client
+    ///     .update_collection(
+    ///         UpdateCollectionBuilder::new("my_collection").optimizers_config(optimizers_config),
+    ///     )
+    ///     .await?;
+    ///# Ok(())
+    ///# }
+    /// ```
     #[allow(unused_mut)]
-    pub fn max_optimization_threads(self, value: u64) -> Self {
+    pub fn max_optimization_threads<VALUE: Into<MaxOptimizationThreads>>(
+        self,
+        value: VALUE,
+    ) -> Self {
         let mut new = self;
-        new.max_optimization_threads = Option::Some(Option::Some(value));
+        new.max_optimization_threads = Option::Some(Option::Some(value.into()));
         new
     }
 
@@ -163,6 +191,8 @@ impl OptimizersConfigDiffBuilder {
             indexing_threshold: self.indexing_threshold.unwrap_or_default(),
             flush_interval_sec: self.flush_interval_sec.unwrap_or_default(),
             max_optimization_threads: self.max_optimization_threads.unwrap_or_default(),
+            // Deprecated: replaced with max_optimization_threads
+            deprecated_max_optimization_threads: None,
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.

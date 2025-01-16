@@ -149,6 +149,54 @@ pub struct ListCollectionsResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
 }
+#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+pub struct MaxOptimizationThreads {
+    #[prost(oneof = "max_optimization_threads::Variant", tags = "1, 2")]
+    pub variant: ::core::option::Option<max_optimization_threads::Variant>,
+}
+/// Nested message and enum types in `MaxOptimizationThreads`.
+pub mod max_optimization_threads {
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum Setting {
+        Auto = 0,
+    }
+    impl Setting {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::Auto => "Auto",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "Auto" => Some(Self::Auto),
+                _ => None,
+            }
+        }
+    }
+    #[derive(Clone, Copy, PartialEq, ::prost::Oneof)]
+    pub enum Variant {
+        #[prost(uint64, tag = "1")]
+        Value(u64),
+        #[prost(enumeration = "Setting", tag = "2")]
+        Setting(i32),
+    }
+}
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct OptimizerStatus {
     #[prost(bool, tag = "1")]
@@ -248,7 +296,7 @@ pub struct OptimizersConfigDiff {
     pub max_segment_size: ::core::option::Option<u64>,
     ///
     /// Maximum size (in kilobytes) of vectors to store in-memory per segment.
-    /// Segments larger than this threshold will be stored as read-only memmaped file.
+    /// Segments larger than this threshold will be stored as read-only memmapped file.
     ///
     /// Memmap storage is disabled by default, to enable it, set this threshold to a reasonable value.
     ///
@@ -271,13 +319,16 @@ pub struct OptimizersConfigDiff {
     /// Interval between forced flushes.
     #[prost(uint64, optional, tag = "7")]
     pub flush_interval_sec: ::core::option::Option<u64>,
+    /// Deprecated in favor of `max_optimization_threads`
+    #[prost(uint64, optional, tag = "8")]
+    pub deprecated_max_optimization_threads: ::core::option::Option<u64>,
     ///
     /// Max number of threads (jobs) for running optimizations per shard.
     /// Note: each optimization job will also use `max_indexing_threads` threads by itself for index building.
-    /// If null - have no limit and choose dynamically to saturate CPU.
+    /// If "auto" - have no limit and choose dynamically to saturate CPU.
     /// If 0 - no optimization threads, optimizations will be disabled.
-    #[prost(uint64, optional, tag = "8")]
-    pub max_optimization_threads: ::core::option::Option<u64>,
+    #[prost(message, optional, tag = "9")]
+    pub max_optimization_threads: ::core::option::Option<MaxOptimizationThreads>,
 }
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct ScalarQuantization {
@@ -362,6 +413,22 @@ pub struct StrictModeConfig {
     pub search_allow_exact: ::core::option::Option<bool>,
     #[prost(float, optional, tag = "8")]
     pub search_max_oversampling: ::core::option::Option<f32>,
+    #[prost(uint64, optional, tag = "9")]
+    pub upsert_max_batchsize: ::core::option::Option<u64>,
+    #[prost(uint64, optional, tag = "10")]
+    pub max_collection_vector_size_bytes: ::core::option::Option<u64>,
+    /// Max number of read operations per minute per replica
+    #[prost(uint32, optional, tag = "11")]
+    pub read_rate_limit: ::core::option::Option<u32>,
+    /// Max number of write operations per minute per replica
+    #[prost(uint32, optional, tag = "12")]
+    pub write_rate_limit: ::core::option::Option<u32>,
+    #[prost(uint64, optional, tag = "13")]
+    pub max_collection_payload_size_bytes: ::core::option::Option<u64>,
+    #[prost(uint64, optional, tag = "14")]
+    pub filter_max_conditions: ::core::option::Option<u64>,
+    #[prost(uint64, optional, tag = "15")]
+    pub condition_max_size: ::core::option::Option<u64>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateCollection {
@@ -437,6 +504,9 @@ pub struct UpdateCollection {
     /// New sparse vector parameters
     #[prost(message, optional, tag = "8")]
     pub sparse_vectors_config: ::core::option::Option<SparseVectorConfig>,
+    /// New strict mode configuration
+    #[prost(message, optional, tag = "9")]
+    pub strict_mode_config: ::core::option::Option<StrictModeConfig>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeleteCollection {
@@ -577,7 +647,11 @@ pub struct TextIndexParams {
     pub on_disk: ::core::option::Option<bool>,
 }
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
-pub struct BoolIndexParams {}
+pub struct BoolIndexParams {
+    /// If true - store index on disk.
+    #[prost(bool, optional, tag = "1")]
+    pub on_disk: ::core::option::Option<bool>,
+}
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct DatetimeIndexParams {
     /// If true - store index on disk.
@@ -827,6 +901,8 @@ pub struct ReshardingInfo {
     pub peer_id: u64,
     #[prost(message, optional, tag = "3")]
     pub shard_key: ::core::option::Option<ShardKey>,
+    #[prost(enumeration = "ReshardingDirection", tag = "4")]
+    pub direction: i32,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CollectionClusterInfoResponse {
@@ -845,6 +921,9 @@ pub struct CollectionClusterInfoResponse {
     /// Shard transfers
     #[prost(message, repeated, tag = "5")]
     pub shard_transfers: ::prost::alloc::vec::Vec<ShardTransferInfo>,
+    /// Resharding operations
+    #[prost(message, repeated, tag = "6")]
+    pub resharding_operations: ::prost::alloc::vec::Vec<ReshardingInfo>,
 }
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct MoveShard {
@@ -1347,8 +1426,10 @@ pub enum ReplicaState {
     PartialSnapshot = 5,
     /// Shard is undergoing recovered by an external node; Normally rejects updates, accepts updates if force is true
     Recovery = 6,
-    /// Points are being migrated to this shard as part of resharding
+    /// Points are being migrated to this shard as part of scale-up resharding
     Resharding = 7,
+    /// Points are being migrated to this shard as part of scale-down resharding
+    ReshardingScaleDown = 8,
 }
 impl ReplicaState {
     /// String value of the enum field names used in the ProtoBuf definition.
@@ -1365,6 +1446,7 @@ impl ReplicaState {
             Self::PartialSnapshot => "PartialSnapshot",
             Self::Recovery => "Recovery",
             Self::Resharding => "Resharding",
+            Self::ReshardingScaleDown => "ReshardingScaleDown",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -1378,6 +1460,37 @@ impl ReplicaState {
             "PartialSnapshot" => Some(Self::PartialSnapshot),
             "Recovery" => Some(Self::Recovery),
             "Resharding" => Some(Self::Resharding),
+            "ReshardingScaleDown" => Some(Self::ReshardingScaleDown),
+            _ => None,
+        }
+    }
+}
+///
+/// Resharding direction, scale up or down in number of shards
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+#[repr(i32)]
+pub enum ReshardingDirection {
+    /// Scale up, add a new shard
+    Up = 0,
+    /// Scale down, remove a shard
+    Down = 1,
+}
+impl ReshardingDirection {
+    /// String value of the enum field names used in the ProtoBuf definition.
+    ///
+    /// The values are not transformed in any way and thus are considered stable
+    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+    pub fn as_str_name(&self) -> &'static str {
+        match self {
+            Self::Up => "Up",
+            Self::Down => "Down",
+        }
+    }
+    /// Creates an enum from field names used in the ProtoBuf definition.
+    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+        match value {
+            "Up" => Some(Self::Up),
+            "Down" => Some(Self::Down),
             _ => None,
         }
     }
@@ -2817,18 +2930,106 @@ pub struct SparseIndices {
     #[prost(uint32, repeated, tag = "1")]
     pub data: ::prost::alloc::vec::Vec<u32>,
 }
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct Document {
+    /// Text of the document
+    #[prost(string, tag = "1")]
+    pub text: ::prost::alloc::string::String,
+    /// Model name
+    #[prost(string, tag = "3")]
+    pub model: ::prost::alloc::string::String,
+    /// Model options
+    #[prost(map = "string, message", tag = "4")]
+    pub options: ::std::collections::HashMap<::prost::alloc::string::String, Value>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct Image {
+    /// Image data, either base64 encoded or URL
+    #[prost(message, optional, tag = "1")]
+    pub image: ::core::option::Option<Value>,
+    /// Model name
+    #[prost(string, tag = "2")]
+    pub model: ::prost::alloc::string::String,
+    /// Model options
+    #[prost(map = "string, message", tag = "3")]
+    pub options: ::std::collections::HashMap<::prost::alloc::string::String, Value>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct InferenceObject {
+    /// Object to infer
+    #[prost(message, optional, tag = "1")]
+    pub object: ::core::option::Option<Value>,
+    /// Model name
+    #[prost(string, tag = "2")]
+    pub model: ::prost::alloc::string::String,
+    /// Model options
+    #[prost(map = "string, message", tag = "3")]
+    pub options: ::std::collections::HashMap<::prost::alloc::string::String, Value>,
+}
 /// Legacy vector format, which determines the vector type by the configuration of its fields.
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Vector {
-    /// Vector data (flatten for multi vectors)
+    /// Vector data (flatten for multi vectors), deprecated
     #[prost(float, repeated, tag = "1")]
     pub data: ::prost::alloc::vec::Vec<f32>,
-    /// Sparse indices for sparse vectors
+    /// Sparse indices for sparse vectors, deprecated
     #[prost(message, optional, tag = "2")]
     pub indices: ::core::option::Option<SparseIndices>,
-    /// Number of vectors per multi vector
+    /// Number of vectors per multi vector, deprecated
     #[prost(uint32, optional, tag = "3")]
     pub vectors_count: ::core::option::Option<u32>,
+    #[prost(oneof = "vector::Vector", tags = "101, 102, 103, 104, 105, 106")]
+    pub vector: ::core::option::Option<vector::Vector>,
+}
+/// Nested message and enum types in `Vector`.
+pub mod vector {
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
+    pub enum Vector {
+        /// Dense vector
+        #[prost(message, tag = "101")]
+        Dense(super::DenseVector),
+        /// Sparse vector
+        #[prost(message, tag = "102")]
+        Sparse(super::SparseVector),
+        /// Multi dense vector
+        #[prost(message, tag = "103")]
+        MultiDense(super::MultiDenseVector),
+        #[prost(message, tag = "104")]
+        Document(super::Document),
+        #[prost(message, tag = "105")]
+        Image(super::Image),
+        #[prost(message, tag = "106")]
+        Object(super::InferenceObject),
+    }
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct VectorOutput {
+    /// Vector data (flatten for multi vectors), deprecated
+    #[prost(float, repeated, tag = "1")]
+    pub data: ::prost::alloc::vec::Vec<f32>,
+    /// Sparse indices for sparse vectors, deprecated
+    #[prost(message, optional, tag = "2")]
+    pub indices: ::core::option::Option<SparseIndices>,
+    /// Number of vectors per multi vector, deprecated
+    #[prost(uint32, optional, tag = "3")]
+    pub vectors_count: ::core::option::Option<u32>,
+    #[prost(oneof = "vector_output::Vector", tags = "101, 102, 103")]
+    pub vector: ::core::option::Option<vector_output::Vector>,
+}
+/// Nested message and enum types in `VectorOutput`.
+pub mod vector_output {
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
+    pub enum Vector {
+        /// Dense vector
+        #[prost(message, tag = "101")]
+        Dense(super::DenseVector),
+        /// Sparse vector
+        #[prost(message, tag = "102")]
+        Sparse(super::SparseVector),
+        /// Multi dense vector
+        #[prost(message, tag = "103")]
+        MultiDense(super::MultiDenseVector),
+    }
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DenseVector {
@@ -2850,7 +3051,7 @@ pub struct MultiDenseVector {
 /// Vector type to be used in queries. Ids will be substituted with their corresponding vectors from the collection.
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct VectorInput {
-    #[prost(oneof = "vector_input::Variant", tags = "1, 2, 3, 4")]
+    #[prost(oneof = "vector_input::Variant", tags = "1, 2, 3, 4, 5, 6, 7")]
     pub variant: ::core::option::Option<vector_input::Variant>,
 }
 /// Nested message and enum types in `VectorInput`.
@@ -2865,6 +3066,12 @@ pub mod vector_input {
         Sparse(super::SparseVector),
         #[prost(message, tag = "4")]
         MultiDense(super::MultiDenseVector),
+        #[prost(message, tag = "5")]
+        Document(super::Document),
+        #[prost(message, tag = "6")]
+        Image(super::Image),
+        #[prost(message, tag = "7")]
+        Object(super::InferenceObject),
     }
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -3115,6 +3322,14 @@ pub struct NamedVectors {
     pub vectors: ::std::collections::HashMap<::prost::alloc::string::String, Vector>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct NamedVectorsOutput {
+    #[prost(map = "string, message", tag = "1")]
+    pub vectors: ::std::collections::HashMap<
+        ::prost::alloc::string::String,
+        VectorOutput,
+    >,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Vectors {
     #[prost(oneof = "vectors::VectorsOptions", tags = "1, 2")]
     pub vectors_options: ::core::option::Option<vectors::VectorsOptions>,
@@ -3127,6 +3342,21 @@ pub mod vectors {
         Vector(super::Vector),
         #[prost(message, tag = "2")]
         Vectors(super::NamedVectors),
+    }
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct VectorsOutput {
+    #[prost(oneof = "vectors_output::VectorsOptions", tags = "1, 2")]
+    pub vectors_options: ::core::option::Option<vectors_output::VectorsOptions>,
+}
+/// Nested message and enum types in `VectorsOutput`.
+pub mod vectors_output {
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
+    pub enum VectorsOptions {
+        #[prost(message, tag = "1")]
+        Vector(super::VectorOutput),
+        #[prost(message, tag = "2")]
+        Vectors(super::NamedVectorsOutput),
     }
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -4154,7 +4384,7 @@ pub struct ScoredPoint {
     pub version: u64,
     /// Vectors to search
     #[prost(message, optional, tag = "6")]
-    pub vectors: ::core::option::Option<Vectors>,
+    pub vectors: ::core::option::Option<VectorsOutput>,
     /// Shard key
     #[prost(message, optional, tag = "7")]
     pub shard_key: ::core::option::Option<ShardKey>,
@@ -4207,6 +4437,8 @@ pub struct SearchResponse {
     /// Time spent to process
     #[prost(double, tag = "2")]
     pub time: f64,
+    #[prost(message, optional, tag = "3")]
+    pub usage: ::core::option::Option<HardwareUsage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct QueryResponse {
@@ -4215,6 +4447,8 @@ pub struct QueryResponse {
     /// Time spent to process
     #[prost(double, tag = "2")]
     pub time: f64,
+    #[prost(message, optional, tag = "3")]
+    pub usage: ::core::option::Option<HardwareUsage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct QueryBatchResponse {
@@ -4223,6 +4457,8 @@ pub struct QueryBatchResponse {
     /// Time spent to process
     #[prost(double, tag = "2")]
     pub time: f64,
+    #[prost(message, optional, tag = "3")]
+    pub usage: ::core::option::Option<HardwareUsage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct QueryGroupsResponse {
@@ -4231,6 +4467,8 @@ pub struct QueryGroupsResponse {
     /// Time spent to process
     #[prost(double, tag = "2")]
     pub time: f64,
+    #[prost(message, optional, tag = "3")]
+    pub usage: ::core::option::Option<HardwareUsage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BatchResult {
@@ -4244,6 +4482,8 @@ pub struct SearchBatchResponse {
     /// Time spent to process
     #[prost(double, tag = "2")]
     pub time: f64,
+    #[prost(message, optional, tag = "3")]
+    pub usage: ::core::option::Option<HardwareUsage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SearchGroupsResponse {
@@ -4252,6 +4492,8 @@ pub struct SearchGroupsResponse {
     /// Time spent to process
     #[prost(double, tag = "2")]
     pub time: f64,
+    #[prost(message, optional, tag = "3")]
+    pub usage: ::core::option::Option<HardwareUsage>,
 }
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct CountResponse {
@@ -4260,6 +4502,8 @@ pub struct CountResponse {
     /// Time spent to process
     #[prost(double, tag = "2")]
     pub time: f64,
+    #[prost(message, optional, tag = "3")]
+    pub usage: ::core::option::Option<HardwareUsage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ScrollResponse {
@@ -4284,7 +4528,7 @@ pub struct RetrievedPoint {
     #[prost(map = "string, message", tag = "2")]
     pub payload: ::std::collections::HashMap<::prost::alloc::string::String, Value>,
     #[prost(message, optional, tag = "4")]
-    pub vectors: ::core::option::Option<Vectors>,
+    pub vectors: ::core::option::Option<VectorsOutput>,
     /// Shard key
     #[prost(message, optional, tag = "5")]
     pub shard_key: ::core::option::Option<ShardKey>,
@@ -4307,6 +4551,8 @@ pub struct RecommendResponse {
     /// Time spent to process
     #[prost(double, tag = "2")]
     pub time: f64,
+    #[prost(message, optional, tag = "3")]
+    pub usage: ::core::option::Option<HardwareUsage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RecommendBatchResponse {
@@ -4315,6 +4561,8 @@ pub struct RecommendBatchResponse {
     /// Time spent to process
     #[prost(double, tag = "2")]
     pub time: f64,
+    #[prost(message, optional, tag = "3")]
+    pub usage: ::core::option::Option<HardwareUsage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DiscoverResponse {
@@ -4323,6 +4571,8 @@ pub struct DiscoverResponse {
     /// Time spent to process
     #[prost(double, tag = "2")]
     pub time: f64,
+    #[prost(message, optional, tag = "3")]
+    pub usage: ::core::option::Option<HardwareUsage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DiscoverBatchResponse {
@@ -4331,6 +4581,8 @@ pub struct DiscoverBatchResponse {
     /// Time spent to process
     #[prost(double, tag = "2")]
     pub time: f64,
+    #[prost(message, optional, tag = "3")]
+    pub usage: ::core::option::Option<HardwareUsage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RecommendGroupsResponse {
@@ -4339,6 +4591,8 @@ pub struct RecommendGroupsResponse {
     /// Time spent to process
     #[prost(double, tag = "2")]
     pub time: f64,
+    #[prost(message, optional, tag = "3")]
+    pub usage: ::core::option::Option<HardwareUsage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpdateBatchResponse {
@@ -4363,6 +4617,8 @@ pub struct SearchMatrixPairsResponse {
     /// Time spent to process
     #[prost(double, tag = "2")]
     pub time: f64,
+    #[prost(message, optional, tag = "3")]
+    pub usage: ::core::option::Option<HardwareUsage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SearchMatrixOffsetsResponse {
@@ -4371,6 +4627,8 @@ pub struct SearchMatrixOffsetsResponse {
     /// Time spent to process
     #[prost(double, tag = "2")]
     pub time: f64,
+    #[prost(message, optional, tag = "3")]
+    pub usage: ::core::option::Option<HardwareUsage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Filter {
@@ -4396,7 +4654,7 @@ pub struct MinShould {
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Condition {
-    #[prost(oneof = "condition::ConditionOneOf", tags = "1, 2, 3, 4, 5, 6")]
+    #[prost(oneof = "condition::ConditionOneOf", tags = "1, 2, 3, 4, 5, 6, 7")]
     pub condition_one_of: ::core::option::Option<condition::ConditionOneOf>,
 }
 /// Nested message and enum types in `Condition`.
@@ -4415,6 +4673,8 @@ pub mod condition {
         IsNull(super::IsNullCondition),
         #[prost(message, tag = "6")]
         Nested(super::NestedCondition),
+        #[prost(message, tag = "7")]
+        HasVector(super::HasVectorCondition),
     }
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -4431,6 +4691,11 @@ pub struct IsNullCondition {
 pub struct HasIdCondition {
     #[prost(message, repeated, tag = "1")]
     pub has_id: ::prost::alloc::vec::Vec<PointId>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct HasVectorCondition {
+    #[prost(string, tag = "1")]
+    pub has_vector: ::prost::alloc::string::String,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct NestedCondition {
@@ -4617,6 +4882,15 @@ pub struct GeoPoint {
     pub lon: f64,
     #[prost(double, tag = "2")]
     pub lat: f64,
+}
+#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+pub struct HardwareUsage {
+    #[prost(uint64, tag = "1")]
+    pub cpu: u64,
+    #[prost(uint64, tag = "2")]
+    pub io_read: u64,
+    #[prost(uint64, tag = "3")]
+    pub io_write: u64,
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
