@@ -1,37 +1,27 @@
-use crate::qdrant::{NamedVectors, SparseIndices, Vector};
+use crate::qdrant::{
+    DenseVectorBuilder, MultiDenseVector, NamedVectors, SparseVectorBuilder, Vector,
+};
 use crate::QdrantError;
 
 impl Vector {
+    #[inline]
     pub fn new(values: Vec<f32>) -> Self {
         Self::new_dense(values)
     }
 
-    pub fn new_dense(values: Vec<f32>) -> Self {
-        Vector {
-            data: values,
-            indices: None,
-            vectors_count: None,
-        }
+    #[inline]
+    pub fn new_dense(values: impl Into<Vec<f32>>) -> Self {
+        DenseVectorBuilder::new(values.into()).build().into()
     }
 
+    #[inline]
     pub fn new_sparse(indices: impl Into<Vec<u32>>, values: impl Into<Vec<f32>>) -> Self {
-        Vector {
-            data: values.into(),
-            indices: Some(SparseIndices {
-                data: indices.into(),
-            }),
-            vectors_count: None,
-        }
+        SparseVectorBuilder::new(indices, values).build().into()
     }
 
-    pub fn new_multi(values: Vec<Vec<f32>>) -> Self {
-        let vectors_count = values.len() as u32;
-
-        Vector {
-            data: values.into_iter().flatten().collect(),
-            indices: None,
-            vectors_count: Some(vectors_count),
-        }
+    #[inline]
+    pub fn new_multi(vectors: impl Into<Vec<Vec<f32>>>) -> Self {
+        MultiDenseVector::from(vectors.into()).into()
     }
 
     pub fn try_into_dense(self) -> Result<Vec<f32>, QdrantError> {
@@ -105,5 +95,17 @@ impl NamedVectors {
     pub fn add_vector(mut self, name: impl Into<String>, vector: impl Into<Vector>) -> Self {
         self.vectors.insert(name.into(), vector.into());
         self
+    }
+}
+
+impl From<crate::qdrant::vector::Vector> for Vector {
+    fn from(vector: crate::qdrant::vector::Vector) -> Self {
+        Vector {
+            vector: Some(vector),
+            // Deprecated
+            data: vec![],
+            indices: None,
+            vectors_count: None,
+        }
     }
 }

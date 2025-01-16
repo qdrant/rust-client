@@ -52,6 +52,9 @@ pub use integer_index_params_builder::IntegerIndexParamsBuilder;
 mod float_index_params_builder;
 pub use float_index_params_builder::FloatIndexParamsBuilder;
 
+mod bool_index_params_builder;
+pub use bool_index_params_builder::BoolIndexParamsBuilder;
+
 mod geo_index_params_builder;
 pub use geo_index_params_builder::GeoIndexParamsBuilder;
 
@@ -69,6 +72,9 @@ pub use create_alias_builder::CreateAliasBuilder;
 
 mod rename_alias_builder;
 pub use rename_alias_builder::RenameAliasBuilder;
+
+mod max_optimization_threads_builder;
+pub use max_optimization_threads_builder::MaxOptimizationThreadsBuilder;
 
 mod move_shard_builder;
 pub use move_shard_builder::MoveShardBuilder;
@@ -210,3 +216,12 @@ pub use create_collection_builder::CreateCollectionBuilder;
 
 pub mod count_points_builder;
 pub use count_points_builder::*;
+
+pub mod dense_vector_builder;
+pub use dense_vector_builder::DenseVectorBuilder;
+
+pub mod sparse_vector_builder;
+pub use sparse_vector_builder::SparseVectorBuilder;
+
+pub mod multi_dense_vector_builder;
+pub use multi_dense_vector_builder::MultiDenseVectorBuilder;

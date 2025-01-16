@@ -18,6 +18,8 @@ pub struct UpdateCollectionBuilder {
     quantization_config: Option<quantization_config_diff::Quantization>,
     /// New sparse vector parameters
     pub(crate) sparse_vectors_config: Option<Option<SparseVectorConfig>>,
+    /// New strict mode configuration
+    pub(crate) strict_mode_config: Option<Option<StrictModeConfig>>,
 }
 
 impl UpdateCollectionBuilder {
@@ -91,6 +93,16 @@ impl UpdateCollectionBuilder {
         new.sparse_vectors_config = Option::Some(Option::Some(value.into()));
         new
     }
+    /// New strict mode configuration
+    #[allow(unused_mut)]
+    pub fn strict_mode_config<VALUE: core::convert::Into<StrictModeConfig>>(
+        self,
+        value: VALUE,
+    ) -> Self {
+        let mut new = self;
+        new.strict_mode_config = Option::Some(Option::Some(value.into()));
+        new
+    }
 
     fn build_inner(self) -> Result<UpdateCollection, UpdateCollectionBuilderError> {
         Ok(UpdateCollection {
@@ -109,6 +121,7 @@ impl UpdateCollectionBuilder {
             vectors_config: self.vectors_config.unwrap_or_default(),
             quantization_config: { convert_option(&self.quantization_config) },
             sparse_vectors_config: self.sparse_vectors_config.unwrap_or_default(),
+            strict_mode_config: self.strict_mode_config.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -122,6 +135,7 @@ impl UpdateCollectionBuilder {
             vectors_config: core::default::Default::default(),
             quantization_config: core::default::Default::default(),
             sparse_vectors_config: core::default::Default::default(),
+            strict_mode_config: core::default::Default::default(),
         }
     }
 }

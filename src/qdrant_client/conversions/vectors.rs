@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::qdrant::vectors::VectorsOptions;
-use crate::qdrant::{NamedVectors, SparseIndices, Vector, Vectors};
+use crate::qdrant::{NamedVectors, Vector, Vectors};
 
 impl From<Vec<f32>> for Vector {
     fn from(vector: Vec<f32>) -> Self {
@@ -24,12 +24,8 @@ impl From<Vec<Vec<f32>>> for Vector {
 // Since we construct two new Vec's anyway it's fine to source from a reference
 impl From<&[(u32, f32)]> for Vector {
     fn from(tuples: &[(u32, f32)]) -> Self {
-        let (indices, values) = tuples.iter().cloned().unzip();
-        Vector {
-            data: values,
-            indices: Some(SparseIndices { data: indices }),
-            vectors_count: None,
-        }
+        let (indices, values): (Vec<_>, Vec<_>) = tuples.iter().cloned().unzip();
+        Self::new_sparse(indices, values)
     }
 }
 

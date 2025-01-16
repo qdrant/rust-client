@@ -3,8 +3,8 @@ use crate::qdrant::points_selector::PointsSelectorOneOf;
 use crate::qdrant::r#match::MatchValue;
 use crate::qdrant::{
     self, Condition, DatetimeRange, FieldCondition, Filter, GeoBoundingBox, GeoPolygon, GeoRadius,
-    HasIdCondition, IsEmptyCondition, IsNullCondition, MinShould, NestedCondition, PointId,
-    PointsSelector, Range, ValuesCount,
+    HasIdCondition, HasVectorCondition, IsEmptyCondition, IsNullCondition, MinShould,
+    NestedCondition, PointId, PointsSelector, Range, ValuesCount,
 };
 
 impl From<Filter> for PointsSelector {
@@ -43,6 +43,14 @@ impl From<HasIdCondition> for Condition {
     fn from(has_id_condition: HasIdCondition) -> Self {
         Condition {
             condition_one_of: Some(ConditionOneOf::HasId(has_id_condition)),
+        }
+    }
+}
+
+impl From<HasVectorCondition> for Condition {
+    fn from(has_vector_condition: HasVectorCondition) -> Self {
+        Condition {
+            condition_one_of: Some(ConditionOneOf::HasVector(has_vector_condition)),
         }
     }
 }
@@ -177,6 +185,18 @@ impl qdrant::Condition {
     pub fn has_id(ids: impl IntoIterator<Item = impl Into<PointId>>) -> Self {
         Self::from(qdrant::HasIdCondition {
             has_id: ids.into_iter().map(Into::into).collect(),
+        })
+    }
+
+    /// Create a [`Condition`] to check if the point has a specific named vector.
+    ///
+    /// # Examples:
+    /// ```
+    /// qdrant_client::qdrant::Condition::has_vector("my_vector");
+    /// ```
+    pub fn has_vector(vector_name: impl Into<String>) -> Self {
+        Self::from(qdrant::HasVectorCondition {
+            has_vector: vector_name.into(),
         })
     }
 
