@@ -5,7 +5,7 @@ use tonic::codegen::http::uri::InvalidUri;
 #[derive(Error, Debug)]
 pub enum QdrantError {
     /// Qdrant server responded with an error
-    #[error("Error in the response: {} {}", .status.code(), .status.message())]
+    #[error("Error in the response: {} {} {:?}", .status.code(), .status.message(), .status.metadata())]
     ResponseError {
         /// gRPC status code
         status: tonic::Status,
