@@ -8,7 +8,7 @@ use crate::auth::TokenInterceptor;
 use crate::qdrant::points_client::PointsClient;
 use crate::qdrant::{
     CountPoints, CountResponse, DeletePointVectors, DeletePoints, FacetCounts, FacetResponse,
-    GetPoints, GetResponse, PointsOperationResponse, ScrollPoints, ScrollResponse,
+    GetPoints, GetResponse, HardwareUsage, PointsOperationResponse, ScrollPoints, ScrollResponse,
     SearchMatrixOffsetsResponse, SearchMatrixPairsResponse, SearchMatrixPoints, UpdateBatchPoints,
     UpdateBatchResponse, UpdatePointVectors, UpsertPoints,
 };
@@ -133,17 +133,42 @@ impl Qdrant {
             let mut resp = PointsOperationResponse {
                 result: None,
                 time: 0.0,
+                usage: None,
             };
 
             for chunk in points.clone().chunks(chunk_size) {
                 let mut chunked_request = request.clone();
                 chunked_request.points = chunk.to_vec();
 
-                let PointsOperationResponse { result, time } =
-                    points_api.upsert(chunked_request).await?.into_inner();
+                let PointsOperationResponse {
+                    result,
+                    time,
+                    usage,
+                } = points_api.upsert(chunked_request).await?.into_inner();
 
                 resp.result = result;
                 resp.time += time;
+                if let Some(usage) = usage {
+                    if let Some(resp_usage) = &mut resp.usage {
+                        let HardwareUsage {
+                            cpu,
+                            payload_io_read,
+                            payload_io_write,
+                            payload_index_io_read,
+                            vector_io_read,
+                            vector_io_write,
+                        } = usage;
+
+                        resp_usage.cpu += cpu;
+                        resp_usage.payload_io_read += payload_io_read;
+                        resp_usage.payload_io_write += payload_io_write;
+                        resp_usage.payload_index_io_read += payload_index_io_read;
+                        resp_usage.vector_io_read += vector_io_read;
+                        resp_usage.vector_io_write += vector_io_write;
+                    } else {
+                        resp.usage = Some(usage);
+                    }
+                }
             }
 
             Ok(resp)
