@@ -11,6 +11,15 @@ pub enum QdrantError {
         status: tonic::Status,
     },
 
+    /// Qdrant server responded with a resource exhausted error
+    #[error("Resource exhausted: {} {} {:?}, retry after {} seconds", .status.code(), .status.message(), .status.metadata(), .retry_after_seconds)]
+    ResourceExhaustedError {
+        /// gRPC status code
+        status: tonic::Status,
+        /// Retry after seconds
+        retry_after_seconds: u64,
+    },
+
     /// Conversion of a Rust into an API type failed
     ///
     /// Such error may include trying to convert a sparse vector into a dense vector.
@@ -42,7 +51,20 @@ pub enum QdrantError {
 
 impl From<tonic::Status> for QdrantError {
     fn from(status: tonic::Status) -> Self {
-        QdrantError::ResponseError { status }
+        if status.code() == tonic::Code::ResourceExhausted {
+            let retry_after_seconds = status
+                .metadata()
+                .get("retry-after")
+                .and_then(|v| v.to_str().ok())
+                .and_then(|s| s.parse().ok())
+                .unwrap_or(0);
+            QdrantError::ResourceExhaustedError {
+                status,
+                retry_after_seconds,
+            }
+        } else {
+            QdrantError::ResponseError { status }
+        }
     }
 }
 
