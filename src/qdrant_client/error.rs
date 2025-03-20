@@ -52,19 +52,19 @@ pub enum QdrantError {
 impl From<tonic::Status> for QdrantError {
     fn from(status: tonic::Status) -> Self {
         if status.code() == tonic::Code::ResourceExhausted {
-            let retry_after_seconds = status
-                .metadata()
-                .get("retry-after")
-                .and_then(|v| v.to_str().ok())
-                .and_then(|s| s.parse().ok())
-                .unwrap_or(0);
-            QdrantError::ResourceExhaustedError {
-                status,
-                retry_after_seconds,
+            if let Some(retry_after_value) = status.metadata().get("retry-after") {
+                if let Ok(retry_after_str) = retry_after_value.to_str() {
+                    if let Ok(retry_after_seconds) = retry_after_str.parse() {
+                        return QdrantError::ResourceExhaustedError {
+                            status,
+                            retry_after_seconds,
+                        };
+                    }
+                }
             }
-        } else {
-            QdrantError::ResponseError { status }
         }
+
+        QdrantError::ResponseError { status }
     }
 }
 
