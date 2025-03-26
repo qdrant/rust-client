@@ -3947,7 +3947,7 @@ pub struct Formula {
 pub struct Expression {
     #[prost(
         oneof = "expression::Variant",
-        tags = "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14"
+        tags = "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17"
     )]
     pub variant: ::core::option::Option<expression::Variant>,
 }
@@ -3996,6 +3996,15 @@ pub mod expression {
         /// Natural logarithm
         #[prost(message, tag = "14")]
         Ln(::prost::alloc::boxed::Box<super::Expression>),
+        /// Exponential decay
+        #[prost(message, tag = "15")]
+        ExpDecay(::prost::alloc::boxed::Box<super::DecayParamsExpression>),
+        /// Gaussian decay
+        #[prost(message, tag = "16")]
+        GaussDecay(::prost::alloc::boxed::Box<super::DecayParamsExpression>),
+        /// Linear decay
+        #[prost(message, tag = "17")]
+        LinDecay(::prost::alloc::boxed::Box<super::DecayParamsExpression>),
     }
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -4030,6 +4039,21 @@ pub struct PowExpression {
     pub base: ::core::option::Option<::prost::alloc::boxed::Box<Expression>>,
     #[prost(message, optional, boxed, tag = "2")]
     pub exponent: ::core::option::Option<::prost::alloc::boxed::Box<Expression>>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct DecayParamsExpression {
+    /// The variable to decay
+    #[prost(message, optional, boxed, tag = "1")]
+    pub x: ::core::option::Option<::prost::alloc::boxed::Box<Expression>>,
+    /// The target value to start decaying from. Defaults to 0.
+    #[prost(message, optional, boxed, tag = "2")]
+    pub target: ::core::option::Option<::prost::alloc::boxed::Box<Expression>>,
+    /// The scale factor of the decay, in terms of `x`. Defaults to 1.0. Must be a non-zero positive number.
+    #[prost(float, optional, tag = "3")]
+    pub scale: ::core::option::Option<f32>,
+    /// The midpoint of the decay. Defaults to 0.5. Output will be this value when `|x - target| == scale`.
+    #[prost(float, optional, tag = "4")]
+    pub midpoint: ::core::option::Option<f32>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Query {
@@ -5036,8 +5060,10 @@ pub struct HardwareUsage {
     #[prost(uint64, tag = "4")]
     pub payload_index_io_read: u64,
     #[prost(uint64, tag = "5")]
-    pub vector_io_read: u64,
+    pub payload_index_io_write: u64,
     #[prost(uint64, tag = "6")]
+    pub vector_io_read: u64,
+    #[prost(uint64, tag = "7")]
     pub vector_io_write: u64,
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]

@@ -292,12 +292,14 @@ impl QdrantClient {
                                 payload_index_io_read,
                                 vector_io_read,
                                 vector_io_write,
+                                payload_index_io_write,
                             } = usage;
 
                             resp_usage.cpu += cpu;
                             resp_usage.payload_io_read += payload_io_read;
                             resp_usage.payload_io_write += payload_io_write;
                             resp_usage.payload_index_io_read += payload_index_io_read;
+                            resp_usage.payload_index_io_write += payload_index_io_write;
                             resp_usage.vector_io_read += vector_io_read;
                             resp_usage.vector_io_write += vector_io_write;
                         } else {
