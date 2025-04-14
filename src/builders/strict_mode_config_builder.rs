@@ -16,6 +16,9 @@ pub struct StrictModeConfigBuilder {
     pub(crate) max_collection_payload_size_bytes: Option<Option<u64>>,
     pub(crate) filter_max_conditions: Option<Option<u64>>,
     pub(crate) condition_max_size: Option<Option<u64>>,
+    pub(crate) multivector_config: Option<Option<StrictModeMultivectorConfig>>,
+    pub(crate) sparse_config: Option<Option<StrictModeSparseConfig>>,
+    pub(crate) max_points_count: Option<Option<u64>>,
 }
 
 impl StrictModeConfigBuilder {
@@ -131,6 +134,9 @@ impl StrictModeConfigBuilder {
                 .unwrap_or_default(),
             filter_max_conditions: self.filter_max_conditions.unwrap_or_default(),
             condition_max_size: self.condition_max_size.unwrap_or_default(),
+            multivector_config: self.multivector_config.unwrap_or_default(),
+            sparse_config: self.sparse_config.unwrap_or_default(),
+            max_points_count: self.max_points_count.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -151,6 +157,9 @@ impl StrictModeConfigBuilder {
             max_collection_payload_size_bytes: core::default::Default::default(),
             filter_max_conditions: core::default::Default::default(),
             condition_max_size: core::default::Default::default(),
+            multivector_config: core::default::Default::default(),
+            sparse_config: core::default::Default::default(),
+            max_points_count: core::default::Default::default(),
         }
     }
 }

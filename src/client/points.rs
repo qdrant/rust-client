@@ -9,16 +9,7 @@ use crate::client::{Payload, QdrantClient};
 use crate::prelude::{PointStruct, SearchPoints};
 use crate::qdrant::points_client::PointsClient;
 use crate::qdrant::{
-    shard_key, ClearPayloadPoints, CountPoints, CountResponse, CreateFieldIndexCollection,
-    DeleteFieldIndexCollection, DeletePayloadPoints, DeletePointVectors, DeletePoints,
-    DiscoverBatchPoints, DiscoverBatchResponse, DiscoverPoints, DiscoverResponse, FieldType,
-    GetPoints, GetResponse, PayloadIndexParams, PointId, PointVectors, PointsOperationResponse,
-    PointsSelector, PointsUpdateOperation, ReadConsistency, RecommendBatchPoints,
-    RecommendBatchResponse, RecommendGroupsResponse, RecommendPointGroups, RecommendPoints,
-    RecommendResponse, ScrollPoints, ScrollResponse, SearchBatchPoints, SearchBatchResponse,
-    SearchGroupsResponse, SearchPointGroups, SearchResponse, SetPayloadPoints, ShardKeySelector,
-    UpdateBatchPoints, UpdateBatchResponse, UpdatePointVectors, UpsertPoints, VectorsSelector,
-    WithPayloadSelector, WithVectorsSelector, WriteOrdering,
+    shard_key, ClearPayloadPoints, CountPoints, CountResponse, CreateFieldIndexCollection, DeleteFieldIndexCollection, DeletePayloadPoints, DeletePointVectors, DeletePoints, DiscoverBatchPoints, DiscoverBatchResponse, DiscoverPoints, DiscoverResponse, FieldType, GetPoints, GetResponse, HardwareUsage, PayloadIndexParams, PointId, PointVectors, PointsOperationResponse, PointsSelector, PointsUpdateOperation, ReadConsistency, RecommendBatchPoints, RecommendBatchResponse, RecommendGroupsResponse, RecommendPointGroups, RecommendPoints, RecommendResponse, ScrollPoints, ScrollResponse, SearchBatchPoints, SearchBatchResponse, SearchGroupsResponse, SearchPointGroups, SearchResponse, SetPayloadPoints, ShardKeySelector, UpdateBatchPoints, UpdateBatchResponse, UpdatePointVectors, UpsertPoints, VectorsSelector, WithPayloadSelector, WithVectorsSelector, WriteOrdering
 };
 
 impl QdrantClient {
@@ -264,9 +255,10 @@ impl QdrantClient {
                 let mut resp = PointsOperationResponse {
                     result: None,
                     time: 0.0,
+                    usage: None,
                 };
                 for chunk in points.chunks(chunk_size) {
-                    let PointsOperationResponse { result, time } = points_api
+                    let PointsOperationResponse { result, time, usage } = points_api
                         .upsert(UpsertPoints {
                             collection_name: collection_name_ref.to_string(),
                             wait: Some(block),
@@ -278,6 +270,7 @@ impl QdrantClient {
                         .into_inner();
                     resp.result = result;
                     resp.time += time;
+                    HardwareUsage::aggregate_opts(&mut resp.usage, &usage);
                 }
                 Ok(resp)
             })

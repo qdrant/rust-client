@@ -6,7 +6,7 @@ use crate::client::Payload;
 use crate::error::NotA;
 use crate::prelude::{PointStruct, Value};
 use crate::qdrant::value::Kind;
-use crate::qdrant::{ListValue, PointId, RetrievedPoint, ScoredPoint, Struct, Vectors};
+use crate::qdrant::{HardwareUsage, ListValue, PointId, RetrievedPoint, ScoredPoint, Struct, Vectors};
 
 /// Null value
 static NULL_VALUE: Value = Value {
@@ -315,5 +315,38 @@ impl Hash for ScoredPoint {
 impl Hash for RetrievedPoint {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.id.hash(state)
+    }
+}
+
+impl HardwareUsage {
+    pub(crate) fn aggregate_opts(this: &Option<Self>, other: &Option<Self>) -> Option<Self> {
+        match (this, other) {
+            (Some(this), Some(other)) => Some(this.aggregate(other)),
+            (Some(this), None) => Some(this.clone()),
+            (None, Some(other)) => Some(other.clone()),
+            (None, None) => None,
+        }
+    }
+
+    pub(crate) fn aggregate(&self, other: &Self) -> Self {
+        let Self {
+            cpu,
+            payload_io_read,
+            payload_io_write,
+            payload_index_io_read,
+            payload_index_io_write,
+            vector_io_read,
+            vector_io_write,
+        } = other;
+
+        Self {
+            cpu: self.cpu + cpu,
+            payload_io_read: self.payload_io_read + payload_io_read,
+            payload_io_write: self.payload_io_write + payload_io_write,
+            payload_index_io_read: self.payload_index_io_read + payload_index_io_read,
+            payload_index_io_write: self.payload_index_io_write + payload_index_io_write,
+            vector_io_read: self.vector_io_read + vector_io_read,
+            vector_io_write: self.vector_io_write + vector_io_write,
+        }
     }
 }
