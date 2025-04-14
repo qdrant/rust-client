@@ -32,7 +32,7 @@ client.query(
             .using("dense")
             .limit(20u64)
         )
-        .query(Query::new_fusion(Fusion::Rrf))
+        .query(Fusion::Rrf)
 ).await?;
 
 // 2-stage query

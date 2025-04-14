@@ -31,6 +31,8 @@ mod test_query_points_groups;
 mod test_recommend_batch_points;
 mod test_recommend_point_groups;
 mod test_recommend_points;
+mod test_score_boost_closer_to_user;
+mod test_score_boost_tag;
 mod test_scroll_points;
 mod test_search_batch_points;
 mod test_search_matrix_offsets;
