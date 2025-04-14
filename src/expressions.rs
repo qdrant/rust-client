@@ -118,6 +118,17 @@ impl Expression {
         }
     }
 
+    /// Creates a new Expression with a geo distance expression.
+    pub fn geo_distance_with<G: Into<GeoPoint>, S: Into<String>>(origin: G, to: S) -> Self {
+        let geo_distance = GeoDistance {
+            origin: Some(origin.into()),
+            to: to.into(),
+        };
+        Self {
+            variant: Some(expression::Variant::GeoDistance(geo_distance)),
+        }
+    }
+
     /// Creates a new Expression with an exponential decay expression.
     pub fn exp_decay<D: Into<DecayParamsExpression>>(decay: D) -> Self {
         Self {
