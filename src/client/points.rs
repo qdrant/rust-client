@@ -283,7 +283,7 @@ impl QdrantClient {
                         .into_inner();
                     resp.result = result;
                     resp.time += time;
-                    HardwareUsage::aggregate_opts(&mut resp.usage, &usage);
+                    HardwareUsage::aggregate_opts(&resp.usage, &usage);
                 }
                 Ok(resp)
             })

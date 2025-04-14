@@ -324,8 +324,8 @@ impl HardwareUsage {
     pub(crate) fn aggregate_opts(this: &Option<Self>, other: &Option<Self>) -> Option<Self> {
         match (this, other) {
             (Some(this), Some(other)) => Some(this.aggregate(other)),
-            (Some(this), None) => Some(this.clone()),
-            (None, Some(other)) => Some(other.clone()),
+            (Some(this), None) => Some(*this),
+            (None, Some(other)) => Some(*other),
             (None, None) => None,
         }
     }
