@@ -34,6 +34,9 @@ pub use binary_quantization_builder::BinaryQuantizationBuilder;
 mod strict_mode_config_builder;
 pub use strict_mode_config_builder::StrictModeConfigBuilder;
 
+mod strict_mode_multivector_config_builder;
+pub use strict_mode_multivector_config_builder::StrictModeMultivectorConfigBuilder;
+
 mod update_collection_builder;
 pub use update_collection_builder::UpdateCollectionBuilder;
 
