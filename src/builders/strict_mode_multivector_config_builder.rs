@@ -1,5 +1,6 @@
-use crate::qdrant::*;
 use std::collections::HashMap;
+
+use crate::qdrant::{StrictModeMultivector, StrictModeMultivectorConfig};
 
 /// Builder for StrictModeMultivectorConfig, which defines multivector configuration for strict mode.
 pub struct StrictModeMultivectorConfigBuilder {
@@ -16,7 +17,11 @@ impl StrictModeMultivectorConfigBuilder {
     }
 
     /// Add a configuration for a named vector, specifying its maximum number of vectors.
-    pub fn add_vector_config<S: Into<String>>(self, name: S, strict_mode_multivector: StrictModeMultivector) -> Self {
+    pub fn add_vector_config<S: Into<String>>(
+        self,
+        name: S,
+        strict_mode_multivector: StrictModeMultivector,
+    ) -> Self {
         let mut new = self;
         let mut config = new.multivector_config;
 
@@ -27,7 +32,10 @@ impl StrictModeMultivectorConfigBuilder {
     }
 
     /// Set the entire multivector configuration map at once.
-    pub fn multivector_config<M: Into<HashMap<String, StrictModeMultivector>>>(self, config: M) -> Self {
+    pub fn multivector_config<M: Into<HashMap<String, StrictModeMultivector>>>(
+        self,
+        config: M,
+    ) -> Self {
         let mut new = self;
         new.multivector_config = config.into();
         new

@@ -37,6 +37,9 @@ pub use strict_mode_config_builder::StrictModeConfigBuilder;
 mod strict_mode_multivector_config_builder;
 pub use strict_mode_multivector_config_builder::StrictModeMultivectorConfigBuilder;
 
+mod strict_mode_sparse_config_builder;
+pub use strict_mode_sparse_config_builder::StrictModeSparseConfigBuilder;
+
 mod update_collection_builder;
 pub use update_collection_builder::UpdateCollectionBuilder;
 
