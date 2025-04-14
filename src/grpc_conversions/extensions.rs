@@ -6,7 +6,9 @@ use crate::client::Payload;
 use crate::error::NotA;
 use crate::prelude::{PointStruct, Value};
 use crate::qdrant::value::Kind;
-use crate::qdrant::{HardwareUsage, ListValue, PointId, RetrievedPoint, ScoredPoint, Struct, Vectors};
+use crate::qdrant::{
+    HardwareUsage, ListValue, PointId, RetrievedPoint, ScoredPoint, Struct, Vectors,
+};
 
 /// Null value
 static NULL_VALUE: Value = Value {

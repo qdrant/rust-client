@@ -199,6 +199,9 @@ pub use query_batch_points_builder::QueryBatchPointsBuilder;
 mod query_point_groups_builder;
 pub use query_point_groups_builder::QueryPointGroupsBuilder;
 
+mod formula_builder;
+pub use formula_builder::FormulaBuilder;
+
 mod facet_counts_builder;
 pub use facet_counts_builder::FacetCountsBuilder;
 

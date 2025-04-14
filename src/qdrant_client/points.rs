@@ -7,7 +7,10 @@ use tonic::Status;
 use crate::auth::TokenInterceptor;
 use crate::qdrant::points_client::PointsClient;
 use crate::qdrant::{
-    CountPoints, CountResponse, DeletePointVectors, DeletePoints, FacetCounts, FacetResponse, GetPoints, GetResponse, HardwareUsage, PointsOperationResponse, ScrollPoints, ScrollResponse, SearchMatrixOffsetsResponse, SearchMatrixPairsResponse, SearchMatrixPoints, UpdateBatchPoints, UpdateBatchResponse, UpdatePointVectors, UpsertPoints
+    CountPoints, CountResponse, DeletePointVectors, DeletePoints, FacetCounts, FacetResponse,
+    GetPoints, GetResponse, HardwareUsage, PointsOperationResponse, ScrollPoints, ScrollResponse,
+    SearchMatrixOffsetsResponse, SearchMatrixPairsResponse, SearchMatrixPoints, UpdateBatchPoints,
+    UpdateBatchResponse, UpdatePointVectors, UpsertPoints,
 };
 use crate::qdrant_client::{Qdrant, QdrantResult};
 
@@ -137,8 +140,11 @@ impl Qdrant {
                 let mut chunked_request = request.clone();
                 chunked_request.points = chunk.to_vec();
 
-                let PointsOperationResponse { result, time, usage } =
-                    points_api.upsert(chunked_request).await?.into_inner();
+                let PointsOperationResponse {
+                    result,
+                    time,
+                    usage,
+                } = points_api.upsert(chunked_request).await?.into_inner();
 
                 resp.result = result;
                 resp.time += time;
