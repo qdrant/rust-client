@@ -202,6 +202,9 @@ pub use query_point_groups_builder::QueryPointGroupsBuilder;
 mod formula_builder;
 pub use formula_builder::FormulaBuilder;
 
+mod decay_params_expression_builder;
+pub use decay_params_expression_builder::DecayParamsExpressionBuilder;
+
 mod facet_counts_builder;
 pub use facet_counts_builder::FacetCountsBuilder;
 
