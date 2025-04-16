@@ -25,6 +25,12 @@ impl FormulaBuilder {
         new
     }
 
+    /// Sets all default values for the formula.
+    pub fn defaults(mut self, defaults: HashMap<String, Value>) -> Self {
+        self.defaults = defaults;
+        self
+    }
+
     /// Adds a single default value to the formula's defaults.
     pub fn add_default<K: Into<String>, V: Into<Value>>(self, key: K, value: V) -> Self {
         let mut new = self;
