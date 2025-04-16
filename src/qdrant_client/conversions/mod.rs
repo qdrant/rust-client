@@ -1,3 +1,4 @@
+pub mod expression;
 pub mod payloads;
 pub mod query;
 mod vector_input;

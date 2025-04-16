@@ -423,6 +423,14 @@ impl From<Vec<String>> for MatchValue {
     }
 }
 
+impl<const N: usize> From<[&str; N]> for MatchValue {
+    fn from(strings: [&str; N]) -> Self {
+        Self::Keywords(qdrant::RepeatedStrings {
+            strings: strings.iter().map(|&s| String::from(s)).collect(),
+        })
+    }
+}
+
 impl std::ops::Not for MatchValue {
     type Output = Self;
 

@@ -395,7 +395,7 @@ pub mod quantization_config_diff {
         Binary(super::BinaryQuantization),
     }
 }
-#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct StrictModeConfig {
     #[prost(bool, optional, tag = "1")]
     pub enabled: ::core::option::Option<bool>,
@@ -429,6 +429,38 @@ pub struct StrictModeConfig {
     pub filter_max_conditions: ::core::option::Option<u64>,
     #[prost(uint64, optional, tag = "15")]
     pub condition_max_size: ::core::option::Option<u64>,
+    #[prost(message, optional, tag = "16")]
+    pub multivector_config: ::core::option::Option<StrictModeMultivectorConfig>,
+    #[prost(message, optional, tag = "17")]
+    pub sparse_config: ::core::option::Option<StrictModeSparseConfig>,
+    #[prost(uint64, optional, tag = "18")]
+    pub max_points_count: ::core::option::Option<u64>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct StrictModeSparseConfig {
+    #[prost(map = "string, message", tag = "1")]
+    pub sparse_config: ::std::collections::HashMap<
+        ::prost::alloc::string::String,
+        StrictModeSparse,
+    >,
+}
+#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+pub struct StrictModeSparse {
+    #[prost(uint64, optional, tag = "10")]
+    pub max_length: ::core::option::Option<u64>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct StrictModeMultivectorConfig {
+    #[prost(map = "string, message", tag = "1")]
+    pub multivector_config: ::std::collections::HashMap<
+        ::prost::alloc::string::String,
+        StrictModeMultivector,
+    >,
+}
+#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+pub struct StrictModeMultivector {
+    #[prost(uint64, optional, tag = "1")]
+    pub max_vectors: ::core::option::Option<u64>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateCollection {
@@ -3905,8 +3937,133 @@ pub struct ContextInput {
     pub pairs: ::prost::alloc::vec::Vec<ContextInputPair>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct Formula {
+    #[prost(message, optional, tag = "1")]
+    pub expression: ::core::option::Option<Expression>,
+    #[prost(map = "string, message", tag = "2")]
+    pub defaults: ::std::collections::HashMap<::prost::alloc::string::String, Value>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct Expression {
+    #[prost(
+        oneof = "expression::Variant",
+        tags = "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19"
+    )]
+    pub variant: ::core::option::Option<expression::Variant>,
+}
+/// Nested message and enum types in `Expression`.
+pub mod expression {
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
+    pub enum Variant {
+        #[prost(float, tag = "1")]
+        Constant(f32),
+        /// Payload key or reference to score.
+        #[prost(string, tag = "2")]
+        Variable(::prost::alloc::string::String),
+        /// Payload condition. If true, becomes 1.0; otherwise 0.0
+        #[prost(message, tag = "3")]
+        Condition(super::Condition),
+        /// Geographic distance in meters
+        #[prost(message, tag = "4")]
+        GeoDistance(super::GeoDistance),
+        /// Date-time constant
+        #[prost(string, tag = "5")]
+        Datetime(::prost::alloc::string::String),
+        /// Payload key with date-time values
+        #[prost(string, tag = "6")]
+        DatetimeKey(::prost::alloc::string::String),
+        /// Multiply
+        #[prost(message, tag = "7")]
+        Mult(super::MultExpression),
+        /// Sum
+        #[prost(message, tag = "8")]
+        Sum(super::SumExpression),
+        /// Divide
+        #[prost(message, tag = "9")]
+        Div(::prost::alloc::boxed::Box<super::DivExpression>),
+        /// Negate
+        #[prost(message, tag = "10")]
+        Neg(::prost::alloc::boxed::Box<super::Expression>),
+        /// Absolute value
+        #[prost(message, tag = "11")]
+        Abs(::prost::alloc::boxed::Box<super::Expression>),
+        /// Square root
+        #[prost(message, tag = "12")]
+        Sqrt(::prost::alloc::boxed::Box<super::Expression>),
+        /// Power
+        #[prost(message, tag = "13")]
+        Pow(::prost::alloc::boxed::Box<super::PowExpression>),
+        /// Exponential
+        #[prost(message, tag = "14")]
+        Exp(::prost::alloc::boxed::Box<super::Expression>),
+        /// Logarithm
+        #[prost(message, tag = "15")]
+        Log10(::prost::alloc::boxed::Box<super::Expression>),
+        /// Natural logarithm
+        #[prost(message, tag = "16")]
+        Ln(::prost::alloc::boxed::Box<super::Expression>),
+        /// Exponential decay
+        #[prost(message, tag = "17")]
+        ExpDecay(::prost::alloc::boxed::Box<super::DecayParamsExpression>),
+        /// Gaussian decay
+        #[prost(message, tag = "18")]
+        GaussDecay(::prost::alloc::boxed::Box<super::DecayParamsExpression>),
+        /// Linear decay
+        #[prost(message, tag = "19")]
+        LinDecay(::prost::alloc::boxed::Box<super::DecayParamsExpression>),
+    }
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct GeoDistance {
+    #[prost(message, optional, tag = "1")]
+    pub origin: ::core::option::Option<GeoPoint>,
+    #[prost(string, tag = "2")]
+    pub to: ::prost::alloc::string::String,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct MultExpression {
+    #[prost(message, repeated, tag = "1")]
+    pub mult: ::prost::alloc::vec::Vec<Expression>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct SumExpression {
+    #[prost(message, repeated, tag = "1")]
+    pub sum: ::prost::alloc::vec::Vec<Expression>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct DivExpression {
+    #[prost(message, optional, boxed, tag = "1")]
+    pub left: ::core::option::Option<::prost::alloc::boxed::Box<Expression>>,
+    #[prost(message, optional, boxed, tag = "2")]
+    pub right: ::core::option::Option<::prost::alloc::boxed::Box<Expression>>,
+    #[prost(float, optional, tag = "3")]
+    pub by_zero_default: ::core::option::Option<f32>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct PowExpression {
+    #[prost(message, optional, boxed, tag = "1")]
+    pub base: ::core::option::Option<::prost::alloc::boxed::Box<Expression>>,
+    #[prost(message, optional, boxed, tag = "2")]
+    pub exponent: ::core::option::Option<::prost::alloc::boxed::Box<Expression>>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct DecayParamsExpression {
+    /// The variable to decay
+    #[prost(message, optional, boxed, tag = "1")]
+    pub x: ::core::option::Option<::prost::alloc::boxed::Box<Expression>>,
+    /// The target value to start decaying from. Defaults to 0.
+    #[prost(message, optional, boxed, tag = "2")]
+    pub target: ::core::option::Option<::prost::alloc::boxed::Box<Expression>>,
+    /// The scale factor of the decay, in terms of `x`. Defaults to 1.0. Must be a non-zero positive number.
+    #[prost(float, optional, tag = "3")]
+    pub scale: ::core::option::Option<f32>,
+    /// The midpoint of the decay. Defaults to 0.5. Output will be this value when `|x - target| == scale`.
+    #[prost(float, optional, tag = "4")]
+    pub midpoint: ::core::option::Option<f32>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Query {
-    #[prost(oneof = "query::Variant", tags = "1, 2, 3, 4, 5, 6, 7")]
+    #[prost(oneof = "query::Variant", tags = "1, 2, 3, 4, 5, 6, 7, 8")]
     pub variant: ::core::option::Option<query::Variant>,
 }
 /// Nested message and enum types in `Query`.
@@ -3934,6 +4091,9 @@ pub mod query {
         /// Sample points from the collection.
         #[prost(enumeration = "super::Sample", tag = "7")]
         Sample(i32),
+        /// Score boosting via an arbitrary formula
+        #[prost(message, tag = "8")]
+        Formula(super::Formula),
     }
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -4343,6 +4503,8 @@ pub struct PointsOperationResponse {
     /// Time spent to process
     #[prost(double, tag = "2")]
     pub time: f64,
+    #[prost(message, optional, tag = "3")]
+    pub usage: ::core::option::Option<HardwareUsage>,
 }
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct UpdateResult {
@@ -4515,6 +4677,8 @@ pub struct ScrollResponse {
     /// Time spent to process
     #[prost(double, tag = "3")]
     pub time: f64,
+    #[prost(message, optional, tag = "4")]
+    pub usage: ::core::option::Option<HardwareUsage>,
 }
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct CountResult {
@@ -4543,6 +4707,8 @@ pub struct GetResponse {
     /// Time spent to process
     #[prost(double, tag = "2")]
     pub time: f64,
+    #[prost(message, optional, tag = "3")]
+    pub usage: ::core::option::Option<HardwareUsage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RecommendResponse {
@@ -4731,6 +4897,12 @@ pub struct FieldCondition {
     /// Check if datetime is within a given range
     #[prost(message, optional, tag = "8")]
     pub datetime_range: ::core::option::Option<DatetimeRange>,
+    /// Check if field is empty
+    #[prost(bool, optional, tag = "9")]
+    pub is_empty: ::core::option::Option<bool>,
+    /// Check if field is null
+    #[prost(bool, optional, tag = "10")]
+    pub is_null: ::core::option::Option<bool>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Match {
@@ -4888,9 +5060,17 @@ pub struct HardwareUsage {
     #[prost(uint64, tag = "1")]
     pub cpu: u64,
     #[prost(uint64, tag = "2")]
-    pub io_read: u64,
+    pub payload_io_read: u64,
     #[prost(uint64, tag = "3")]
-    pub io_write: u64,
+    pub payload_io_write: u64,
+    #[prost(uint64, tag = "4")]
+    pub payload_index_io_read: u64,
+    #[prost(uint64, tag = "5")]
+    pub payload_index_io_write: u64,
+    #[prost(uint64, tag = "6")]
+    pub vector_io_read: u64,
+    #[prost(uint64, tag = "7")]
+    pub vector_io_write: u64,
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
@@ -5037,6 +5217,9 @@ pub enum RecommendStrategy {
     /// examples, its score is then chosen from the `max(max_pos_score, max_neg_score)`.
     /// If the `max_neg_score` is chosen then it is squared and negated.
     BestScore = 1,
+    /// Uses custom search objective. Compares against all inputs, sums all the scores.
+    /// Scores against positive vectors are added, against negatives are subtracted.
+    SumScores = 2,
 }
 impl RecommendStrategy {
     /// String value of the enum field names used in the ProtoBuf definition.
@@ -5047,6 +5230,7 @@ impl RecommendStrategy {
         match self {
             Self::AverageVector => "AverageVector",
             Self::BestScore => "BestScore",
+            Self::SumScores => "SumScores",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -5054,6 +5238,7 @@ impl RecommendStrategy {
         match value {
             "AverageVector" => Some(Self::AverageVector),
             "BestScore" => Some(Self::BestScore),
+            "SumScores" => Some(Self::SumScores),
             _ => None,
         }
     }
