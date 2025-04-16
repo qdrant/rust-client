@@ -179,13 +179,9 @@ impl From<GeoPoint> for Value {
             ("lat".to_string(), point.lat.into()),
             ("lon".to_string(), point.lon.into()),
         ]);
+
         Self {
-            kind: Some(Kind::StructValue(Struct {
-                fields: map
-                    .into_iter()
-                    .map(|(k, v)| (k, v))
-                    .collect::<HashMap<_, _>>(),
-            })),
+            kind: Some(Kind::StructValue(Struct { fields: map })),
         }
     }
 }
