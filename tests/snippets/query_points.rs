@@ -71,7 +71,7 @@ let _tag_boosted = client.query(
             .limit(100u64)
         )
         .query(FormulaBuilder::new(Expression::sum_with([
-            Expression::variable("$score"),
+            Expression::score(),
             Expression::mult_with([
                 Expression::constant(0.5),
                 Expression::condition(Condition::matches("tag", ["h1", "h2", "h3", "h4"])),
@@ -94,7 +94,7 @@ let _geo_boosted = client.query(
             )
             .query(
                 FormulaBuilder::new(Expression::sum_with([
-                    Expression::variable("$score"),
+                    Expression::score(),
                     Expression::exp_decay(
                         DecayParamsExpressionBuilder::new(Expression::geo_distance_with(
                             // Berlin
