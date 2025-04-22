@@ -7,7 +7,7 @@ use crate::qdrant::*;
 /// The Formula struct is used to define custom scoring expressions and default values.
 pub struct FormulaBuilder {
     /// The expression that defines how to score points.
-    pub(crate) expression: Option<Expression>,
+    pub(crate) expression: Expression,
     /// Default values to use for undefined variables in the expression.
     pub(crate) defaults: HashMap<String, Value>,
 }
@@ -15,13 +15,15 @@ pub struct FormulaBuilder {
 impl FormulaBuilder {
     /// Sets the expression for the formula.
     pub fn new<E: Into<Expression>>(expression: E) -> Self {
-        let new = Self::create_empty();
-        new.expression(expression)
+        Self {
+            expression: expression.into(),
+            defaults: Default::default(),
+        }
     }
 
     pub fn expression<E: Into<Expression>>(self, value: E) -> Self {
         let mut new = self;
-        new.expression = Some(value.into());
+        new.expression = value.into();
         new
     }
 
@@ -40,16 +42,9 @@ impl FormulaBuilder {
 
     fn build_inner(self) -> Result<Formula, std::convert::Infallible> {
         Ok(Formula {
-            expression: self.expression,
+            expression: Some(self.expression),
             defaults: self.defaults,
         })
-    }
-
-    fn create_empty() -> Self {
-        Self {
-            expression: None,
-            defaults: Default::default(),
-        }
     }
 }
 

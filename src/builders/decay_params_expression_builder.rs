@@ -6,7 +6,7 @@ use crate::qdrant::*;
 /// based on distance from a target value.
 pub struct DecayParamsExpressionBuilder {
     /// The variable to decay
-    pub(crate) x: Option<Expression>,
+    pub(crate) x: Expression,
     /// The target value to start decaying from. Defaults to 0.
     pub(crate) target: Option<Expression>,
     /// The scale factor of the decay, in terms of `x`. Defaults to 1.0. Must be a non-zero positive number.
@@ -19,15 +19,18 @@ impl DecayParamsExpressionBuilder {
     /// Creates a new DecayParamsExpressionBuilder with the variable to decay.
     /// This is the only required parameter.
     pub fn new<E: Into<Expression>>(x: E) -> Self {
-        let mut builder = Self::create_empty();
-        builder.x = Some(x.into());
-        builder
+        Self {
+            x: x.into(),
+            target: None,
+            scale: None,
+            midpoint: None,
+        }
     }
 
     /// Sets the variable to decay. This is the value that will be compared to the target.
     pub fn x<E: Into<Expression>>(self, x: E) -> Self {
         let mut new = self;
-        new.x = Some(x.into());
+        new.x = x.into();
         new
     }
 
@@ -58,21 +61,11 @@ impl DecayParamsExpressionBuilder {
 
     fn build_inner(self) -> Result<DecayParamsExpression, std::convert::Infallible> {
         Ok(DecayParamsExpression {
-            x: self.x.map(Box::new),
+            x: Some(Box::new(self.x)),
             target: self.target.map(Box::new),
             scale: self.scale,
             midpoint: self.midpoint,
         })
-    }
-
-    /// Creates an empty builder, with all fields set to `None`.
-    fn create_empty() -> Self {
-        Self {
-            x: None,
-            target: None,
-            scale: None,
-            midpoint: None,
-        }
     }
 }
 
@@ -96,11 +89,5 @@ impl DecayParamsExpressionBuilder {
                 "DecayParamsExpressionBuilder", "DecayParamsExpression"
             )
         })
-    }
-}
-
-impl Default for DecayParamsExpressionBuilder {
-    fn default() -> Self {
-        Self::create_empty()
     }
 }
