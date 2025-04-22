@@ -321,16 +321,16 @@ impl Hash for RetrievedPoint {
 }
 
 impl HardwareUsage {
-    pub(crate) fn aggregate_opts(this: &Option<Self>, other: &Option<Self>) -> Option<Self> {
+    pub(crate) fn aggregate_opts(this: Option<Self>, other: Option<Self>) -> Option<Self> {
         match (this, other) {
             (Some(this), Some(other)) => Some(this.aggregate(other)),
-            (Some(this), None) => Some(*this),
-            (None, Some(other)) => Some(*other),
+            (Some(this), None) => Some(this),
+            (None, Some(other)) => Some(other),
             (None, None) => None,
         }
     }
 
-    pub(crate) fn aggregate(&self, other: &Self) -> Self {
+    pub(crate) fn aggregate(self, other: Self) -> Self {
         let Self {
             cpu,
             payload_io_read,
