@@ -3,7 +3,7 @@ use std::collections::HashMap;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-use crate::qdrant::Value;
+use crate::qdrant::{GeoPoint, Struct, Value};
 
 /// Point payload
 ///
@@ -164,10 +164,25 @@ where
 {
     fn from(values: [(K, Value); N]) -> Self {
         let mut map = HashMap::with_capacity(N);
-        for (k, v) in values.into_iter() {
+        for (k, v) in values {
             map.insert(k.into(), v);
         }
         Self(map)
+    }
+}
+
+impl From<GeoPoint> for Value {
+    fn from(point: GeoPoint) -> Self {
+        use crate::qdrant::value::Kind;
+
+        let map = HashMap::from([
+            ("lat".to_string(), point.lat.into()),
+            ("lon".to_string(), point.lon.into()),
+        ]);
+
+        Self {
+            kind: Some(Kind::StructValue(Struct { fields: map })),
+        }
     }
 }
 

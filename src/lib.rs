@@ -133,6 +133,7 @@ mod builder_ext;
 mod builder_types;
 mod builders;
 mod channel_pool;
+mod expressions;
 mod filters;
 mod grpc_conversions;
 mod grpc_macros;

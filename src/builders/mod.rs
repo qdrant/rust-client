@@ -34,6 +34,12 @@ pub use binary_quantization_builder::BinaryQuantizationBuilder;
 mod strict_mode_config_builder;
 pub use strict_mode_config_builder::StrictModeConfigBuilder;
 
+mod strict_mode_multivector_config_builder;
+pub use strict_mode_multivector_config_builder::StrictModeMultivectorConfigBuilder;
+
+mod strict_mode_sparse_config_builder;
+pub use strict_mode_sparse_config_builder::StrictModeSparseConfigBuilder;
+
 mod update_collection_builder;
 pub use update_collection_builder::UpdateCollectionBuilder;
 
@@ -198,6 +204,12 @@ pub use query_batch_points_builder::QueryBatchPointsBuilder;
 
 mod query_point_groups_builder;
 pub use query_point_groups_builder::QueryPointGroupsBuilder;
+
+mod formula_builder;
+pub use formula_builder::FormulaBuilder;
+
+mod decay_params_expression_builder;
+pub use decay_params_expression_builder::DecayParamsExpressionBuilder;
 
 mod facet_counts_builder;
 pub use facet_counts_builder::FacetCountsBuilder;
