@@ -20,6 +20,20 @@ impl Expression {
         }
     }
 
+    /// Creates a new Expression with a reference to the score of the prefetch.
+    pub fn score() -> Self {
+        Self {
+            variant: Some(expression::Variant::Variable("$score".to_string())),
+        }
+    }
+
+    /// Creates a new Expression with a reference to the score of a specific prefetch, when there are multiple prefetches.
+    pub fn score_idx(idx: usize) -> Self {
+        Self {
+            variant: Some(expression::Variant::Variable(format!("$score[{idx}]"))),
+        }
+    }
+
     /// Creates a new Expression with a condition. If true, becomes 1.0; otherwise 0.0.
     pub fn condition<C: Into<Condition>>(condition: C) -> Self {
         Self {
