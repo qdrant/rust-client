@@ -14,6 +14,9 @@ use crate::qdrant::{
 };
 use crate::qdrant_client::{Qdrant, QdrantResult};
 
+/// Max amount of points that should be upserted in a single request/chunk.
+const TOO_MANY_POINTS: usize = 50_000;
+
 /// # Point operations
 ///
 /// Manage points and vectors.
@@ -103,7 +106,14 @@ impl Qdrant {
         &self,
         request: impl Into<UpsertPoints>,
     ) -> QdrantResult<PointsOperationResponse> {
-        let request = &request.into();
+        let request: &UpsertPoints = &request.into();
+
+        if request.points.len() > TOO_MANY_POINTS {
+            log::warn!(
+                "Trying to upload more than 50k points. Consider using upsert_points_batch instead."
+            );
+        }
+
         self.with_points_client(|mut points_api| async move {
             Ok(points_api.upsert(request.clone()).await?.into_inner())
         })
