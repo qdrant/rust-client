@@ -1,6 +1,7 @@
 use crate::grpc_macros::convert_option;
 use crate::qdrant::*;
 
+#[derive(Clone)]
 pub struct OrderByBuilder {
     /// Payload key to order by
     pub(crate) key: Option<String>,

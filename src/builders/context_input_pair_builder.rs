@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[derive(Clone)]
 pub struct ContextInputPairBuilder {
     /// A positive vector
     pub(crate) positive: Option<Option<VectorInput>>,

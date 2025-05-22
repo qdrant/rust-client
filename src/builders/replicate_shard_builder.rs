@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[derive(Clone)]
 pub struct ReplicateShardBuilder {
     /// Local shard id
     pub(crate) shard_id: Option<u32>,

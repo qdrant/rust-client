@@ -4,6 +4,7 @@ use crate::qdrant::*;
 ///
 /// Decay functions (exponential, Gaussian, linear) are used in scoring to create a decay effect
 /// based on distance from a target value.
+#[derive(Clone)]
 pub struct DecayParamsExpressionBuilder {
     /// The variable to decay
     pub(crate) x: Expression,

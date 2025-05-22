@@ -1,6 +1,7 @@
 use crate::grpc_macros::convert_option;
 use crate::qdrant::*;
 
+#[derive(Clone)]
 pub struct WithLookupBuilder {
     /// Name of the collection to use for points lookup
     pub(crate) collection: Option<String>,
