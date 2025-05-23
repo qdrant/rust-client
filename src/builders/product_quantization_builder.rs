@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[derive(Clone)]
 pub struct ProductQuantizationBuilder {
     /// Compression ratio
     pub(crate) compression: Option<i32>,

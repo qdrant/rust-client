@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[derive(Clone)]
 pub struct MultiVectorConfigBuilder {
     /// Comparator for multi-vector search
     pub(crate) comparator: Option<i32>,

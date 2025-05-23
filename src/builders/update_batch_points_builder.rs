@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[derive(Clone)]
 pub struct UpdateBatchPointsBuilder {
     /// name of the collection
     pub(crate) collection_name: Option<String>,

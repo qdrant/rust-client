@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use crate::qdrant::{StrictModeSparse, StrictModeSparseConfig};
 
 /// Builder for StrictModeSparseConfig, which defines sparse vector configuration for strict mode.
+#[derive(Clone)]
 pub struct StrictModeSparseConfigBuilder {
     /// The sparse vectors configuration map, where keys are vector names and values are their configurations.
     pub(crate) sparse_config: HashMap<String, StrictModeSparse>,

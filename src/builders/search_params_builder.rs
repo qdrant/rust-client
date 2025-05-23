@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[derive(Clone)]
 pub struct SearchParamsBuilder {
     ///
     /// Params relevant to HNSW index. Size of the beam in a beam-search.

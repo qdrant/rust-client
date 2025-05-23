@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[derive(Clone)]
 pub struct UpdateCollectionClusterSetupRequestBuilder {
     /// Name of the collection
     pub(crate) collection_name: Option<String>,

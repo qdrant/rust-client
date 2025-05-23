@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[derive(Clone)]
 pub struct RecommendInputBuilder {
     /// Look for vectors closest to the vectors from these points
     pub(crate) positive: Option<Vec<VectorInput>>,

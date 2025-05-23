@@ -1,6 +1,7 @@
 use crate::grpc_macros::convert_option;
 use crate::qdrant::*;
 
+#[derive(Clone)]
 pub struct ScrollPointsBuilder {
     pub(crate) collection_name: Option<String>,
     /// Filter conditions - return only those points that satisfy the specified conditions

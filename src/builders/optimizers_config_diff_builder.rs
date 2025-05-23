@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[derive(Clone)]
 pub struct OptimizersConfigDiffBuilder {
     ///
     /// The minimal fraction of deleted vectors in a segment, required to perform segment optimization

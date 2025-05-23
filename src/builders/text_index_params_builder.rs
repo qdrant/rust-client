@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[derive(Clone)]
 pub struct TextIndexParamsBuilder {
     /// Tokenizer type
     pub(crate) tokenizer: Option<i32>,

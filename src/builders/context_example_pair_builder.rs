@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[derive(Clone)]
 pub struct ContextExamplePairBuilder {
     pub(crate) positive: Option<Option<VectorExample>>,
     pub(crate) negative: Option<Option<VectorExample>>,

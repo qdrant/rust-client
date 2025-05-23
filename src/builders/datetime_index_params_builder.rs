@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[derive(Clone)]
 pub struct DatetimeIndexParamsBuilder {
     /// If true - store index on disk.
     pub(crate) on_disk: Option<Option<bool>>,

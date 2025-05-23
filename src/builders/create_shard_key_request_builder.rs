@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[derive(Clone)]
 pub struct CreateShardKeyRequestBuilder {
     /// Name of the collection
     pub(crate) collection_name: Option<String>,

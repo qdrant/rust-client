@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[derive(Clone)]
 pub struct IntegerIndexParamsBuilder {
     /// If true - support direct lookups.
     pub(crate) lookup: Option<Option<bool>>,

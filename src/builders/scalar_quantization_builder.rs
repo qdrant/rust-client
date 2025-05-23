@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[derive(Clone)]
 pub struct ScalarQuantizationBuilder {
     /// Type of quantization
     pub(crate) r#type: Option<i32>,

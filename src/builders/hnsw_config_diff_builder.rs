@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[derive(Clone)]
 pub struct HnswConfigDiffBuilder {
     ///
     /// Number of edges per node in the index graph. Larger the value - more accurate the search, more space required.

@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[derive(Clone)]
 pub struct UpdatePointVectorsBuilder {
     /// name of the collection
     pub(crate) collection_name: Option<String>,

@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[derive(Clone)]
 pub struct StrictModeConfigBuilder {
     pub(crate) enabled: Option<Option<bool>>,
     pub(crate) max_query_limit: Option<Option<u32>>,

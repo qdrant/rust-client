@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[derive(Clone)]
 pub struct LookupLocationBuilder {
     pub(crate) collection_name: Option<String>,
     /// Which vector to use for search, if not specified - use default vector

@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[derive(Clone)]
 pub struct DiscoverInputBuilder {
     /// Use this as the primary search objective
     pub(crate) target: Option<Option<VectorInput>>,

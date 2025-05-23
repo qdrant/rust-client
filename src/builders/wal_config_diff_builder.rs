@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[derive(Clone)]
 pub struct WalConfigDiffBuilder {
     /// Size of a single WAL block file
     pub(crate) wal_capacity_mb: Option<Option<u64>>,
