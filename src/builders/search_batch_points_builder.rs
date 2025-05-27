@@ -1,6 +1,7 @@
 use crate::grpc_macros::convert_option;
 use crate::qdrant::*;
 
+#[derive(Clone)]
 pub struct SearchBatchPointsBuilder {
     /// Name of the collection
     pub(crate) collection_name: Option<String>,

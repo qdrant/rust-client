@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[derive(Clone)]
 pub struct ReplicaBuilder {
     pub(crate) shard_id: Option<u32>,
     pub(crate) peer_id: Option<u64>,

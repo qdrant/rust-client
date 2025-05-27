@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[derive(Clone)]
 pub struct RenameAliasBuilder {
     /// Name of the alias to rename
     pub(crate) old_alias_name: Option<String>,

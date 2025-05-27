@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[derive(Clone)]
 pub struct CollectionParamsDiffBuilder {
     /// Number of replicas of each shard that network tries to maintain
     pub(crate) replication_factor: Option<Option<u32>>,

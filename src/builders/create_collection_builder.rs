@@ -1,7 +1,7 @@
 use crate::grpc_macros::convert_option;
 use crate::qdrant::*;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CreateCollectionBuilder {
     /// Name of the collection
     pub(crate) collection_name: Option<String>,

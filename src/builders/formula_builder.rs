@@ -5,6 +5,7 @@ use crate::qdrant::*;
 /// Builder for the Formula struct, which represents a scoring formula for points.
 ///
 /// The Formula struct is used to define custom scoring expressions and default values.
+#[derive(Clone)]
 pub struct FormulaBuilder {
     /// The expression that defines how to score points.
     pub(crate) expression: Expression,

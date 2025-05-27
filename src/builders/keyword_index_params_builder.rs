@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[derive(Clone)]
 pub struct KeywordIndexParamsBuilder {
     /// If true - used for tenant optimization.
     pub(crate) is_tenant: Option<Option<bool>>,

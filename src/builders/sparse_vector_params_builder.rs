@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[derive(Clone)]
 pub struct SparseVectorParamsBuilder {
     /// Configuration of sparse index
     pub(crate) index: Option<Option<SparseIndexConfig>>,
