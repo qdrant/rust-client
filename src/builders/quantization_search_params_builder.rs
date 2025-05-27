@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[derive(Clone)]
 pub struct QuantizationSearchParamsBuilder {
     ///
     /// If set to true, search will ignore quantized vector data

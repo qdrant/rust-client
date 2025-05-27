@@ -5,6 +5,7 @@ use crate::qdrant::*;
 ///
 /// - If `auto` - have no limit and choose dynamically to saturate CPU.
 /// - If `disabled` or `0` - no optimization threads, optimizations will be disabled.
+#[derive(Clone)]
 pub struct MaxOptimizationThreadsBuilder {
     pub(crate) inner: MaxOptimizationThreads,
 }

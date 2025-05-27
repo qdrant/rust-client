@@ -1,6 +1,7 @@
 use crate::grpc_macros::convert_option;
 use crate::qdrant::*;
 
+#[derive(Clone)]
 pub struct QueryBatchPointsBuilder {
     pub(crate) collection_name: Option<String>,
     pub(crate) query_points: Option<Vec<QueryPoints>>,

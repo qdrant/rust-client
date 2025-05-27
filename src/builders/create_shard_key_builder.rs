@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[derive(Clone)]
 pub struct CreateShardKeyBuilder {
     /// User-defined shard key
     pub(crate) shard_key: Option<Option<ShardKey>>,

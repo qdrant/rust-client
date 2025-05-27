@@ -1,6 +1,7 @@
 use crate::grpc_macros::convert_option;
 use crate::qdrant::*;
 
+#[derive(Clone)]
 pub struct VectorParamsBuilder {
     /// Size of the vectors
     pub(crate) size: Option<u64>,

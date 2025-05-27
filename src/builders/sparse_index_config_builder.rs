@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[derive(Clone)]
 pub struct SparseIndexConfigBuilder {
     ///
     /// Prefer a full scan search upto (excluding) this number of vectors.
