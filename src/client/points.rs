@@ -12,12 +12,12 @@ use crate::qdrant::{
     shard_key, ClearPayloadPoints, CountPoints, CountResponse, CreateFieldIndexCollection,
     DeleteFieldIndexCollection, DeletePayloadPoints, DeletePointVectors, DeletePoints,
     DiscoverBatchPoints, DiscoverBatchResponse, DiscoverPoints, DiscoverResponse, FieldType,
-    GetPoints, GetResponse, HardwareUsage, PayloadIndexParams, PointId, PointVectors,
-    PointsOperationResponse, PointsSelector, PointsUpdateOperation, ReadConsistency,
-    RecommendBatchPoints, RecommendBatchResponse, RecommendGroupsResponse, RecommendPointGroups,
-    RecommendPoints, RecommendResponse, ScrollPoints, ScrollResponse, SearchBatchPoints,
-    SearchBatchResponse, SearchGroupsResponse, SearchPointGroups, SearchResponse, SetPayloadPoints,
-    ShardKeySelector, UpdateBatchPoints, UpdateBatchResponse, UpdatePointVectors, UpsertPoints,
+    GetPoints, GetResponse, PayloadIndexParams, PointId, PointVectors, PointsOperationResponse,
+    PointsSelector, PointsUpdateOperation, ReadConsistency, RecommendBatchPoints,
+    RecommendBatchResponse, RecommendGroupsResponse, RecommendPointGroups, RecommendPoints,
+    RecommendResponse, ScrollPoints, ScrollResponse, SearchBatchPoints, SearchBatchResponse,
+    SearchGroupsResponse, SearchPointGroups, SearchResponse, SetPayloadPoints, ShardKeySelector,
+    UpdateBatchPoints, UpdateBatchResponse, UpdatePointVectors, UpsertPoints, Usage,
     VectorsSelector, WithPayloadSelector, WithVectorsSelector, WriteOrdering,
 };
 
@@ -283,7 +283,7 @@ impl QdrantClient {
                         .into_inner();
                     resp.result = result;
                     resp.time += time;
-                    HardwareUsage::aggregate_opts(resp.usage, usage);
+                    resp.usage = Usage::aggregate_opts(resp.usage, usage);
                 }
                 Ok(resp)
             })
