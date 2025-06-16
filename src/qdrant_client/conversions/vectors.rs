@@ -161,7 +161,10 @@ impl From<HashMap<String, Document>> for Vectors {
     fn from(value: HashMap<String, Document>) -> Self {
         Vectors {
             vectors_options: Some(VectorsOptions::Vectors(NamedVectors {
-                vectors: value.into_iter().map(|(k, v)| (k, Vector::from(v))).collect(),
+                vectors: value
+                    .into_iter()
+                    .map(|(k, v)| (k, Vector::from(v)))
+                    .collect(),
             })),
         }
     }
@@ -188,7 +191,10 @@ impl From<HashMap<String, Image>> for Vectors {
     fn from(value: HashMap<String, Image>) -> Self {
         Vectors {
             vectors_options: Some(VectorsOptions::Vectors(NamedVectors {
-                vectors: value.into_iter().map(|(k, v)| (k, Vector::from(v))).collect(),
+                vectors: value
+                    .into_iter()
+                    .map(|(k, v)| (k, Vector::from(v)))
+                    .collect(),
             })),
         }
     }
@@ -215,7 +221,10 @@ impl From<HashMap<String, InferenceObject>> for Vectors {
     fn from(value: HashMap<String, InferenceObject>) -> Self {
         Vectors {
             vectors_options: Some(VectorsOptions::Vectors(NamedVectors {
-                vectors: value.into_iter().map(|(k, v)| (k, Vector::from(v))).collect(),
+                vectors: value
+                    .into_iter()
+                    .map(|(k, v)| (k, Vector::from(v)))
+                    .collect(),
             })),
         }
     }

@@ -1,12 +1,16 @@
-use crate::qdrant::{Document, Value};
 use std::collections::HashMap;
+
+use crate::qdrant::{Document, Value};
 
 impl Document {
     pub fn new(text: impl Into<String>, model: impl Into<String>) -> Self {
-        Self { text: text.into(), model: model.into(), options: HashMap::new() }
+        Self {
+            text: text.into(),
+            model: model.into(),
+            options: HashMap::new(),
+        }
     }
 }
-
 
 pub struct DocumentBuilder {
     text: String,
@@ -16,7 +20,11 @@ pub struct DocumentBuilder {
 
 impl DocumentBuilder {
     pub fn new(text: impl Into<String>, model: impl Into<String>) -> Self {
-        Self { text: text.into(), model: model.into(), options: HashMap::new() }
+        Self {
+            text: text.into(),
+            model: model.into(),
+            options: HashMap::new(),
+        }
     }
 
     pub fn text(mut self, text: String) -> Self {
@@ -35,6 +43,10 @@ impl DocumentBuilder {
     }
 
     pub fn build(self) -> Document {
-        Document { text: self.text, model: self.model, options: self.options }
+        Document {
+            text: self.text,
+            model: self.model,
+            options: self.options,
+        }
     }
 }

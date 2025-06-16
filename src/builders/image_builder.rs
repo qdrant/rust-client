@@ -1,16 +1,28 @@
-use crate::qdrant::{value, Image, Value};
 use std::collections::HashMap;
+
+use crate::qdrant::{value, Image, Value};
 
 impl Image {
     pub fn new_from_url(url: impl Into<String>, model: impl Into<String>) -> Self {
-        Self { image: Some(Value { kind: Some(value::Kind::StringValue(url.into())) }), model: model.into(), options: HashMap::new() }
+        Self {
+            image: Some(Value {
+                kind: Some(value::Kind::StringValue(url.into())),
+            }),
+            model: model.into(),
+            options: HashMap::new(),
+        }
     }
 
     pub fn new_from_base64(base64: impl Into<String>, model: impl Into<String>) -> Self {
-        Self { image: Some(Value { kind: Some(value::Kind::StringValue(base64.into())) }), model: model.into(), options: HashMap::new() }
+        Self {
+            image: Some(Value {
+                kind: Some(value::Kind::StringValue(base64.into())),
+            }),
+            model: model.into(),
+            options: HashMap::new(),
+        }
     }
 }
-
 
 pub struct ImageBuilder {
     image: Option<Value>,
@@ -20,11 +32,23 @@ pub struct ImageBuilder {
 
 impl ImageBuilder {
     pub fn new_from_url(url: impl Into<String>, model: impl Into<String>) -> Self {
-        Self { image: Some(Value { kind: Some(value::Kind::StringValue(url.into())) }), model: model.into(), options: HashMap::new() }
+        Self {
+            image: Some(Value {
+                kind: Some(value::Kind::StringValue(url.into())),
+            }),
+            model: model.into(),
+            options: HashMap::new(),
+        }
     }
 
     pub fn new_from_base64(base64: impl Into<String>, model: impl Into<String>) -> Self {
-        Self { image: Some(Value { kind: Some(value::Kind::StringValue(base64.into())) }), model: model.into(), options: HashMap::new() }
+        Self {
+            image: Some(Value {
+                kind: Some(value::Kind::StringValue(base64.into())),
+            }),
+            model: model.into(),
+            options: HashMap::new(),
+        }
     }
 
     pub fn image(mut self, image: Value) -> Self {
@@ -43,6 +67,10 @@ impl ImageBuilder {
     }
 
     pub fn build(self) -> Image {
-        Image { image: self.image, model: self.model, options: self.options }
+        Image {
+            image: self.image,
+            model: self.model,
+            options: self.options,
+        }
     }
 }
