@@ -56,8 +56,8 @@ impl ImageBuilder {
         self
     }
 
-    pub fn model(mut self, model: String) -> Self {
-        self.model = model;
+    pub fn model(mut self, model: impl Into<String>) -> Self {
+        self.model = model.into();
         self
     }
 
