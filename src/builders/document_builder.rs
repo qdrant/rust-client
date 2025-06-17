@@ -27,13 +27,13 @@ impl DocumentBuilder {
         }
     }
 
-    pub fn text(mut self, text: String) -> Self {
-        self.text = text;
+    pub fn text(mut self, text: impl Into<String>) -> Self {
+        self.text = text.into();
         self
     }
 
-    pub fn model(mut self, model: String) -> Self {
-        self.model = model;
+    pub fn model(mut self, model: impl Into<String>) -> Self {
+        self.model = model.into();
         self
     }
 
