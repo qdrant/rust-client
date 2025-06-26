@@ -1,10 +1,15 @@
 use std::fmt::{Display, Formatter};
 use std::hash::{Hash, Hasher};
 
+#[cfg(feature = "uuid")]
+use uuid::Uuid;
+
 use crate::client::Payload;
 #[allow(deprecated)]
 use crate::error::NotA;
 use crate::prelude::{PointStruct, Value};
+#[cfg(feature = "uuid")]
+use crate::qdrant::point_id::PointIdOptions;
 use crate::qdrant::value::Kind;
 use crate::qdrant::{
     HardwareUsage, ListValue, PointId, RetrievedPoint, ScoredPoint, Struct, Vectors,
@@ -294,6 +299,22 @@ impl IntoIterator for ListValue {
 impl ListValue {
     pub fn iter(&self) -> std::slice::Iter<'_, Value> {
         self.values.iter()
+    }
+}
+
+#[cfg(feature = "uuid")]
+impl From<Uuid> for PointId {
+    fn from(uuid: Uuid) -> Self {
+        Self {
+            point_id_options: Some(PointIdOptions::from(uuid)),
+        }
+    }
+}
+
+#[cfg(feature = "uuid")]
+impl From<Uuid> for PointIdOptions {
+    fn from(uuid: Uuid) -> Self {
+        PointIdOptions::Uuid(uuid.to_string())
     }
 }
 
