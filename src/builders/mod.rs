@@ -237,3 +237,9 @@ pub use sparse_vector_builder::SparseVectorBuilder;
 
 pub mod multi_dense_vector_builder;
 pub use multi_dense_vector_builder::MultiDenseVectorBuilder;
+
+pub mod document_builder;
+pub use document_builder::DocumentBuilder;
+
+pub mod image_builder;
+pub use image_builder::ImageBuilder;
