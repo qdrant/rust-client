@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::qdrant::vectors::VectorsOptions;
-use crate::qdrant::{NamedVectors, Vector, Vectors};
+use crate::qdrant::{vector, Document, Image, InferenceObject, NamedVectors, Vector, Vectors};
 
 impl From<Vec<f32>> for Vector {
     fn from(vector: Vec<f32>) -> Self {
@@ -137,5 +137,95 @@ impl From<Vector> for VectorsOptions {
 impl From<NamedVectors> for VectorsOptions {
     fn from(value: NamedVectors) -> Self {
         Self::Vectors(value)
+    }
+}
+
+impl From<Document> for Vector {
+    fn from(value: Document) -> Self {
+        Vector {
+            vector: Some(vector::Vector::Document(value)),
+            ..Default::default()
+        }
+    }
+}
+
+impl From<Document> for Vectors {
+    fn from(value: Document) -> Self {
+        Vectors {
+            vectors_options: Some(VectorsOptions::Vector(Vector::from(value))),
+        }
+    }
+}
+
+impl From<HashMap<String, Document>> for Vectors {
+    fn from(value: HashMap<String, Document>) -> Self {
+        Vectors {
+            vectors_options: Some(VectorsOptions::Vectors(NamedVectors {
+                vectors: value
+                    .into_iter()
+                    .map(|(k, v)| (k, Vector::from(v)))
+                    .collect(),
+            })),
+        }
+    }
+}
+
+impl From<Image> for Vector {
+    fn from(value: Image) -> Self {
+        Vector {
+            vector: Some(vector::Vector::Image(value)),
+            ..Default::default()
+        }
+    }
+}
+
+impl From<Image> for Vectors {
+    fn from(value: Image) -> Self {
+        Vectors {
+            vectors_options: Some(VectorsOptions::Vector(Vector::from(value))),
+        }
+    }
+}
+
+impl From<HashMap<String, Image>> for Vectors {
+    fn from(value: HashMap<String, Image>) -> Self {
+        Vectors {
+            vectors_options: Some(VectorsOptions::Vectors(NamedVectors {
+                vectors: value
+                    .into_iter()
+                    .map(|(k, v)| (k, Vector::from(v)))
+                    .collect(),
+            })),
+        }
+    }
+}
+
+impl From<InferenceObject> for Vector {
+    fn from(value: InferenceObject) -> Self {
+        Vector {
+            vector: Some(vector::Vector::Object(value)),
+            ..Default::default()
+        }
+    }
+}
+
+impl From<InferenceObject> for Vectors {
+    fn from(value: InferenceObject) -> Self {
+        Vectors {
+            vectors_options: Some(VectorsOptions::Vector(Vector::from(value))),
+        }
+    }
+}
+
+impl From<HashMap<String, InferenceObject>> for Vectors {
+    fn from(value: HashMap<String, InferenceObject>) -> Self {
+        Vectors {
+            vectors_options: Some(VectorsOptions::Vectors(NamedVectors {
+                vectors: value
+                    .into_iter()
+                    .map(|(k, v)| (k, Vector::from(v)))
+                    .collect(),
+            })),
+        }
     }
 }
