@@ -78,7 +78,7 @@ async fn main() -> Result<(), QdrantError> {
     let found_point = search_result.result.into_iter().next().unwrap();
     let mut payload = found_point.payload;
     let baz_payload = payload.remove("baz").unwrap().into_json();
-    println!("baz: {}", baz_payload);
+    println!("baz: {baz_payload}");
     // baz: {"qux":"quux"}
 
     Ok(())

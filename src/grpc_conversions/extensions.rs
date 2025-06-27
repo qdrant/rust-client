@@ -201,17 +201,17 @@ impl From<Value> for serde_json::Value {
 impl Display for Value {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match &self.kind {
-            Some(Kind::BoolValue(b)) => write!(f, "{}", b),
-            Some(Kind::IntegerValue(i)) => write!(f, "{}", i),
-            Some(Kind::DoubleValue(v)) => write!(f, "{}", v),
-            Some(Kind::StringValue(s)) => write!(f, "{:?}", s),
+            Some(Kind::BoolValue(b)) => write!(f, "{b}"),
+            Some(Kind::IntegerValue(i)) => write!(f, "{i}"),
+            Some(Kind::DoubleValue(v)) => write!(f, "{v}"),
+            Some(Kind::StringValue(s)) => write!(f, "{s:?}"),
             Some(Kind::ListValue(vs)) => {
                 let mut i = vs.values.iter();
                 write!(f, "[")?;
                 if let Some(first) = i.next() {
-                    write!(f, "{}", first)?;
+                    write!(f, "{first}")?;
                     for v in i {
-                        write!(f, ",{}", v)?;
+                        write!(f, ",{v}")?;
                     }
                 }
                 write!(f, "]")
@@ -220,9 +220,9 @@ impl Display for Value {
                 let mut i = s.fields.iter();
                 write!(f, "{{")?;
                 if let Some((key, value)) = i.next() {
-                    write!(f, "{:?}:{}", key, value)?;
+                    write!(f, "{key:?}:{value}")?;
                     for (key, value) in i {
-                        write!(f, ",{:?}:{}", key, value)?;
+                        write!(f, ",{key:?}:{value}")?;
                     }
                 }
                 write!(f, "}}")

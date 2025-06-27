@@ -17,7 +17,7 @@ impl Interceptor for TokenInterceptor {
             req.metadata_mut().insert(
                 "api-key",
                 api_key.parse().map_err(|_| {
-                    Status::invalid_argument(format!("Malformed API key or token: {}", api_key))
+                    Status::invalid_argument(format!("Malformed API key or token: {api_key}"))
                 })?,
             );
         }

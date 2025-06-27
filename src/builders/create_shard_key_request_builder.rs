@@ -101,9 +101,9 @@ impl std::fmt::Display for CreateShardKeyRequestBuilderError {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
             Self::UninitializedField(field) => {
-                write!(f, "`{}` must be initialized", field)
+                write!(f, "`{field}` must be initialized")
             }
-            Self::ValidationError(error) => write!(f, "{}", error),
+            Self::ValidationError(error) => write!(f, "{error}"),
         }
     }
 }

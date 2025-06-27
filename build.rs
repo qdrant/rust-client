@@ -6,7 +6,7 @@ fn generate_snippet_test(snippet: &str, name: &str, dir: &Path) {
 
     let snippet = snippet
         .lines()
-        .map(|line| format!("        {}", line))
+        .map(|line| format!("        {line}"))
         .collect::<Vec<_>>()
         .join("\n");
 
@@ -27,7 +27,7 @@ async fn test_{name}() {{
 
     // Write the test snippet to the file
     let mut test_snippet_path = PathBuf::from(dir);
-    test_snippet_path.push(format!("test_{}.rs", name));
+    test_snippet_path.push(format!("test_{name}.rs"));
     fs::write(test_snippet_path, test_snippet).unwrap();
 }
 
@@ -73,7 +73,7 @@ fn main() {
 
     let mod_file = snippet_names
         .iter()
-        .map(|(_, name)| format!("mod test_{};", name))
+        .map(|(_, name)| format!("mod test_{name};"))
         .collect::<Vec<_>>()
         .join("\n");
 
