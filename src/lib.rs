@@ -226,7 +226,7 @@ mod tests {
                 .collect(),
             })),
         };
-        let text = format!("{}", value);
+        let text = format!("{value}");
         assert!([
             "\"float\":1.23",
             "\"list\":[null]",
@@ -245,10 +245,10 @@ mod tests {
             .build()?;
 
         let health = client.health_check().await?;
-        println!("{:?}", health);
+        println!("{health:?}");
 
         let collections_list = client.list_collections().await?;
-        println!("{:?}", collections_list);
+        println!("{collections_list:?}");
 
         let collection_name = "test_qdrant_queries";
         client.delete_collection(collection_name).await?;
@@ -264,7 +264,7 @@ mod tests {
         assert!(exists);
 
         let collection_info = client.collection_info(collection_name).await?;
-        println!("{:#?}", collection_info);
+        println!("{collection_info:#?}");
 
         let mut sub_payload = Payload::new();
         sub_payload.insert("foo", "Not bar");
@@ -289,7 +289,7 @@ mod tests {
         // Keyword filter result
         search_points.filter = Some(Filter::all([Condition::matches("foo", "Bar".to_string())]));
         let search_result = client.search_points(search_points.clone()).await?;
-        eprintln!("search_result = {:#?}", search_result);
+        eprintln!("search_result = {search_result:#?}");
         assert!(!search_result.result.is_empty());
 
         // Existing implementations full text search filter result (`Condition::matches`)
@@ -298,7 +298,7 @@ mod tests {
             "Not ".to_string(),
         )]));
         let search_result = client.search_points(search_points.clone()).await?;
-        eprintln!("search_result = {:#?}", search_result);
+        eprintln!("search_result = {search_result:#?}");
         assert!(!search_result.result.is_empty());
 
         // Full text search filter result (`Condition::matches_text`)
@@ -307,7 +307,7 @@ mod tests {
             "Not",
         )]));
         let search_result = client.search_points(search_points).await?;
-        eprintln!("search_result = {:#?}", search_result);
+        eprintln!("search_result = {search_result:#?}");
         assert!(!search_result.result.is_empty());
 
         // Override payload of the existing point
@@ -321,7 +321,7 @@ mod tests {
                 SetPayloadPointsBuilder::new(collection_name, new_payload).points_selector([0]),
             )
             .await?;
-        eprintln!("payload_result = {:#?}", payload_result);
+        eprintln!("payload_result = {payload_result:#?}");
 
         // Delete some payload fields
         client
@@ -338,7 +338,7 @@ mod tests {
                     .with_payload(true),
             )
             .await?;
-        eprintln!("get_points_result = {:#?}", get_points_result);
+        eprintln!("get_points_result = {get_points_result:#?}");
         assert_eq!(get_points_result.result.len(), 1);
         let point = get_points_result.result[0].clone();
         assert!(point.payload.contains_key("foo"));
@@ -351,7 +351,7 @@ mod tests {
                     .wait(true),
             )
             .await?;
-        eprintln!("delete_points_result = {:#?}", delete_points_result);
+        eprintln!("delete_points_result = {delete_points_result:#?}");
 
         // Access raw point api with client
         client
@@ -371,7 +371,7 @@ mod tests {
 
         // slow operation
         let snapshot_result = client.create_snapshot(collection_name).await?;
-        eprintln!("snapshot_result = {:#?}", snapshot_result);
+        eprintln!("snapshot_result = {snapshot_result:#?}");
 
         #[cfg(feature = "download_snapshots")]
         client
