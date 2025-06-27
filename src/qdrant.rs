@@ -4496,7 +4496,7 @@ pub struct UpdateBatchPoints {
     #[prost(message, optional, tag = "4")]
     pub ordering: ::core::option::Option<WriteOrdering>,
 }
-#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PointsOperationResponse {
     #[prost(message, optional, tag = "1")]
     pub result: ::core::option::Option<UpdateResult>,
@@ -4504,7 +4504,7 @@ pub struct PointsOperationResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
     #[prost(message, optional, tag = "3")]
-    pub usage: ::core::option::Option<HardwareUsage>,
+    pub usage: ::core::option::Option<Usage>,
 }
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct UpdateResult {
@@ -4600,7 +4600,7 @@ pub struct SearchResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
     #[prost(message, optional, tag = "3")]
-    pub usage: ::core::option::Option<HardwareUsage>,
+    pub usage: ::core::option::Option<Usage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct QueryResponse {
@@ -4610,7 +4610,7 @@ pub struct QueryResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
     #[prost(message, optional, tag = "3")]
-    pub usage: ::core::option::Option<HardwareUsage>,
+    pub usage: ::core::option::Option<Usage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct QueryBatchResponse {
@@ -4620,7 +4620,7 @@ pub struct QueryBatchResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
     #[prost(message, optional, tag = "3")]
-    pub usage: ::core::option::Option<HardwareUsage>,
+    pub usage: ::core::option::Option<Usage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct QueryGroupsResponse {
@@ -4630,7 +4630,7 @@ pub struct QueryGroupsResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
     #[prost(message, optional, tag = "3")]
-    pub usage: ::core::option::Option<HardwareUsage>,
+    pub usage: ::core::option::Option<Usage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BatchResult {
@@ -4645,7 +4645,7 @@ pub struct SearchBatchResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
     #[prost(message, optional, tag = "3")]
-    pub usage: ::core::option::Option<HardwareUsage>,
+    pub usage: ::core::option::Option<Usage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SearchGroupsResponse {
@@ -4655,9 +4655,9 @@ pub struct SearchGroupsResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
     #[prost(message, optional, tag = "3")]
-    pub usage: ::core::option::Option<HardwareUsage>,
+    pub usage: ::core::option::Option<Usage>,
 }
-#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CountResponse {
     #[prost(message, optional, tag = "1")]
     pub result: ::core::option::Option<CountResult>,
@@ -4665,7 +4665,7 @@ pub struct CountResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
     #[prost(message, optional, tag = "3")]
-    pub usage: ::core::option::Option<HardwareUsage>,
+    pub usage: ::core::option::Option<Usage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ScrollResponse {
@@ -4678,7 +4678,7 @@ pub struct ScrollResponse {
     #[prost(double, tag = "3")]
     pub time: f64,
     #[prost(message, optional, tag = "4")]
-    pub usage: ::core::option::Option<HardwareUsage>,
+    pub usage: ::core::option::Option<Usage>,
 }
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct CountResult {
@@ -4708,7 +4708,7 @@ pub struct GetResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
     #[prost(message, optional, tag = "3")]
-    pub usage: ::core::option::Option<HardwareUsage>,
+    pub usage: ::core::option::Option<Usage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RecommendResponse {
@@ -4718,7 +4718,7 @@ pub struct RecommendResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
     #[prost(message, optional, tag = "3")]
-    pub usage: ::core::option::Option<HardwareUsage>,
+    pub usage: ::core::option::Option<Usage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RecommendBatchResponse {
@@ -4728,7 +4728,7 @@ pub struct RecommendBatchResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
     #[prost(message, optional, tag = "3")]
-    pub usage: ::core::option::Option<HardwareUsage>,
+    pub usage: ::core::option::Option<Usage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DiscoverResponse {
@@ -4738,7 +4738,7 @@ pub struct DiscoverResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
     #[prost(message, optional, tag = "3")]
-    pub usage: ::core::option::Option<HardwareUsage>,
+    pub usage: ::core::option::Option<Usage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DiscoverBatchResponse {
@@ -4748,7 +4748,7 @@ pub struct DiscoverBatchResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
     #[prost(message, optional, tag = "3")]
-    pub usage: ::core::option::Option<HardwareUsage>,
+    pub usage: ::core::option::Option<Usage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RecommendGroupsResponse {
@@ -4758,7 +4758,7 @@ pub struct RecommendGroupsResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
     #[prost(message, optional, tag = "3")]
-    pub usage: ::core::option::Option<HardwareUsage>,
+    pub usage: ::core::option::Option<Usage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpdateBatchResponse {
@@ -4767,6 +4767,8 @@ pub struct UpdateBatchResponse {
     /// Time spent to process
     #[prost(double, tag = "2")]
     pub time: f64,
+    #[prost(message, optional, tag = "3")]
+    pub usage: ::core::option::Option<Usage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct FacetResponse {
@@ -4784,7 +4786,7 @@ pub struct SearchMatrixPairsResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
     #[prost(message, optional, tag = "3")]
-    pub usage: ::core::option::Option<HardwareUsage>,
+    pub usage: ::core::option::Option<Usage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SearchMatrixOffsetsResponse {
@@ -4794,7 +4796,7 @@ pub struct SearchMatrixOffsetsResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
     #[prost(message, optional, tag = "3")]
-    pub usage: ::core::option::Option<HardwareUsage>,
+    pub usage: ::core::option::Option<Usage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Filter {
@@ -5054,6 +5056,26 @@ pub struct GeoPoint {
     pub lon: f64,
     #[prost(double, tag = "2")]
     pub lat: f64,
+}
+/// ---------------------------------------------
+/// ----------- Measurements collector ----------
+/// ---------------------------------------------
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct Usage {
+    #[prost(message, optional, tag = "1")]
+    pub hardware: ::core::option::Option<HardwareUsage>,
+    #[prost(message, optional, tag = "2")]
+    pub inference: ::core::option::Option<InferenceUsage>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct InferenceUsage {
+    #[prost(map = "string, message", tag = "1")]
+    pub models: ::std::collections::HashMap<::prost::alloc::string::String, ModelUsage>,
+}
+#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+pub struct ModelUsage {
+    #[prost(uint64, tag = "1")]
+    pub tokens: u64,
 }
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct HardwareUsage {
