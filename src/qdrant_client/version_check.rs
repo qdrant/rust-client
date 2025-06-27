@@ -26,8 +26,7 @@ impl fmt::Display for VersionParseError {
             VersionParseError::InvalidFormat(version) => {
                 write!(
                     f,
-                    "Unable to parse version, expected format: x.y[.z], found: {}",
-                    version
+                    "Unable to parse version, expected format: x.y[.z], found: {version}"
                 )
             }
         }
@@ -39,8 +38,7 @@ impl Error for VersionParseError {}
 pub fn is_compatible(client_version: Option<&str>, server_version: Option<&str>) -> bool {
     if client_version.is_none() || server_version.is_none() {
         println!(
-            "Unable to compare versions, client_version: {:?}, server_version: {:?}",
-            client_version, server_version
+            "Unable to compare versions, client_version: {client_version:?}, server_version: {server_version:?}"
         );
         return false;
     }
@@ -61,7 +59,7 @@ pub fn is_compatible(client_version: Option<&str>, server_version: Option<&str>)
             (client.minor as i32 - server.minor as i32).abs() <= 1
         }
         (Err(e), _) | (_, Err(e)) => {
-            println!("Unable to compare versions: {}", e);
+            println!("Unable to compare versions: {e}");
             false
         }
     }
@@ -95,8 +93,7 @@ mod tests {
             let result = is_compatible(client_version, server_version);
             assert_eq!(
                 result, expected_result,
-                "Failed for client: {:?}, server: {:?}",
-                client_version, server_version
+                "Failed for client: {client_version:?}, server: {server_version:?}"
             );
         }
     }

@@ -37,8 +37,7 @@ impl ChannelPool {
                 "https" => true,
                 _ => {
                     return Err(Status::invalid_argument(format!(
-                        "Unsupported schema: {}",
-                        schema
+                        "Unsupported schema: {schema}"
                     )))
                 }
             },
@@ -58,7 +57,7 @@ impl ChannelPool {
             let tls_config = ClientTlsConfig::new().with_native_roots();
             endpoint
                 .tls_config(tls_config)
-                .map_err(|e| Status::internal(format!("Failed to create TLS config: {}", e)))?
+                .map_err(|e| Status::internal(format!("Failed to create TLS config: {e}")))?
         } else {
             endpoint
         };

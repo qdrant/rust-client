@@ -261,6 +261,6 @@ mod tests {
 
         let payload: Payload = Payload::try_from(json_value).unwrap();
 
-        eprintln!("payload = {:#?}", payload);
+        eprintln!("payload = {payload:#?}");
     }
 }

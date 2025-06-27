@@ -25,7 +25,7 @@ impl Error for NotA<Struct> {}
 
 impl Debug for NotA<Struct> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self)
+        write!(f, "{self}")
     }
 }
 
@@ -39,7 +39,7 @@ impl Error for NotA<ListValue> {}
 
 impl Debug for NotA<ListValue> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self)
+        write!(f, "{self}")
     }
 }
 
@@ -54,7 +54,7 @@ impl Error for NotA<bool> {}
 
 impl Debug for NotA<bool> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self)
+        write!(f, "{self}")
     }
 }
 
@@ -81,7 +81,7 @@ impl Error for NotA<i64> {}
 
 impl Debug for NotA<i64> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self)
+        write!(f, "{self}")
     }
 }
 
@@ -108,7 +108,7 @@ impl Error for NotA<f64> {}
 
 impl Debug for NotA<f64> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self)
+        write!(f, "{self}")
     }
 }
 
@@ -135,7 +135,7 @@ impl Error for NotA<String> {}
 
 impl Debug for NotA<String> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self)
+        write!(f, "{self}")
     }
 }
 
