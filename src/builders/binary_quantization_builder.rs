@@ -119,7 +119,9 @@ impl From<String> for BinaryQuantizationBuilderError {
 impl BinaryQuantizationQueryEncoding {
     pub fn new_setting(setting: binary_quantization_query_encoding::Setting) -> Self {
         Self {
-            variant: Some(binary_quantization_query_encoding::Variant::Setting(setting.into())),
+            variant: Some(binary_quantization_query_encoding::Variant::Setting(
+                setting.into(),
+            )),
         }
     }
 }

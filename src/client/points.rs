@@ -12,13 +12,13 @@ use crate::qdrant::{
     shard_key, ClearPayloadPoints, CountPoints, CountResponse, CreateFieldIndexCollection,
     DeleteFieldIndexCollection, DeletePayloadPoints, DeletePointVectors, DeletePoints,
     DiscoverBatchPoints, DiscoverBatchResponse, DiscoverPoints, DiscoverResponse, FieldType,
-    GetPoints, GetResponse, PayloadIndexParams, PointId, PointVectors,
-    PointsOperationResponse, PointsSelector, PointsUpdateOperation, ReadConsistency,
-    RecommendBatchPoints, RecommendBatchResponse, RecommendGroupsResponse, RecommendPointGroups,
-    RecommendPoints, RecommendResponse, ScrollPoints, ScrollResponse, SearchBatchPoints,
-    SearchBatchResponse, SearchGroupsResponse, SearchPointGroups, SearchResponse, SetPayloadPoints,
-    ShardKeySelector, UpdateBatchPoints, UpdateBatchResponse, UpdatePointVectors, UpsertPoints,
-    Usage, VectorsSelector, WithPayloadSelector, WithVectorsSelector, WriteOrdering,
+    GetPoints, GetResponse, PayloadIndexParams, PointId, PointVectors, PointsOperationResponse,
+    PointsSelector, PointsUpdateOperation, ReadConsistency, RecommendBatchPoints,
+    RecommendBatchResponse, RecommendGroupsResponse, RecommendPointGroups, RecommendPoints,
+    RecommendResponse, ScrollPoints, ScrollResponse, SearchBatchPoints, SearchBatchResponse,
+    SearchGroupsResponse, SearchPointGroups, SearchResponse, SetPayloadPoints, ShardKeySelector,
+    UpdateBatchPoints, UpdateBatchResponse, UpdatePointVectors, UpsertPoints, Usage,
+    VectorsSelector, WithPayloadSelector, WithVectorsSelector, WriteOrdering,
 };
 
 impl QdrantClient {

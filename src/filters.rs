@@ -463,8 +463,12 @@ impl std::ops::Not for MatchValue {
             Self::Integers(is) => Self::ExceptIntegers(is),
             Self::ExceptKeywords(ks) => Self::Keywords(ks),
             Self::ExceptIntegers(is) => Self::Integers(is),
-            Self::Text(_) => panic!("cannot negate a MatchValue::Text, use within must_not clause instead"),
-            Self::Phrase(_) => panic!("cannot negate a MatchValue::Phrase, use within must_not clause instead"),
+            Self::Text(_) => {
+                panic!("cannot negate a MatchValue::Text, use within must_not clause instead")
+            }
+            Self::Phrase(_) => {
+                panic!("cannot negate a MatchValue::Phrase, use within must_not clause instead")
+            }
         }
     }
 }
