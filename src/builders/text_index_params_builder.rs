@@ -12,6 +12,11 @@ pub struct TextIndexParamsBuilder {
     pub(crate) max_token_len: Option<Option<u64>>,
     /// If true - store index on disk.
     pub(crate) on_disk: Option<Option<bool>>,
+    pub(crate) stopwords: Option<Option<StopwordsSet>>,
+    /// If true - support phrase matching.
+    pub(crate) phrase_matching: Option<Option<bool>>,
+    /// Set an algorithm for stemming.
+    pub(crate) stemmer: Option<Option<StemmingAlgorithm>>,
 }
 
 impl TextIndexParamsBuilder {
@@ -57,6 +62,53 @@ impl TextIndexParamsBuilder {
         new
     }
 
+    /// Stopwords for a single language for the text index
+    pub fn stopwords_language(self, language: String) -> Self {
+        let mut new = self;
+        let stopwords_set = StopwordsSet {
+            languages: vec![language],
+            custom: vec![],
+        };
+        new.stopwords = Some(Some(stopwords_set));
+        new
+    }
+
+    /// Stopwords for the text index
+    pub fn stopwords(self, stopwords_set: StopwordsSet) -> Self {
+        let mut new = self;
+        new.stopwords = Some(Some(stopwords_set));
+        new
+    }
+
+    /// If true - support phrase matching. Default is false.
+    pub fn phrase_matching(self, phrase_matching: bool) -> Self {
+        let mut new = self;
+        new.phrase_matching = Some(Some(phrase_matching));
+        new
+    }
+
+    /// Set snowball stemmer with the provided language
+    pub fn stemmer_language(self, language: String) -> Self {
+        let mut new = self;
+        let stemmer = StemmingAlgorithm {
+            stemming_params: Some(stemming_algorithm::StemmingParams::Snowball(
+                SnowballParams { language },
+            )),
+        };
+        new.stemmer = Some(Some(stemmer));
+        new
+    }
+
+    /// Set an algorithm for stemming.
+    pub fn stemmer(self, stemming_params: stemming_algorithm::StemmingParams) -> Self {
+        let mut new = self;
+        let stemmer = StemmingAlgorithm {
+            stemming_params: Some(stemming_params),
+        };
+        new.stemmer = Some(Some(stemmer));
+        new
+    }
+
     fn build_inner(self) -> Result<TextIndexParams, TextIndexParamsBuilderError> {
         Ok(TextIndexParams {
             tokenizer: match self.tokenizer {
@@ -71,16 +123,23 @@ impl TextIndexParamsBuilder {
             min_token_len: self.min_token_len.unwrap_or_default(),
             max_token_len: self.max_token_len.unwrap_or_default(),
             on_disk: self.on_disk.unwrap_or_default(),
+            stopwords: self.stopwords.unwrap_or_default(),
+            phrase_matching: self.phrase_matching.unwrap_or_default(),
+            stemmer: self.stemmer.unwrap_or_default(),
         })
     }
+
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
     fn create_empty() -> Self {
         Self {
-            tokenizer: core::default::Default::default(),
-            lowercase: core::default::Default::default(),
-            min_token_len: core::default::Default::default(),
-            max_token_len: core::default::Default::default(),
-            on_disk: core::default::Default::default(),
+            tokenizer: Default::default(),
+            lowercase: Default::default(),
+            min_token_len: Default::default(),
+            max_token_len: Default::default(),
+            on_disk: Default::default(),
+            stopwords: Default::default(),
+            phrase_matching: Default::default(),
+            stemmer: Default::default(),
         }
     }
 }

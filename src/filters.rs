@@ -237,6 +237,24 @@ impl qdrant::Condition {
         }
     }
 
+    /// Create a [`Condition`] to initiate full text phrase match.
+    ///
+    /// # Examples:
+    /// ```
+    /// qdrant_client::qdrant::Condition::matches_phrase("description", "time machine");
+    /// ```
+    pub fn matches_phrase(field: impl Into<String>, query: impl Into<String>) -> Self {
+        Self {
+            condition_one_of: Some(ConditionOneOf::Field(qdrant::FieldCondition {
+                key: field.into(),
+                r#match: Some(qdrant::Match {
+                    match_value: Some(MatchValue::Phrase(query.into())),
+                }),
+                ..Default::default()
+            })),
+        }
+    }
+
     /// Create a [`Condition`] that checks numeric fields against a range.
     ///
     /// # Examples:
@@ -445,7 +463,8 @@ impl std::ops::Not for MatchValue {
             Self::Integers(is) => Self::ExceptIntegers(is),
             Self::ExceptKeywords(ks) => Self::Keywords(ks),
             Self::ExceptIntegers(is) => Self::Integers(is),
-            Self::Text(_) => panic!("cannot negate a MatchValue::Text"),
+            Self::Text(_) => panic!("cannot negate a MatchValue::Text, use within must_not clause instead"),
+            Self::Phrase(_) => panic!("cannot negate a MatchValue::Phrase, use within must_not clause instead"),
         }
     }
 }
