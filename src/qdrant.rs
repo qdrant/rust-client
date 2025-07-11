@@ -352,10 +352,73 @@ pub struct ProductQuantization {
     pub always_ram: ::core::option::Option<bool>,
 }
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
+pub struct BinaryQuantizationQueryEncoding {
+    #[prost(oneof = "binary_quantization_query_encoding::Variant", tags = "4")]
+    pub variant: ::core::option::Option<binary_quantization_query_encoding::Variant>,
+}
+/// Nested message and enum types in `BinaryQuantizationQueryEncoding`.
+pub mod binary_quantization_query_encoding {
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum Setting {
+        Default = 0,
+        Binary = 1,
+        Scalar4Bits = 2,
+        Scalar8Bits = 3,
+    }
+    impl Setting {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::Default => "Default",
+                Self::Binary => "Binary",
+                Self::Scalar4Bits => "Scalar4Bits",
+                Self::Scalar8Bits => "Scalar8Bits",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "Default" => Some(Self::Default),
+                "Binary" => Some(Self::Binary),
+                "Scalar4Bits" => Some(Self::Scalar4Bits),
+                "Scalar8Bits" => Some(Self::Scalar8Bits),
+                _ => None,
+            }
+        }
+    }
+    #[derive(Clone, Copy, PartialEq, ::prost::Oneof)]
+    pub enum Variant {
+        #[prost(enumeration = "Setting", tag = "4")]
+        Setting(i32),
+    }
+}
+#[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct BinaryQuantization {
     /// If true - quantized vectors always will be stored in RAM, ignoring the config of main storage
     #[prost(bool, optional, tag = "1")]
     pub always_ram: ::core::option::Option<bool>,
+    /// Binary quantization encoding method
+    #[prost(enumeration = "BinaryQuantizationEncoding", optional, tag = "2")]
+    pub encoding: ::core::option::Option<i32>,
+    ///
+    /// Asymmetric quantization configuration allows a query to have different quantization than stored vectors.
+    /// It can increase the accuracy of search at the cost of performance.
+    #[prost(message, optional, tag = "3")]
+    pub query_encoding: ::core::option::Option<BinaryQuantizationQueryEncoding>,
 }
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct QuantizationConfig {
@@ -632,16 +695,16 @@ pub struct KeywordIndexParams {
 }
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct IntegerIndexParams {
-    /// If true - support direct lookups.
+    /// If true - support direct lookups. Default is true.
     #[prost(bool, optional, tag = "1")]
     pub lookup: ::core::option::Option<bool>,
-    /// If true - support ranges filters.
+    /// If true - support ranges filters. Default is true.
     #[prost(bool, optional, tag = "2")]
     pub range: ::core::option::Option<bool>,
-    /// If true - use this key to organize storage of the collection data. This option assumes that this key will be used in majority of filtered requests.
+    /// If true - use this key to organize storage of the collection data. This option assumes that this key will be used in majority of filtered requests. Default is false.
     #[prost(bool, optional, tag = "3")]
     pub is_principal: ::core::option::Option<bool>,
-    /// If true - store index on disk.
+    /// If true - store index on disk. Default is false.
     #[prost(bool, optional, tag = "4")]
     pub on_disk: ::core::option::Option<bool>,
 }
@@ -660,7 +723,16 @@ pub struct GeoIndexParams {
     #[prost(bool, optional, tag = "1")]
     pub on_disk: ::core::option::Option<bool>,
 }
-#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct StopwordsSet {
+    /// List of languages to use stopwords from
+    #[prost(string, repeated, tag = "1")]
+    pub languages: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+    /// List of custom stopwords
+    #[prost(string, repeated, tag = "2")]
+    pub custom: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct TextIndexParams {
     /// Tokenizer type
     #[prost(enumeration = "TokenizerType", tag = "1")]
@@ -677,6 +749,35 @@ pub struct TextIndexParams {
     /// If true - store index on disk.
     #[prost(bool, optional, tag = "5")]
     pub on_disk: ::core::option::Option<bool>,
+    /// Stopwords for the text index
+    #[prost(message, optional, tag = "6")]
+    pub stopwords: ::core::option::Option<StopwordsSet>,
+    /// If true - support phrase matching.
+    #[prost(bool, optional, tag = "7")]
+    pub phrase_matching: ::core::option::Option<bool>,
+    /// Set an algorithm for stemming.
+    #[prost(message, optional, tag = "8")]
+    pub stemmer: ::core::option::Option<StemmingAlgorithm>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct StemmingAlgorithm {
+    #[prost(oneof = "stemming_algorithm::StemmingParams", tags = "1")]
+    pub stemming_params: ::core::option::Option<stemming_algorithm::StemmingParams>,
+}
+/// Nested message and enum types in `StemmingAlgorithm`.
+pub mod stemming_algorithm {
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
+    pub enum StemmingParams {
+        /// Parameters for snowball stemming
+        #[prost(message, tag = "1")]
+        Snowball(super::SnowballParams),
+    }
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct SnowballParams {
+    /// Which language the algorithm should stem.
+    #[prost(string, tag = "1")]
+    pub language: ::prost::alloc::string::String,
 }
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct BoolIndexParams {
@@ -702,7 +803,7 @@ pub struct UuidIndexParams {
     #[prost(bool, optional, tag = "2")]
     pub on_disk: ::core::option::Option<bool>,
 }
-#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PayloadIndexParams {
     #[prost(
         oneof = "payload_index_params::IndexParams",
@@ -712,7 +813,7 @@ pub struct PayloadIndexParams {
 }
 /// Nested message and enum types in `PayloadIndexParams`.
 pub mod payload_index_params {
-    #[derive(Clone, Copy, PartialEq, ::prost::Oneof)]
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum IndexParams {
         /// Parameters for keyword index
         #[prost(message, tag = "3")]
@@ -740,7 +841,7 @@ pub mod payload_index_params {
         UuidIndexParams(super::UuidIndexParams),
     }
 }
-#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PayloadSchemaInfo {
     /// Field data type
     #[prost(enumeration = "PayloadSchemaType", tag = "1")]
@@ -1374,6 +1475,35 @@ impl CompressionRatio {
             "x16" => Some(Self::X16),
             "x32" => Some(Self::X32),
             "x64" => Some(Self::X64),
+            _ => None,
+        }
+    }
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+#[repr(i32)]
+pub enum BinaryQuantizationEncoding {
+    OneBit = 0,
+    TwoBits = 1,
+    OneAndHalfBits = 2,
+}
+impl BinaryQuantizationEncoding {
+    /// String value of the enum field names used in the ProtoBuf definition.
+    ///
+    /// The values are not transformed in any way and thus are considered stable
+    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+    pub fn as_str_name(&self) -> &'static str {
+        match self {
+            Self::OneBit => "OneBit",
+            Self::TwoBits => "TwoBits",
+            Self::OneAndHalfBits => "OneAndHalfBits",
+        }
+    }
+    /// Creates an enum from field names used in the ProtoBuf definition.
+    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+        match value {
+            "OneBit" => Some(Self::OneBit),
+            "TwoBits" => Some(Self::TwoBits),
+            "OneAndHalfBits" => Some(Self::OneAndHalfBits),
             _ => None,
         }
     }
@@ -4062,8 +4192,37 @@ pub struct DecayParamsExpression {
     pub midpoint: ::core::option::Option<f32>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct NearestInputWithMmr {
+    /// The vector to search for nearest neighbors.
+    #[prost(message, optional, tag = "1")]
+    pub nearest: ::core::option::Option<VectorInput>,
+    /// Perform MMR (Maximal Marginal Relevance) reranking after search,
+    /// using the same vector in this query to calculate relevance.
+    #[prost(message, optional, tag = "2")]
+    pub mmr: ::core::option::Option<Mmr>,
+}
+/// Maximal Marginal Relevance (MMR) algorithm for re-ranking the points.
+#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+pub struct Mmr {
+    /// Tunable parameter for the MMR algorithm.
+    /// Determines the balance between diversity and relevance.
+    ///
+    /// A higher value favors diversity (dissimilarity to selected results),
+    /// while a lower value favors relevance (similarity to the query vector).
+    ///
+    /// Must be in the range \[0, 1\].
+    /// Default value is 0.5.
+    #[prost(float, optional, tag = "2")]
+    pub diversity: ::core::option::Option<f32>,
+    /// The maximum number of candidates to consider for re-ranking.
+    ///
+    /// If not specified, the `limit` value is used.
+    #[prost(uint32, optional, tag = "3")]
+    pub candidates_limit: ::core::option::Option<u32>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Query {
-    #[prost(oneof = "query::Variant", tags = "1, 2, 3, 4, 5, 6, 7, 8")]
+    #[prost(oneof = "query::Variant", tags = "1, 2, 3, 4, 5, 6, 7, 8, 9")]
     pub variant: ::core::option::Option<query::Variant>,
 }
 /// Nested message and enum types in `Query`.
@@ -4094,6 +4253,9 @@ pub mod query {
         /// Score boosting via an arbitrary formula
         #[prost(message, tag = "8")]
         Formula(super::Formula),
+        /// Search nearest neighbors, but re-rank based on the Maximal Marginal Relevance algorithm.
+        #[prost(message, tag = "9")]
+        NearestWithMmr(super::NearestInputWithMmr),
     }
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -4496,7 +4658,7 @@ pub struct UpdateBatchPoints {
     #[prost(message, optional, tag = "4")]
     pub ordering: ::core::option::Option<WriteOrdering>,
 }
-#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PointsOperationResponse {
     #[prost(message, optional, tag = "1")]
     pub result: ::core::option::Option<UpdateResult>,
@@ -4504,7 +4666,7 @@ pub struct PointsOperationResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
     #[prost(message, optional, tag = "3")]
-    pub usage: ::core::option::Option<HardwareUsage>,
+    pub usage: ::core::option::Option<Usage>,
 }
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct UpdateResult {
@@ -4600,7 +4762,7 @@ pub struct SearchResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
     #[prost(message, optional, tag = "3")]
-    pub usage: ::core::option::Option<HardwareUsage>,
+    pub usage: ::core::option::Option<Usage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct QueryResponse {
@@ -4610,7 +4772,7 @@ pub struct QueryResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
     #[prost(message, optional, tag = "3")]
-    pub usage: ::core::option::Option<HardwareUsage>,
+    pub usage: ::core::option::Option<Usage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct QueryBatchResponse {
@@ -4620,7 +4782,7 @@ pub struct QueryBatchResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
     #[prost(message, optional, tag = "3")]
-    pub usage: ::core::option::Option<HardwareUsage>,
+    pub usage: ::core::option::Option<Usage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct QueryGroupsResponse {
@@ -4630,7 +4792,7 @@ pub struct QueryGroupsResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
     #[prost(message, optional, tag = "3")]
-    pub usage: ::core::option::Option<HardwareUsage>,
+    pub usage: ::core::option::Option<Usage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BatchResult {
@@ -4645,7 +4807,7 @@ pub struct SearchBatchResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
     #[prost(message, optional, tag = "3")]
-    pub usage: ::core::option::Option<HardwareUsage>,
+    pub usage: ::core::option::Option<Usage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SearchGroupsResponse {
@@ -4655,9 +4817,9 @@ pub struct SearchGroupsResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
     #[prost(message, optional, tag = "3")]
-    pub usage: ::core::option::Option<HardwareUsage>,
+    pub usage: ::core::option::Option<Usage>,
 }
-#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CountResponse {
     #[prost(message, optional, tag = "1")]
     pub result: ::core::option::Option<CountResult>,
@@ -4665,7 +4827,7 @@ pub struct CountResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
     #[prost(message, optional, tag = "3")]
-    pub usage: ::core::option::Option<HardwareUsage>,
+    pub usage: ::core::option::Option<Usage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ScrollResponse {
@@ -4678,7 +4840,7 @@ pub struct ScrollResponse {
     #[prost(double, tag = "3")]
     pub time: f64,
     #[prost(message, optional, tag = "4")]
-    pub usage: ::core::option::Option<HardwareUsage>,
+    pub usage: ::core::option::Option<Usage>,
 }
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct CountResult {
@@ -4708,7 +4870,7 @@ pub struct GetResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
     #[prost(message, optional, tag = "3")]
-    pub usage: ::core::option::Option<HardwareUsage>,
+    pub usage: ::core::option::Option<Usage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RecommendResponse {
@@ -4718,7 +4880,7 @@ pub struct RecommendResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
     #[prost(message, optional, tag = "3")]
-    pub usage: ::core::option::Option<HardwareUsage>,
+    pub usage: ::core::option::Option<Usage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RecommendBatchResponse {
@@ -4728,7 +4890,7 @@ pub struct RecommendBatchResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
     #[prost(message, optional, tag = "3")]
-    pub usage: ::core::option::Option<HardwareUsage>,
+    pub usage: ::core::option::Option<Usage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DiscoverResponse {
@@ -4738,7 +4900,7 @@ pub struct DiscoverResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
     #[prost(message, optional, tag = "3")]
-    pub usage: ::core::option::Option<HardwareUsage>,
+    pub usage: ::core::option::Option<Usage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DiscoverBatchResponse {
@@ -4748,7 +4910,7 @@ pub struct DiscoverBatchResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
     #[prost(message, optional, tag = "3")]
-    pub usage: ::core::option::Option<HardwareUsage>,
+    pub usage: ::core::option::Option<Usage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RecommendGroupsResponse {
@@ -4758,7 +4920,7 @@ pub struct RecommendGroupsResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
     #[prost(message, optional, tag = "3")]
-    pub usage: ::core::option::Option<HardwareUsage>,
+    pub usage: ::core::option::Option<Usage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpdateBatchResponse {
@@ -4767,6 +4929,8 @@ pub struct UpdateBatchResponse {
     /// Time spent to process
     #[prost(double, tag = "2")]
     pub time: f64,
+    #[prost(message, optional, tag = "3")]
+    pub usage: ::core::option::Option<Usage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct FacetResponse {
@@ -4784,7 +4948,7 @@ pub struct SearchMatrixPairsResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
     #[prost(message, optional, tag = "3")]
-    pub usage: ::core::option::Option<HardwareUsage>,
+    pub usage: ::core::option::Option<Usage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SearchMatrixOffsetsResponse {
@@ -4794,7 +4958,7 @@ pub struct SearchMatrixOffsetsResponse {
     #[prost(double, tag = "2")]
     pub time: f64,
     #[prost(message, optional, tag = "3")]
-    pub usage: ::core::option::Option<HardwareUsage>,
+    pub usage: ::core::option::Option<Usage>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Filter {
@@ -4906,7 +5070,7 @@ pub struct FieldCondition {
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Match {
-    #[prost(oneof = "r#match::MatchValue", tags = "1, 2, 3, 4, 5, 6, 7, 8")]
+    #[prost(oneof = "r#match::MatchValue", tags = "1, 2, 3, 4, 5, 6, 7, 8, 9")]
     pub match_value: ::core::option::Option<r#match::MatchValue>,
 }
 /// Nested message and enum types in `Match`.
@@ -4937,6 +5101,9 @@ pub mod r#match {
         /// Match any other value except those keywords
         #[prost(message, tag = "8")]
         ExceptKeywords(super::RepeatedStrings),
+        /// Match phrase text
+        #[prost(string, tag = "9")]
+        Phrase(::prost::alloc::string::String),
     }
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -5054,6 +5221,26 @@ pub struct GeoPoint {
     pub lon: f64,
     #[prost(double, tag = "2")]
     pub lat: f64,
+}
+/// ---------------------------------------------
+/// ----------- Measurements collector ----------
+/// ---------------------------------------------
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct Usage {
+    #[prost(message, optional, tag = "1")]
+    pub hardware: ::core::option::Option<HardwareUsage>,
+    #[prost(message, optional, tag = "2")]
+    pub inference: ::core::option::Option<InferenceUsage>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct InferenceUsage {
+    #[prost(map = "string, message", tag = "1")]
+    pub models: ::std::collections::HashMap<::prost::alloc::string::String, ModelUsage>,
+}
+#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+pub struct ModelUsage {
+    #[prost(uint64, tag = "1")]
+    pub tokens: u64,
 }
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct HardwareUsage {
