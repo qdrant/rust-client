@@ -52,9 +52,6 @@ impl MmrBuilder {
     /// Must be in the range [0, 1].
     /// Default value is 0.5.
     pub fn diversity(self, value: f32) -> Self {
-        if value < 0.0 || value > 1.0 {
-            panic!("Diversity must be in the range [0, 1], got: {}", value);
-        }
         let mut new = self;
         new.diversity = Option::Some(Option::Some(value));
         new
@@ -69,7 +66,7 @@ impl MmrBuilder {
         new
     }
 
-    fn build(self) -> Mmr{
+    fn build(self) -> Mmr {
         Mmr {
             diversity: self.diversity.unwrap_or_default(),
             candidates_limit: self.candidates_limit.unwrap_or_default(),
