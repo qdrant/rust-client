@@ -66,7 +66,7 @@ impl MmrBuilder {
         new
     }
 
-    fn build(self) -> Mmr {
+    pub fn build(self) -> Mmr {
         Mmr {
             diversity: self.diversity.unwrap_or_default(),
             candidates_limit: self.candidates_limit.unwrap_or_default(),
