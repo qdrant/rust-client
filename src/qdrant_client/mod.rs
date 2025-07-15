@@ -13,6 +13,7 @@ mod snapshot;
 mod version_check;
 
 use std::future::Future;
+use std::sync::Arc;
 use std::thread;
 
 use tonic::codegen::InterceptedService;
@@ -82,12 +83,13 @@ pub type QdrantBuilder = QdrantConfig;
 /// - [`create_collection`](Self::create_collection) - create a new collection
 /// - [`upsert_points`](Self::upsert_points) - insert or update points
 /// - [`search_points`](Self::search_points) - search points with similarity search
+#[derive(Clone)]
 pub struct Qdrant {
     /// Client configuration
     pub config: QdrantConfig,
 
     /// Internal connection pool
-    channel: ChannelPool,
+    channel: Arc<ChannelPool>,
 }
 
 /// # Construct and connect
@@ -107,7 +109,7 @@ impl Qdrant {
                 config.keep_alive_while_idle,
             );
             let client = Self {
-                channel,
+                channel: Arc::new(channel),
                 config: config.clone(),
             };
 
@@ -151,7 +153,10 @@ impl Qdrant {
             config.keep_alive_while_idle,
         );
 
-        let client = Self { channel, config };
+        let client = Self {
+            channel: Arc::new(channel),
+            config,
+        };
 
         Ok(client)
     }
