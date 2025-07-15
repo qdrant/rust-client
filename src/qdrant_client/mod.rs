@@ -153,7 +153,10 @@ impl Qdrant {
             config.keep_alive_while_idle,
         );
 
-        let client = Self { channel: Arc::new(channel), config };
+        let client = Self {
+            channel: Arc::new(channel),
+            config,
+        };
 
         Ok(client)
     }
