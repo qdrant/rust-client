@@ -7,6 +7,7 @@ mod test_create_field_index;
 mod test_create_full_snapshot;
 mod test_create_shard_key;
 mod test_create_snapshot;
+mod test_create_text_index;
 mod test_delete_collection;
 mod test_delete_field_index;
 mod test_delete_full_snapshot;
