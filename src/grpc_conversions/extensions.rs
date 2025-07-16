@@ -1,5 +1,6 @@
 use std::fmt::{Display, Formatter};
 use std::hash::{Hash, Hasher};
+use std::ops::AddAssign;
 
 #[cfg(feature = "uuid")]
 use uuid::Uuid;
@@ -12,7 +13,8 @@ use crate::prelude::{PointStruct, Value};
 use crate::qdrant::point_id::PointIdOptions;
 use crate::qdrant::value::Kind;
 use crate::qdrant::{
-    HardwareUsage, ListValue, PointId, RetrievedPoint, ScoredPoint, Struct, Vectors,
+    HardwareUsage, InferenceUsage, ListValue, ModelUsage, PointId, RetrievedPoint, ScoredPoint,
+    Struct, Usage, Vectors,
 };
 
 /// Null value
@@ -338,6 +340,51 @@ impl Hash for ScoredPoint {
 impl Hash for RetrievedPoint {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.id.hash(state)
+    }
+}
+
+impl Usage {
+    pub(crate) fn aggregate_opts(this: Option<Self>, other: Option<Self>) -> Option<Self> {
+        match (this, other) {
+            (Some(this), Some(other)) => Some(this.aggregate(other)),
+            (Some(this), None) => Some(this),
+            (None, Some(other)) => Some(other),
+            (None, None) => None,
+        }
+    }
+
+    pub(crate) fn aggregate(self, other: Self) -> Self {
+        Self {
+            hardware: HardwareUsage::aggregate_opts(self.hardware, other.hardware),
+            inference: InferenceUsage::aggregate_opts(self.inference, other.inference),
+        }
+    }
+}
+
+impl InferenceUsage {
+    pub(crate) fn aggregate_opts(this: Option<Self>, other: Option<Self>) -> Option<Self> {
+        match (this, other) {
+            (Some(this), Some(other)) => Some(this.aggregate(other)),
+            (Some(this), None) => Some(this),
+            (None, Some(other)) => Some(other),
+            (None, None) => None,
+        }
+    }
+
+    pub(crate) fn aggregate(mut self, other: Self) -> Self {
+        for (k, v) in other.models {
+            self.models.entry(k).and_modify(|e| *e += v).or_insert(v);
+        }
+
+        Self {
+            models: self.models,
+        }
+    }
+}
+
+impl AddAssign for ModelUsage {
+    fn add_assign(&mut self, rhs: Self) {
+        self.tokens += rhs.tokens;
     }
 }
 

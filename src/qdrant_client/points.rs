@@ -8,9 +8,9 @@ use crate::auth::TokenInterceptor;
 use crate::qdrant::points_client::PointsClient;
 use crate::qdrant::{
     CountPoints, CountResponse, DeletePointVectors, DeletePoints, FacetCounts, FacetResponse,
-    GetPoints, GetResponse, HardwareUsage, PointsOperationResponse, ScrollPoints, ScrollResponse,
+    GetPoints, GetResponse, PointsOperationResponse, ScrollPoints, ScrollResponse,
     SearchMatrixOffsetsResponse, SearchMatrixPairsResponse, SearchMatrixPoints, UpdateBatchPoints,
-    UpdateBatchResponse, UpdatePointVectors, UpsertPoints,
+    UpdateBatchResponse, UpdatePointVectors, UpsertPoints, Usage,
 };
 use crate::qdrant_client::{Qdrant, QdrantResult};
 
@@ -148,7 +148,7 @@ impl Qdrant {
 
                 resp.result = result;
                 resp.time += time;
-                HardwareUsage::aggregate_opts(resp.usage, usage);
+                resp.usage = Usage::aggregate_opts(resp.usage, usage);
             }
 
             Ok(resp)
