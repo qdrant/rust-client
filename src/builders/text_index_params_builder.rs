@@ -88,8 +88,8 @@ impl TextIndexParamsBuilder {
     }
 
     /// Set snowball stemmer with the provided language
-    pub fn stemmer_language(self, language: String) -> Self {
-        let mut new = self;
+    pub fn snowball_stemmer(self, language: String) -> Self {
+        let mut new: TextIndexParamsBuilder = self;
         let stemmer = StemmingAlgorithm {
             stemming_params: Some(stemming_algorithm::StemmingParams::Snowball(
                 SnowballParams { language },
