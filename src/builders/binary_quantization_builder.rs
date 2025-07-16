@@ -117,10 +117,34 @@ impl From<String> for BinaryQuantizationBuilderError {
 }
 
 impl BinaryQuantizationQueryEncoding {
-    pub fn new_setting(setting: binary_quantization_query_encoding::Setting) -> Self {
+    pub fn scalar8bits() -> Self {
         Self {
             variant: Some(binary_quantization_query_encoding::Variant::Setting(
-                setting.into(),
+                binary_quantization_query_encoding::Setting::Scalar8Bits.into(),
+            )),
+        }
+    }
+
+    pub fn scalar4bits() -> Self {
+        Self {
+            variant: Some(binary_quantization_query_encoding::Variant::Setting(
+                binary_quantization_query_encoding::Setting::Scalar4Bits.into(),
+            )),
+        }
+    }
+
+    pub fn binary() -> Self {
+        Self {
+            variant: Some(binary_quantization_query_encoding::Variant::Setting(
+                binary_quantization_query_encoding::Setting::Binary.into(),
+            )),
+        }
+    }
+
+    pub fn default_encoding() -> Self {
+        Self {
+            variant: Some(binary_quantization_query_encoding::Variant::Setting(
+                binary_quantization_query_encoding::Setting::Default.into(),
             )),
         }
     }
