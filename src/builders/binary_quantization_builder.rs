@@ -4,26 +4,47 @@ use crate::qdrant::*;
 pub struct BinaryQuantizationBuilder {
     /// If true - quantized vectors always will be stored in RAM, ignoring the config of main storage
     pub(crate) always_ram: Option<Option<bool>>,
+    pub(crate) encoding: Option<Option<i32>>,
+    pub(crate) query_encoding: Option<Option<BinaryQuantizationQueryEncoding>>,
 }
 
 impl BinaryQuantizationBuilder {
     /// If true - quantized vectors always will be stored in RAM, ignoring the config of main storage
-    #[allow(unused_mut)]
     pub fn always_ram(self, value: bool) -> Self {
         let mut new = self;
-        new.always_ram = Option::Some(Option::Some(value));
+        new.always_ram = Some(Some(value));
+        new
+    }
+
+    /// Binary quantization encoding method
+    pub fn encoding(self, value: impl Into<BinaryQuantizationEncoding>) -> Self {
+        let mut new = self;
+        let encoding: BinaryQuantizationEncoding = value.into();
+        new.encoding = Some(Some(encoding.into()));
+        new
+    }
+
+    /// Asymmetric quantization configuration allows a query to have different quantization than stored vectors.
+    /// It can increase the accuracy of search at the cost of performance.
+    pub fn query_encoding(self, value: impl Into<BinaryQuantizationQueryEncoding>) -> Self {
+        let mut new = self;
+        new.query_encoding = Some(Some(value.into()));
         new
     }
 
     fn build_inner(self) -> Result<BinaryQuantization, BinaryQuantizationBuilderError> {
         Ok(BinaryQuantization {
             always_ram: self.always_ram.unwrap_or_default(),
+            encoding: self.encoding.unwrap_or_default(),
+            query_encoding: self.query_encoding.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
     fn create_empty() -> Self {
         Self {
-            always_ram: core::default::Default::default(),
+            always_ram: Default::default(),
+            encoding: Default::default(),
+            query_encoding: Default::default(),
         }
     }
 }
@@ -56,8 +77,6 @@ impl BinaryQuantizationBuilder {
         Self::create_empty()
     }
 }
-
-// src/builders/binary_quantization_builder.rs
 
 #[non_exhaustive]
 #[derive(Debug)]
@@ -94,5 +113,39 @@ impl From<derive_builder::UninitializedFieldError> for BinaryQuantizationBuilder
 impl From<String> for BinaryQuantizationBuilderError {
     fn from(error: String) -> Self {
         Self::ValidationError(error)
+    }
+}
+
+impl BinaryQuantizationQueryEncoding {
+    pub fn scalar8bits() -> Self {
+        Self {
+            variant: Some(binary_quantization_query_encoding::Variant::Setting(
+                binary_quantization_query_encoding::Setting::Scalar8Bits.into(),
+            )),
+        }
+    }
+
+    pub fn scalar4bits() -> Self {
+        Self {
+            variant: Some(binary_quantization_query_encoding::Variant::Setting(
+                binary_quantization_query_encoding::Setting::Scalar4Bits.into(),
+            )),
+        }
+    }
+
+    pub fn binary() -> Self {
+        Self {
+            variant: Some(binary_quantization_query_encoding::Variant::Setting(
+                binary_quantization_query_encoding::Setting::Binary.into(),
+            )),
+        }
+    }
+
+    pub fn default_encoding() -> Self {
+        Self {
+            variant: Some(binary_quantization_query_encoding::Variant::Setting(
+                binary_quantization_query_encoding::Setting::Default.into(),
+            )),
+        }
     }
 }
