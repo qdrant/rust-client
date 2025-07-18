@@ -1,8 +1,8 @@
 use crate::qdrant::{
     ContextInput, ContextInputBuilder, ContextInputPairBuilder, DiscoverInput,
-    DiscoverInputBuilder, Formula, OrderBy, OrderByBuilder, PrefetchQuery, PrefetchQueryBuilder,
-    Query, QueryPointGroupsBuilder, QueryPointsBuilder, RecommendInput, RecommendInputBuilder,
-    VectorInput,
+    DiscoverInputBuilder, Formula, Mmr, NearestInputWithMmr, OrderBy, OrderByBuilder,
+    PrefetchQuery, PrefetchQueryBuilder, Query, QueryPointGroupsBuilder, QueryPointsBuilder,
+    RecommendInput, RecommendInputBuilder, VectorInput,
 };
 
 impl QueryPointsBuilder {
@@ -37,6 +37,17 @@ impl Query {
     pub fn new_nearest(value: impl Into<VectorInput>) -> Self {
         Self {
             variant: Some(crate::qdrant::query::Variant::Nearest(value.into())),
+        }
+    }
+
+    pub fn new_nearest_with_mmr(vector: impl Into<VectorInput>, mmr: impl Into<Mmr>) -> Self {
+        Self {
+            variant: Some(crate::qdrant::query::Variant::NearestWithMmr(
+                NearestInputWithMmr {
+                    nearest: Some(vector.into()),
+                    mmr: Some(mmr.into()),
+                },
+            )),
         }
     }
 

@@ -12,7 +12,8 @@ use crate::prelude::{PointStruct, Value};
 use crate::qdrant::point_id::PointIdOptions;
 use crate::qdrant::value::Kind;
 use crate::qdrant::{
-    HardwareUsage, ListValue, PointId, RetrievedPoint, ScoredPoint, Struct, Vectors,
+    HardwareUsage, InferenceUsage, ListValue, ModelUsage, PointId, RetrievedPoint, ScoredPoint,
+    Struct, Usage, Vectors,
 };
 
 /// Null value
@@ -341,6 +342,24 @@ impl Hash for RetrievedPoint {
     }
 }
 
+impl Usage {
+    pub(crate) fn aggregate_opts(this: Option<Self>, other: Option<Self>) -> Option<Self> {
+        match (this, other) {
+            (Some(this), Some(other)) => Some(this.aggregate(other)),
+            (Some(this), None) => Some(this),
+            (None, Some(other)) => Some(other),
+            (None, None) => None,
+        }
+    }
+
+    pub(crate) fn aggregate(self, other: Self) -> Self {
+        Self {
+            hardware: HardwareUsage::aggregate_opts(self.hardware, other.hardware),
+            inference: InferenceUsage::aggregate_opts(self.inference, other.inference),
+        }
+    }
+}
+
 impl HardwareUsage {
     pub(crate) fn aggregate_opts(this: Option<Self>, other: Option<Self>) -> Option<Self> {
         match (this, other) {
@@ -371,5 +390,73 @@ impl HardwareUsage {
             vector_io_read: self.vector_io_read + vector_io_read,
             vector_io_write: self.vector_io_write + vector_io_write,
         }
+    }
+}
+
+impl InferenceUsage {
+    pub(crate) fn aggregate_opts(this: Option<Self>, other: Option<Self>) -> Option<Self> {
+        match (this, other) {
+            (Some(this), Some(other)) => Some(this.aggregate(other)),
+            (Some(this), None) => Some(this),
+            (None, Some(other)) => Some(other),
+            (None, None) => None,
+        }
+    }
+
+    pub(crate) fn aggregate(self, other: Self) -> Self {
+        let mut models = self.models;
+        for (model_name, other_usage) in other.models {
+            models
+                .entry(model_name)
+                .and_modify(|usage| {
+                    *usage = usage.aggregate(other_usage);
+                })
+                .or_insert(other_usage);
+        }
+
+        Self { models }
+    }
+}
+
+impl ModelUsage {
+    pub(crate) fn aggregate(self, other: Self) -> Self {
+        Self {
+            tokens: self.tokens + other.tokens,
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+
+    use super::*;
+
+    #[test]
+    fn test_inference_usage_aggregation() {
+        let mut models1 = HashMap::new();
+        models1.insert("model_a".to_string(), ModelUsage { tokens: 100 });
+        models1.insert("model_b".to_string(), ModelUsage { tokens: 200 });
+
+        let mut models2 = HashMap::new();
+        models2.insert("model_a".to_string(), ModelUsage { tokens: 50 });
+        models2.insert("model_c".to_string(), ModelUsage { tokens: 300 });
+
+        let usage1 = InferenceUsage { models: models1 };
+        let usage2 = InferenceUsage { models: models2 };
+
+        let aggregated = usage1.aggregate(usage2);
+
+        // Check that model_a tokens were summed
+        assert_eq!(aggregated.models.get("model_a").unwrap().tokens, 150);
+
+        // Check that model_b was preserved
+        assert_eq!(aggregated.models.get("model_b").unwrap().tokens, 200);
+
+        // Check that model_c was added
+        assert_eq!(aggregated.models.get("model_c").unwrap().tokens, 300);
+
+        // Check that we have exactly 3 models
+        assert_eq!(aggregated.models.len(), 3);
     }
 }
