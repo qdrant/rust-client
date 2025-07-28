@@ -13,7 +13,7 @@ categories = ["database", "api-bindings"]
 keywords = ["qdrant", "vector-search", "search-engine", "client", "grpc"]
 
 [dependencies]
-tonic = { version = "0.12.3", features = ["tls", "tls-roots", "gzip"] }
+tonic = { version = "0.13.1", features = ["tls-webpki-roots", "transport", "gzip"] }
 prost = "0.13.3"
 prost-types = "0.13.3"
 anyhow = "1.0.89"
@@ -29,7 +29,7 @@ semver = "1.0.24"
 uuid = { version = "1.8.2", optional = true }
 
 [dev-dependencies]
-tonic-build = { version = "0.12.3", features = ["prost"] }
+tonic-build = { version = "0.13.1", features = ["prost"] }
 
 [features]
 default = ["download_snapshots", "serde", "generate-snippets"]

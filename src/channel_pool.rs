@@ -54,7 +54,7 @@ impl ChannelPool {
             .expect("Version info should be a valid header value");
 
         let endpoint = if tls {
-            let tls_config = ClientTlsConfig::new().with_native_roots();
+            let tls_config = ClientTlsConfig::new().with_enabled_roots();
             endpoint
                 .tls_config(tls_config)
                 .map_err(|e| Status::internal(format!("Failed to create TLS config: {e}")))?
