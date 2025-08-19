@@ -62,7 +62,6 @@ impl Default for DisabledQuantizationBuilder {
 
 impl DisabledQuantizationBuilder {
     pub fn new() -> Self {
-        
         Self::empty()
     }
 }
