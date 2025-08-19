@@ -2,7 +2,23 @@ use std::collections::HashMap;
 
 use crate::qdrant::update_collection_cluster_setup_request::Operation;
 use crate::qdrant::{
-    shard_key, AbortShardTransferBuilder, BinaryQuantizationBuilder, ClearPayloadPointsBuilder, ContextExamplePair, CountPointsBuilder, CreateAliasBuilder, CreateCollectionBuilder, CreateFieldIndexCollectionBuilder, CreateShardKeyRequestBuilder, DeleteCollectionBuilder, DeleteFieldIndexCollectionBuilder, DeletePayloadPointsBuilder, DeletePointVectorsBuilder, DeletePointsBuilder, DeleteShardKey, DeleteShardKeyRequestBuilder, DeleteSnapshotRequestBuilder, DisabledQuantizationBuilder, DiscoverBatchPointsBuilder, DiscoverPoints, DiscoverPointsBuilder, Distance, FacetCountsBuilder, FieldType, GetPointsBuilder, LookupLocationBuilder, MoveShardBuilder, PayloadExcludeSelector, PayloadIncludeSelector, PointId, PointStruct, PointVectors, PointsUpdateOperation, ProductQuantizationBuilder, QuantizationType, QueryBatchPointsBuilder, QueryPointGroupsBuilder, QueryPoints, QueryPointsBuilder, RecommendBatchPointsBuilder, RecommendExample, RecommendPointGroupsBuilder, RecommendPoints, RecommendPointsBuilder, RenameAliasBuilder, ReplicaBuilder, ReplicateShardBuilder, ScalarQuantizationBuilder, ScrollPointsBuilder, SearchBatchPointsBuilder, SearchMatrixPointsBuilder, SearchPointGroupsBuilder, SearchPoints, SearchPointsBuilder, SetPayloadPointsBuilder, ShardKey, UpdateBatchPointsBuilder, UpdateCollectionBuilder, UpdateCollectionClusterSetupRequestBuilder, UpdatePointVectorsBuilder, UpsertPointsBuilder, Value, VectorParamsBuilder, VectorsSelector, WithLookupBuilder
+    shard_key, AbortShardTransferBuilder, BinaryQuantizationBuilder, ClearPayloadPointsBuilder,
+    ContextExamplePair, CountPointsBuilder, CreateAliasBuilder, CreateCollectionBuilder,
+    CreateFieldIndexCollectionBuilder, CreateShardKeyRequestBuilder, DeleteCollectionBuilder,
+    DeleteFieldIndexCollectionBuilder, DeletePayloadPointsBuilder, DeletePointVectorsBuilder,
+    DeletePointsBuilder, DeleteShardKey, DeleteShardKeyRequestBuilder,
+    DeleteSnapshotRequestBuilder, DisabledQuantizationBuilder, DiscoverBatchPointsBuilder,
+    DiscoverPoints, DiscoverPointsBuilder, Distance, FacetCountsBuilder, FieldType,
+    GetPointsBuilder, LookupLocationBuilder, MoveShardBuilder, PayloadExcludeSelector,
+    PayloadIncludeSelector, PointId, PointStruct, PointVectors, PointsUpdateOperation,
+    ProductQuantizationBuilder, QuantizationType, QueryBatchPointsBuilder, QueryPointGroupsBuilder,
+    QueryPoints, QueryPointsBuilder, RecommendBatchPointsBuilder, RecommendExample,
+    RecommendPointGroupsBuilder, RecommendPoints, RecommendPointsBuilder, RenameAliasBuilder,
+    ReplicaBuilder, ReplicateShardBuilder, ScalarQuantizationBuilder, ScrollPointsBuilder,
+    SearchBatchPointsBuilder, SearchMatrixPointsBuilder, SearchPointGroupsBuilder, SearchPoints,
+    SearchPointsBuilder, SetPayloadPointsBuilder, ShardKey, UpdateBatchPointsBuilder,
+    UpdateCollectionBuilder, UpdateCollectionClusterSetupRequestBuilder, UpdatePointVectorsBuilder,
+    UpsertPointsBuilder, Value, VectorParamsBuilder, VectorsSelector, WithLookupBuilder,
 };
 
 impl VectorParamsBuilder {
