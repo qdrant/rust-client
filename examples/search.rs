@@ -1,6 +1,7 @@
 use qdrant_client::qdrant::{
-    Condition, CreateCollectionBuilder, Distance, Filter, PointStruct, ScalarQuantizationBuilder,
-    SearchParamsBuilder, SearchPointsBuilder, UpsertPointsBuilder, VectorParamsBuilder,
+    Condition, CreateCollectionBuilder, DisabledQuantizationBuilder, Distance, Filter, PointStruct,
+    ScalarQuantizationBuilder, SearchParamsBuilder, SearchPointsBuilder, UpdateCollectionBuilder,
+    UpsertPointsBuilder, VectorParamsBuilder,
 };
 use qdrant_client::{Payload, Qdrant, QdrantError};
 
@@ -80,6 +81,14 @@ async fn main() -> Result<(), QdrantError> {
     let baz_payload = payload.remove("baz").unwrap().into_json();
     println!("baz: {baz_payload}");
     // baz: {"qux":"quux"}
+
+    // Disable quantization:
+    client
+        .update_collection(
+            UpdateCollectionBuilder::new(collection_name)
+                .quantization_config(DisabledQuantizationBuilder::new()),
+        )
+        .await?;
 
     Ok(())
 }

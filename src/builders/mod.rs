@@ -22,6 +22,9 @@ pub use wal_config_diff_builder::WalConfigDiffBuilder;
 mod optimizers_config_diff_builder;
 pub use optimizers_config_diff_builder::OptimizersConfigDiffBuilder;
 
+mod disabled_quantization_builder;
+pub use disabled_quantization_builder::DisabledQuantizationBuilder;
+
 mod scalar_quantization_builder;
 pub use scalar_quantization_builder::ScalarQuantizationBuilder;
 
