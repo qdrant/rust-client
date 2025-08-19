@@ -54,10 +54,16 @@ impl BinaryQuantizationBuilder {
     }
 }
 
+impl Default for DisabledQuantizationBuilder {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl DisabledQuantizationBuilder {
     pub fn new() -> Self {
-        let builder = Self::empty();
-        builder
+        
+        Self::empty()
     }
 }
 
