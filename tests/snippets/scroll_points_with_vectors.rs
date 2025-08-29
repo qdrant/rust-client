@@ -18,5 +18,5 @@ let scroll_response = client
 
 for point in scroll_response.result {
     let vector = point.vectors.unwrap().get_vector();
-    println!("vector: {:?}", vector);
+    println!("vector: {vector:?}");
 }

@@ -24,7 +24,7 @@ async fn test_scroll_points_with_vectors() {
         
         for point in scroll_response.result {
             let vector = point.vectors.unwrap().get_vector();
-            println!("vector: {:?}", vector);
+            println!("vector: {vector:?}");
         }
         Ok(())
     }

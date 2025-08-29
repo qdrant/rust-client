@@ -57,7 +57,7 @@ impl VectorsOutput {
             .as_ref()
             .and_then(|option| match option {
                 VectorsOptions::Vector(vector) => {
-                    if name == "" {
+                    if name.is_empty() {
                         Some(vector.clone().into_vector())
                     } else {
                         None
