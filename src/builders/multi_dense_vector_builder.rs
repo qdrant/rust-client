@@ -47,6 +47,17 @@ impl From<Vec<Vec<f32>>> for MultiDenseVector {
     }
 }
 
+impl From<Vec<&[f32]>> for MultiDenseVector {
+    fn from(vectors: Vec<&[f32]>) -> Self {
+        Self::from(
+            vectors
+                .into_iter()
+                .map(|subvector| DenseVector::from(subvector.to_vec()))
+                .collect::<Vec<_>>(),
+        )
+    }
+}
+
 impl From<Vec<DenseVector>> for MultiDenseVector {
     fn from(vectors: Vec<DenseVector>) -> Self {
         MultiDenseVectorBuilder::new(vectors).build()
