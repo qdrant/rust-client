@@ -65,6 +65,7 @@ impl QdrantClient {
             cfg.timeout,
             cfg.connect_timeout,
             cfg.keep_alive_while_idle,
+            1,
         );
 
         let client = Self { channel, cfg };

@@ -38,6 +38,9 @@ pub struct QdrantConfig {
 
     /// Whether to check compatibility between the client and server versions
     pub check_compatibility: bool,
+
+    /// Amount of concurrent connections.
+    pub pool_size: usize,
 }
 
 impl QdrantConfig {
@@ -193,6 +196,7 @@ impl Default for QdrantConfig {
             api_key: None,
             compression: None,
             check_compatibility: true,
+            pool_size: 1,
         }
     }
 }

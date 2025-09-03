@@ -107,6 +107,7 @@ impl Qdrant {
                 config.timeout,
                 config.connect_timeout,
                 config.keep_alive_while_idle,
+                config.pool_size,
             );
             let client = Self {
                 channel: Arc::new(channel),
@@ -151,6 +152,7 @@ impl Qdrant {
             config.timeout,
             config.connect_timeout,
             config.keep_alive_while_idle,
+            config.pool_size,
         );
 
         let client = Self {
