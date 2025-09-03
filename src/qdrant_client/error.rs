@@ -1,6 +1,9 @@
 use thiserror::Error;
 use tonic::codegen::http::uri::InvalidUri;
 
+#[cfg(feature = "serde")]
+use crate::serde_deser::DeserPayloadError;
+
 /// Qdrant client error
 #[derive(Error, Debug)]
 pub enum QdrantError {
@@ -47,6 +50,24 @@ pub enum QdrantError {
     #[cfg(feature = "serde")]
     #[error("JSON cannot be converted to payload, only JSON objects are supported")]
     JsonToPayload(serde_json::Value),
+
+    /// Error when failing to deserializing payload using `payload.deserialize()`.
+    #[cfg(feature = "serde")]
+    #[error("Error in payload deserialization")]
+    PayloadDeserialization(#[from] DeserPayloadError),
+}
+
+impl QdrantError {
+    // Only used in tests for now.
+    #[cfg(feature = "serde")]
+    #[allow(dead_code)]
+    pub(crate) fn as_payload_deserialization(&self) -> Option<&DeserPayloadError> {
+        if let QdrantError::PayloadDeserialization(err) = self {
+            Some(err)
+        } else {
+            None
+        }
+    }
 }
 
 impl From<tonic::Status> for QdrantError {

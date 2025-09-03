@@ -1,9 +1,13 @@
 use std::collections::HashMap;
 
 #[cfg(feature = "serde")]
+use serde::de::IntoDeserializer;
+#[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
 use crate::qdrant::{GeoPoint, Struct, Value};
+#[cfg(feature = "serde")]
+use crate::QdrantError;
 
 /// Point payload
 ///
@@ -68,6 +72,15 @@ impl Payload {
     /// Insert a payload value at the given key, replacing any existing value
     pub fn insert(&mut self, key: impl ToString, val: impl Into<Value>) {
         self.0.insert(key.to_string(), val.into());
+    }
+
+    /// Deserializes the payload directly into `T`. This requires T to implement `serde::Deserialize`.
+    /// Returns an error if `T` and the payload have a different structure.
+    #[cfg(feature = "serde")]
+    pub fn deserialize<T: serde::de::DeserializeOwned>(self) -> Result<T, QdrantError> {
+        Ok(T::deserialize(
+            Struct { fields: self.0 }.into_deserializer(),
+        )?)
     }
 }
 

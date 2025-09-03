@@ -60,7 +60,7 @@ impl Debug for NotA<bool> {
 
 impl Display for NotA<bool> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.write_str(concat!("not a bool"))
+        f.write_str("not a bool")
     }
 }
 
@@ -87,7 +87,7 @@ impl Debug for NotA<i64> {
 
 impl Display for NotA<i64> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.write_str(concat!("not an i64"))
+        f.write_str("not an i64")
     }
 }
 
@@ -114,7 +114,7 @@ impl Debug for NotA<f64> {
 
 impl Display for NotA<f64> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.write_str(concat!("not a f64"))
+        f.write_str("not a f64")
     }
 }
 
@@ -141,7 +141,7 @@ impl Debug for NotA<String> {
 
 impl Display for NotA<String> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.write_str(concat!("not a String"))
+        f.write_str("not a String")
     }
 }
 
