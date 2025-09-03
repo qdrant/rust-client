@@ -4,7 +4,7 @@ use serde::de::value::{MapDeserializer, SeqDeserializer};
 use serde::de::{
     DeserializeSeed, EnumAccess, Expected, IntoDeserializer, Unexpected, VariantAccess, Visitor,
 };
-use serde::{Deserialize, Deserializer};
+use serde::Deserializer;
 
 use crate::qdrant::value::Kind;
 use crate::qdrant::{Struct, Value};
@@ -353,10 +353,6 @@ impl<'de> Deserializer<'de> for Value {
         let _ = visitor;
         Err(serde::de::Error::custom("u128 is not supported"))
     }
-
-    fn is_human_readable(&self) -> bool {
-        true
-    }
 }
 
 struct EnumDeserializer {
@@ -372,80 +368,52 @@ impl<'de> EnumAccess<'de> for EnumDeserializer {
         V: DeserializeSeed<'de>,
     {
         let variant = self.variant.into_deserializer();
-        let visitor = VariantDeserializer { value: None };
+        let visitor = VariantDeserializer;
         seed.deserialize(variant).map(|v| (v, visitor))
     }
 }
 
-struct VariantDeserializer {
-    value: Option<Value>,
-}
+struct VariantDeserializer;
 
 impl<'de> VariantAccess<'de> for VariantDeserializer {
     type Error = DeserPayloadError;
 
     fn unit_variant(self) -> Result<(), Self::Error> {
-        match self.value {
-            Some(value) => Deserialize::deserialize(value),
-            None => Ok(()),
-        }
+        Ok(())
     }
 
-    fn newtype_variant_seed<T>(self, seed: T) -> Result<T::Value, Self::Error>
+    fn newtype_variant_seed<T>(self, _seed: T) -> Result<T::Value, Self::Error>
     where
         T: DeserializeSeed<'de>,
     {
-        match self.value {
-            Some(value) => seed.deserialize(value),
-            None => Err(serde::de::Error::invalid_type(
-                Unexpected::UnitVariant,
-                &"newtype variant",
-            )),
-        }
+        Err(serde::de::Error::invalid_type(
+            Unexpected::UnitVariant,
+            &"newtype variant",
+        ))
     }
 
-    fn tuple_variant<V>(self, _len: usize, visitor: V) -> Result<V::Value, Self::Error>
+    fn tuple_variant<V>(self, _len: usize, _visitor: V) -> Result<V::Value, Self::Error>
     where
         V: Visitor<'de>,
     {
-        match self.value.and_then(|i| i.kind) {
-            Some(Kind::ListValue(list)) => {
-                if list.is_empty() {
-                    visitor.visit_unit()
-                } else {
-                    visit_array(list.values, visitor)
-                }
-            }
-            Some(other) => Err(serde::de::Error::invalid_type(
-                Value::unexpected_kind(&other),
-                &"tuple variant",
-            )),
-            None => Err(serde::de::Error::invalid_type(
-                Unexpected::UnitVariant,
-                &"tuple variant",
-            )),
-        }
+        Err(serde::de::Error::invalid_type(
+            Unexpected::UnitVariant,
+            &"tuple variant",
+        ))
     }
 
     fn struct_variant<V>(
         self,
         _fields: &'static [&'static str],
-        visitor: V,
+        _visitor: V,
     ) -> Result<V::Value, Self::Error>
     where
         V: Visitor<'de>,
     {
-        match self.value.and_then(|i| i.kind) {
-            Some(Kind::StructValue(v)) => v.into_deserializer().deserialize_any(visitor),
-            Some(other) => Err(serde::de::Error::invalid_type(
-                Value::unexpected_kind(&other),
-                &"struct variant",
-            )),
-            None => Err(serde::de::Error::invalid_type(
-                Unexpected::UnitVariant,
-                &"struct variant",
-            )),
-        }
+        Err(serde::de::Error::invalid_type(
+            Unexpected::UnitVariant,
+            &"struct variant",
+        ))
     }
 }
 
@@ -756,6 +724,40 @@ mod test {
         )
         .deserialize();
         assert!(dst_err.is_err())
+    }
+
+    #[test]
+    fn test_enum_struct_tagged() {
+        let payload = make_payload(
+            json!({"items": [{"t": "First", "c": {"key": "Major"}}, {"t": "Second","c": {"other": 32}},{"t": "Bool", "c": true}]}),
+        );
+
+        #[derive(Deserialize, Debug)]
+        #[allow(dead_code)]
+        struct Dst {
+            items: Vec<DstEnum>,
+        }
+
+        #[derive(Deserialize, PartialEq, Debug)]
+        #[allow(dead_code)]
+        #[serde(tag = "t", content = "c")]
+        enum DstEnum {
+            First { key: String },
+            Second { other: u32 },
+            Bool(bool),
+        }
+
+        let dst: Dst = payload.deserialize().unwrap();
+        assert_eq!(
+            dst.items,
+            vec![
+                DstEnum::First {
+                    key: "Major".to_string()
+                },
+                DstEnum::Second { other: 32 },
+                DstEnum::Bool(true)
+            ]
+        );
     }
 
     #[test]
