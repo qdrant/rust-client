@@ -40,6 +40,7 @@ pub struct QdrantConfig {
     pub check_compatibility: bool,
 
     /// Amount of concurrent connections.
+    /// If set to 0 or 1, connection pools will be disabled.
     pub pool_size: usize,
 }
 
@@ -183,6 +184,7 @@ impl QdrantConfig {
     }
 
     /// Set the pool size of concurrent connections.
+    /// If set to 0 or 1, connection pools will be disabled.
     pub fn set_pool_size(&mut self, pool_size: usize) {
         self.pool_size = pool_size;
     }
