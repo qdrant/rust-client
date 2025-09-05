@@ -88,7 +88,6 @@ impl Payload {
     ///     value2: u32,
     /// }
     ///
-    ///
     /// let payload: Payload = json!({
     ///     "value1": "Qdrant",
     ///     "value2": 42,
@@ -99,8 +98,6 @@ impl Payload {
     /// let parsed: MyData = payload.deserialize().unwrap();
     /// assert_eq!(parsed.value1, "Qdrant");
     /// assert_eq!(parsed.value2, 42);
-    ///
-    ///
     /// ```
     #[cfg(feature = "serde")]
     pub fn deserialize<T: serde::de::DeserializeOwned>(self) -> Result<T, QdrantError> {
