@@ -1,3 +1,7 @@
+//! Deserialize into any serde type
+//!
+//! Sourced from <https://github.com/serde-rs/json/blob/master/src/value/de.rs>
+
 use std::collections::hash_map::IntoIter;
 
 use serde::de::value::{MapDeserializer, SeqDeserializer};
