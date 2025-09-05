@@ -165,6 +165,9 @@ pub mod prelude;
 #[doc(hidden)]
 pub mod serde;
 
+#[cfg(feature = "serde")]
+pub mod serde_deser;
+
 // Re-exports
 pub use crate::payload::Payload;
 pub use crate::qdrant_client::error::QdrantError;
