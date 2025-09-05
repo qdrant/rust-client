@@ -203,7 +203,7 @@ impl Default for QdrantConfig {
             api_key: None,
             compression: None,
             check_compatibility: true,
-            pool_size: 1,
+            pool_size: 3,
         }
     }
 }
