@@ -135,10 +135,17 @@ impl ChannelPool {
         }
     }
 
+    /// Returns `true` if multiple connections being used.
+    fn is_connection_pooling_enabled(&self) -> bool {
+        // This value is never `0` becuase we enforce this in the constructor.
+        // 1 connection = No pooling
+        self.pool_size != 1
+    }
+
     /// Returns the index for the next channel to use.
     fn next_channel_index(&self) -> usize {
         // Avoid the expensive locking operation if pooling is disabled.
-        if self.pool_size == 0 {
+        if !self.is_connection_pooling_enabled() {
             return 0;
         }
 
