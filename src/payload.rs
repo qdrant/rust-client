@@ -74,8 +74,34 @@ impl Payload {
         self.0.insert(key.to_string(), val.into());
     }
 
-    /// Deserializes the payload directly into `T`. This requires T to implement `serde::Deserialize`.
+    /// Deserializes the payload directly into `T`. This requires `T` to implement `serde::Deserialize`.
     /// Returns an error if `T` and the payload have a different structure.
+    ///
+    /// ```rust
+    /// use qdrant_client::Payload;
+    /// use serde_json::json;
+    /// use serde::Deserialize;
+    ///
+    /// #[derive(Deserialize)]
+    /// struct MyData {
+    ///     value1: String,
+    ///     value2: u32,
+    /// }
+    ///
+    ///
+    /// let payload: Payload = json!({
+    ///     "value1": "Qdrant",
+    ///     "value2": 42,
+    /// })
+    /// .try_into()
+    /// .unwrap();
+    ///
+    /// let parsed: MyData = payload.deserialize().unwrap();
+    /// assert_eq!(parsed.value1, "Qdrant");
+    /// assert_eq!(parsed.value2, 42);
+    ///
+    ///
+    /// ```
     #[cfg(feature = "serde")]
     pub fn deserialize<T: serde::de::DeserializeOwned>(self) -> Result<T, QdrantError> {
         Ok(T::deserialize(

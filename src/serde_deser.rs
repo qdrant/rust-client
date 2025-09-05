@@ -518,7 +518,9 @@ mod test {
     }
 
     fn make_payload(val: serde_json::Value) -> Payload {
-        Payload::from(val.as_object().expect("Can only make a json object to Payload. This is a bug in the unit test itself.").clone())
+        val.try_into().expect(
+            "Can only make a json object to Payload. This is a bug in the unit test itself.",
+        )
     }
 
     #[test]
