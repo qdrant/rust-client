@@ -120,10 +120,12 @@ impl ChannelPool {
             Err(err) => match err.code() {
                 Code::Internal | Code::Unavailable | Code::Cancelled | Code::Unknown => {
                     if allow_retry {
-                        // Recreate the channel at the given index.
+                        // Recreate the channel at the same index when reconnecting.
                         let channel = self.make_channel(channel_index).await?;
                         Ok(f(channel).await?)
                     } else {
+                        // If retries aren't allowed, delete the channel so it will be recreated
+                        // the next time it's used.
                         self.drop_channel(channel_index);
                         Err(err)
                     }
@@ -135,7 +137,7 @@ impl ChannelPool {
 
     /// Returns the index for the next channel to use.
     fn next_channel_index(&self) -> usize {
-        // Avoid expensive atomic operation if pooling is disabled.
+        // Avoid the expensive locking operation if pooling is disabled.
         if self.pool_size == 0 {
             return 0;
         }
