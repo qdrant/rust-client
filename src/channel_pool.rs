@@ -1,14 +1,13 @@
 use std::future::Future;
-use std::sync::atomic::{AtomicU64, Ordering};
-use std::sync::RwLock;
 use std::time::Duration;
 
+use parking_lot::{Mutex, RwLock};
 use tonic::transport::{Channel, ClientTlsConfig, Uri};
 use tonic::{Code, Status};
 
 pub struct ChannelPool {
     channels: RwLock<Vec<Option<Channel>>>,
-    channel_index: AtomicU64,
+    channel_index_lock: Mutex<usize>,
     uri: Uri,
     grpc_timeout: Duration,
     connection_timeout: Duration,
@@ -29,7 +28,7 @@ impl ChannelPool {
 
         Self {
             channels: RwLock::new(vec![None; pool_size]),
-            channel_index: AtomicU64::new(0),
+            channel_index_lock: Mutex::new(0),
             uri,
             grpc_timeout,
             connection_timeout,
@@ -77,10 +76,8 @@ impl ChannelPool {
             .await
             .map_err(|e| Status::internal(format!("Failed to connect to {}: {:?}", self.uri, e)))?;
 
-        let mut pool_channels = self.channels.write().unwrap();
-
+        let mut pool_channels = self.channels.write();
         pool_channels[channel_index] = Some(new_channel.clone());
-
         Ok(new_channel)
     }
 
@@ -92,7 +89,6 @@ impl ChannelPool {
         if let Some(channel) = self
             .channels
             .read()
-            .unwrap()
             .get(channel_index)
             .and_then(|i| i.as_ref())
         {
@@ -104,7 +100,7 @@ impl ChannelPool {
 
     /// Drops the channel at the given index.
     fn drop_channel(&self, idx: usize) {
-        let mut channel = self.channels.write().unwrap();
+        let mut channel = self.channels.write();
         channel[idx] = None;
     }
 
@@ -139,7 +135,18 @@ impl ChannelPool {
 
     /// Returns the index for the next channel to use.
     fn next_channel_index(&self) -> usize {
-        self.channel_index.fetch_add(1, Ordering::Relaxed) as usize % self.pool_size
+        // Avoid expensive atomic operation if pooling is disabled.
+        if self.pool_size == 0 {
+            return 0;
+        }
+
+        // ChannelIndex always holds the index of the next client to return.
+        // Therefore we increase the counter and return the current index.
+        let mut channel_index = self.channel_index_lock.lock();
+        let curr_idx = *channel_index;
+        let next = (curr_idx + 1) % self.pool_size;
+        *channel_index = next;
+        curr_idx
     }
 }
 
@@ -184,6 +191,6 @@ mod test {
         assert_eq!(channel.next_channel_index(), 0);
         assert_eq!(channel.next_channel_index(), 1);
 
-        assert_eq!(channel.channels.read().unwrap().len(), 5);
+        assert_eq!(channel.channels.read().len(), 5);
     }
 }
