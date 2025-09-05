@@ -181,6 +181,11 @@ impl QdrantConfig {
         self.check_compatibility = false;
         self
     }
+
+    /// Set the pool size of concurrent connections.
+    pub fn set_pool_size(&mut self, pool_size: usize) {
+        self.pool_size = pool_size;
+    }
 }
 
 /// Default Qdrant client configuration.
