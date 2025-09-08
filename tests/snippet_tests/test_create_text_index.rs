@@ -15,7 +15,8 @@ async fn test_create_text_index() {
         let client = Qdrant::from_url("http://localhost:6334").build()?;
         
         let text_index_params = TextIndexParamsBuilder::new(TokenizerType::Word)
-            .phrase_matching(true)
+            .min_token_len(2)
+            .max_token_len(10)
             .lowercase(true);
         
         client
