@@ -73,6 +73,7 @@ impl UpsertPointsBuilder {
             },
             ordering: self.ordering.unwrap_or_default(),
             shard_key_selector: self.shard_key_selector.unwrap_or_default(),
+            update_filter: None,
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.

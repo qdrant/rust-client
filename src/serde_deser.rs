@@ -475,7 +475,8 @@ mod test {
     use serde::{Deserialize, Serialize};
     use serde_json::json;
 
-    use crate::{serde_deser::DeserPayloadError, Payload};
+    use crate::serde_deser::DeserPayloadError;
+    use crate::Payload;
 
     #[test]
     fn test_json_deser() {

@@ -214,6 +214,7 @@ impl CreateCollectionBuilder {
                 Some(value) => value,
                 None => core::default::Default::default(),
             },
+            metadata: Default::default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.

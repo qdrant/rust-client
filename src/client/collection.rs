@@ -141,6 +141,7 @@ impl QdrantClient {
                         vectors_config: vectors_config.cloned(),
                         quantization_config: quantization_config.cloned(),
                         strict_mode_config: None,
+                        metadata: Default::default(),
                     })
                     .await?;
 

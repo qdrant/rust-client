@@ -123,6 +123,7 @@ impl UpdateCollectionBuilder {
             quantization_config: { convert_option(&self.quantization_config) },
             sparse_vectors_config: self.sparse_vectors_config.unwrap_or_default(),
             strict_mode_config: self.strict_mode_config.unwrap_or_default(),
+            metadata: Default::default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.

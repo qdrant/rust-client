@@ -28,6 +28,7 @@ impl WalConfigDiffBuilder {
         Ok(WalConfigDiff {
             wal_capacity_mb: self.wal_capacity_mb.unwrap_or_default(),
             wal_segments_ahead: self.wal_segments_ahead.unwrap_or_default(),
+            wal_retain_closed: None,
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
