@@ -2,7 +2,7 @@ use crate::qdrant::{
     ContextInput, ContextInputBuilder, ContextInputPairBuilder, DiscoverInput,
     DiscoverInputBuilder, Formula, Mmr, NearestInputWithMmr, OrderBy, OrderByBuilder,
     PrefetchQuery, PrefetchQueryBuilder, Query, QueryPointGroupsBuilder, QueryPointsBuilder,
-    RecommendInput, RecommendInputBuilder, VectorInput,
+    RecommendInput, RecommendInputBuilder, Rrf, VectorInput,
 };
 
 impl QueryPointsBuilder {
@@ -78,6 +78,12 @@ impl Query {
     pub fn new_fusion(value: crate::qdrant::Fusion) -> Self {
         Self {
             variant: Some(crate::qdrant::query::Variant::Fusion(value.into())),
+        }
+    }
+
+    pub fn new_rrf(rrf: impl Into<Rrf>) -> Self {
+        Self {
+            variant: Some(crate::qdrant::query::Variant::Rrf(rrf.into())),
         }
     }
 

@@ -4,10 +4,10 @@ use crate::prelude::point_id::PointIdOptions;
 use crate::prelude::{DeleteCollection, Value};
 use crate::qdrant::value::Kind;
 use crate::qdrant::{
-    shard_key, with_payload_selector, with_vectors_selector, CollectionClusterInfoRequest,
-    CollectionExistsRequest, CreateSnapshotRequest, DeleteAlias, DeleteCollectionBuilder,
-    DeleteFullSnapshotRequest, GetCollectionInfoRequest, IsEmptyCondition, IsNullCondition,
-    ListCollectionAliasesRequest, ListSnapshotsRequest, PayloadExcludeSelector,
+    shard_key, with_payload_selector, with_vectors_selector, AcornSearchParams,
+    CollectionClusterInfoRequest, CollectionExistsRequest, CreateSnapshotRequest, DeleteAlias,
+    DeleteCollectionBuilder, DeleteFullSnapshotRequest, GetCollectionInfoRequest, IsEmptyCondition,
+    IsNullCondition, ListCollectionAliasesRequest, ListSnapshotsRequest, PayloadExcludeSelector,
     PayloadIncludeSelector, PointId, RepeatedIntegers, RepeatedStrings, ShardKey, ShardKeySelector,
     SparseIndices, SparseVectorConfig, SparseVectorParams, Struct, VectorParams, VectorParamsDiff,
     VectorParamsDiffMap, VectorParamsMap, VectorsSelector, WithPayloadSelector,
@@ -179,6 +179,34 @@ impl From<Vec<u64>> for ShardKeySelector {
             shard_keys: numbers.into_iter().map(ShardKey::from).collect(),
             fallback: None,
         }
+    }
+}
+
+impl ShardKeySelector {
+    pub fn new(shard_keys: impl Into<Vec<ShardKey>>) -> Self {
+        Self {
+            shard_keys: shard_keys.into(),
+            fallback: None,
+        }
+    }
+
+    pub fn with_fallback(mut self, fallback: impl Into<ShardKey>) -> Self {
+        self.fallback = Some(fallback.into());
+        self
+    }
+}
+
+impl AcornSearchParams {
+    pub fn new(enable: bool) -> Self {
+        Self {
+            enable: Some(enable),
+            max_selectivity: None,
+        }
+    }
+
+    pub fn with_max_selectivity(mut self, max_selectivity: f64) -> Self {
+        self.max_selectivity = Some(max_selectivity);
+        self
     }
 }
 
