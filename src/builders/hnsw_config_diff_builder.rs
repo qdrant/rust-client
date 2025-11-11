@@ -26,6 +26,12 @@ pub struct HnswConfigDiffBuilder {
     ///
     /// Number of additional payload-aware links per node in the index graph. If not set - regular M parameter will be used.
     pub(crate) payload_m: Option<Option<u64>>,
+    ///
+    /// Store copies of original and quantized vectors within the HNSW index file. Default: false.
+    /// Enabling this option will trade the search speed for disk usage by reducing amount of
+    /// random seeks during the search.
+    /// Requires quantized vectors to be enabled. Multi-vectors are not supported.
+    pub(crate) inline_storage: Option<Option<bool>>,
 }
 #[allow(clippy::all)]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -84,6 +90,17 @@ impl HnswConfigDiffBuilder {
         new.payload_m = Option::Some(Option::Some(value));
         new
     }
+    ///
+    /// Store copies of original and quantized vectors within the HNSW index file. Default: false.
+    /// Enabling this option will trade the search speed for disk usage by reducing amount of
+    /// random seeks during the search.
+    /// Requires quantized vectors to be enabled. Multi-vectors are not supported.
+    #[allow(unused_mut)]
+    pub fn inline_storage(self, value: bool) -> Self {
+        let mut new = self;
+        new.inline_storage = Option::Some(Option::Some(value));
+        new
+    }
 
     fn build_inner(self) -> Result<HnswConfigDiff, std::convert::Infallible> {
         Ok(HnswConfigDiff {
@@ -111,6 +128,10 @@ impl HnswConfigDiffBuilder {
                 Some(value) => value,
                 None => core::default::Default::default(),
             },
+            inline_storage: match self.inline_storage {
+                Some(value) => value,
+                None => core::default::Default::default(),
+            },
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -122,6 +143,7 @@ impl HnswConfigDiffBuilder {
             max_indexing_threads: core::default::Default::default(),
             on_disk: core::default::Default::default(),
             payload_m: core::default::Default::default(),
+            inline_storage: core::default::Default::default(),
         }
     }
 }

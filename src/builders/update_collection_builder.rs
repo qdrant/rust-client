@@ -21,6 +21,8 @@ pub struct UpdateCollectionBuilder {
     pub(crate) sparse_vectors_config: Option<Option<SparseVectorConfig>>,
     /// New strict mode configuration
     pub(crate) strict_mode_config: Option<Option<StrictModeConfig>>,
+    /// Arbitrary JSON-like metadata for the collection, will be merged with already stored metadata
+    pub(crate) metadata: Option<std::collections::HashMap<String, Value>>,
 }
 
 impl UpdateCollectionBuilder {
@@ -104,6 +106,13 @@ impl UpdateCollectionBuilder {
         new.strict_mode_config = Option::Some(Option::Some(value.into()));
         new
     }
+    /// Arbitrary JSON-like metadata for the collection, will be merged with already stored metadata
+    #[allow(unused_mut)]
+    pub fn metadata(self, value: std::collections::HashMap<String, Value>) -> Self {
+        let mut new = self;
+        new.metadata = Option::Some(value);
+        new
+    }
 
     fn build_inner(self) -> Result<UpdateCollection, UpdateCollectionBuilderError> {
         Ok(UpdateCollection {
@@ -123,6 +132,7 @@ impl UpdateCollectionBuilder {
             quantization_config: { convert_option(&self.quantization_config) },
             sparse_vectors_config: self.sparse_vectors_config.unwrap_or_default(),
             strict_mode_config: self.strict_mode_config.unwrap_or_default(),
+            metadata: self.metadata.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -137,6 +147,7 @@ impl UpdateCollectionBuilder {
             quantization_config: core::default::Default::default(),
             sparse_vectors_config: core::default::Default::default(),
             strict_mode_config: core::default::Default::default(),
+            metadata: core::default::Default::default(),
         }
     }
 }

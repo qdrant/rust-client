@@ -23,8 +23,6 @@ pub struct CreateCollectionBuilder {
     pub(crate) replication_factor: Option<Option<u32>>,
     /// How many replicas should apply the operation for us to consider it successful, default = 1
     pub(crate) write_consistency_factor: Option<Option<u32>>,
-    /// Specify name of the other collection to copy data from
-    pub(crate) init_from_collection: Option<Option<String>>,
     /// Quantization configuration of vector
     quantization_config: Option<quantization_config::Quantization>,
     /// Sharding method
@@ -110,13 +108,6 @@ impl CreateCollectionBuilder {
         new.write_consistency_factor = Option::Some(Option::Some(value));
         new
     }
-    /// Specify name of the other collection to copy data from
-    #[allow(unused_mut)]
-    pub fn init_from_collection<VALUE: core::convert::Into<String>>(self, value: VALUE) -> Self {
-        let mut new = self;
-        new.init_from_collection = Option::Some(Option::Some(value.into()));
-        new
-    }
     /// Quantization configuration of vector
     #[allow(unused_mut)]
     pub fn quantization_config<VALUE: core::convert::Into<quantization_config::Quantization>>(
@@ -197,10 +188,6 @@ impl CreateCollectionBuilder {
                 Some(value) => value,
                 None => core::default::Default::default(),
             },
-            init_from_collection: match self.init_from_collection {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
             quantization_config: { convert_option(&self.quantization_config) },
             sharding_method: match self.sharding_method {
                 Some(value) => value,
@@ -214,6 +201,7 @@ impl CreateCollectionBuilder {
                 Some(value) => value,
                 None => core::default::Default::default(),
             },
+            metadata: Default::default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -229,7 +217,6 @@ impl CreateCollectionBuilder {
             vectors_config: core::default::Default::default(),
             replication_factor: core::default::Default::default(),
             write_consistency_factor: core::default::Default::default(),
-            init_from_collection: core::default::Default::default(),
             quantization_config: core::default::Default::default(),
             sharding_method: core::default::Default::default(),
             sparse_vectors_config: core::default::Default::default(),

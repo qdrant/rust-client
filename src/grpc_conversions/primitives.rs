@@ -150,6 +150,7 @@ impl From<String> for ShardKeySelector {
     fn from(keyword: String) -> Self {
         ShardKeySelector {
             shard_keys: vec![ShardKey::from(keyword)],
+            fallback: None,
         }
     }
 }
@@ -158,6 +159,7 @@ impl From<u64> for ShardKeySelector {
     fn from(number: u64) -> Self {
         ShardKeySelector {
             shard_keys: vec![ShardKey::from(number)],
+            fallback: None,
         }
     }
 }
@@ -166,6 +168,7 @@ impl From<Vec<String>> for ShardKeySelector {
     fn from(keywords: Vec<String>) -> Self {
         ShardKeySelector {
             shard_keys: keywords.into_iter().map(ShardKey::from).collect(),
+            fallback: None,
         }
     }
 }
@@ -174,6 +177,7 @@ impl From<Vec<u64>> for ShardKeySelector {
     fn from(numbers: Vec<u64>) -> Self {
         ShardKeySelector {
             shard_keys: numbers.into_iter().map(ShardKey::from).collect(),
+            fallback: None,
         }
     }
 }

@@ -17,6 +17,9 @@ pub struct SearchParamsBuilder {
     /// Using this option prevents slow searches in case of delayed index, but does not
     /// guarantee that all uploaded vectors will be included in search results
     pub(crate) indexed_only: Option<Option<bool>>,
+    ///
+    /// Params relevant to ACORN index
+    pub(crate) acorn: Option<Option<AcornSearchParams>>,
 }
 
 impl SearchParamsBuilder {
@@ -58,6 +61,14 @@ impl SearchParamsBuilder {
         new.indexed_only = Option::Some(Option::Some(value));
         new
     }
+    ///
+    /// Params relevant to ACORN index
+    #[allow(unused_mut)]
+    pub fn acorn<VALUE: core::convert::Into<AcornSearchParams>>(self, value: VALUE) -> Self {
+        let mut new = self;
+        new.acorn = Option::Some(Option::Some(value.into()));
+        new
+    }
 
     fn build_inner(self) -> Result<SearchParams, std::convert::Infallible> {
         Ok(SearchParams {
@@ -65,6 +76,7 @@ impl SearchParamsBuilder {
             exact: self.exact.unwrap_or_default(),
             quantization: self.quantization.unwrap_or_default(),
             indexed_only: self.indexed_only.unwrap_or_default(),
+            acorn: self.acorn.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -74,6 +86,7 @@ impl SearchParamsBuilder {
             exact: core::default::Default::default(),
             quantization: core::default::Default::default(),
             indexed_only: core::default::Default::default(),
+            acorn: core::default::Default::default(),
         }
     }
 }

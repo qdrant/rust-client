@@ -175,6 +175,7 @@ impl QdrantClient {
                         points: points.to_vec(),
                         ordering: ordering_ref.cloned(),
                         shard_key_selector: shard_keys_ref.clone(),
+                        update_filter: None,
                     })
                     .await?
                     .into_inner())
@@ -278,6 +279,7 @@ impl QdrantClient {
                             points: chunk.to_vec(),
                             ordering: ordering_ref.cloned(),
                             shard_key_selector: shard_keys_ref.clone(),
+                            update_filter: None,
                         })
                         .await?
                         .into_inner();
@@ -925,6 +927,7 @@ impl QdrantClient {
                         points: points.to_owned(),
                         ordering: ordering_ref.cloned(),
                         shard_key_selector: shard_keys_ref.clone(),
+                        update_filter: None,
                     })
                     .await?;
                 Ok(result.into_inner())

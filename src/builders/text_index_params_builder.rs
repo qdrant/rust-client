@@ -17,6 +17,8 @@ pub struct TextIndexParamsBuilder {
     pub(crate) phrase_matching: Option<Option<bool>>,
     /// Set an algorithm for stemming.
     pub(crate) stemmer: Option<Option<StemmingAlgorithm>>,
+    /// If true, normalize tokens by folding accented characters to ASCII (e.g., "ação" -> "acao"). Default: false.
+    pub(crate) ascii_folding: Option<Option<bool>>,
 }
 
 impl TextIndexParamsBuilder {
@@ -109,6 +111,14 @@ impl TextIndexParamsBuilder {
         new
     }
 
+    /// If true, normalize tokens by folding accented characters to ASCII (e.g., "ação" -> "acao"). Default: false.
+    #[allow(unused_mut)]
+    pub fn ascii_folding(self, value: bool) -> Self {
+        let mut new = self;
+        new.ascii_folding = Option::Some(Option::Some(value));
+        new
+    }
+
     fn build_inner(self) -> Result<TextIndexParams, TextIndexParamsBuilderError> {
         Ok(TextIndexParams {
             tokenizer: match self.tokenizer {
@@ -126,6 +136,7 @@ impl TextIndexParamsBuilder {
             stopwords: self.stopwords.unwrap_or_default(),
             phrase_matching: self.phrase_matching.unwrap_or_default(),
             stemmer: self.stemmer.unwrap_or_default(),
+            ascii_folding: self.ascii_folding.unwrap_or_default(),
         })
     }
 
@@ -140,6 +151,7 @@ impl TextIndexParamsBuilder {
             stopwords: Default::default(),
             phrase_matching: Default::default(),
             stemmer: Default::default(),
+            ascii_folding: Default::default(),
         }
     }
 }

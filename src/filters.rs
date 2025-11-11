@@ -469,6 +469,9 @@ impl std::ops::Not for MatchValue {
             Self::Phrase(_) => {
                 panic!("cannot negate a MatchValue::Phrase, use within must_not clause instead")
             }
+            Self::TextAny(_) => {
+                panic!("cannot negate a MatchValue::TextAny, use within must_not clause instead")
+            }
         }
     }
 }

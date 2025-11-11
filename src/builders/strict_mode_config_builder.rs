@@ -20,6 +20,7 @@ pub struct StrictModeConfigBuilder {
     pub(crate) multivector_config: Option<Option<StrictModeMultivectorConfig>>,
     pub(crate) sparse_config: Option<Option<StrictModeSparseConfig>>,
     pub(crate) max_points_count: Option<Option<u64>>,
+    pub(crate) max_payload_index_count: Option<Option<u64>>,
 }
 
 impl StrictModeConfigBuilder {
@@ -131,6 +132,12 @@ impl StrictModeConfigBuilder {
         new
     }
 
+    pub fn max_payload_index_count(self, value: u64) -> Self {
+        let mut new = self;
+        new.max_payload_index_count = Option::Some(Option::Some(value));
+        new
+    }
+
     fn build_inner(self) -> Result<StrictModeConfig, std::convert::Infallible> {
         Ok(StrictModeConfig {
             enabled: self.enabled.unwrap_or_default(),
@@ -155,6 +162,7 @@ impl StrictModeConfigBuilder {
             multivector_config: self.multivector_config.unwrap_or_default(),
             sparse_config: self.sparse_config.unwrap_or_default(),
             max_points_count: self.max_points_count.unwrap_or_default(),
+            max_payload_index_count: self.max_payload_index_count.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -178,6 +186,7 @@ impl StrictModeConfigBuilder {
             multivector_config: core::default::Default::default(),
             sparse_config: core::default::Default::default(),
             max_points_count: core::default::Default::default(),
+            max_payload_index_count: core::default::Default::default(),
         }
     }
 }

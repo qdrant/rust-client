@@ -11,6 +11,8 @@ pub struct UpsertPointsBuilder {
     pub(crate) ordering: Option<Option<WriteOrdering>>,
     /// Option for custom sharding to specify used shard keys
     pub(crate) shard_key_selector: Option<Option<ShardKeySelector>>,
+    /// Optional filter to apply to the upsert operation. If set, only points matching the filter will be updated, others will be inserted.
+    pub(crate) update_filter: Option<Option<Filter>>,
 }
 
 impl UpsertPointsBuilder {
@@ -51,6 +53,13 @@ impl UpsertPointsBuilder {
         new.shard_key_selector = Option::Some(Option::Some(value.into()));
         new
     }
+    /// Optional filter to apply to the upsert operation. If set, only points matching the filter will be updated, others will be inserted.
+    #[allow(unused_mut)]
+    pub fn update_filter<VALUE: core::convert::Into<Filter>>(self, value: VALUE) -> Self {
+        let mut new = self;
+        new.update_filter = Option::Some(Option::Some(value.into()));
+        new
+    }
 
     fn build_inner(self) -> Result<UpsertPoints, UpsertPointsBuilderError> {
         Ok(UpsertPoints {
@@ -73,6 +82,7 @@ impl UpsertPointsBuilder {
             },
             ordering: self.ordering.unwrap_or_default(),
             shard_key_selector: self.shard_key_selector.unwrap_or_default(),
+            update_filter: self.update_filter.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -83,6 +93,7 @@ impl UpsertPointsBuilder {
             points: core::default::Default::default(),
             ordering: core::default::Default::default(),
             shard_key_selector: core::default::Default::default(),
+            update_filter: core::default::Default::default(),
         }
     }
 }
