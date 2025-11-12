@@ -3189,17 +3189,23 @@ pub struct Vector {
     /// Vector data (flatten for multi vectors), deprecated
     #[deprecated]
     #[prost(float, repeated, packed = "false", tag = "1")]
-    ///This field is deprecated since 1.16.0
+    /**
+
+Deprecated since 1.16.0, use [`vector`](crate::qdrant::Vector::vector) field instead.*/
     pub data: ::prost::alloc::vec::Vec<f32>,
     /// Sparse indices for sparse vectors, deprecated
     #[deprecated]
     #[prost(message, optional, tag = "2")]
-    ///This field is deprecated since 1.16.0
+    /**
+
+Deprecated since 1.16.0, use [`vector`](crate::qdrant::Vector::vector) field instead.*/
     pub indices: ::core::option::Option<SparseIndices>,
     /// Number of vectors per multi vector, deprecated
     #[deprecated]
     #[prost(uint32, optional, tag = "3")]
-    ///This field is deprecated since 1.16.0
+    /**
+
+Deprecated since 1.16.0, use [`vector`](crate::qdrant::Vector::vector) field instead.*/
     pub vectors_count: ::core::option::Option<u32>,
     #[prost(oneof = "vector::Vector", tags = "101, 102, 103, 104, 105, 106")]
     pub vector: ::core::option::Option<vector::Vector>,
@@ -3230,17 +3236,23 @@ pub struct VectorOutput {
     /// Vector data (flatten for multi vectors), deprecated
     #[deprecated]
     #[prost(float, repeated, packed = "false", tag = "1")]
-    ///This field is deprecated since 1.16.0, use `into_vector` method instead
+    /**
+
+Deprecated since 1.16.0, use [`into_vector`](crate::qdrant::VectorOutput::into_vector) method instead.*/
     pub data: ::prost::alloc::vec::Vec<f32>,
     /// Sparse indices for sparse vectors, deprecated
     #[deprecated]
     #[prost(message, optional, tag = "2")]
-    ///This field is deprecated since 1.16.0, use `into_vector` method instead
+    /**
+
+Deprecated since 1.16.0, use [`into_vector`](crate::qdrant::VectorOutput::into_vector) method instead.*/
     pub indices: ::core::option::Option<SparseIndices>,
     /// Number of vectors per multi vector, deprecated
     #[deprecated]
     #[prost(uint32, optional, tag = "3")]
-    ///This field is deprecated since 1.16.0, use `into_vector` method instead
+    /**
+
+Deprecated since 1.16.0, use [`into_vector`](crate::qdrant::VectorOutput::into_vector) method instead.*/
     pub vectors_count: ::core::option::Option<u32>,
     #[prost(oneof = "vector_output::Vector", tags = "101, 102, 103")]
     pub vector: ::core::option::Option<vector_output::Vector>,
