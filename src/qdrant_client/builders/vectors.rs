@@ -24,6 +24,7 @@ impl Vector {
         MultiDenseVector::from(vectors.into()).into()
     }
 
+    #[expect(deprecated)]
     pub fn try_into_dense(self) -> Result<Vec<f32>, QdrantError> {
         if self.indices.is_some() {
             return Err(QdrantError::ConversionError(
@@ -40,6 +41,7 @@ impl Vector {
         Ok(self.data)
     }
 
+    #[expect(deprecated)]
     pub fn try_into_sparse(self) -> Result<(Vec<u32>, Vec<f32>), QdrantError> {
         if self.indices.is_none() {
             return Err(QdrantError::ConversionError(
@@ -66,6 +68,7 @@ impl Vector {
         Ok((indices, self.data))
     }
 
+    #[expect(deprecated)]
     pub fn try_into_multi(self) -> Result<Vec<Vec<f32>>, QdrantError> {
         if self.vectors_count.is_none() {
             return Err(QdrantError::ConversionError(
@@ -100,6 +103,7 @@ impl NamedVectors {
 
 impl From<crate::qdrant::vector::Vector> for Vector {
     fn from(vector: crate::qdrant::vector::Vector) -> Self {
+        #[expect(deprecated)]
         Vector {
             vector: Some(vector),
             // Deprecated

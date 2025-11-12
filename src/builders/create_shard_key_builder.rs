@@ -10,6 +10,12 @@ pub struct CreateShardKeyBuilder {
     pub(crate) replication_factor: Option<Option<u32>>,
     /// List of peer ids, allowed to create shards. If empty - all peers are allowed
     pub(crate) placement: Option<Vec<u64>>,
+    /// Initial replica state for newly created shards. If empty - use Active state.
+    ///
+    /// # Warning
+    ///
+    /// Use with caution! Setting arbirray replica states here may break your Qdrant cluster.
+    pub(crate) initial_state: Option<Option<i32>>,
 }
 
 impl CreateShardKeyBuilder {
@@ -37,12 +43,26 @@ impl CreateShardKeyBuilder {
         new.placement = Option::Some(value);
         new
     }
+    /// Initial replica state for newly created shards.
+    ///
+    /// Uses Active state by default.
+    ///
+    /// # Warning
+    ///
+    /// Use with caution! Setting arbirray replica states here may break your Qdrant cluster.
+    #[allow(unused_mut)]
+    pub fn initial_state(self, value: i32) -> Self {
+        let mut new = self;
+        new.initial_state = Option::Some(Option::Some(value));
+        new
+    }
     fn build_inner(self) -> Result<CreateShardKey, std::convert::Infallible> {
         Ok(CreateShardKey {
             shard_key: self.shard_key.unwrap_or_default(),
             shards_number: self.shards_number.unwrap_or_default(),
             replication_factor: self.replication_factor.unwrap_or_default(),
             placement: self.placement.unwrap_or_default(),
+            initial_state: self.initial_state.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -52,6 +72,7 @@ impl CreateShardKeyBuilder {
             shards_number: core::default::Default::default(),
             replication_factor: core::default::Default::default(),
             placement: core::default::Default::default(),
+            initial_state: core::default::Default::default(),
         }
     }
 }

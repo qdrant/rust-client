@@ -1273,6 +1273,9 @@ pub struct CreateShardKey {
     /// List of peer ids, allowed to create shards. If empty - all peers are allowed
     #[prost(uint64, repeated, tag = "4")]
     pub placement: ::prost::alloc::vec::Vec<u64>,
+    /// Initial state of created replicas. Warning: use with care.
+    #[prost(enumeration = "ReplicaState", optional, tag = "5")]
+    pub initial_state: ::core::option::Option<i32>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeleteShardKey {
@@ -3184,13 +3187,19 @@ pub struct InferenceObject {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Vector {
     /// Vector data (flatten for multi vectors), deprecated
-    #[prost(float, repeated, tag = "1")]
+    #[deprecated]
+    #[prost(float, repeated, packed = "false", tag = "1")]
+    ///This field is deprecated since 1.16.0
     pub data: ::prost::alloc::vec::Vec<f32>,
     /// Sparse indices for sparse vectors, deprecated
+    #[deprecated]
     #[prost(message, optional, tag = "2")]
+    ///This field is deprecated since 1.16.0
     pub indices: ::core::option::Option<SparseIndices>,
     /// Number of vectors per multi vector, deprecated
+    #[deprecated]
     #[prost(uint32, optional, tag = "3")]
+    ///This field is deprecated since 1.16.0
     pub vectors_count: ::core::option::Option<u32>,
     #[prost(oneof = "vector::Vector", tags = "101, 102, 103, 104, 105, 106")]
     pub vector: ::core::option::Option<vector::Vector>,
@@ -3219,13 +3228,19 @@ pub mod vector {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct VectorOutput {
     /// Vector data (flatten for multi vectors), deprecated
-    #[prost(float, repeated, tag = "1")]
+    #[deprecated]
+    #[prost(float, repeated, packed = "false", tag = "1")]
+    ///This field is deprecated since 1.16.0, use `into_vector` method instead
     pub data: ::prost::alloc::vec::Vec<f32>,
     /// Sparse indices for sparse vectors, deprecated
+    #[deprecated]
     #[prost(message, optional, tag = "2")]
+    ///This field is deprecated since 1.16.0, use `into_vector` method instead
     pub indices: ::core::option::Option<SparseIndices>,
     /// Number of vectors per multi vector, deprecated
+    #[deprecated]
     #[prost(uint32, optional, tag = "3")]
+    ///This field is deprecated since 1.16.0, use `into_vector` method instead
     pub vectors_count: ::core::option::Option<u32>,
     #[prost(oneof = "vector_output::Vector", tags = "101, 102, 103")]
     pub vector: ::core::option::Option<vector_output::Vector>,

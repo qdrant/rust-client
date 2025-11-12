@@ -363,6 +363,7 @@ impl QdrantClient {
                             shards_number,
                             replication_factor,
                             placement: placement.to_vec(),
+                            initial_state: None,
                         }),
                         timeout: None,
                     })
