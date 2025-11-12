@@ -194,6 +194,18 @@ impl From<serde_json::Map<String, serde_json::Value>> for Payload {
     }
 }
 
+impl From<HashMap<String, serde_json::Value>> for Payload {
+    fn from(value: HashMap<String, serde_json::Value>) -> Self {
+        Payload::from(
+            value
+                .into_iter()
+                .map(|(k, v)| (k, v.into()))
+                .collect::<HashMap<String, Value>>(),
+        )
+    }
+}
+
+
 impl<K, const N: usize> From<[(K, Value); N]> for Payload
 where
     K: Into<String>,
