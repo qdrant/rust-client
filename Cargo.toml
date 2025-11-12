@@ -27,6 +27,7 @@ derive_builder = { version = "0.20.2" }
 thiserror = "1.0.64"
 semver = "1.0.24"
 uuid = { version = "1.8.2", optional = true }
+parking_lot = "0.12.4"
 
 [dev-dependencies]
 tonic-build = { version = "0.12.3", features = ["prost"] }
