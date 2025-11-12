@@ -19,28 +19,24 @@ pub struct CountPointsBuilder {
 
 impl CountPointsBuilder {
     /// Name of the collection
-    #[allow(unused_mut)]
     pub fn collection_name(self, value: String) -> Self {
         let mut new = self;
         new.collection_name = Option::Some(value);
         new
     }
     /// Filter conditions - return only those points that satisfy the specified conditions
-    #[allow(unused_mut)]
     pub fn filter<VALUE: core::convert::Into<Filter>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.filter = Option::Some(Option::Some(value.into()));
         new
     }
     /// If `true` - return exact count, if `false` - return approximate count
-    #[allow(unused_mut)]
     pub fn exact(self, value: bool) -> Self {
         let mut new = self;
         new.exact = Option::Some(Option::Some(value));
         new
     }
     /// Options for specifying read consistency guarantees
-    #[allow(unused_mut)]
     pub fn read_consistency<VALUE: core::convert::Into<read_consistency::Value>>(
         self,
         value: VALUE,
@@ -50,7 +46,6 @@ impl CountPointsBuilder {
         new
     }
     /// Specify in which shards to look for the points, if not specified - look in all shards
-    #[allow(unused_mut)]
     pub fn shard_key_selector<VALUE: core::convert::Into<ShardKeySelector>>(
         self,
         value: VALUE,
@@ -60,7 +55,6 @@ impl CountPointsBuilder {
         new
     }
     /// If set, overrides global timeout setting for this request. Unit is seconds.
-    #[allow(unused_mut)]
     pub fn timeout(self, value: u64) -> Self {
         let mut new = self;
         new.timeout = Option::Some(Option::Some(value));

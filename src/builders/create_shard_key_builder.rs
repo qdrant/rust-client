@@ -14,28 +14,24 @@ pub struct CreateShardKeyBuilder {
 
 impl CreateShardKeyBuilder {
     /// User-defined shard key
-    #[allow(unused_mut)]
     pub fn shard_key<VALUE: core::convert::Into<ShardKey>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.shard_key = Option::Some(Option::Some(value.into()));
         new
     }
     /// Number of shards to create per shard key
-    #[allow(unused_mut)]
     pub fn shards_number(self, value: u32) -> Self {
         let mut new = self;
         new.shards_number = Option::Some(Option::Some(value));
         new
     }
     /// Number of replicas of each shard to create
-    #[allow(unused_mut)]
     pub fn replication_factor(self, value: u32) -> Self {
         let mut new = self;
         new.replication_factor = Option::Some(Option::Some(value));
         new
     }
     /// List of peer ids, allowed to create shards. If empty - all peers are allowed
-    #[allow(unused_mut)]
     pub fn placement(self, value: Vec<u64>) -> Self {
         let mut new = self;
         new.placement = Option::Some(value);

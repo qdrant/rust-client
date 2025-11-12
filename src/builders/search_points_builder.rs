@@ -34,35 +34,30 @@ pub struct SearchPointsBuilder {
 
 impl SearchPointsBuilder {
     /// name of the collection
-    #[allow(unused_mut)]
     pub fn collection_name(self, value: String) -> Self {
         let mut new = self;
         new.collection_name = Option::Some(value);
         new
     }
     /// vector
-    #[allow(unused_mut)]
     pub fn vector(self, value: Vec<f32>) -> Self {
         let mut new = self;
         new.vector = Option::Some(value);
         new
     }
     /// Filter conditions - return only those points that satisfy the specified conditions
-    #[allow(unused_mut)]
     pub fn filter<VALUE: core::convert::Into<Filter>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.filter = Option::Some(Option::Some(value.into()));
         new
     }
     /// Max number of result
-    #[allow(unused_mut)]
     pub fn limit(self, value: u64) -> Self {
         let mut new = self;
         new.limit = Option::Some(value);
         new
     }
     /// Options for specifying which payload to include or not
-    #[allow(unused_mut)]
     pub fn with_payload<VALUE: core::convert::Into<with_payload_selector::SelectorOptions>>(
         self,
         value: VALUE,
@@ -72,35 +67,30 @@ impl SearchPointsBuilder {
         new
     }
     /// Search config
-    #[allow(unused_mut)]
     pub fn params<VALUE: core::convert::Into<SearchParams>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.params = Option::Some(Option::Some(value.into()));
         new
     }
     /// If provided - cut off results with worse scores
-    #[allow(unused_mut)]
     pub fn score_threshold(self, value: f32) -> Self {
         let mut new = self;
         new.score_threshold = Option::Some(Option::Some(value));
         new
     }
     /// Offset of the result
-    #[allow(unused_mut)]
     pub fn offset(self, value: u64) -> Self {
         let mut new = self;
         new.offset = Option::Some(Option::Some(value));
         new
     }
     /// Which vector to use for search, if not specified - use default vector
-    #[allow(unused_mut)]
     pub fn vector_name<VALUE: core::convert::Into<String>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.vector_name = Option::Some(Option::Some(value.into()));
         new
     }
     /// Options for specifying which vectors to include into response
-    #[allow(unused_mut)]
     pub fn with_vectors<VALUE: core::convert::Into<with_vectors_selector::SelectorOptions>>(
         self,
         value: VALUE,
@@ -110,7 +100,6 @@ impl SearchPointsBuilder {
         new
     }
     /// Options for specifying read consistency guarantees
-    #[allow(unused_mut)]
     pub fn read_consistency<VALUE: core::convert::Into<read_consistency::Value>>(
         self,
         value: VALUE,
@@ -120,14 +109,12 @@ impl SearchPointsBuilder {
         new
     }
     /// If set, overrides global timeout setting for this request. Unit is seconds.
-    #[allow(unused_mut)]
     pub fn timeout(self, value: u64) -> Self {
         let mut new = self;
         new.timeout = Option::Some(Option::Some(value));
         new
     }
     /// Specify in which shards to look for the points, if not specified - look in all shards
-    #[allow(unused_mut)]
     pub fn shard_key_selector<VALUE: core::convert::Into<ShardKeySelector>>(
         self,
         value: VALUE,
@@ -136,7 +123,6 @@ impl SearchPointsBuilder {
         new.shard_key_selector = Option::Some(Option::Some(value.into()));
         new
     }
-    #[allow(unused_mut)]
     pub fn sparse_indices<VALUE: core::convert::Into<SparseIndices>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.sparse_indices = Option::Some(Option::Some(value.into()));

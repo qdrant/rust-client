@@ -27,14 +27,12 @@ pub struct UpdateCollectionBuilder {
 
 impl UpdateCollectionBuilder {
     /// Name of the collection
-    #[allow(unused_mut)]
     pub fn collection_name(self, value: String) -> Self {
         let mut new = self;
         new.collection_name = Option::Some(value);
         new
     }
     /// New configuration parameters for the collection. This operation is blocking, it will only proceed once all current optimizations are complete
-    #[allow(unused_mut)]
     pub fn optimizers_config<VALUE: core::convert::Into<OptimizersConfigDiff>>(
         self,
         value: VALUE,
@@ -44,28 +42,24 @@ impl UpdateCollectionBuilder {
         new
     }
     /// Wait timeout for operation commit in seconds if blocking, if not specified - default value will be supplied
-    #[allow(unused_mut)]
     pub fn timeout(self, value: u64) -> Self {
         let mut new = self;
         new.timeout = Option::Some(Option::Some(value));
         new
     }
     /// New configuration parameters for the collection
-    #[allow(unused_mut)]
     pub fn params<VALUE: core::convert::Into<CollectionParamsDiff>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.params = Option::Some(Option::Some(value.into()));
         new
     }
     /// New HNSW parameters for the collection index
-    #[allow(unused_mut)]
     pub fn hnsw_config<VALUE: core::convert::Into<HnswConfigDiff>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.hnsw_config = Option::Some(Option::Some(value.into()));
         new
     }
     /// New vector parameters
-    #[allow(unused_mut)]
     pub fn vectors_config<VALUE: core::convert::Into<VectorsConfigDiff>>(
         self,
         value: VALUE,
@@ -75,7 +69,6 @@ impl UpdateCollectionBuilder {
         new
     }
     /// Quantization configuration of vector
-    #[allow(unused_mut)]
     pub fn quantization_config<
         VALUE: core::convert::Into<quantization_config_diff::Quantization>,
     >(
@@ -87,7 +80,6 @@ impl UpdateCollectionBuilder {
         new
     }
     /// New sparse vector parameters
-    #[allow(unused_mut)]
     pub fn sparse_vectors_config<VALUE: core::convert::Into<SparseVectorConfig>>(
         self,
         value: VALUE,
@@ -97,7 +89,6 @@ impl UpdateCollectionBuilder {
         new
     }
     /// New strict mode configuration
-    #[allow(unused_mut)]
     pub fn strict_mode_config<VALUE: core::convert::Into<StrictModeConfig>>(
         self,
         value: VALUE,
@@ -107,7 +98,6 @@ impl UpdateCollectionBuilder {
         new
     }
     /// Arbitrary JSON-like metadata for the collection, will be merged with already stored metadata
-    #[allow(unused_mut)]
     pub fn metadata(self, value: std::collections::HashMap<String, Value>) -> Self {
         let mut new = self;
         new.metadata = Option::Some(value);

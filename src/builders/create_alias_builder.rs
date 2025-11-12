@@ -10,14 +10,12 @@ pub struct CreateAliasBuilder {
 
 impl CreateAliasBuilder {
     /// Name of the collection
-    #[allow(unused_mut)]
     pub fn collection_name(self, value: String) -> Self {
         let mut new = self;
         new.collection_name = Option::Some(value);
         new
     }
     /// New name of the alias
-    #[allow(unused_mut)]
     pub fn alias_name(self, value: String) -> Self {
         let mut new = self;
         new.alias_name = Option::Some(value);

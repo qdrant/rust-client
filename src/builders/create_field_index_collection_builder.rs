@@ -19,35 +19,30 @@ pub struct CreateFieldIndexCollectionBuilder {
 
 impl CreateFieldIndexCollectionBuilder {
     /// name of the collection
-    #[allow(unused_mut)]
     pub fn collection_name(self, value: String) -> Self {
         let mut new = self;
         new.collection_name = Option::Some(value);
         new
     }
     /// Wait until the changes have been applied?
-    #[allow(unused_mut)]
     pub fn wait(self, value: bool) -> Self {
         let mut new = self;
         new.wait = Option::Some(Option::Some(value));
         new
     }
     /// Field name to index
-    #[allow(unused_mut)]
     pub fn field_name(self, value: String) -> Self {
         let mut new = self;
         new.field_name = Option::Some(value);
         new
     }
     /// Field type.
-    #[allow(unused_mut)]
     pub fn field_type<VALUE: core::convert::Into<i32>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.field_type = Option::Some(Option::Some(value.into()));
         new
     }
     /// Payload index params.
-    #[allow(unused_mut)]
     pub fn field_index_params<VALUE: core::convert::Into<payload_index_params::IndexParams>>(
         self,
         value: VALUE,
@@ -57,7 +52,6 @@ impl CreateFieldIndexCollectionBuilder {
         new
     }
     /// Write ordering guarantees
-    #[allow(unused_mut)]
     pub fn ordering<VALUE: core::convert::Into<WriteOrdering>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.ordering = Option::Some(Option::Some(value.into()));

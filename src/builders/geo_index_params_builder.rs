@@ -18,7 +18,6 @@ impl GeoIndexParamsBuilder {
     }
 
     /// If true - store index on disk.
-    #[allow(unused_mut)]
     pub fn on_disk(self, value: bool) -> Self {
         let mut new = self;
         new.on_disk = Option::Some(Option::Some(value));

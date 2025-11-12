@@ -26,7 +26,6 @@ impl SearchParamsBuilder {
     ///
     /// Params relevant to HNSW index. Size of the beam in a beam-search.
     /// Larger the value - more accurate the result, more time required for search.
-    #[allow(unused_mut)]
     pub fn hnsw_ef(self, value: u64) -> Self {
         let mut new = self;
         new.hnsw_ef = Option::Some(Option::Some(value));
@@ -34,7 +33,6 @@ impl SearchParamsBuilder {
     }
     ///
     /// Search without approximation. If set to true, search may run long but with exact results.
-    #[allow(unused_mut)]
     pub fn exact(self, value: bool) -> Self {
         let mut new = self;
         new.exact = Option::Some(Option::Some(value));
@@ -42,7 +40,6 @@ impl SearchParamsBuilder {
     }
     ///
     /// If set to true, search will ignore quantized vector data
-    #[allow(unused_mut)]
     pub fn quantization<VALUE: core::convert::Into<QuantizationSearchParams>>(
         self,
         value: VALUE,
@@ -55,7 +52,6 @@ impl SearchParamsBuilder {
     /// If enabled, the engine will only perform search among indexed or small segments.
     /// Using this option prevents slow searches in case of delayed index, but does not
     /// guarantee that all uploaded vectors will be included in search results
-    #[allow(unused_mut)]
     pub fn indexed_only(self, value: bool) -> Self {
         let mut new = self;
         new.indexed_only = Option::Some(Option::Some(value));
@@ -63,7 +59,6 @@ impl SearchParamsBuilder {
     }
     ///
     /// Params relevant to ACORN index
-    #[allow(unused_mut)]
     pub fn acorn<VALUE: core::convert::Into<AcornSearchParams>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.acorn = Option::Some(Option::Some(value.into()));

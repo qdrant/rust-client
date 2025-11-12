@@ -10,14 +10,12 @@ pub struct RenameAliasBuilder {
 
 impl RenameAliasBuilder {
     /// Name of the alias to rename
-    #[allow(unused_mut)]
     pub fn old_alias_name(self, value: String) -> Self {
         let mut new = self;
         new.old_alias_name = Option::Some(value);
         new
     }
     /// Name of the alias
-    #[allow(unused_mut)]
     pub fn new_alias_name(self, value: String) -> Self {
         let mut new = self;
         new.new_alias_name = Option::Some(value);

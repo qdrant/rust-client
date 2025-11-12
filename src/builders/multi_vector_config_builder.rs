@@ -8,7 +8,6 @@ pub struct MultiVectorConfigBuilder {
 
 impl MultiVectorConfigBuilder {
     /// Comparator for multi-vector search
-    #[allow(unused_mut)]
     pub fn comparator<VALUE: core::convert::Into<i32>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.comparator = Option::Some(value.into());

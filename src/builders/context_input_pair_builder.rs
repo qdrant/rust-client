@@ -10,14 +10,12 @@ pub struct ContextInputPairBuilder {
 
 impl ContextInputPairBuilder {
     /// A positive vector
-    #[allow(unused_mut)]
     pub fn positive<VALUE: core::convert::Into<VectorInput>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.positive = Option::Some(Option::Some(value.into()));
         new
     }
     /// Repel from this vector
-    #[allow(unused_mut)]
     pub fn negative<VALUE: core::convert::Into<VectorInput>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.negative = Option::Some(Option::Some(value.into()));

@@ -29,35 +29,30 @@ impl TextIndexParamsBuilder {
     }
 
     /// Tokenizer type
-    #[allow(unused_mut)]
     pub fn tokenizer(self, value: i32) -> Self {
         let mut new = self;
         new.tokenizer = Option::Some(value);
         new
     }
     /// If true - all tokens will be lowercase
-    #[allow(unused_mut)]
     pub fn lowercase(self, value: bool) -> Self {
         let mut new = self;
         new.lowercase = Option::Some(Option::Some(value));
         new
     }
     /// Minimal token length
-    #[allow(unused_mut)]
     pub fn min_token_len(self, value: u64) -> Self {
         let mut new = self;
         new.min_token_len = Option::Some(Option::Some(value));
         new
     }
     /// Maximal token length
-    #[allow(unused_mut)]
     pub fn max_token_len(self, value: u64) -> Self {
         let mut new = self;
         new.max_token_len = Option::Some(Option::Some(value));
         new
     }
     /// If true - store index on disk.
-    #[allow(unused_mut)]
     pub fn on_disk(self, value: bool) -> Self {
         let mut new = self;
         new.on_disk = Option::Some(Option::Some(value));
@@ -112,7 +107,6 @@ impl TextIndexParamsBuilder {
     }
 
     /// If true, normalize tokens by folding accented characters to ASCII (e.g., "ação" -> "acao"). Default: false.
-    #[allow(unused_mut)]
     pub fn ascii_folding(self, value: bool) -> Self {
         let mut new = self;
         new.ascii_folding = Option::Some(Option::Some(value));

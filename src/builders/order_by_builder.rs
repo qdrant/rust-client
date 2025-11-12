@@ -13,21 +13,18 @@ pub struct OrderByBuilder {
 
 impl OrderByBuilder {
     /// Payload key to order by
-    #[allow(unused_mut)]
     pub fn key(self, value: String) -> Self {
         let mut new = self;
         new.key = Option::Some(value);
         new
     }
     /// Ascending or descending order
-    #[allow(unused_mut)]
     pub fn direction(self, value: i32) -> Self {
         let mut new = self;
         new.direction = Option::Some(Option::Some(value));
         new
     }
     /// Start from this value
-    #[allow(unused_mut)]
     pub fn start_from<VALUE: core::convert::Into<start_from::Value>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.start_from = Option::Some(value.into());

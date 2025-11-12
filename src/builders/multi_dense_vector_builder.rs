@@ -16,13 +16,11 @@ impl MultiDenseVectorBuilder {
         Self::new(vec![vector.into()])
     }
 
-    #[allow(unused_mut)]
     pub fn vectors(mut self, vectors: impl Into<Vec<DenseVector>>) -> Self {
         self.vectors = vectors.into();
         self
     }
 
-    #[allow(unused_mut)]
     pub fn add_vector(mut self, vector: impl Into<DenseVector>) -> Self {
         self.vectors.push(vector.into());
         self

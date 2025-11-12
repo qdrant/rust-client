@@ -11,25 +11,21 @@ pub struct AbortShardTransferBuilder {
 
 impl AbortShardTransferBuilder {
     /// Local shard id
-    #[allow(unused_mut)]
     pub fn shard_id(self, value: u32) -> Self {
         let mut new = self;
         new.shard_id = Option::Some(value);
         new
     }
-    #[allow(unused_mut)]
     pub fn to_shard_id(self, value: u32) -> Self {
         let mut new = self;
         new.to_shard_id = Option::Some(Option::Some(value));
         new
     }
-    #[allow(unused_mut)]
     pub fn from_peer_id(self, value: u64) -> Self {
         let mut new = self;
         new.from_peer_id = Option::Some(value);
         new
     }
-    #[allow(unused_mut)]
     pub fn to_peer_id(self, value: u64) -> Self {
         let mut new = self;
         new.to_peer_id = Option::Some(value);

@@ -12,21 +12,18 @@ pub struct WalConfigDiffBuilder {
 
 impl WalConfigDiffBuilder {
     /// Size of a single WAL block file
-    #[allow(unused_mut)]
     pub fn wal_capacity_mb(self, value: u64) -> Self {
         let mut new = self;
         new.wal_capacity_mb = Option::Some(Option::Some(value));
         new
     }
     /// Number of segments to create in advance
-    #[allow(unused_mut)]
     pub fn wal_segments_ahead(self, value: u64) -> Self {
         let mut new = self;
         new.wal_segments_ahead = Option::Some(Option::Some(value));
         new
     }
     /// Number of closed segments to retain
-    #[allow(unused_mut)]
     pub fn wal_retain_closed(self, value: u64) -> Self {
         let mut new = self;
         new.wal_retain_closed = Option::Some(Option::Some(value));

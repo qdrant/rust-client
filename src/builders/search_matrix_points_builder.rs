@@ -22,49 +22,42 @@ pub struct SearchMatrixPointsBuilder {
 
 impl SearchMatrixPointsBuilder {
     /// Name of the collection
-    #[allow(unused_mut)]
     pub fn collection_name(self, value: String) -> Self {
         let mut new = self;
         new.collection_name = Option::Some(value);
         new
     }
     /// Filter conditions - return only those points that satisfy the specified conditions.
-    #[allow(unused_mut)]
     pub fn filter<VALUE: core::convert::Into<Filter>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.filter = Option::Some(Option::Some(value.into()));
         new
     }
     /// How many points to select and search within. Default is 10.
-    #[allow(unused_mut)]
     pub fn sample(self, value: u64) -> Self {
         let mut new = self;
         new.sample = Option::Some(Option::Some(value));
         new
     }
     /// How many neighbours per sample to find. Default is 3.
-    #[allow(unused_mut)]
     pub fn limit(self, value: u64) -> Self {
         let mut new = self;
         new.limit = Option::Some(Option::Some(value));
         new
     }
     /// Define which vector to use for querying. If missing, the default vector is is used.
-    #[allow(unused_mut)]
     pub fn using<VALUE: core::convert::Into<String>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.using = Option::Some(Option::Some(value.into()));
         new
     }
     /// If set, overrides global timeout setting for this request. Unit is seconds.
-    #[allow(unused_mut)]
     pub fn timeout(self, value: u64) -> Self {
         let mut new = self;
         new.timeout = Option::Some(Option::Some(value));
         new
     }
     /// Options for specifying read consistency guarantees
-    #[allow(unused_mut)]
     pub fn read_consistency<VALUE: core::convert::Into<ReadConsistency>>(
         self,
         value: VALUE,
@@ -74,7 +67,6 @@ impl SearchMatrixPointsBuilder {
         new
     }
     /// Specify in which shards to look for the points, if not specified - look in all shards
-    #[allow(unused_mut)]
     pub fn shard_key_selector<VALUE: core::convert::Into<ShardKeySelector>>(
         self,
         value: VALUE,

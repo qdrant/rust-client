@@ -15,28 +15,24 @@ pub struct CollectionParamsDiffBuilder {
 #[allow(clippy::derive_partial_eq_without_eq)]
 impl CollectionParamsDiffBuilder {
     /// Number of replicas of each shard that network tries to maintain
-    #[allow(unused_mut)]
     pub fn replication_factor(self, value: u32) -> Self {
         let mut new = self;
         new.replication_factor = Option::Some(Option::Some(value));
         new
     }
     /// How many replicas should apply the operation for us to consider it successful
-    #[allow(unused_mut)]
     pub fn write_consistency_factor(self, value: u32) -> Self {
         let mut new = self;
         new.write_consistency_factor = Option::Some(Option::Some(value));
         new
     }
     /// If true - point's payload will not be stored in memory
-    #[allow(unused_mut)]
     pub fn on_disk_payload(self, value: bool) -> Self {
         let mut new = self;
         new.on_disk_payload = Option::Some(Option::Some(value));
         new
     }
     /// Fan-out every read request to these many additional remote nodes (and return first available response)
-    #[allow(unused_mut)]
     pub fn read_fan_out_factor(self, value: u32) -> Self {
         let mut new = self;
         new.read_fan_out_factor = Option::Some(Option::Some(value));
