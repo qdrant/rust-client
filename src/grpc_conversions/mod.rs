@@ -1,5 +1,6 @@
 mod extensions;
 mod primitives;
+pub mod vectors;
 
 use crate::client::Payload;
 use crate::qdrant::point_id::PointIdOptions;

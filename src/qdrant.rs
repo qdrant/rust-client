@@ -284,6 +284,8 @@ pub struct OptimizersConfigDiff {
     #[prost(uint64, optional, tag = "3")]
     pub default_segment_number: ::core::option::Option<u64>,
     ///
+    /// Deprecated:
+    ///
     /// Do not create segments larger this size (in kilobytes).
     /// Large segments might require disproportionately long indexation times,
     /// therefore it makes sense to limit the size of segments.
@@ -557,7 +559,7 @@ pub struct CreateCollection {
     /// How many replicas should apply the operation for us to consider it successful, default = 1
     #[prost(uint32, optional, tag = "12")]
     pub write_consistency_factor: ::core::option::Option<u32>,
-    /// Specify name of the other collection to copy data from
+    /// Deprecated: specify name of the other collection to copy data from
     #[prost(string, optional, tag = "13")]
     pub init_from_collection: ::core::option::Option<::prost::alloc::string::String>,
     /// Quantization configuration of vector
@@ -3167,13 +3169,19 @@ pub mod vector {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct VectorOutput {
     /// Vector data (flatten for multi vectors), deprecated
-    #[prost(float, repeated, tag = "1")]
+    #[deprecated]
+    #[prost(float, repeated, packed = "false", tag = "1")]
+    ///This field is deprecated since 1.16.0, use `into_vector` method instead
     pub data: ::prost::alloc::vec::Vec<f32>,
     /// Sparse indices for sparse vectors, deprecated
+    #[deprecated]
     #[prost(message, optional, tag = "2")]
+    ///This field is deprecated since 1.16.0, use `into_vector` method instead
     pub indices: ::core::option::Option<SparseIndices>,
     /// Number of vectors per multi vector, deprecated
+    #[deprecated]
     #[prost(uint32, optional, tag = "3")]
+    ///This field is deprecated since 1.16.0, use `into_vector` method instead
     pub vectors_count: ::core::option::Option<u32>,
     #[prost(oneof = "vector_output::Vector", tags = "101, 102, 103")]
     pub vector: ::core::option::Option<vector_output::Vector>,

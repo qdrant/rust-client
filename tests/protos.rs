@@ -51,6 +51,8 @@ trait BuilderExt {
 
 impl BuilderExt for Builder {
     fn configure_deprecations(self) -> Self {
+        // Clear deprecated field for VectorOutput.data
+
         self.field_attribute(
             "PointsUpdateOperation.operation.delete_deprecated",
             "#[deprecated(since = \"1.7.0\", note = \"use `DeletePoints` instead\")]",
@@ -58,6 +60,30 @@ impl BuilderExt for Builder {
         .field_attribute(
             "PointsUpdateOperation.operation.clear_payload_deprecated",
             "#[deprecated(since = \"1.7.0\", note = \"use `ClearPayload` instead\")]",
+        )
+        .field_attribute(
+            "Vector.data",
+            "#[doc = \"This field is deprecated since 1.16.0\"]",
+        )
+        .field_attribute(
+            "Vector.indices",
+            "#[doc = \"This field is deprecated since 1.16.0\"]",
+        )
+        .field_attribute(
+            "Vector.vectors_count",
+            "#[doc = \"This field is deprecated since 1.16.0\"]",
+        )
+        .field_attribute(
+            "VectorOutput.data",
+            "#[doc = \"This field is deprecated since 1.16.0, use `into_vector` method instead\"]",
+        )
+        .field_attribute(
+            "VectorOutput.indices",
+            "#[doc = \"This field is deprecated since 1.16.0, use `into_vector` method instead\"]",
+        )
+        .field_attribute(
+            "VectorOutput.vectors_count",
+            "#[doc = \"This field is deprecated since 1.16.0, use `into_vector` method instead\"]",
         )
     }
 }
