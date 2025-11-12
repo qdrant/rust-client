@@ -62,6 +62,18 @@ impl BuilderExt for Builder {
             "#[deprecated(since = \"1.7.0\", note = \"use `ClearPayload` instead\")]",
         )
         .field_attribute(
+            "Vector.data",
+            "#[doc = \"This field is deprecated since 1.16.0\"]",
+        )
+        .field_attribute(
+            "Vector.indices",
+            "#[doc = \"This field is deprecated since 1.16.0\"]",
+        )
+        .field_attribute(
+            "Vector.vectors_count",
+            "#[doc = \"This field is deprecated since 1.16.0\"]",
+        )
+        .field_attribute(
             "VectorOutput.data",
             "#[doc = \"This field is deprecated since 1.16.0, use `into_vector` method instead\"]",
         )
