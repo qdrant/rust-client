@@ -1,13 +1,16 @@
 use std::future::Future;
+use std::sync::atomic::AtomicUsize;
 use std::time::Duration;
 
-use parking_lot::{Mutex, RwLock};
+use parking_lot::RwLock;
 use tonic::transport::{Channel, ClientTlsConfig, Uri};
 use tonic::{Code, Status};
 
 pub struct ChannelPool {
     channels: RwLock<Vec<Option<Channel>>>,
-    channel_index_lock: Mutex<usize>,
+    /// Counts how many times channels are used
+    /// Used for selecting the next channel in a round-robin way.
+    counter: AtomicUsize,
     uri: Uri,
     grpc_timeout: Duration,
     connection_timeout: Duration,
@@ -28,7 +31,7 @@ impl ChannelPool {
 
         Self {
             channels: RwLock::new(vec![None; pool_size]),
-            channel_index_lock: Mutex::new(0),
+            counter: AtomicUsize::new(0),
             uri,
             grpc_timeout,
             connection_timeout,
@@ -136,26 +139,20 @@ impl ChannelPool {
     }
 
     /// Returns `true` if multiple connections being used.
+    #[inline]
     fn is_connection_pooling_enabled(&self) -> bool {
-        // This value is never `0` becuase we enforce this in the constructor.
-        // 1 connection = No pooling
-        self.pool_size != 1
+        self.pool_size > 1
     }
 
     /// Returns the index for the next channel to use.
     fn next_channel_index(&self) -> usize {
-        // Avoid the expensive locking operation if pooling is disabled.
-        if !self.is_connection_pooling_enabled() {
-            return 0;
+        if self.is_connection_pooling_enabled() {
+            self.counter
+                .fetch_add(1, std::sync::atomic::Ordering::Relaxed)
+                % self.pool_size
+        } else {
+            0
         }
-
-        // ChannelIndex always holds the index of the next client to return.
-        // Therefore we increase the counter and return the current index.
-        let mut channel_index = self.channel_index_lock.lock();
-        let curr_idx = *channel_index;
-        let next = (curr_idx + 1) % self.pool_size;
-        *channel_index = next;
-        curr_idx
     }
 }
 
