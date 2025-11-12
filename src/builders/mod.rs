@@ -250,3 +250,6 @@ pub use image_builder::ImageBuilder;
 
 mod mmr_builder;
 pub use mmr_builder::MmrBuilder;
+
+mod rrf_builder;
+pub use rrf_builder::RrfBuilder;

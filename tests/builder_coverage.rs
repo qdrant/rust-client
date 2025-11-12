@@ -11,7 +11,7 @@ use qdrant_client::qdrant::{
     LookupLocationBuilder, MoveShardBuilder, MultiVectorComparator, MultiVectorConfigBuilder,
     OrderByBuilder, ProductQuantizationBuilder, QueryBatchPointsBuilder, QueryPointGroupsBuilder,
     QueryPointsBuilder, RecommendBatchPointsBuilder, RecommendPointGroupsBuilder,
-    RecommendPointsBuilder, RenameAliasBuilder, ReplicaBuilder, ReplicateShardBuilder,
+    RecommendPointsBuilder, RenameAliasBuilder, ReplicaBuilder, ReplicateShardBuilder, RrfBuilder,
     ScrollPointsBuilder, SearchBatchPointsBuilder, SearchMatrixPointsBuilder,
     SearchPointGroupsBuilder, SearchPointsBuilder, SetPayloadPointsBuilder, ShardKey,
     ShardKeySelector, TextIndexParamsBuilder, TokenizerType, UpdateBatchPointsBuilder,
@@ -91,4 +91,6 @@ fn builder_coverage() {
         .with_fallback(ShardKey::from("fallback".to_string()));
     AcornSearchParams::new(true);
     AcornSearchParams::new(true).with_max_selectivity(0.5);
+    RrfBuilder::new().build();
+    RrfBuilder::with_k(100).build();
 }

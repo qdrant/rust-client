@@ -1,6 +1,6 @@
 use qdrant_client::qdrant::{
     Condition, DecayParamsExpressionBuilder, Expression, FormulaBuilder, Fusion, GeoPoint,
-    PointId, PrefetchQueryBuilder, Query, QueryPointsBuilder, RecommendInputBuilder, Rrf,
+    PointId, PrefetchQueryBuilder, Query, QueryPointsBuilder, RecommendInputBuilder, RrfBuilder,
     Sample,
 };
 use qdrant_client::Qdrant;
@@ -124,5 +124,21 @@ let _rrf_hybrid = client.query(
             .using("dense")
             .limit(20u64)
         )
-        .query(Query::new_rrf(Rrf::default()))
+        .query(Query::new_rrf(RrfBuilder::new()))
+).await?;
+
+// RRF with custom k parameter
+let _rrf_custom = client.query(
+    QueryPointsBuilder::new("{collection_name}")
+        .add_prefetch(PrefetchQueryBuilder::default()
+            .query(vec![(1, 0.22), (42, 0.8)])
+            .using("sparse")
+            .limit(20u64)
+        )
+        .add_prefetch(PrefetchQueryBuilder::default()
+            .query(vec![0.01, 0.45, 0.67])
+            .using("dense")
+            .limit(20u64)
+        )
+        .query(Query::new_rrf(RrfBuilder::with_k(100)))
 ).await?;
