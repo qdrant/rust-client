@@ -1,6 +1,6 @@
 use qdrant_client::qdrant::{
     Condition, DecayParamsExpressionBuilder, Expression, FormulaBuilder, Fusion, GeoPoint,
-    PointId, PrefetchQueryBuilder, Query, QueryPointsBuilder, RecommendInputBuilder,
+    PointId, PrefetchQueryBuilder, Query, QueryPointsBuilder, RecommendInputBuilder, Rrf,
     Sample,
 };
 use qdrant_client::Qdrant;
@@ -110,3 +110,19 @@ let _geo_boosted = client.query(
             .limit(10),
     )
     .await?;
+
+// RRF fusion query using Query::new_rrf constructor
+let _rrf_hybrid = client.query(
+    QueryPointsBuilder::new("{collection_name}")
+        .add_prefetch(PrefetchQueryBuilder::default()
+            .query(vec![(1, 0.22), (42, 0.8)])
+            .using("sparse")
+            .limit(20u64)
+        )
+        .add_prefetch(PrefetchQueryBuilder::default()
+            .query(vec![0.01, 0.45, 0.67])
+            .using("dense")
+            .limit(20u64)
+        )
+        .query(Query::new_rrf(Rrf::default()))
+).await?;
