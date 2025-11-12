@@ -63,27 +63,27 @@ impl BuilderExt for Builder {
         )
         .field_attribute(
             "Vector.data",
-            "#[doc = \"This field is deprecated since 1.16.0\"]",
+            "#[doc = \"\n\nDeprecated since 1.16.0, use [`vector`](crate::qdrant::Vector::vector) field instead.\"]",
         )
         .field_attribute(
             "Vector.indices",
-            "#[doc = \"This field is deprecated since 1.16.0\"]",
+            "#[doc = \"\n\nDeprecated since 1.16.0, use [`vector`](crate::qdrant::Vector::vector) field instead.\"]",
         )
         .field_attribute(
             "Vector.vectors_count",
-            "#[doc = \"This field is deprecated since 1.16.0\"]",
+            "#[doc = \"\n\nDeprecated since 1.16.0, use [`vector`](crate::qdrant::Vector::vector) field instead.\"]",
         )
         .field_attribute(
             "VectorOutput.data",
-            "#[doc = \"This field is deprecated since 1.16.0, use `into_vector` method instead\"]",
+            "#[doc = \"\n\nDeprecated since 1.16.0, use [`into_vector`](crate::qdrant::VectorOutput::into_vector) method instead.\"]",
         )
         .field_attribute(
             "VectorOutput.indices",
-            "#[doc = \"This field is deprecated since 1.16.0, use `into_vector` method instead\"]",
+            "#[doc = \"\n\nDeprecated since 1.16.0, use [`into_vector`](crate::qdrant::VectorOutput::into_vector) method instead.\"]",
         )
         .field_attribute(
             "VectorOutput.vectors_count",
-            "#[doc = \"This field is deprecated since 1.16.0, use `into_vector` method instead\"]",
+            "#[doc = \"\n\nDeprecated since 1.16.0, use [`into_vector`](crate::qdrant::VectorOutput::into_vector) method instead.\"]",
         )
     }
 }

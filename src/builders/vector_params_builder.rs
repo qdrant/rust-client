@@ -21,28 +21,24 @@ pub struct VectorParamsBuilder {
 
 impl VectorParamsBuilder {
     /// Size of the vectors
-    #[allow(unused_mut)]
     pub fn size(self, value: u64) -> Self {
         let mut new = self;
         new.size = Option::Some(value);
         new
     }
     /// Distance function used for comparing vectors
-    #[allow(unused_mut)]
     pub fn distance<VALUE: core::convert::Into<i32>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.distance = Option::Some(value.into());
         new
     }
     /// Configuration of vector HNSW graph. If omitted - the collection configuration will be used
-    #[allow(unused_mut)]
     pub fn hnsw_config<VALUE: core::convert::Into<HnswConfigDiff>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.hnsw_config = Option::Some(Option::Some(value.into()));
         new
     }
     /// Configuration of vector quantization config. If omitted - the collection configuration will be used
-    #[allow(unused_mut)]
     pub fn quantization_config<VALUE: core::convert::Into<quantization_config::Quantization>>(
         self,
         value: VALUE,
@@ -52,21 +48,18 @@ impl VectorParamsBuilder {
         new
     }
     /// If true - serve vectors from disk. If set to false, the vectors will be loaded in RAM.
-    #[allow(unused_mut)]
     pub fn on_disk(self, value: bool) -> Self {
         let mut new = self;
         new.on_disk = Option::Some(Option::Some(value));
         new
     }
     /// Data type of the vectors
-    #[allow(unused_mut)]
     pub fn datatype<VALUE: core::convert::Into<i32>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.datatype = Option::Some(Option::Some(value.into()));
         new
     }
     /// Configuration for multi-vector search
-    #[allow(unused_mut)]
     pub fn multivector_config<VALUE: core::convert::Into<MultiVectorConfig>>(
         self,
         value: VALUE,

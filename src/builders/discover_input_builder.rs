@@ -10,14 +10,12 @@ pub struct DiscoverInputBuilder {
 
 impl DiscoverInputBuilder {
     /// Use this as the primary search objective
-    #[allow(unused_mut)]
     pub fn target<VALUE: core::convert::Into<VectorInput>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.target = Option::Some(Option::Some(value.into()));
         new
     }
     /// Search space will be constrained by these pairs of vectors
-    #[allow(unused_mut)]
     pub fn context<VALUE: core::convert::Into<ContextInput>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.context = Option::Some(Option::Some(value.into()));

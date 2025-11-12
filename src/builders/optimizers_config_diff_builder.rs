@@ -62,7 +62,6 @@ pub struct OptimizersConfigDiffBuilder {
 impl OptimizersConfigDiffBuilder {
     ///
     /// The minimal fraction of deleted vectors in a segment, required to perform segment optimization
-    #[allow(unused_mut)]
     pub fn deleted_threshold(self, value: f64) -> Self {
         let mut new = self;
         new.deleted_threshold = Option::Some(Option::Some(value));
@@ -70,7 +69,6 @@ impl OptimizersConfigDiffBuilder {
     }
     ///
     /// The minimal number of vectors in a segment, required to perform segment optimization
-    #[allow(unused_mut)]
     pub fn vacuum_min_vector_number(self, value: u64) -> Self {
         let mut new = self;
         new.vacuum_min_vector_number = Option::Some(Option::Some(value));
@@ -85,7 +83,6 @@ impl OptimizersConfigDiffBuilder {
     ///
     /// It is recommended to select the default number of segments as a factor of the number of search threads,
     /// so that each segment would be handled evenly by one of the threads.
-    #[allow(unused_mut)]
     pub fn default_segment_number(self, value: u64) -> Self {
         let mut new = self;
         new.default_segment_number = Option::Some(Option::Some(value));
@@ -100,7 +97,6 @@ impl OptimizersConfigDiffBuilder {
     /// If search speed is more important - make this parameter higher.
     /// Note: 1Kb = 1 vector of size 256
     /// If not set, will be automatically selected considering the number of available CPUs.
-    #[allow(unused_mut)]
     pub fn max_segment_size(self, value: u64) -> Self {
         let mut new = self;
         new.max_segment_size = Option::Some(Option::Some(value));
@@ -115,7 +111,6 @@ impl OptimizersConfigDiffBuilder {
     /// To disable memmap storage, set this to `0`.
     ///
     /// Note: 1Kb = 1 vector of size 256
-    #[allow(unused_mut)]
     pub fn memmap_threshold(self, value: u64) -> Self {
         let mut new = self;
         new.memmap_threshold = Option::Some(Option::Some(value));
@@ -129,7 +124,6 @@ impl OptimizersConfigDiffBuilder {
     /// To disable vector indexing, set to `0`.
     ///
     /// Note: 1kB = 1 vector of size 256.
-    #[allow(unused_mut)]
     pub fn indexing_threshold(self, value: u64) -> Self {
         let mut new = self;
         new.indexing_threshold = Option::Some(Option::Some(value));
@@ -137,7 +131,6 @@ impl OptimizersConfigDiffBuilder {
     }
     ///
     /// Interval between forced flushes.
-    #[allow(unused_mut)]
     pub fn flush_interval_sec(self, value: u64) -> Self {
         let mut new = self;
         new.flush_interval_sec = Option::Some(Option::Some(value));
@@ -172,7 +165,6 @@ impl OptimizersConfigDiffBuilder {
     ///# Ok(())
     ///# }
     /// ```
-    #[allow(unused_mut)]
     pub fn max_optimization_threads<VALUE: Into<MaxOptimizationThreads>>(
         self,
         value: VALUE,

@@ -7,13 +7,11 @@ pub struct ReplicaBuilder {
 }
 
 impl ReplicaBuilder {
-    #[allow(unused_mut)]
     pub fn shard_id(self, value: u32) -> Self {
         let mut new = self;
         new.shard_id = Option::Some(value);
         new
     }
-    #[allow(unused_mut)]
     pub fn peer_id(self, value: u64) -> Self {
         let mut new = self;
         new.peer_id = Option::Some(value);

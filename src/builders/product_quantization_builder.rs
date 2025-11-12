@@ -10,14 +10,12 @@ pub struct ProductQuantizationBuilder {
 
 impl ProductQuantizationBuilder {
     /// Compression ratio
-    #[allow(unused_mut)]
     pub fn compression(self, value: i32) -> Self {
         let mut new = self;
         new.compression = Option::Some(value);
         new
     }
     /// If true - quantized vectors always will be stored in RAM, ignoring the config of main storage
-    #[allow(unused_mut)]
     pub fn always_ram(self, value: bool) -> Self {
         let mut new = self;
         new.always_ram = Option::Some(Option::Some(value));

@@ -25,35 +25,30 @@ pub struct ScrollPointsBuilder {
 }
 
 impl ScrollPointsBuilder {
-    #[allow(unused_mut)]
     pub fn collection_name(self, value: String) -> Self {
         let mut new = self;
         new.collection_name = Option::Some(value);
         new
     }
     /// Filter conditions - return only those points that satisfy the specified conditions
-    #[allow(unused_mut)]
     pub fn filter<VALUE: core::convert::Into<Filter>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.filter = Option::Some(Option::Some(value.into()));
         new
     }
     /// Start with this ID
-    #[allow(unused_mut)]
     pub fn offset<VALUE: core::convert::Into<PointId>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.offset = Option::Some(Option::Some(value.into()));
         new
     }
     /// Max number of result
-    #[allow(unused_mut)]
     pub fn limit(self, value: u32) -> Self {
         let mut new = self;
         new.limit = Option::Some(Option::Some(value));
         new
     }
     /// Options for specifying which payload to include or not
-    #[allow(unused_mut)]
     pub fn with_payload<VALUE: core::convert::Into<with_payload_selector::SelectorOptions>>(
         self,
         value: VALUE,
@@ -63,7 +58,6 @@ impl ScrollPointsBuilder {
         new
     }
     /// Options for specifying which vectors to include into response
-    #[allow(unused_mut)]
     pub fn with_vectors<VALUE: core::convert::Into<with_vectors_selector::SelectorOptions>>(
         self,
         value: VALUE,
@@ -73,7 +67,6 @@ impl ScrollPointsBuilder {
         new
     }
     /// Options for specifying read consistency guarantees
-    #[allow(unused_mut)]
     pub fn read_consistency<VALUE: core::convert::Into<read_consistency::Value>>(
         self,
         value: VALUE,
@@ -83,7 +76,6 @@ impl ScrollPointsBuilder {
         new
     }
     /// Specify in which shards to look for the points, if not specified - look in all shards
-    #[allow(unused_mut)]
     pub fn shard_key_selector<VALUE: core::convert::Into<ShardKeySelector>>(
         self,
         value: VALUE,
@@ -93,14 +85,12 @@ impl ScrollPointsBuilder {
         new
     }
     /// Order the records by a payload field
-    #[allow(unused_mut)]
     pub fn order_by<VALUE: core::convert::Into<OrderBy>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.order_by = Option::Some(Option::Some(value.into()));
         new
     }
     /// If set, overrides global timeout setting for this request. Unit is seconds.
-    #[allow(unused_mut)]
     pub fn timeout(self, value: u64) -> Self {
         let mut new = self;
         new.timeout = Option::Some(Option::Some(value));

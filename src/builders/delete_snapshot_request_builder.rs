@@ -10,14 +10,12 @@ pub struct DeleteSnapshotRequestBuilder {
 
 impl DeleteSnapshotRequestBuilder {
     /// Name of the collection
-    #[allow(unused_mut)]
     pub fn collection_name(self, value: String) -> Self {
         let mut new = self;
         new.collection_name = Option::Some(value);
         new
     }
     /// Name of the collection snapshot
-    #[allow(unused_mut)]
     pub fn snapshot_name(self, value: String) -> Self {
         let mut new = self;
         new.snapshot_name = Option::Some(value);

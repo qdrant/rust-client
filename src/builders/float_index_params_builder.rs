@@ -20,14 +20,12 @@ impl FloatIndexParamsBuilder {
     }
 
     /// If true - store index on disk.
-    #[allow(unused_mut)]
     pub fn on_disk(self, value: bool) -> Self {
         let mut new = self;
         new.on_disk = Option::Some(Option::Some(value));
         new
     }
     /// If true - use this key to organize storage of the collection data. This option assumes that this key will be used in majority of filtered requests.
-    #[allow(unused_mut)]
     pub fn is_principal(self, value: bool) -> Self {
         let mut new = self;
         new.is_principal = Option::Some(Option::Some(value));

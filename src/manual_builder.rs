@@ -52,6 +52,7 @@ pub mod points_update_operation {
             Ok(PointStructList {
                 points: builder.points,
                 shard_key_selector: builder.shard_key_selector,
+                update_filter: None,
             })
         }
     }
@@ -248,6 +249,7 @@ pub mod points_update_operation {
             Ok(UpdateVectors {
                 points: builder.points,
                 shard_key_selector: builder.shard_key_selector,
+                update_filter: None,
             })
         }
     }

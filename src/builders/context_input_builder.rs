@@ -8,7 +8,6 @@ pub struct ContextInputBuilder {
 
 impl ContextInputBuilder {
     /// Search space will be constrained by these pairs of vectors
-    #[allow(unused_mut)]
     pub fn pairs<VALUE: core::convert::Into<Vec<ContextInputPair>>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.pairs = Option::Some(value.into());

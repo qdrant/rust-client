@@ -13,14 +13,12 @@ pub struct VectorParamsDiffBuilder {
 
 impl VectorParamsDiffBuilder {
     /// Update params for HNSW index. If empty object - it will be unset
-    #[allow(unused_mut)]
     pub fn hnsw_config<VALUE: core::convert::Into<HnswConfigDiff>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.hnsw_config = Option::Some(Option::Some(value.into()));
         new
     }
     /// Update quantization params. If none - it is left unchanged.
-    #[allow(unused_mut)]
     pub fn quantization_config<
         VALUE: core::convert::Into<quantization_config_diff::Quantization>,
     >(
@@ -32,7 +30,6 @@ impl VectorParamsDiffBuilder {
         new
     }
     /// If true - serve vectors from disk. If set to false, the vectors will be loaded in RAM.
-    #[allow(unused_mut)]
     pub fn on_disk(self, value: bool) -> Self {
         let mut new = self;
         new.on_disk = Option::Some(Option::Some(value));

@@ -12,45 +12,48 @@ pub struct UpdatePointVectorsBuilder {
     pub(crate) ordering: Option<Option<WriteOrdering>>,
     /// Option for custom sharding to specify used shard keys
     pub(crate) shard_key_selector: Option<Option<ShardKeySelector>>,
+    /// Optional filter to apply to the update operation. If set, only points matching the filter will be updated.
+    pub(crate) update_filter: Option<Option<Filter>>,
 }
 
 impl UpdatePointVectorsBuilder {
     /// name of the collection
-    #[allow(unused_mut)]
     pub fn collection_name(self, value: String) -> Self {
         let mut new = self;
         new.collection_name = Option::Some(value);
         new
     }
     /// Wait until the changes have been applied?
-    #[allow(unused_mut)]
     pub fn wait(self, value: bool) -> Self {
         let mut new = self;
         new.wait = Option::Some(Option::Some(value));
         new
     }
     /// List of points and vectors to update
-    #[allow(unused_mut)]
     pub fn points(self, value: Vec<PointVectors>) -> Self {
         let mut new = self;
         new.points = Option::Some(value);
         new
     }
     /// Write ordering guarantees
-    #[allow(unused_mut)]
     pub fn ordering<VALUE: core::convert::Into<WriteOrdering>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.ordering = Option::Some(Option::Some(value.into()));
         new
     }
     /// Option for custom sharding to specify used shard keys
-    #[allow(unused_mut)]
     pub fn shard_key_selector<VALUE: core::convert::Into<ShardKeySelector>>(
         self,
         value: VALUE,
     ) -> Self {
         let mut new = self;
         new.shard_key_selector = Option::Some(Option::Some(value.into()));
+        new
+    }
+    /// Optional filter to apply to the update operation. If set, only points matching the filter will be updated.
+    pub fn update_filter<VALUE: core::convert::Into<Filter>>(self, value: VALUE) -> Self {
+        let mut new = self;
+        new.update_filter = Option::Some(Option::Some(value.into()));
         new
     }
 
@@ -75,6 +78,7 @@ impl UpdatePointVectorsBuilder {
             },
             ordering: self.ordering.unwrap_or_default(),
             shard_key_selector: self.shard_key_selector.unwrap_or_default(),
+            update_filter: self.update_filter.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -85,6 +89,7 @@ impl UpdatePointVectorsBuilder {
             points: core::default::Default::default(),
             ordering: core::default::Default::default(),
             shard_key_selector: core::default::Default::default(),
+            update_filter: core::default::Default::default(),
         }
     }
 }

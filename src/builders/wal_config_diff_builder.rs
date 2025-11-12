@@ -6,21 +6,27 @@ pub struct WalConfigDiffBuilder {
     pub(crate) wal_capacity_mb: Option<Option<u64>>,
     /// Number of segments to create in advance
     pub(crate) wal_segments_ahead: Option<Option<u64>>,
+    /// Number of closed segments to retain
+    pub(crate) wal_retain_closed: Option<Option<u64>>,
 }
 
 impl WalConfigDiffBuilder {
     /// Size of a single WAL block file
-    #[allow(unused_mut)]
     pub fn wal_capacity_mb(self, value: u64) -> Self {
         let mut new = self;
         new.wal_capacity_mb = Option::Some(Option::Some(value));
         new
     }
     /// Number of segments to create in advance
-    #[allow(unused_mut)]
     pub fn wal_segments_ahead(self, value: u64) -> Self {
         let mut new = self;
         new.wal_segments_ahead = Option::Some(Option::Some(value));
+        new
+    }
+    /// Number of closed segments to retain
+    pub fn wal_retain_closed(self, value: u64) -> Self {
+        let mut new = self;
+        new.wal_retain_closed = Option::Some(Option::Some(value));
         new
     }
 
@@ -28,6 +34,7 @@ impl WalConfigDiffBuilder {
         Ok(WalConfigDiff {
             wal_capacity_mb: self.wal_capacity_mb.unwrap_or_default(),
             wal_segments_ahead: self.wal_segments_ahead.unwrap_or_default(),
+            wal_retain_closed: self.wal_retain_closed.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -35,6 +42,7 @@ impl WalConfigDiffBuilder {
         Self {
             wal_capacity_mb: core::default::Default::default(),
             wal_segments_ahead: core::default::Default::default(),
+            wal_retain_closed: core::default::Default::default(),
         }
     }
 }

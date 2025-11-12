@@ -141,6 +141,7 @@ impl QdrantClient {
                         vectors_config: vectors_config.cloned(),
                         quantization_config: quantization_config.cloned(),
                         strict_mode_config: None,
+                        metadata: Default::default(),
                     })
                     .await?;
 
@@ -362,6 +363,7 @@ impl QdrantClient {
                             shards_number,
                             replication_factor,
                             placement: placement.to_vec(),
+                            initial_state: None,
                         }),
                         timeout: None,
                     })

@@ -18,7 +18,6 @@ impl SparseIndexConfigBuilder {
     ///
     /// Prefer a full scan search upto (excluding) this number of vectors.
     /// Note: this is number of vectors, not KiloBytes.
-    #[allow(unused_mut)]
     pub fn full_scan_threshold<VALUE: core::convert::Into<u64>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.full_scan_threshold = Option::Some(Option::Some(value.into()));
@@ -26,7 +25,6 @@ impl SparseIndexConfigBuilder {
     }
     ///
     /// Store inverted index on disk. If set to false, the index will be stored in RAM.
-    #[allow(unused_mut)]
     pub fn on_disk(self, value: bool) -> Self {
         let mut new = self;
         new.on_disk = Option::Some(Option::Some(value));
@@ -34,7 +32,6 @@ impl SparseIndexConfigBuilder {
     }
     ///
     /// Datatype used to store weights in the index.
-    #[allow(unused_mut)]
     pub fn datatype<VALUE: core::convert::Into<i32>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.datatype = Option::Some(Option::Some(value.into()));

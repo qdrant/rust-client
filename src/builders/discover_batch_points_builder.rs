@@ -14,20 +14,17 @@ pub struct DiscoverBatchPointsBuilder {
 
 impl DiscoverBatchPointsBuilder {
     /// Name of the collection
-    #[allow(unused_mut)]
     pub fn collection_name(self, value: String) -> Self {
         let mut new = self;
         new.collection_name = Option::Some(value);
         new
     }
-    #[allow(unused_mut)]
     pub fn discover_points(self, value: Vec<DiscoverPoints>) -> Self {
         let mut new = self;
         new.discover_points = Option::Some(value);
         new
     }
     /// Options for specifying read consistency guarantees
-    #[allow(unused_mut)]
     pub fn read_consistency<VALUE: core::convert::Into<read_consistency::Value>>(
         self,
         value: VALUE,
@@ -37,7 +34,6 @@ impl DiscoverBatchPointsBuilder {
         new
     }
     /// If set, overrides global timeout setting for this request. Unit is seconds.
-    #[allow(unused_mut)]
     pub fn timeout(self, value: u64) -> Self {
         let mut new = self;
         new.timeout = Option::Some(Option::Some(value));

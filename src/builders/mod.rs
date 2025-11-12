@@ -106,6 +106,8 @@ pub use create_shard_key_request_builder::CreateShardKeyRequestBuilder;
 mod delete_shard_key_request_builder;
 pub use delete_shard_key_request_builder::DeleteShardKeyRequestBuilder;
 
+mod shard_key_selector_builder;
+
 mod upsert_points_builder;
 pub use upsert_points_builder::UpsertPointsBuilder;
 
@@ -138,6 +140,8 @@ pub use delete_field_index_collection_builder::DeleteFieldIndexCollectionBuilder
 
 mod quantization_search_params_builder;
 pub use quantization_search_params_builder::QuantizationSearchParamsBuilder;
+
+mod acorn_search_params_builder;
 
 mod search_params_builder;
 pub use search_params_builder::SearchParamsBuilder;
@@ -246,3 +250,6 @@ pub use image_builder::ImageBuilder;
 
 mod mmr_builder;
 pub use mmr_builder::MmrBuilder;
+
+mod rrf_builder;
+pub use rrf_builder::RrfBuilder;

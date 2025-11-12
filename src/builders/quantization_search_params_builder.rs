@@ -22,7 +22,6 @@ pub struct QuantizationSearchParamsBuilder {
 impl QuantizationSearchParamsBuilder {
     ///
     /// If set to true, search will ignore quantized vector data
-    #[allow(unused_mut)]
     pub fn ignore(self, value: bool) -> Self {
         let mut new = self;
         new.ignore = Option::Some(Option::Some(value));
@@ -30,7 +29,6 @@ impl QuantizationSearchParamsBuilder {
     }
     ///
     /// If true, use original vectors to re-score top-k results. If ignored, qdrant decides automatically does rescore enabled or not.
-    #[allow(unused_mut)]
     pub fn rescore(self, value: bool) -> Self {
         let mut new = self;
         new.rescore = Option::Some(Option::Some(value));
@@ -44,7 +42,6 @@ impl QuantizationSearchParamsBuilder {
     ///
     /// For example, if `oversampling` is 2.4 and `limit` is 100, then 240 vectors will be pre-selected using quantized index,
     /// and then top-100 will be returned after re-scoring.
-    #[allow(unused_mut)]
     pub fn oversampling(self, value: f64) -> Self {
         let mut new = self;
         new.oversampling = Option::Some(Option::Some(value));

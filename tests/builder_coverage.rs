@@ -1,21 +1,22 @@
 use std::collections::HashMap;
 
 use qdrant_client::qdrant::{
-    AbortShardTransferBuilder, BinaryQuantizationBuilder, ClearPayloadPointsBuilder,
-    ContextInputBuilder, ContextInputPairBuilder, CountPointsBuilder, CreateAliasBuilder,
-    CreateFieldIndexCollectionBuilder, CreateShardKeyRequestBuilder, DeleteCollectionBuilder,
-    DeleteFieldIndexCollectionBuilder, DeletePayloadPointsBuilder, DeletePointVectorsBuilder,
-    DeletePointsBuilder, DeleteShardKeyRequestBuilder, DeleteSnapshotRequestBuilder,
-    DiscoverBatchPointsBuilder, DiscoverInputBuilder, DiscoverPointsBuilder, Distance,
-    FacetCountsBuilder, FieldType, GetPointsBuilder, LookupLocationBuilder, MoveShardBuilder,
-    MultiVectorComparator, MultiVectorConfigBuilder, OrderByBuilder, ProductQuantizationBuilder,
-    QueryBatchPointsBuilder, QueryPointGroupsBuilder, QueryPointsBuilder,
-    RecommendBatchPointsBuilder, RecommendPointGroupsBuilder, RecommendPointsBuilder,
-    RenameAliasBuilder, ReplicaBuilder, ReplicateShardBuilder, ScrollPointsBuilder,
-    SearchBatchPointsBuilder, SearchMatrixPointsBuilder, SearchPointGroupsBuilder,
-    SearchPointsBuilder, SetPayloadPointsBuilder, TextIndexParamsBuilder, TokenizerType,
-    UpdateBatchPointsBuilder, UpdateCollectionBuilder, UpdateCollectionClusterSetupRequestBuilder,
-    UpdatePointVectorsBuilder, UpsertPointsBuilder, VectorParamsBuilder, WithLookupBuilder,
+    AbortShardTransferBuilder, AcornSearchParams, BinaryQuantizationBuilder,
+    ClearPayloadPointsBuilder, ContextInputBuilder, ContextInputPairBuilder, CountPointsBuilder,
+    CreateAliasBuilder, CreateFieldIndexCollectionBuilder, CreateShardKeyRequestBuilder,
+    DeleteCollectionBuilder, DeleteFieldIndexCollectionBuilder, DeletePayloadPointsBuilder,
+    DeletePointVectorsBuilder, DeletePointsBuilder, DeleteShardKeyRequestBuilder,
+    DeleteSnapshotRequestBuilder, DiscoverBatchPointsBuilder, DiscoverInputBuilder,
+    DiscoverPointsBuilder, Distance, FacetCountsBuilder, FieldType, GetPointsBuilder,
+    LookupLocationBuilder, MoveShardBuilder, MultiVectorComparator, MultiVectorConfigBuilder,
+    OrderByBuilder, ProductQuantizationBuilder, QueryBatchPointsBuilder, QueryPointGroupsBuilder,
+    QueryPointsBuilder, RecommendBatchPointsBuilder, RecommendPointGroupsBuilder,
+    RecommendPointsBuilder, RenameAliasBuilder, ReplicaBuilder, ReplicateShardBuilder, RrfBuilder,
+    ScrollPointsBuilder, SearchBatchPointsBuilder, SearchMatrixPointsBuilder,
+    SearchPointGroupsBuilder, SearchPointsBuilder, SetPayloadPointsBuilder, ShardKey,
+    ShardKeySelector, TextIndexParamsBuilder, TokenizerType, UpdateBatchPointsBuilder,
+    UpdateCollectionBuilder, UpdateCollectionClusterSetupRequestBuilder, UpdatePointVectorsBuilder,
+    UpsertPointsBuilder, VectorParamsBuilder, WithLookupBuilder,
 };
 
 /// TLDR; Ensures new fields introduced in protobuf updates won't cause a panic at runtime due to missing derive_builder attributes.
@@ -83,4 +84,13 @@ fn builder_coverage() {
     QueryPointGroupsBuilder::new("", "").build();
     FacetCountsBuilder::new("", "").build();
     SearchMatrixPointsBuilder::new("").build();
+
+    // New parameter constructors
+    ShardKeySelector::new(vec![ShardKey::from("key1".to_string())]);
+    ShardKeySelector::new(vec![ShardKey::from("key1".to_string())])
+        .with_fallback(ShardKey::from("fallback".to_string()));
+    AcornSearchParams::new(true);
+    AcornSearchParams::new(true).with_max_selectivity(0.5);
+    RrfBuilder::new().build();
+    RrfBuilder::with_k(100).build();
 }

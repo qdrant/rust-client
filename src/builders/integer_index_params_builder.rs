@@ -18,28 +18,24 @@ impl IntegerIndexParamsBuilder {
     }
 
     /// If true - support direct lookups.
-    #[allow(unused_mut)]
     pub fn lookup<VALUE: core::convert::Into<bool>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.lookup = Option::Some(Option::Some(value.into()));
         new
     }
     /// If true - support ranges filters.
-    #[allow(unused_mut)]
     pub fn range<VALUE: core::convert::Into<bool>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.range = Option::Some(Option::Some(value.into()));
         new
     }
     /// If true - use this key to organize storage of the collection data. This option assumes that this key will be used in majority of filtered requests.
-    #[allow(unused_mut)]
     pub fn is_principal(self, value: bool) -> Self {
         let mut new = self;
         new.is_principal = Option::Some(Option::Some(value));
         new
     }
     /// If true - store index on disk.
-    #[allow(unused_mut)]
     pub fn on_disk(self, value: bool) -> Self {
         let mut new = self;
         new.on_disk = Option::Some(Option::Some(value));
