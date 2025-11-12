@@ -1,16 +1,21 @@
 use std::future::Future;
-use std::sync::RwLock;
+use std::sync::atomic::AtomicUsize;
 use std::time::Duration;
 
+use parking_lot::RwLock;
 use tonic::transport::{Channel, ClientTlsConfig, Uri};
 use tonic::{Code, Status};
 
 pub struct ChannelPool {
-    channel: RwLock<Option<Channel>>,
+    channels: RwLock<Vec<Option<Channel>>>,
+    /// Counts how many times channels are used
+    /// Used for selecting the next channel in a round-robin way.
+    counter: AtomicUsize,
     uri: Uri,
     grpc_timeout: Duration,
     connection_timeout: Duration,
     keep_alive_while_idle: bool,
+    pool_size: usize,
 }
 
 impl ChannelPool {
@@ -19,17 +24,24 @@ impl ChannelPool {
         grpc_timeout: Duration,
         connection_timeout: Duration,
         keep_alive_while_idle: bool,
+        mut pool_size: usize,
     ) -> Self {
+        // Ensure `pool_size` is always >= 1
+        pool_size = std::cmp::max(pool_size, 1);
+
         Self {
-            channel: RwLock::new(None),
+            channels: RwLock::new(vec![None; pool_size]),
+            counter: AtomicUsize::new(0),
             uri,
             grpc_timeout,
             connection_timeout,
             keep_alive_while_idle,
+            pool_size,
         }
     }
 
-    async fn make_channel(&self) -> Result<Channel, Status> {
+    /// Creates a new channel at the given index. If one already exists, it will be dropped and replaced.
+    async fn make_channel(&self, channel_index: usize) -> Result<Channel, Status> {
         let tls = match self.uri.scheme_str() {
             None => false,
             Some(schema) => match schema {
@@ -62,29 +74,37 @@ impl ChannelPool {
             endpoint
         };
 
-        let channel = endpoint
+        let new_channel = endpoint
             .connect()
             .await
             .map_err(|e| Status::internal(format!("Failed to connect to {}: {:?}", self.uri, e)))?;
-        let mut self_channel = self.channel.write().unwrap();
 
-        *self_channel = Some(channel.clone());
-
-        Ok(channel)
+        let mut pool_channels = self.channels.write();
+        pool_channels[channel_index] = Some(new_channel.clone());
+        Ok(new_channel)
     }
 
-    async fn get_channel(&self) -> Result<Channel, Status> {
-        if let Some(channel) = &*self.channel.read().unwrap() {
-            return Ok(channel.clone());
+    /// Returns a channel from the pool. If `pool_size` > 1, calls will return different channels in a round-robin way.
+    /// Otherwise, the same channel is returned each time.
+    async fn get_channel(&self) -> Result<(Channel, usize), Status> {
+        let channel_index = self.next_channel_index();
+
+        if let Some(channel) = self
+            .channels
+            .read()
+            .get(channel_index)
+            .and_then(|i| i.as_ref())
+        {
+            return Ok((channel.clone(), channel_index));
         }
 
-        let channel = self.make_channel().await?;
-        Ok(channel)
+        Ok((self.make_channel(channel_index).await?, channel_index))
     }
 
-    pub async fn drop_channel(&self) {
-        let mut channel = self.channel.write().unwrap();
-        *channel = None;
+    /// Drops the channel at the given index.
+    fn drop_channel(&self, idx: usize) {
+        let mut channel = self.channels.write();
+        channel[idx] = None;
     }
 
     // Allow to retry request if channel is broken
@@ -93,7 +113,7 @@ impl ChannelPool {
         f: impl Fn(Channel) -> O,
         allow_retry: bool,
     ) -> Result<T, Status> {
-        let channel = self.get_channel().await?;
+        let (channel, channel_index) = self.get_channel().await?;
 
         let result: Result<T, Status> = f(channel).await;
 
@@ -102,16 +122,36 @@ impl ChannelPool {
             Ok(res) => Ok(res),
             Err(err) => match err.code() {
                 Code::Internal | Code::Unavailable | Code::Cancelled | Code::Unknown => {
-                    self.drop_channel().await;
                     if allow_retry {
-                        let channel = self.get_channel().await?;
+                        // Recreate the channel at the same index when reconnecting.
+                        let channel = self.make_channel(channel_index).await?;
                         Ok(f(channel).await?)
                     } else {
+                        // If retries aren't allowed, delete the channel so it will be recreated
+                        // the next time it's used.
+                        self.drop_channel(channel_index);
                         Err(err)
                     }
                 }
                 _ => Err(err)?,
             },
+        }
+    }
+
+    /// Returns `true` if multiple connections being used.
+    #[inline]
+    fn is_connection_pooling_enabled(&self) -> bool {
+        self.pool_size > 1
+    }
+
+    /// Returns the index for the next channel to use.
+    fn next_channel_index(&self) -> usize {
+        if self.is_connection_pooling_enabled() {
+            self.counter
+                .fetch_add(1, std::sync::atomic::Ordering::Relaxed)
+                % self.pool_size
+        } else {
+            0
         }
     }
 }
@@ -127,9 +167,36 @@ fn require_get_channel_fn_to_be_send() {
             Duration::from_millis(0),
             Duration::from_millis(0),
             false,
+            2,
         )
         .get_channel()
         .await
         .expect("get channel should not error");
     });
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_channel_counter() {
+        let channel = ChannelPool::new(
+            Uri::from_static("http://localhost:6444"),
+            Duration::default(),
+            Duration::default(),
+            false,
+            5,
+        );
+
+        assert_eq!(channel.next_channel_index(), 0);
+        assert_eq!(channel.next_channel_index(), 1);
+        assert_eq!(channel.next_channel_index(), 2);
+        assert_eq!(channel.next_channel_index(), 3);
+        assert_eq!(channel.next_channel_index(), 4);
+        assert_eq!(channel.next_channel_index(), 0);
+        assert_eq!(channel.next_channel_index(), 1);
+
+        assert_eq!(channel.channels.read().len(), 5);
+    }
 }

@@ -38,6 +38,10 @@ pub struct QdrantConfig {
 
     /// Whether to check compatibility between the client and server versions
     pub check_compatibility: bool,
+
+    /// Amount of concurrent connections.
+    /// If set to 0 or 1, connection pools will be disabled.
+    pub pool_size: usize,
 }
 
 impl QdrantConfig {
@@ -178,6 +182,12 @@ impl QdrantConfig {
         self.check_compatibility = false;
         self
     }
+
+    /// Set the pool size of concurrent connections.
+    /// If set to 0 or 1, connection pools will be disabled.
+    pub fn set_pool_size(&mut self, pool_size: usize) {
+        self.pool_size = pool_size;
+    }
 }
 
 /// Default Qdrant client configuration.
@@ -193,6 +203,7 @@ impl Default for QdrantConfig {
             api_key: None,
             compression: None,
             check_compatibility: true,
+            pool_size: 3,
         }
     }
 }
