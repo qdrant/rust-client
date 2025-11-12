@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use crate::grpc_conversions::metadata::MetadataWrapper;
 use crate::grpc_macros::convert_option;
 use crate::qdrant::*;
 
@@ -137,9 +138,9 @@ impl CreateCollectionBuilder {
         new
     }
     /// Arbitrary JSON metadata for the collection
-    pub fn metadata(self, value: impl Into<HashMap<String, Value>>) -> Self {
+    pub fn metadata(self, value: impl Into<MetadataWrapper>) -> Self {
         let mut new = self;
-        new.metadata = Option::Some(value.into());
+        new.metadata = Option::Some(value.into().0);
         new
     }
 
