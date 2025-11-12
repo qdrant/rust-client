@@ -7,13 +7,11 @@ pub struct ContextExamplePairBuilder {
 }
 
 impl ContextExamplePairBuilder {
-    #[allow(unused_mut)]
     pub fn positive<VALUE: core::convert::Into<VectorExample>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.positive = Option::Some(Option::Some(value.into()));
         new
     }
-    #[allow(unused_mut)]
     pub fn negative<VALUE: core::convert::Into<VectorExample>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.negative = Option::Some(Option::Some(value.into()));

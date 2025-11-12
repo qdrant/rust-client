@@ -19,21 +19,18 @@ pub struct DeletePointVectorsBuilder {
 
 impl DeletePointVectorsBuilder {
     /// name of the collection
-    #[allow(unused_mut)]
     pub fn collection_name(self, value: String) -> Self {
         let mut new = self;
         new.collection_name = Option::Some(value);
         new
     }
     /// Wait until the changes have been applied?
-    #[allow(unused_mut)]
     pub fn wait(self, value: bool) -> Self {
         let mut new = self;
         new.wait = Option::Some(Option::Some(value));
         new
     }
     /// Affected points
-    #[allow(unused_mut)]
     pub fn points_selector<VALUE: core::convert::Into<points_selector::PointsSelectorOneOf>>(
         self,
         value: VALUE,
@@ -43,21 +40,18 @@ impl DeletePointVectorsBuilder {
         new
     }
     /// List of vector names to delete
-    #[allow(unused_mut)]
     pub fn vectors<VALUE: core::convert::Into<VectorsSelector>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.vectors = Option::Some(Option::Some(value.into()));
         new
     }
     /// Write ordering guarantees
-    #[allow(unused_mut)]
     pub fn ordering<VALUE: core::convert::Into<WriteOrdering>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.ordering = Option::Some(Option::Some(value.into()));
         new
     }
     /// Option for custom sharding to specify used shard keys
-    #[allow(unused_mut)]
     pub fn shard_key_selector<VALUE: core::convert::Into<ShardKeySelector>>(
         self,
         value: VALUE,

@@ -26,13 +26,18 @@ pub struct HnswConfigDiffBuilder {
     ///
     /// Number of additional payload-aware links per node in the index graph. If not set - regular M parameter will be used.
     pub(crate) payload_m: Option<Option<u64>>,
+    ///
+    /// Store copies of original and quantized vectors within the HNSW index file. Default: false.
+    /// Enabling this option will trade the search speed for disk usage by reducing amount of
+    /// random seeks during the search.
+    /// Requires quantized vectors to be enabled. Multi-vectors are not supported.
+    pub(crate) inline_storage: Option<Option<bool>>,
 }
 #[allow(clippy::all)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 impl HnswConfigDiffBuilder {
     ///
     /// Number of edges per node in the index graph. Larger the value - more accurate the search, more space required.
-    #[allow(unused_mut)]
     pub fn m(self, value: u64) -> Self {
         let mut new = self;
         new.m = Option::Some(Option::Some(value));
@@ -40,7 +45,6 @@ impl HnswConfigDiffBuilder {
     }
     ///
     /// Number of neighbours to consider during the index building. Larger the value - more accurate the search, more time required to build the index.
-    #[allow(unused_mut)]
     pub fn ef_construct(self, value: u64) -> Self {
         let mut new = self;
         new.ef_construct = Option::Some(Option::Some(value));
@@ -51,7 +55,6 @@ impl HnswConfigDiffBuilder {
     /// If the payload chunk is smaller than `full_scan_threshold` additional indexing won't be used -
     /// in this case full-scan search should be preferred by query planner and additional indexing is not required.
     /// Note: 1 Kb = 1 vector of size 256
-    #[allow(unused_mut)]
     pub fn full_scan_threshold(self, value: u64) -> Self {
         let mut new = self;
         new.full_scan_threshold = Option::Some(Option::Some(value));
@@ -62,7 +65,6 @@ impl HnswConfigDiffBuilder {
     /// If 0 - automatically select from 8 to 16.
     /// Best to keep between 8 and 16 to prevent likelihood of building broken/inefficient HNSW graphs.
     /// On small CPUs, less threads are used.
-    #[allow(unused_mut)]
     pub fn max_indexing_threads(self, value: u64) -> Self {
         let mut new = self;
         new.max_indexing_threads = Option::Some(Option::Some(value));
@@ -70,7 +72,6 @@ impl HnswConfigDiffBuilder {
     }
     ///
     /// Store HNSW index on disk. If set to false, the index will be stored in RAM.
-    #[allow(unused_mut)]
     pub fn on_disk(self, value: bool) -> Self {
         let mut new = self;
         new.on_disk = Option::Some(Option::Some(value));
@@ -78,10 +79,19 @@ impl HnswConfigDiffBuilder {
     }
     ///
     /// Number of additional payload-aware links per node in the index graph. If not set - regular M parameter will be used.
-    #[allow(unused_mut)]
     pub fn payload_m(self, value: u64) -> Self {
         let mut new = self;
         new.payload_m = Option::Some(Option::Some(value));
+        new
+    }
+    ///
+    /// Store copies of original and quantized vectors within the HNSW index file. Default: false.
+    /// Enabling this option will trade the search speed for disk usage by reducing amount of
+    /// random seeks during the search.
+    /// Requires quantized vectors to be enabled. Multi-vectors are not supported.
+    pub fn inline_storage(self, value: bool) -> Self {
+        let mut new = self;
+        new.inline_storage = Option::Some(Option::Some(value));
         new
     }
 
@@ -111,6 +121,10 @@ impl HnswConfigDiffBuilder {
                 Some(value) => value,
                 None => core::default::Default::default(),
             },
+            inline_storage: match self.inline_storage {
+                Some(value) => value,
+                None => core::default::Default::default(),
+            },
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -122,6 +136,7 @@ impl HnswConfigDiffBuilder {
             max_indexing_threads: core::default::Default::default(),
             on_disk: core::default::Default::default(),
             payload_m: core::default::Default::default(),
+            inline_storage: core::default::Default::default(),
         }
     }
 }

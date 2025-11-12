@@ -66,13 +66,17 @@ impl From<Vec<shard_key::Key>> for ShardKeySelector {
     fn from(shard_keys: Vec<shard_key::Key>) -> Self {
         ShardKeySelector {
             shard_keys: shard_keys.into_iter().map(ShardKey::from).collect(),
+            fallback: None,
         }
     }
 }
 
 impl From<Vec<ShardKey>> for ShardKeySelector {
     fn from(value: Vec<ShardKey>) -> Self {
-        Self { shard_keys: value }
+        Self {
+            shard_keys: value,
+            fallback: None,
+        }
     }
 }
 

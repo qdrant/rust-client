@@ -47,28 +47,24 @@ pub struct RecommendPointGroupsBuilder {
 
 impl RecommendPointGroupsBuilder {
     /// Name of the collection
-    #[allow(unused_mut)]
     pub fn collection_name(self, value: String) -> Self {
         let mut new = self;
         new.collection_name = Option::Some(value);
         new
     }
     /// Filter conditions - return only those points that satisfy the specified conditions
-    #[allow(unused_mut)]
     pub fn filter<VALUE: core::convert::Into<Filter>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.filter = Option::Some(Option::Some(value.into()));
         new
     }
     /// Max number of groups in result
-    #[allow(unused_mut)]
     pub fn limit(self, value: u32) -> Self {
         let mut new = self;
         new.limit = Option::Some(value);
         new
     }
     /// Options for specifying which payload to include or not
-    #[allow(unused_mut)]
     pub fn with_payload<VALUE: core::convert::Into<with_payload_selector::SelectorOptions>>(
         self,
         value: VALUE,
@@ -78,28 +74,24 @@ impl RecommendPointGroupsBuilder {
         new
     }
     /// Search config
-    #[allow(unused_mut)]
     pub fn params<VALUE: core::convert::Into<SearchParams>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.params = Option::Some(Option::Some(value.into()));
         new
     }
     /// If provided - cut off results with worse scores
-    #[allow(unused_mut)]
     pub fn score_threshold(self, value: f32) -> Self {
         let mut new = self;
         new.score_threshold = Option::Some(Option::Some(value));
         new
     }
     /// Define which vector to use for recommendation, if not specified - default vector
-    #[allow(unused_mut)]
     pub fn using<VALUE: core::convert::Into<String>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.using = Option::Some(Option::Some(value.into()));
         new
     }
     /// Options for specifying which vectors to include into response
-    #[allow(unused_mut)]
     pub fn with_vectors<VALUE: core::convert::Into<with_vectors_selector::SelectorOptions>>(
         self,
         value: VALUE,
@@ -109,28 +101,24 @@ impl RecommendPointGroupsBuilder {
         new
     }
     /// Name of the collection to use for points lookup, if not specified - use current collection
-    #[allow(unused_mut)]
     pub fn lookup_from<VALUE: core::convert::Into<LookupLocation>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.lookup_from = Option::Some(Option::Some(value.into()));
         new
     }
     /// Payload field to group by, must be a string or number field. If there are multiple values for the field, all of them will be used. One point can be in multiple groups.
-    #[allow(unused_mut)]
     pub fn group_by(self, value: String) -> Self {
         let mut new = self;
         new.group_by = Option::Some(value);
         new
     }
     /// Maximum amount of points to return per group
-    #[allow(unused_mut)]
     pub fn group_size(self, value: u32) -> Self {
         let mut new = self;
         new.group_size = Option::Some(value);
         new
     }
     /// Options for specifying read consistency guarantees
-    #[allow(unused_mut)]
     pub fn read_consistency<VALUE: core::convert::Into<read_consistency::Value>>(
         self,
         value: VALUE,
@@ -140,28 +128,24 @@ impl RecommendPointGroupsBuilder {
         new
     }
     /// Options for specifying how to use the group id to lookup points in another collection
-    #[allow(unused_mut)]
     pub fn with_lookup<VALUE: core::convert::Into<WithLookup>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.with_lookup = Option::Some(Option::Some(value.into()));
         new
     }
     /// How to use the example vectors to find the results
-    #[allow(unused_mut)]
     pub fn strategy<VALUE: core::convert::Into<i32>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.strategy = Option::Some(Option::Some(value.into()));
         new
     }
     /// If set, overrides global timeout setting for this request. Unit is seconds.
-    #[allow(unused_mut)]
     pub fn timeout(self, value: u64) -> Self {
         let mut new = self;
         new.timeout = Option::Some(Option::Some(value));
         new
     }
     /// Specify in which shards to look for the points, if not specified - look in all shards
-    #[allow(unused_mut)]
     pub fn shard_key_selector<VALUE: core::convert::Into<ShardKeySelector>>(
         self,
         value: VALUE,

@@ -12,21 +12,18 @@ pub struct ScalarQuantizationBuilder {
 
 impl ScalarQuantizationBuilder {
     /// Type of quantization
-    #[allow(unused_mut)]
     pub fn r#type(self, value: i32) -> Self {
         let mut new = self;
         new.r#type = Option::Some(value);
         new
     }
     /// Number of bits to use for quantization
-    #[allow(unused_mut)]
     pub fn quantile(self, value: f32) -> Self {
         let mut new = self;
         new.quantile = Option::Some(Option::Some(value));
         new
     }
     /// If true - quantized vectors always will be stored in RAM, ignoring the config of main storage
-    #[allow(unused_mut)]
     pub fn always_ram(self, value: bool) -> Self {
         let mut new = self;
         new.always_ram = Option::Some(Option::Some(value));

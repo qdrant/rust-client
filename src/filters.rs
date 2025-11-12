@@ -255,6 +255,24 @@ impl qdrant::Condition {
         }
     }
 
+    /// Create a [`Condition`] to match any of the given text tokens.
+    ///
+    /// # Examples:
+    /// ```
+    /// qdrant_client::qdrant::Condition::matches_text_any("tags", "rust python");
+    /// ```
+    pub fn matches_text_any(field: impl Into<String>, query: impl Into<String>) -> Self {
+        Self {
+            condition_one_of: Some(ConditionOneOf::Field(qdrant::FieldCondition {
+                key: field.into(),
+                r#match: Some(qdrant::Match {
+                    match_value: Some(MatchValue::TextAny(query.into())),
+                }),
+                ..Default::default()
+            })),
+        }
+    }
+
     /// Create a [`Condition`] that checks numeric fields against a range.
     ///
     /// # Examples:
@@ -468,6 +486,9 @@ impl std::ops::Not for MatchValue {
             }
             Self::Phrase(_) => {
                 panic!("cannot negate a MatchValue::Phrase, use within must_not clause instead")
+            }
+            Self::TextAny(_) => {
+                panic!("cannot negate a MatchValue::TextAny, use within must_not clause instead")
             }
         }
     }

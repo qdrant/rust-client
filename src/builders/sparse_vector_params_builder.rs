@@ -10,14 +10,12 @@ pub struct SparseVectorParamsBuilder {
 
 impl SparseVectorParamsBuilder {
     /// Configuration of sparse index
-    #[allow(unused_mut)]
     pub fn index<VALUE: core::convert::Into<SparseIndexConfig>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.index = Option::Some(Option::Some(value.into()));
         new
     }
     /// If set - apply modifier to the vector values
-    #[allow(unused_mut)]
     pub fn modifier<VALUE: core::convert::Into<i32>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.modifier = Option::Some(Option::Some(value.into()));

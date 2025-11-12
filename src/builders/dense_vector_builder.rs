@@ -12,7 +12,6 @@ impl DenseVectorBuilder {
         }
     }
 
-    #[allow(unused_mut)]
     pub fn values(mut self, values: impl Into<Vec<f32>>) -> Self {
         self.values = values.into();
         self

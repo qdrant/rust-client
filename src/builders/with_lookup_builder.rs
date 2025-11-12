@@ -13,14 +13,12 @@ pub struct WithLookupBuilder {
 
 impl WithLookupBuilder {
     /// Name of the collection to use for points lookup
-    #[allow(unused_mut)]
     pub fn collection(self, value: String) -> Self {
         let mut new = self;
         new.collection = Option::Some(value);
         new
     }
     /// Options for specifying which payload to include (or not)
-    #[allow(unused_mut)]
     pub fn with_payload<VALUE: core::convert::Into<with_payload_selector::SelectorOptions>>(
         self,
         value: VALUE,
@@ -30,7 +28,6 @@ impl WithLookupBuilder {
         new
     }
     /// Options for specifying which vectors to include (or not)
-    #[allow(unused_mut)]
     pub fn with_vectors<VALUE: core::convert::Into<with_vectors_selector::SelectorOptions>>(
         self,
         value: VALUE,

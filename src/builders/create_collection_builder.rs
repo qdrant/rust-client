@@ -23,8 +23,6 @@ pub struct CreateCollectionBuilder {
     pub(crate) replication_factor: Option<Option<u32>>,
     /// How many replicas should apply the operation for us to consider it successful, default = 1
     pub(crate) write_consistency_factor: Option<Option<u32>>,
-    /// Specify name of the other collection to copy data from
-    pub(crate) init_from_collection: Option<Option<String>>,
     /// Quantization configuration of vector
     quantization_config: Option<quantization_config::Quantization>,
     /// Sharding method
@@ -38,28 +36,24 @@ pub struct CreateCollectionBuilder {
 #[allow(clippy::derive_partial_eq_without_eq)]
 impl CreateCollectionBuilder {
     /// Name of the collection
-    #[allow(unused_mut)]
     pub fn collection_name<VALUE: Into<String>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.collection_name = Option::Some(value.into());
         new
     }
     /// Configuration of vector index
-    #[allow(unused_mut)]
     pub fn hnsw_config<VALUE: core::convert::Into<HnswConfigDiff>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.hnsw_config = Option::Some(Option::Some(value.into()));
         new
     }
     /// Configuration of the Write-Ahead-Log
-    #[allow(unused_mut)]
     pub fn wal_config<VALUE: core::convert::Into<WalConfigDiff>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.wal_config = Option::Some(Option::Some(value.into()));
         new
     }
     /// Configuration of the optimizers
-    #[allow(unused_mut)]
     pub fn optimizers_config<VALUE: core::convert::Into<OptimizersConfigDiff>>(
         self,
         value: VALUE,
@@ -69,56 +63,42 @@ impl CreateCollectionBuilder {
         new
     }
     /// Number of shards in the collection, default is 1 for standalone, otherwise equal to the number of nodes. Minimum is 1
-    #[allow(unused_mut)]
     pub fn shard_number(self, value: u32) -> Self {
         let mut new = self;
         new.shard_number = Option::Some(Option::Some(value));
         new
     }
     /// If true - point's payload will not be stored in memory
-    #[allow(unused_mut)]
     pub fn on_disk_payload(self, value: bool) -> Self {
         let mut new = self;
         new.on_disk_payload = Option::Some(Option::Some(value));
         new
     }
     /// Wait timeout for operation commit in seconds, if not specified - default value will be supplied
-    #[allow(unused_mut)]
     pub fn timeout(self, value: u64) -> Self {
         let mut new = self;
         new.timeout = Option::Some(Option::Some(value));
         new
     }
     /// Configuration for vectors
-    #[allow(unused_mut)]
     pub fn vectors_config<VALUE: core::convert::Into<VectorsConfig>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.vectors_config = Option::Some(Option::Some(value.into()));
         new
     }
     /// Number of replicas of each shard that network tries to maintain, default = 1
-    #[allow(unused_mut)]
     pub fn replication_factor(self, value: u32) -> Self {
         let mut new = self;
         new.replication_factor = Option::Some(Option::Some(value));
         new
     }
     /// How many replicas should apply the operation for us to consider it successful, default = 1
-    #[allow(unused_mut)]
     pub fn write_consistency_factor(self, value: u32) -> Self {
         let mut new = self;
         new.write_consistency_factor = Option::Some(Option::Some(value));
         new
     }
-    /// Specify name of the other collection to copy data from
-    #[allow(unused_mut)]
-    pub fn init_from_collection<VALUE: core::convert::Into<String>>(self, value: VALUE) -> Self {
-        let mut new = self;
-        new.init_from_collection = Option::Some(Option::Some(value.into()));
-        new
-    }
     /// Quantization configuration of vector
-    #[allow(unused_mut)]
     pub fn quantization_config<VALUE: core::convert::Into<quantization_config::Quantization>>(
         self,
         value: VALUE,
@@ -128,14 +108,12 @@ impl CreateCollectionBuilder {
         new
     }
     /// Sharding method
-    #[allow(unused_mut)]
     pub fn sharding_method(self, value: i32) -> Self {
         let mut new = self;
         new.sharding_method = Option::Some(Option::Some(value));
         new
     }
     /// Configuration for sparse vectors
-    #[allow(unused_mut)]
     pub fn sparse_vectors_config<VALUE: core::convert::Into<SparseVectorConfig>>(
         self,
         value: VALUE,
@@ -145,7 +123,6 @@ impl CreateCollectionBuilder {
         new
     }
     /// Configuration for strict mode
-    #[allow(unused_mut)]
     pub fn strict_mode_config<VALUE: core::convert::Into<StrictModeConfig>>(
         self,
         value: VALUE,
@@ -197,10 +174,6 @@ impl CreateCollectionBuilder {
                 Some(value) => value,
                 None => core::default::Default::default(),
             },
-            init_from_collection: match self.init_from_collection {
-                Some(value) => value,
-                None => core::default::Default::default(),
-            },
             quantization_config: { convert_option(&self.quantization_config) },
             sharding_method: match self.sharding_method {
                 Some(value) => value,
@@ -214,6 +187,7 @@ impl CreateCollectionBuilder {
                 Some(value) => value,
                 None => core::default::Default::default(),
             },
+            metadata: Default::default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -229,7 +203,6 @@ impl CreateCollectionBuilder {
             vectors_config: core::default::Default::default(),
             replication_factor: core::default::Default::default(),
             write_consistency_factor: core::default::Default::default(),
-            init_from_collection: core::default::Default::default(),
             quantization_config: core::default::Default::default(),
             sharding_method: core::default::Default::default(),
             sparse_vectors_config: core::default::Default::default(),

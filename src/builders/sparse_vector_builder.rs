@@ -14,13 +14,11 @@ impl SparseVectorBuilder {
         }
     }
 
-    #[allow(unused_mut)]
     pub fn indices(mut self, indices: impl Into<Vec<u32>>) -> Self {
         self.indices = indices.into();
         self
     }
 
-    #[allow(unused_mut)]
     pub fn values(mut self, values: impl Into<Vec<f32>>) -> Self {
         self.values = values.into();
         self

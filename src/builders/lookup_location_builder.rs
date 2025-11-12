@@ -10,21 +10,18 @@ pub struct LookupLocationBuilder {
 }
 
 impl LookupLocationBuilder {
-    #[allow(unused_mut)]
     pub fn collection_name(self, value: String) -> Self {
         let mut new = self;
         new.collection_name = Option::Some(value);
         new
     }
     /// Which vector to use for search, if not specified - use default vector
-    #[allow(unused_mut)]
     pub fn vector_name<VALUE: core::convert::Into<String>>(self, value: VALUE) -> Self {
         let mut new = self;
         new.vector_name = Option::Some(Option::Some(value.into()));
         new
     }
     /// Specify in which shards to look for the points, if not specified - look in all shards
-    #[allow(unused_mut)]
     pub fn shard_key_selector<VALUE: core::convert::Into<ShardKeySelector>>(
         self,
         value: VALUE,

@@ -14,7 +14,6 @@ impl MaxOptimizationThreadsBuilder {
     /// Use specific number of optimization threads.
     ///
     /// - If `0` - no optimization threads, optimizations will be disabled.
-    #[allow(unused_mut)]
     #[inline]
     pub fn threads(threads: u64) -> Self {
         Self {
@@ -23,14 +22,12 @@ impl MaxOptimizationThreadsBuilder {
     }
 
     /// No optimization threads, optimizations will be disabled.
-    #[allow(unused_mut)]
     #[inline]
     pub fn disabled() -> Self {
         Self::threads(0)
     }
 
     /// Have no limit and choose dynamically to saturate CPU.
-    #[allow(unused_mut)]
     #[inline]
     pub fn auto() -> Self {
         Self {

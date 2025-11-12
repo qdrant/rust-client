@@ -14,28 +14,24 @@ pub struct DeleteFieldIndexCollectionBuilder {
 
 impl DeleteFieldIndexCollectionBuilder {
     /// name of the collection
-    #[allow(unused_mut)]
     pub fn collection_name(self, value: String) -> Self {
         let mut new = self;
         new.collection_name = Option::Some(value);
         new
     }
     /// Wait until the changes have been applied?
-    #[allow(unused_mut)]
     pub fn wait(self, value: bool) -> Self {
         let mut new = self;
         new.wait = Option::Some(Option::Some(value));
         new
     }
     /// Field name to delete
-    #[allow(unused_mut)]
     pub fn field_name(self, value: String) -> Self {
         let mut new = self;
         new.field_name = Option::Some(value);
         new
     }
     /// Write ordering guarantees
-    #[allow(unused_mut)]
     pub fn ordering(self, value: WriteOrdering) -> Self {
         let mut new = self;
         new.ordering = Option::Some(Option::Some(value));
