@@ -75,7 +75,7 @@ impl Vector {
 
         let vectors_count = self.vectors_count.unwrap();
 
-        if self.data.len() % vectors_count as usize != 0 {
+        if !self.data.len().is_multiple_of(vectors_count as usize) {
             return Err(QdrantError::ConversionError(format!(
                 "Malformed multi vector: data length {} is not divisible by vectors count {}",
                 self.data.len(),
