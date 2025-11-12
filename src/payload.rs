@@ -205,7 +205,6 @@ impl From<HashMap<String, serde_json::Value>> for Payload {
     }
 }
 
-
 impl<K, const N: usize> From<[(K, Value); N]> for Payload
 where
     K: Into<String>,
