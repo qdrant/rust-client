@@ -25,7 +25,7 @@ client
             .params(
                 SearchParamsBuilder::default()
                     .hnsw_ef(128)
-                    .acorn(AcornSearchParamsBuilder::with_params(true, 0.4))
+                    .acorn(AcornSearchParamsBuilder::new(true).max_selectivity(0.4))
             ),
     )
     .await?;

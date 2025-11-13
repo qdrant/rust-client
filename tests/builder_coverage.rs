@@ -93,9 +93,11 @@ fn builder_coverage() {
     ShardKeySelectorBuilder::with_shard_keys(vec![ShardKey::from("key1".to_string())])
         .fallback(ShardKey::from("fallback".to_string()))
         .build();
-    AcornSearchParamsBuilder::new().build();
-    AcornSearchParamsBuilder::with_enable(true).build();
-    AcornSearchParamsBuilder::with_params(true, 0.5).build();
+    AcornSearchParamsBuilder::new(true).build();
+    AcornSearchParamsBuilder::new(false).build();
+    AcornSearchParamsBuilder::new(true)
+        .max_selectivity(0.5)
+        .build();
     RrfBuilder::new().build();
     RrfBuilder::with_k(100).build();
 }

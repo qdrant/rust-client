@@ -6,7 +6,7 @@ pub struct AcornSearchParamsBuilder {
     ///
     /// Improves search recall for searches with multiple low-selectivity
     /// payload filters, at cost of performance.
-    pub(crate) enable: Option<Option<bool>>,
+    pub(crate) enable: bool,
     /// Maximum selectivity of filters to enable ACORN.
     ///
     /// If estimated filters selectivity is higher than this value,
@@ -18,20 +18,7 @@ pub struct AcornSearchParamsBuilder {
 }
 
 impl AcornSearchParamsBuilder {
-    /// Create a new AcornSearchParamsBuilder with default values.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use qdrant_client::qdrant::AcornSearchParamsBuilder;
-    ///
-    /// let acorn = AcornSearchParamsBuilder::new().build();
-    /// ```
-    pub fn new() -> Self {
-        Self::create_empty()
-    }
-
-    /// Create a new AcornSearchParamsBuilder with enabled flag set.
+    /// Create a new AcornSearchParamsBuilder with required enable parameter.
     ///
     /// # Arguments
     ///
@@ -42,38 +29,16 @@ impl AcornSearchParamsBuilder {
     /// ```
     /// use qdrant_client::qdrant::AcornSearchParamsBuilder;
     ///
-    /// let acorn = AcornSearchParamsBuilder::with_enable(true).build();
+    /// let acorn = AcornSearchParamsBuilder::new(true).build();
+    /// let acorn_with_selectivity = AcornSearchParamsBuilder::new(true)
+    ///     .max_selectivity(0.5)
+    ///     .build();
     /// ```
-    pub fn with_enable(enable: bool) -> Self {
-        Self::new().enable(enable)
-    }
-
-    /// Create a new AcornSearchParamsBuilder with both enable and max_selectivity.
-    ///
-    /// # Arguments
-    ///
-    /// * `enable` - If true, ACORN may be used for HNSW search based on filter selectivity
-    /// * `max_selectivity` - Value between 0.0 (never) and 1.0 (always). Default is 0.4.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use qdrant_client::qdrant::AcornSearchParamsBuilder;
-    ///
-    /// let acorn = AcornSearchParamsBuilder::with_params(true, 0.5).build();
-    /// ```
-    pub fn with_params(enable: bool, max_selectivity: f64) -> Self {
-        Self::new().enable(enable).max_selectivity(max_selectivity)
-    }
-
-    /// Set if ACORN may be used for the HNSW search based on filters selectivity.
-    ///
-    /// Improves search recall for searches with multiple low-selectivity
-    /// payload filters, at cost of performance.
-    pub fn enable(self, value: bool) -> Self {
-        let mut new = self;
-        new.enable = Option::Some(Option::Some(value));
-        new
+    pub fn new(enable: bool) -> Self {
+        Self {
+            enable,
+            max_selectivity: None,
+        }
     }
 
     /// Set maximum selectivity threshold for enabling ACORN.
@@ -90,16 +55,8 @@ impl AcornSearchParamsBuilder {
 
     pub fn build(self) -> AcornSearchParams {
         AcornSearchParams {
-            enable: self.enable.unwrap_or_default(),
+            enable: Some(self.enable),
             max_selectivity: self.max_selectivity.unwrap_or_default(),
-        }
-    }
-
-    /// Create an empty builder, with all fields set to `None`.
-    fn create_empty() -> Self {
-        Self {
-            enable: core::default::Default::default(),
-            max_selectivity: core::default::Default::default(),
         }
     }
 }
@@ -107,11 +64,5 @@ impl AcornSearchParamsBuilder {
 impl From<AcornSearchParamsBuilder> for AcornSearchParams {
     fn from(value: AcornSearchParamsBuilder) -> Self {
         value.build()
-    }
-}
-
-impl Default for AcornSearchParamsBuilder {
-    fn default() -> Self {
-        Self::create_empty()
     }
 }
