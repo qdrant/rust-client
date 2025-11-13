@@ -1,7 +1,8 @@
 use qdrant_client::qdrant::{
-    Condition, DecayParamsExpressionBuilder, Expression, FormulaBuilder, Fusion, GeoPoint,
-    PointId, PrefetchQueryBuilder, Query, QueryPointsBuilder, RecommendInputBuilder, RrfBuilder,
-    Sample,
+    AcornSearchParamsBuilder, Condition, DecayParamsExpressionBuilder, Expression, Filter,
+    FormulaBuilder, Fusion, GeoPoint, PointId, PrefetchQueryBuilder, Query, QueryPointsBuilder,
+    RecommendInputBuilder, RrfBuilder, Sample, SearchParamsBuilder, ShardKey,
+    ShardKeySelectorBuilder,
 };
 use qdrant_client::Qdrant;
 
@@ -141,4 +142,31 @@ let _rrf_custom = client.query(
             .limit(20u64)
         )
         .query(Query::new_rrf(RrfBuilder::with_k(100)))
+).await?;
+
+// Query with ACORN enabled for filtered query
+let _acorn_query = client.query(
+    QueryPointsBuilder::new("{collection_name}")
+        .query(vec![0.01, 0.45, 0.67])
+        .filter(Filter::must([Condition::matches(
+            "category",
+            "electronics".to_string(),
+        )]))
+        .params(
+            SearchParamsBuilder::default()
+                .hnsw_ef(128)
+                .acorn(AcornSearchParamsBuilder::new(true).max_selectivity(0.4))
+        )
+        .limit(10u64)
+).await?;
+
+// Query in specific shards with fallback
+let _shard_query = client.query(
+    QueryPointsBuilder::new("{collection_name}")
+        .query(vec![0.01, 0.45, 0.67])
+        .shard_key_selector(
+            ShardKeySelectorBuilder::with_shard_keys(vec![ShardKey::from("shard_1".to_string())])
+                .fallback(ShardKey::from("shard_backup".to_string()))
+        )
+        .limit(10u64)
 ).await?;
