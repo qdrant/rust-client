@@ -51,3 +51,4 @@ mod test_update_vectors;
 mod test_upsert_document;
 mod test_upsert_image;
 mod test_upsert_points;
+mod test_upsert_points_with_condition;
