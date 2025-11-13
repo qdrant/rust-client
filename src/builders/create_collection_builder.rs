@@ -1,3 +1,6 @@
+use std::collections::HashMap;
+
+use crate::grpc_conversions::metadata::MetadataWrapper;
 use crate::grpc_macros::convert_option;
 use crate::qdrant::*;
 
@@ -31,7 +34,10 @@ pub struct CreateCollectionBuilder {
     pub(crate) sparse_vectors_config: Option<Option<SparseVectorConfig>>,
     /// Configuration for strict mode
     pub(crate) strict_mode_config: Option<Option<StrictModeConfig>>,
+    /// Arbitrary JSON metadata for the collection
+    pub(crate) metadata: Option<HashMap<String, Value>>,
 }
+
 #[allow(clippy::all)]
 #[allow(clippy::derive_partial_eq_without_eq)]
 impl CreateCollectionBuilder {
@@ -131,6 +137,12 @@ impl CreateCollectionBuilder {
         new.strict_mode_config = Option::Some(Option::Some(value.into()));
         new
     }
+    /// Arbitrary JSON metadata for the collection
+    pub fn metadata(self, value: impl Into<MetadataWrapper>) -> Self {
+        let mut new = self;
+        new.metadata = Option::Some(value.into().0);
+        new
+    }
 
     fn build_inner(self) -> Result<CreateCollection, std::convert::Infallible> {
         Ok(CreateCollection {
@@ -187,7 +199,10 @@ impl CreateCollectionBuilder {
                 Some(value) => value,
                 None => core::default::Default::default(),
             },
-            metadata: Default::default(),
+            metadata: match self.metadata {
+                Some(value) => value,
+                None => core::default::Default::default(),
+            },
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -207,6 +222,7 @@ impl CreateCollectionBuilder {
             sharding_method: core::default::Default::default(),
             sparse_vectors_config: core::default::Default::default(),
             strict_mode_config: core::default::Default::default(),
+            metadata: core::default::Default::default(),
         }
     }
 }

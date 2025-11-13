@@ -1,4 +1,5 @@
 mod extensions;
+pub mod metadata;
 mod primitives;
 pub mod vectors;
 
