@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use qdrant_client::qdrant::{
-    AbortShardTransferBuilder, AcornSearchParams, BinaryQuantizationBuilder,
+    AbortShardTransferBuilder, AcornSearchParamsBuilder, BinaryQuantizationBuilder,
     ClearPayloadPointsBuilder, ContextInputBuilder, ContextInputPairBuilder, CountPointsBuilder,
     CreateAliasBuilder, CreateFieldIndexCollectionBuilder, CreateShardKeyRequestBuilder,
     DeleteCollectionBuilder, DeleteFieldIndexCollectionBuilder, DeletePayloadPointsBuilder,
@@ -14,7 +14,7 @@ use qdrant_client::qdrant::{
     RecommendPointsBuilder, RenameAliasBuilder, ReplicaBuilder, ReplicateShardBuilder, RrfBuilder,
     ScrollPointsBuilder, SearchBatchPointsBuilder, SearchMatrixPointsBuilder,
     SearchPointGroupsBuilder, SearchPointsBuilder, SetPayloadPointsBuilder, ShardKey,
-    ShardKeySelector, TextIndexParamsBuilder, TokenizerType, UpdateBatchPointsBuilder,
+    ShardKeySelectorBuilder, TextIndexParamsBuilder, TokenizerType, UpdateBatchPointsBuilder,
     UpdateCollectionBuilder, UpdateCollectionClusterSetupRequestBuilder, UpdatePointVectorsBuilder,
     UpsertPointsBuilder, VectorParamsBuilder, WithLookupBuilder,
 };
@@ -86,11 +86,16 @@ fn builder_coverage() {
     SearchMatrixPointsBuilder::new("").build();
 
     // New parameter constructors
-    ShardKeySelector::new(vec![ShardKey::from("key1".to_string())]);
-    ShardKeySelector::new(vec![ShardKey::from("key1".to_string())])
-        .with_fallback(ShardKey::from("fallback".to_string()));
-    AcornSearchParams::new(true);
-    AcornSearchParams::new(true).with_max_selectivity(0.5);
+    ShardKeySelectorBuilder::new()
+        .add_shard_key(ShardKey::from("key1".to_string()))
+        .build();
+    ShardKeySelectorBuilder::with_shard_keys(vec![ShardKey::from("key1".to_string())]).build();
+    ShardKeySelectorBuilder::with_shard_keys(vec![ShardKey::from("key1".to_string())])
+        .fallback(ShardKey::from("fallback".to_string()))
+        .build();
+    AcornSearchParamsBuilder::new().build();
+    AcornSearchParamsBuilder::with_enable(true).build();
+    AcornSearchParamsBuilder::with_params(true, 0.5).build();
     RrfBuilder::new().build();
     RrfBuilder::with_k(100).build();
 }
