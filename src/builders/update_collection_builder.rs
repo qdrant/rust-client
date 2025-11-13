@@ -1,3 +1,4 @@
+use crate::grpc_conversions::metadata::MetadataWrapper;
 use crate::grpc_macros::convert_option;
 use crate::qdrant::*;
 
@@ -98,9 +99,9 @@ impl UpdateCollectionBuilder {
         new
     }
     /// Arbitrary JSON-like metadata for the collection, will be merged with already stored metadata
-    pub fn metadata(self, value: std::collections::HashMap<String, Value>) -> Self {
+    pub fn metadata(self, value: impl Into<MetadataWrapper>) -> Self {
         let mut new = self;
-        new.metadata = Option::Some(value);
+        new.metadata = Option::Some(value.into().0);
         new
     }
 
