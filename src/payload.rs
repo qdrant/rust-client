@@ -194,6 +194,7 @@ impl From<serde_json::Map<String, serde_json::Value>> for Payload {
     }
 }
 
+#[cfg(feature = "serde")]
 impl From<HashMap<String, serde_json::Value>> for Payload {
     fn from(value: HashMap<String, serde_json::Value>) -> Self {
         Payload::from(

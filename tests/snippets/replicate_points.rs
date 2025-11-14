@@ -6,35 +6,19 @@ use qdrant_client::Qdrant;
 
 let client = Qdrant::from_url("http://localhost:6334").build()?;
 
-// Replicate all points from one shard to another
 client
     .update_collection_cluster_setup(UpdateCollectionClusterSetupRequest {
         collection_name: "{collection_name}".to_string(),
         operation: Some(Operation::ReplicatePoints(
             ReplicatePointsBuilder::new(
-                ShardKey::from("source_shard".to_string()),
-                ShardKey::from("target_shard".to_string()),
-            )
-            .into(),
-        )),
-        timeout: None,
-    })
-    .await?;
-
-// Replicate only specific points matching a filter
-client
-    .update_collection_cluster_setup(UpdateCollectionClusterSetupRequest {
-        collection_name: "{collection_name}".to_string(),
-        operation: Some(Operation::ReplicatePoints(
-            ReplicatePointsBuilder::new(
-                ShardKey::from("source_shard".to_string()),
-                ShardKey::from("target_shard".to_string()),
+                ShardKey::from("source_shard"),
+                ShardKey::from("target_shard"),
             )
             .filter(Filter::must([Condition::matches(
-                "status",
-                "active".to_string(),
+                "user",
+                "tenant-123".to_string(),
             )]))
-            .into(),
+            .build(),
         )),
         timeout: None,
     })

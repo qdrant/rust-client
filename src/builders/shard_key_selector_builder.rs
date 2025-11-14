@@ -24,6 +24,11 @@ impl ShardKeySelectorBuilder {
         Self::create_empty()
     }
 
+
+    pub fn with_shard_key(shard_key: impl Into<ShardKey>) -> Self {
+        Self::new().add_shard_key(shard_key)
+    }
+
     /// Create a new ShardKeySelectorBuilder with the given shard keys.
     ///
     /// # Arguments

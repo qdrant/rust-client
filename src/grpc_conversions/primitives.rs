@@ -138,6 +138,14 @@ impl From<String> for ShardKey {
     }
 }
 
+impl From<&str> for ShardKey {
+    fn from(keyword: &str) -> Self {
+        ShardKey {
+            key: Some(shard_key::Key::Keyword(keyword.to_string())),
+        }
+    }
+}
+
 impl From<u64> for ShardKey {
     fn from(number: u64) -> Self {
         ShardKey {
