@@ -4,7 +4,7 @@ async fn test_search_points() {
     async fn search_points() -> Result<(), Box<dyn std::error::Error>> {
       // WARNING: This is a generated test snippet.
       // Please, modify the snippet in the `../snippets/search_points.rs` file
-        use qdrant_client::qdrant::{AcornSearchParams, Condition, Filter, SearchParamsBuilder, SearchPointsBuilder, ShardKey, ShardKeySelector};
+        use qdrant_client::qdrant::{AcornSearchParamsBuilder, Condition, Filter, SearchParamsBuilder, SearchPointsBuilder, ShardKey, ShardKeySelectorBuilder};
         use qdrant_client::Qdrant;
         
         let client = Qdrant::from_url("http://localhost:6334").build()?;
@@ -31,7 +31,7 @@ async fn test_search_points() {
                     .params(
                         SearchParamsBuilder::default()
                             .hnsw_ef(128)
-                            .acorn(AcornSearchParams::new(true).with_max_selectivity(0.4))
+                            .acorn(AcornSearchParamsBuilder::new(true).max_selectivity(0.4))
                     ),
             )
             .await?;
@@ -41,8 +41,8 @@ async fn test_search_points() {
             .search_points(
                 SearchPointsBuilder::new("{collection_name}", vec![0.2, 0.1, 0.9, 0.7], 3)
                     .shard_key_selector(
-                        ShardKeySelector::new(vec![ShardKey::from("shard_1".to_string())])
-                            .with_fallback(ShardKey::from("shard_backup".to_string()))
+                        ShardKeySelectorBuilder::with_shard_keys(vec![ShardKey::from("shard_1".to_string())])
+                            .fallback(ShardKey::from("shard_backup".to_string()))
                     ),
             )
             .await?;
