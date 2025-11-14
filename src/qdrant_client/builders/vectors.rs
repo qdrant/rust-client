@@ -1,5 +1,5 @@
 use crate::qdrant::{
-    DenseVectorBuilder, MultiDenseVector, NamedVectors, SparseVectorBuilder, Vector,
+    vector, DenseVectorBuilder, MultiDenseVector, NamedVectors, SparseVectorBuilder, Vector,
 };
 use crate::QdrantError;
 
@@ -26,69 +26,162 @@ impl Vector {
 
     #[expect(deprecated)]
     pub fn try_into_dense(self) -> Result<Vec<f32>, QdrantError> {
-        if self.indices.is_some() {
+        let Vector {
+            data,
+            indices,
+            vectors_count,
+            vector,
+        } = self;
+
+        if let Some(v) = vector {
+            return match v {
+                vector::Vector::Dense(dense) => Ok(dense.data),
+                vector::Vector::Sparse(_) => Err(QdrantError::ConversionError(
+                    "Cannot convert sparse vector to dense".to_string(),
+                )),
+                vector::Vector::MultiDense(_) => Err(QdrantError::ConversionError(
+                    "Cannot convert multi-vector to dense".to_string(),
+                )),
+                vector::Vector::Document(_) => Err(QdrantError::ConversionError(
+                    "Cannot convert document vector to dense".to_string(),
+                )),
+                vector::Vector::Image(_) => Err(QdrantError::ConversionError(
+                    "Cannot convert image vector to dense".to_string(),
+                )),
+                vector::Vector::Object(_) => Err(QdrantError::ConversionError(
+                    "Cannot convert object vector to dense".to_string(),
+                )),
+            };
+        }
+
+        if indices.is_some() {
             return Err(QdrantError::ConversionError(
                 "Cannot convert sparse vector to dense".to_string(),
             ));
         }
 
-        if self.vectors_count.is_some() && self.vectors_count.unwrap() > 1 {
+        if vectors_count.is_some() && vectors_count.unwrap() > 1 {
             return Err(QdrantError::ConversionError(
                 "Cannot convert multi vector to dense".to_string(),
             ));
         }
 
-        Ok(self.data)
+        Ok(data)
     }
 
     #[expect(deprecated)]
     pub fn try_into_sparse(self) -> Result<(Vec<u32>, Vec<f32>), QdrantError> {
-        if self.indices.is_none() {
+        let Vector {
+            data,
+            indices,
+            vectors_count,
+            vector,
+        } = self;
+
+        if let Some(v) = vector {
+            return match v {
+                vector::Vector::Dense(_) => Err(QdrantError::ConversionError(
+                    "Cannot convert dense vector to sparse".to_string(),
+                )),
+                vector::Vector::Sparse(sparse) => Ok((sparse.indices, sparse.values)),
+                vector::Vector::MultiDense(_) => Err(QdrantError::ConversionError(
+                    "Cannot convert multi-vector to sparse".to_string(),
+                )),
+                vector::Vector::Document(_) => Err(QdrantError::ConversionError(
+                    "Cannot convert document vector to sparse".to_string(),
+                )),
+                vector::Vector::Image(_) => Err(QdrantError::ConversionError(
+                    "Cannot convert image vector to sparse".to_string(),
+                )),
+                vector::Vector::Object(_) => Err(QdrantError::ConversionError(
+                    "Cannot convert object vector to sparse".to_string(),
+                )),
+            };
+        }
+
+        if indices.is_none() {
             return Err(QdrantError::ConversionError(
                 "Cannot convert dense vector to sparse".to_string(),
             ));
         }
 
-        if self.vectors_count.is_some() && self.vectors_count.unwrap() > 1 {
+        if vectors_count.is_some() && vectors_count.unwrap() > 1 {
             return Err(QdrantError::ConversionError(
                 "Cannot convert multi vector to sparse".to_string(),
             ));
         }
 
-        let indices = self.indices.unwrap().data;
+        let indices = indices.unwrap().data;
 
-        if indices.len() != self.data.len() {
+        if indices.len() != data.len() {
             return Err(QdrantError::ConversionError(format!(
                 "Malformed sparse vector: indices length {} is not equal to data length {}",
                 indices.len(),
-                self.data.len()
+                data.len()
             )));
         }
 
-        Ok((indices, self.data))
+        Ok((indices, data))
     }
 
     #[expect(deprecated)]
     pub fn try_into_multi(self) -> Result<Vec<Vec<f32>>, QdrantError> {
-        if self.vectors_count.is_none() {
+        let Vector {
+            data,
+            indices,
+            vectors_count,
+            vector,
+        } = self;
+
+        if let Some(v) = vector {
+            return match v {
+                vector::Vector::Dense(_) => Err(QdrantError::ConversionError(
+                    "Cannot convert dense vector to multi-vector".to_string(),
+                )),
+                vector::Vector::Sparse(_) => Err(QdrantError::ConversionError(
+                    "Cannot convert sparse vector to multi-vector".to_string(),
+                )),
+                vector::Vector::MultiDense(multivec) => Ok(multivec
+                    .vectors
+                    .into_iter()
+                    .map(|v| v.data)
+                    .collect::<Vec<_>>()),
+                vector::Vector::Document(_) => Err(QdrantError::ConversionError(
+                    "Cannot convert document vector to multi-vector".to_string(),
+                )),
+                vector::Vector::Image(_) => Err(QdrantError::ConversionError(
+                    "Cannot convert image vector to multi-vector".to_string(),
+                )),
+                vector::Vector::Object(_) => Err(QdrantError::ConversionError(
+                    "Cannot convert object vector to multi-vector".to_string(),
+                )),
+            };
+        }
+
+        if vectors_count.is_none() {
             return Err(QdrantError::ConversionError(
                 "Cannot convert single vector to multi".to_string(),
             ));
         }
 
-        let vectors_count = self.vectors_count.unwrap();
+        if indices.is_some() {
+            return Err(QdrantError::ConversionError(
+                "Cannot convert sparse vector to multi-vector".to_string(),
+            ));
+        }
 
-        if !self.data.len().is_multiple_of(vectors_count as usize) {
+        let vectors_count = vectors_count.unwrap();
+
+        if !data.len().is_multiple_of(vectors_count as usize) {
             return Err(QdrantError::ConversionError(format!(
                 "Malformed multi vector: data length {} is not divisible by vectors count {}",
-                self.data.len(),
+                data.len(),
                 vectors_count
             )));
         }
 
-        Ok(self
-            .data
-            .chunks(self.data.len() / self.vectors_count.unwrap() as usize)
+        Ok(data
+            .chunks(data.len() / vectors_count as usize)
             .map(|v| v.to_vec())
             .collect())
     }
@@ -102,6 +195,7 @@ impl NamedVectors {
 }
 
 impl From<crate::qdrant::vector::Vector> for Vector {
+    #[allow(deprecated)]
     fn from(vector: crate::qdrant::vector::Vector) -> Self {
         #[expect(deprecated)]
         Vector {
