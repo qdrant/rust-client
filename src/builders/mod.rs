@@ -107,6 +107,7 @@ mod delete_shard_key_request_builder;
 pub use delete_shard_key_request_builder::DeleteShardKeyRequestBuilder;
 
 mod shard_key_selector_builder;
+pub use shard_key_selector_builder::ShardKeySelectorBuilder;
 
 mod upsert_points_builder;
 pub use upsert_points_builder::UpsertPointsBuilder;
@@ -142,6 +143,7 @@ mod quantization_search_params_builder;
 pub use quantization_search_params_builder::QuantizationSearchParamsBuilder;
 
 mod acorn_search_params_builder;
+pub use acorn_search_params_builder::AcornSearchParamsBuilder;
 
 mod search_params_builder;
 pub use search_params_builder::SearchParamsBuilder;
