@@ -88,6 +88,9 @@ pub use move_shard_builder::MoveShardBuilder;
 mod replicate_shard_builder;
 pub use replicate_shard_builder::ReplicateShardBuilder;
 
+mod replicate_points_builder;
+pub use replicate_points_builder::ReplicatePointsBuilder;
+
 mod abort_shard_transfer_builder;
 pub use abort_shard_transfer_builder::AbortShardTransferBuilder;
 

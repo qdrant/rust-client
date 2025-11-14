@@ -11,12 +11,13 @@ use qdrant_client::qdrant::{
     LookupLocationBuilder, MoveShardBuilder, MultiVectorComparator, MultiVectorConfigBuilder,
     OrderByBuilder, ProductQuantizationBuilder, QueryBatchPointsBuilder, QueryPointGroupsBuilder,
     QueryPointsBuilder, RecommendBatchPointsBuilder, RecommendPointGroupsBuilder,
-    RecommendPointsBuilder, RenameAliasBuilder, ReplicaBuilder, ReplicateShardBuilder, RrfBuilder,
-    ScrollPointsBuilder, SearchBatchPointsBuilder, SearchMatrixPointsBuilder,
-    SearchPointGroupsBuilder, SearchPointsBuilder, SetPayloadPointsBuilder, ShardKey,
-    ShardKeySelectorBuilder, TextIndexParamsBuilder, TokenizerType, UpdateBatchPointsBuilder,
-    UpdateCollectionBuilder, UpdateCollectionClusterSetupRequestBuilder, UpdatePointVectorsBuilder,
-    UpsertPointsBuilder, VectorParamsBuilder, WithLookupBuilder,
+    RecommendPointsBuilder, RenameAliasBuilder, ReplicaBuilder, ReplicatePointsBuilder,
+    ReplicateShardBuilder, RrfBuilder, ScrollPointsBuilder, SearchBatchPointsBuilder,
+    SearchMatrixPointsBuilder, SearchPointGroupsBuilder, SearchPointsBuilder,
+    SetPayloadPointsBuilder, ShardKey, ShardKeySelectorBuilder, TextIndexParamsBuilder,
+    TokenizerType, UpdateBatchPointsBuilder, UpdateCollectionBuilder,
+    UpdateCollectionClusterSetupRequestBuilder, UpdatePointVectorsBuilder, UpsertPointsBuilder,
+    VectorParamsBuilder, WithLookupBuilder,
 };
 
 /// TLDR; Ensures new fields introduced in protobuf updates won't cause a panic at runtime due to missing derive_builder attributes.
@@ -67,6 +68,11 @@ fn builder_coverage() {
     .build();
     MoveShardBuilder::new(0, 0, 0).build();
     ReplicateShardBuilder::new(0, 0, 0).build();
+    ReplicatePointsBuilder::new(
+        ShardKey::from("shard1".to_string()),
+        ShardKey::from("shard2".to_string()),
+    )
+    .build();
     ReplicaBuilder::new(0, 0).build();
     AbortShardTransferBuilder::new(0, 0, 0).build();
     CreateShardKeyRequestBuilder::new("my_collection").build();

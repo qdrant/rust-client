@@ -36,6 +36,7 @@ mod test_query_points_groups;
 mod test_recommend_batch_points;
 mod test_recommend_point_groups;
 mod test_recommend_points;
+mod test_replicate_points;
 mod test_scroll_points;
 mod test_scroll_points_with_vectors;
 mod test_search_batch_points;
