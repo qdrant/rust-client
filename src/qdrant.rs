@@ -3437,9 +3437,7 @@ pub struct Vector {
     /// Vector data (flatten for multi vectors), deprecated
     #[deprecated]
     #[prost(float, repeated, packed = "false", tag = "1")]
-    /**
 
-Deprecated since 1.16.0, use [`vector`](crate::qdrant::Vector::vector) field instead.*/
     pub data: ::prost::alloc::vec::Vec<f32>,
     /// Sparse indices for sparse vectors, deprecated
     #[deprecated]
