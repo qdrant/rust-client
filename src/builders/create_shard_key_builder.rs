@@ -51,11 +51,12 @@ impl CreateShardKeyBuilder {
     ///
     /// Use with caution! Setting arbirray replica states here may break your Qdrant cluster.
     #[allow(unused_mut)]
-    pub fn initial_state(self, value: i32) -> Self {
+    pub fn initial_state(self, value: ReplicaState) -> Self {
         let mut new = self;
-        new.initial_state = Option::Some(Option::Some(value));
+        new.initial_state = Option::Some(Option::Some(value as i32));
         new
     }
+    
     fn build_inner(self) -> Result<CreateShardKey, std::convert::Infallible> {
         Ok(CreateShardKey {
             shard_key: self.shard_key.unwrap_or_default(),
