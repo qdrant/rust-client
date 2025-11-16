@@ -56,7 +56,7 @@ impl CreateShardKeyBuilder {
         new.initial_state = Option::Some(Option::Some(value as i32));
         new
     }
-    
+
     fn build_inner(self) -> Result<CreateShardKey, std::convert::Infallible> {
         Ok(CreateShardKey {
             shard_key: self.shard_key.unwrap_or_default(),
