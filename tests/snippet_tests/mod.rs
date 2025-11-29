@@ -27,6 +27,7 @@ mod test_get_collections;
 mod test_get_collections_aliases;
 mod test_get_points;
 mod test_list_full_snapshots;
+mod test_list_shard_keys;
 mod test_list_snapshots;
 mod test_overwrite_payload;
 mod test_query_document;

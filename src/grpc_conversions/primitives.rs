@@ -7,11 +7,11 @@ use crate::qdrant::{
     shard_key, with_payload_selector, with_vectors_selector, CollectionClusterInfoRequest,
     CollectionExistsRequest, CreateSnapshotRequest, DeleteAlias, DeleteCollectionBuilder,
     DeleteFullSnapshotRequest, GetCollectionInfoRequest, IsEmptyCondition, IsNullCondition,
-    ListCollectionAliasesRequest, ListSnapshotsRequest, PayloadExcludeSelector,
-    PayloadIncludeSelector, PointId, RepeatedIntegers, RepeatedStrings, ShardKey, ShardKeySelector,
-    SparseIndices, SparseVectorConfig, SparseVectorParams, Struct, VectorParams, VectorParamsDiff,
-    VectorParamsDiffMap, VectorParamsMap, VectorsSelector, WithPayloadSelector,
-    WithVectorsSelector,
+    ListCollectionAliasesRequest, ListShardKeysRequest, ListSnapshotsRequest,
+    PayloadExcludeSelector, PayloadIncludeSelector, PointId, RepeatedIntegers, RepeatedStrings,
+    ShardKey, ShardKeySelector, SparseIndices, SparseVectorConfig, SparseVectorParams, Struct,
+    VectorParams, VectorParamsDiff, VectorParamsDiffMap, VectorParamsMap, VectorsSelector,
+    WithPayloadSelector, WithVectorsSelector,
 };
 
 impl From<bool> for WithPayloadSelector {
@@ -362,6 +362,14 @@ impl<S: Into<String>> From<S> for DeleteFullSnapshotRequest {
     fn from(value: S) -> Self {
         Self {
             snapshot_name: value.into(),
+        }
+    }
+}
+
+impl<S: Into<String>> From<S> for ListShardKeysRequest {
+    fn from(value: S) -> Self {
+        Self {
+            collection_name: value.into(),
         }
     }
 }
