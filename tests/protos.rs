@@ -1,4 +1,4 @@
-use tonic_build::Builder;
+use tonic_prost_build::Builder;
 
 fn timestamp(f: impl AsRef<std::path::Path>) -> std::time::SystemTime {
     std::fs::metadata(f).unwrap().modified().unwrap()
@@ -18,7 +18,7 @@ fn protos() {
         return;
     }
 
-    tonic_build::configure()
+    tonic_prost_build::configure()
         .configure_deprecations()
         .out_dir("src/") // saves generated structures at this location
         .compile_protos(
