@@ -242,6 +242,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[ignore = "requires running Qdrant server, use tests/integration.rs instead"]
     async fn test_qdrant_queries() -> anyhow::Result<()> {
         let client = Qdrant::from_url("http://localhost:6334")
             .timeout(10u64) // larger timeout to account for the slow snapshot creation
