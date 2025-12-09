@@ -65,7 +65,7 @@ pub struct ListValue {
 /// `NullValue` is a singleton enumeration to represent the null value for the
 /// `Value` type union.
 ///
-///   The JSON representation for `NullValue` is JSON `null`.
+/// The JSON representation for `NullValue` is JSON `null`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
 pub enum NullValue {
@@ -553,15 +553,12 @@ pub struct CollectionWarning {
 }
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct HnswConfigDiff {
-    ///
     /// Number of edges per node in the index graph. Larger the value - more accurate the search, more space required.
     #[prost(uint64, optional, tag = "1")]
     pub m: ::core::option::Option<u64>,
-    ///
     /// Number of neighbours to consider during the index building. Larger the value - more accurate the search, more time required to build the index.
     #[prost(uint64, optional, tag = "2")]
     pub ef_construct: ::core::option::Option<u64>,
-    ///
     /// Minimal size threshold (in KiloBytes) below which full-scan is preferred over HNSW search.
     /// This measures the total size of vectors being queried against.
     /// When the maximum estimated amount of points that a condition satisfies is smaller than
@@ -570,22 +567,18 @@ pub struct HnswConfigDiff {
     /// Note: 1Kb = 1 vector of size 256
     #[prost(uint64, optional, tag = "3")]
     pub full_scan_threshold: ::core::option::Option<u64>,
-    ///
     /// Number of parallel threads used for background index building.
     /// If 0 - automatically select from 8 to 16.
     /// Best to keep between 8 and 16 to prevent likelihood of building broken/inefficient HNSW graphs.
     /// On small CPUs, less threads are used.
     #[prost(uint64, optional, tag = "4")]
     pub max_indexing_threads: ::core::option::Option<u64>,
-    ///
     /// Store HNSW index on disk. If set to false, the index will be stored in RAM.
     #[prost(bool, optional, tag = "5")]
     pub on_disk: ::core::option::Option<bool>,
-    ///
     /// Number of additional payload-aware links per node in the index graph. If not set - regular M parameter will be used.
     #[prost(uint64, optional, tag = "6")]
     pub payload_m: ::core::option::Option<u64>,
-    ///
     /// Store copies of original and quantized vectors within the HNSW index file. Default: false.
     /// Enabling this option will trade the search speed for disk usage by reducing amount of
     /// random seeks during the search.
@@ -595,16 +588,13 @@ pub struct HnswConfigDiff {
 }
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct SparseIndexConfig {
-    ///
     /// Prefer a full scan search upto (excluding) this number of vectors.
     /// Note: this is number of vectors, not KiloBytes.
     #[prost(uint64, optional, tag = "1")]
     pub full_scan_threshold: ::core::option::Option<u64>,
-    ///
     /// Store inverted index on disk. If set to false, the index will be stored in RAM.
     #[prost(bool, optional, tag = "2")]
     pub on_disk: ::core::option::Option<bool>,
-    ///
     /// Datatype used to store weights in the index.
     #[prost(enumeration = "Datatype", optional, tag = "3")]
     pub datatype: ::core::option::Option<i32>,
@@ -623,26 +613,22 @@ pub struct WalConfigDiff {
 }
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct OptimizersConfigDiff {
-    ///
     /// The minimal fraction of deleted vectors in a segment, required to perform segment optimization
     #[prost(double, optional, tag = "1")]
     pub deleted_threshold: ::core::option::Option<f64>,
-    ///
     /// The minimal number of vectors in a segment, required to perform segment optimization
     #[prost(uint64, optional, tag = "2")]
     pub vacuum_min_vector_number: ::core::option::Option<u64>,
-    ///
     /// Target amount of segments the optimizer will try to keep.
     /// Real amount of segments may vary depending on multiple parameters:
     ///
-    /// - Amount of stored points.
-    /// - Current write RPS.
+    /// * Amount of stored points.
+    /// * Current write RPS.
     ///
     /// It is recommended to select the default number of segments as a factor of the number of search threads,
     /// so that each segment would be handled evenly by one of the threads.
     #[prost(uint64, optional, tag = "3")]
     pub default_segment_number: ::core::option::Option<u64>,
-    ///
     /// Deprecated:
     ///
     /// Do not create segments larger this size (in kilobytes).
@@ -655,7 +641,6 @@ pub struct OptimizersConfigDiff {
     /// If not set, will be automatically selected considering the number of available CPUs.
     #[prost(uint64, optional, tag = "4")]
     pub max_segment_size: ::core::option::Option<u64>,
-    ///
     /// Maximum size (in kilobytes) of vectors to store in-memory per segment.
     /// Segments larger than this threshold will be stored as read-only memmapped file.
     ///
@@ -666,7 +651,6 @@ pub struct OptimizersConfigDiff {
     /// Note: 1Kb = 1 vector of size 256
     #[prost(uint64, optional, tag = "5")]
     pub memmap_threshold: ::core::option::Option<u64>,
-    ///
     /// Maximum size (in kilobytes) of vectors allowed for plain index, exceeding this threshold will enable vector indexing
     ///
     /// Default value is 20,000, based on <<https://github.com/google-research/google-research/blob/master/scann/docs/algorithms.md>.>
@@ -676,14 +660,12 @@ pub struct OptimizersConfigDiff {
     /// Note: 1kB = 1 vector of size 256.
     #[prost(uint64, optional, tag = "6")]
     pub indexing_threshold: ::core::option::Option<u64>,
-    ///
     /// Interval between forced flushes.
     #[prost(uint64, optional, tag = "7")]
     pub flush_interval_sec: ::core::option::Option<u64>,
     /// Deprecated in favor of `max_optimization_threads`
     #[prost(uint64, optional, tag = "8")]
     pub deprecated_max_optimization_threads: ::core::option::Option<u64>,
-    ///
     /// Max number of threads (jobs) for running optimizations per shard.
     /// Note: each optimization job will also use `max_indexing_threads` threads by itself for index building.
     /// If "auto" - have no limit and choose dynamically to saturate CPU.
@@ -775,7 +757,6 @@ pub struct BinaryQuantization {
     /// Binary quantization encoding method
     #[prost(enumeration = "BinaryQuantizationEncoding", optional, tag = "2")]
     pub encoding: ::core::option::Option<i32>,
-    ///
     /// Asymmetric quantization configuration allows a query to have different quantization than stored vectors.
     /// It can increase the accuracy of search at the cost of performance.
     #[prost(message, optional, tag = "3")]
@@ -2039,7 +2020,6 @@ impl ReplicaState {
         }
     }
 }
-///
 /// Resharding direction, scale up or down in number of shards
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
@@ -2133,7 +2113,7 @@ pub mod collections_client {
     }
     impl<T> CollectionsClient<T>
     where
-        T: tonic::client::GrpcService<tonic::body::BoxBody>,
+        T: tonic::client::GrpcService<tonic::body::Body>,
         T::Error: Into<StdError>,
         T::ResponseBody: Body<Data = Bytes> + std::marker::Send + 'static,
         <T::ResponseBody as Body>::Error: Into<StdError> + std::marker::Send,
@@ -2154,13 +2134,13 @@ pub mod collections_client {
             F: tonic::service::Interceptor,
             T::ResponseBody: Default,
             T: tonic::codegen::Service<
-                http::Request<tonic::body::BoxBody>,
+                http::Request<tonic::body::Body>,
                 Response = http::Response<
-                    <T as tonic::client::GrpcService<tonic::body::BoxBody>>::ResponseBody,
+                    <T as tonic::client::GrpcService<tonic::body::Body>>::ResponseBody,
                 >,
             >,
             <T as tonic::codegen::Service<
-                http::Request<tonic::body::BoxBody>,
+                http::Request<tonic::body::Body>,
             >>::Error: Into<StdError> + std::marker::Send + std::marker::Sync,
         {
             CollectionsClient::new(InterceptedService::new(inner, interceptor))
@@ -2196,7 +2176,6 @@ pub mod collections_client {
             self.inner = self.inner.max_encoding_message_size(limit);
             self
         }
-        ///
         /// Get detailed information about specified existing collection
         pub async fn get(
             &mut self,
@@ -2213,13 +2192,12 @@ pub mod collections_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Collections/Get");
             let mut req = request.into_request();
             req.extensions_mut().insert(GrpcMethod::new("qdrant.Collections", "Get"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Get list name of all existing collections
         pub async fn list(
             &mut self,
@@ -2236,13 +2214,12 @@ pub mod collections_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Collections/List");
             let mut req = request.into_request();
             req.extensions_mut().insert(GrpcMethod::new("qdrant.Collections", "List"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Create new collection with given parameters
         pub async fn create(
             &mut self,
@@ -2259,7 +2236,7 @@ pub mod collections_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/qdrant.Collections/Create",
             );
@@ -2267,7 +2244,6 @@ pub mod collections_client {
             req.extensions_mut().insert(GrpcMethod::new("qdrant.Collections", "Create"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Update parameters of the existing collection
         pub async fn update(
             &mut self,
@@ -2284,7 +2260,7 @@ pub mod collections_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/qdrant.Collections/Update",
             );
@@ -2292,7 +2268,6 @@ pub mod collections_client {
             req.extensions_mut().insert(GrpcMethod::new("qdrant.Collections", "Update"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Drop collection and all associated data
         pub async fn delete(
             &mut self,
@@ -2309,7 +2284,7 @@ pub mod collections_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/qdrant.Collections/Delete",
             );
@@ -2317,7 +2292,6 @@ pub mod collections_client {
             req.extensions_mut().insert(GrpcMethod::new("qdrant.Collections", "Delete"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Update Aliases of the existing collection
         pub async fn update_aliases(
             &mut self,
@@ -2334,7 +2308,7 @@ pub mod collections_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/qdrant.Collections/UpdateAliases",
             );
@@ -2343,7 +2317,6 @@ pub mod collections_client {
                 .insert(GrpcMethod::new("qdrant.Collections", "UpdateAliases"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Get list of all aliases for a collection
         pub async fn list_collection_aliases(
             &mut self,
@@ -2360,7 +2333,7 @@ pub mod collections_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/qdrant.Collections/ListCollectionAliases",
             );
@@ -2369,7 +2342,6 @@ pub mod collections_client {
                 .insert(GrpcMethod::new("qdrant.Collections", "ListCollectionAliases"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Get list of all aliases for all existing collections
         pub async fn list_aliases(
             &mut self,
@@ -2386,7 +2358,7 @@ pub mod collections_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/qdrant.Collections/ListAliases",
             );
@@ -2395,7 +2367,6 @@ pub mod collections_client {
                 .insert(GrpcMethod::new("qdrant.Collections", "ListAliases"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Get cluster information for a collection
         pub async fn collection_cluster_info(
             &mut self,
@@ -2412,7 +2383,7 @@ pub mod collections_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/qdrant.Collections/CollectionClusterInfo",
             );
@@ -2421,7 +2392,6 @@ pub mod collections_client {
                 .insert(GrpcMethod::new("qdrant.Collections", "CollectionClusterInfo"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Check the existence of a collection
         pub async fn collection_exists(
             &mut self,
@@ -2438,7 +2408,7 @@ pub mod collections_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/qdrant.Collections/CollectionExists",
             );
@@ -2447,7 +2417,6 @@ pub mod collections_client {
                 .insert(GrpcMethod::new("qdrant.Collections", "CollectionExists"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Update cluster setup for a collection
         pub async fn update_collection_cluster_setup(
             &mut self,
@@ -2464,7 +2433,7 @@ pub mod collections_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/qdrant.Collections/UpdateCollectionClusterSetup",
             );
@@ -2475,7 +2444,6 @@ pub mod collections_client {
                 );
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Create shard key
         pub async fn create_shard_key(
             &mut self,
@@ -2492,7 +2460,7 @@ pub mod collections_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/qdrant.Collections/CreateShardKey",
             );
@@ -2501,7 +2469,6 @@ pub mod collections_client {
                 .insert(GrpcMethod::new("qdrant.Collections", "CreateShardKey"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Delete shard key
         pub async fn delete_shard_key(
             &mut self,
@@ -2518,7 +2485,7 @@ pub mod collections_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/qdrant.Collections/DeleteShardKey",
             );
@@ -2542,7 +2509,6 @@ pub mod collections_server {
     /// Generated trait containing gRPC methods that should be implemented for use with CollectionsServer.
     #[async_trait]
     pub trait Collections: std::marker::Send + std::marker::Sync + 'static {
-        ///
         /// Get detailed information about specified existing collection
         async fn get(
             &self,
@@ -2551,7 +2517,6 @@ pub mod collections_server {
             tonic::Response<super::GetCollectionInfoResponse>,
             tonic::Status,
         >;
-        ///
         /// Get list name of all existing collections
         async fn list(
             &self,
@@ -2560,7 +2525,6 @@ pub mod collections_server {
             tonic::Response<super::ListCollectionsResponse>,
             tonic::Status,
         >;
-        ///
         /// Create new collection with given parameters
         async fn create(
             &self,
@@ -2569,7 +2533,6 @@ pub mod collections_server {
             tonic::Response<super::CollectionOperationResponse>,
             tonic::Status,
         >;
-        ///
         /// Update parameters of the existing collection
         async fn update(
             &self,
@@ -2578,7 +2541,6 @@ pub mod collections_server {
             tonic::Response<super::CollectionOperationResponse>,
             tonic::Status,
         >;
-        ///
         /// Drop collection and all associated data
         async fn delete(
             &self,
@@ -2587,7 +2549,6 @@ pub mod collections_server {
             tonic::Response<super::CollectionOperationResponse>,
             tonic::Status,
         >;
-        ///
         /// Update Aliases of the existing collection
         async fn update_aliases(
             &self,
@@ -2596,7 +2557,6 @@ pub mod collections_server {
             tonic::Response<super::CollectionOperationResponse>,
             tonic::Status,
         >;
-        ///
         /// Get list of all aliases for a collection
         async fn list_collection_aliases(
             &self,
@@ -2605,7 +2565,6 @@ pub mod collections_server {
             tonic::Response<super::ListAliasesResponse>,
             tonic::Status,
         >;
-        ///
         /// Get list of all aliases for all existing collections
         async fn list_aliases(
             &self,
@@ -2614,7 +2573,6 @@ pub mod collections_server {
             tonic::Response<super::ListAliasesResponse>,
             tonic::Status,
         >;
-        ///
         /// Get cluster information for a collection
         async fn collection_cluster_info(
             &self,
@@ -2623,7 +2581,6 @@ pub mod collections_server {
             tonic::Response<super::CollectionClusterInfoResponse>,
             tonic::Status,
         >;
-        ///
         /// Check the existence of a collection
         async fn collection_exists(
             &self,
@@ -2632,7 +2589,6 @@ pub mod collections_server {
             tonic::Response<super::CollectionExistsResponse>,
             tonic::Status,
         >;
-        ///
         /// Update cluster setup for a collection
         async fn update_collection_cluster_setup(
             &self,
@@ -2641,7 +2597,6 @@ pub mod collections_server {
             tonic::Response<super::UpdateCollectionClusterSetupResponse>,
             tonic::Status,
         >;
-        ///
         /// Create shard key
         async fn create_shard_key(
             &self,
@@ -2650,7 +2605,6 @@ pub mod collections_server {
             tonic::Response<super::CreateShardKeyResponse>,
             tonic::Status,
         >;
-        ///
         /// Delete shard key
         async fn delete_shard_key(
             &self,
@@ -2725,7 +2679,7 @@ pub mod collections_server {
         B: Body + std::marker::Send + 'static,
         B::Error: Into<StdError> + std::marker::Send + 'static,
     {
-        type Response = http::Response<tonic::body::BoxBody>;
+        type Response = http::Response<tonic::body::Body>;
         type Error = std::convert::Infallible;
         type Future = BoxFuture<Self::Response, Self::Error>;
         fn poll_ready(
@@ -2766,7 +2720,7 @@ pub mod collections_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = GetSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -2811,7 +2765,7 @@ pub mod collections_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = ListSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -2856,7 +2810,7 @@ pub mod collections_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = CreateSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -2901,7 +2855,7 @@ pub mod collections_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = UpdateSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -2946,7 +2900,7 @@ pub mod collections_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = DeleteSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -2991,7 +2945,7 @@ pub mod collections_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = UpdateAliasesSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -3037,7 +2991,7 @@ pub mod collections_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = ListCollectionAliasesSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -3082,7 +3036,7 @@ pub mod collections_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = ListAliasesSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -3128,7 +3082,7 @@ pub mod collections_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = CollectionClusterInfoSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -3173,7 +3127,7 @@ pub mod collections_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = CollectionExistsSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -3225,7 +3179,7 @@ pub mod collections_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = UpdateCollectionClusterSetupSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -3270,7 +3224,7 @@ pub mod collections_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = CreateShardKeySvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -3315,7 +3269,7 @@ pub mod collections_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = DeleteShardKeySvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -3332,7 +3286,9 @@ pub mod collections_server {
                 }
                 _ => {
                     Box::pin(async move {
-                        let mut response = http::Response::new(empty_body());
+                        let mut response = http::Response::new(
+                            tonic::body::Body::default(),
+                        );
                         let headers = response.headers_mut();
                         headers
                             .insert(
@@ -3437,7 +3393,9 @@ pub struct Vector {
     /// Vector data (flatten for multi vectors), deprecated
     #[deprecated]
     #[prost(float, repeated, packed = "false", tag = "1")]
+    /**
 
+Deprecated since 1.16.0, use [`vector`](crate::qdrant::Vector::vector) field instead.*/
     pub data: ::prost::alloc::vec::Vec<f32>,
     /// Sparse indices for sparse vectors, deprecated
     #[deprecated]
@@ -3879,15 +3837,12 @@ pub mod with_vectors_selector {
 }
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct QuantizationSearchParams {
-    ///
     /// If set to true, search will ignore quantized vector data
     #[prost(bool, optional, tag = "1")]
     pub ignore: ::core::option::Option<bool>,
-    ///
     /// If true, use original vectors to re-score top-k results. If ignored, qdrant decides automatically does rescore enabled or not.
     #[prost(bool, optional, tag = "2")]
     pub rescore: ::core::option::Option<bool>,
-    ///
     /// Oversampling factor for quantization.
     ///
     /// Defines how many extra vectors should be pre-selected using quantized index,
@@ -3900,7 +3855,6 @@ pub struct QuantizationSearchParams {
 }
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct AcornSearchParams {
-    ///
     /// If true, then ACORN may be used for the HNSW search based on filters
     /// selectivity.
     ///
@@ -3908,7 +3862,6 @@ pub struct AcornSearchParams {
     /// payload filters, at cost of performance.
     #[prost(bool, optional, tag = "1")]
     pub enable: ::core::option::Option<bool>,
-    ///
     /// Maximum selectivity of filters to enable ACORN.
     ///
     /// If estimated filters selectivity is higher than this value,
@@ -3921,26 +3874,21 @@ pub struct AcornSearchParams {
 }
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct SearchParams {
-    ///
     /// Params relevant to HNSW index. Size of the beam in a beam-search.
     /// Larger the value - more accurate the result, more time required for search.
     #[prost(uint64, optional, tag = "1")]
     pub hnsw_ef: ::core::option::Option<u64>,
-    ///
     /// Search without approximation. If set to true, search may run long but with exact results.
     #[prost(bool, optional, tag = "2")]
     pub exact: ::core::option::Option<bool>,
-    ///
     /// If set to true, search will ignore quantized vector data
     #[prost(message, optional, tag = "3")]
     pub quantization: ::core::option::Option<QuantizationSearchParams>,
-    ///
     /// If enabled, the engine will only perform search among indexed or small segments.
     /// Using this option prevents slow searches in case of delayed index, but does not
     /// guarantee that all uploaded vectors will be included in search results
     #[prost(bool, optional, tag = "4")]
     pub indexed_only: ::core::option::Option<bool>,
-    ///
     /// ACORN search params
     #[prost(message, optional, tag = "5")]
     pub acorn: ::core::option::Option<AcornSearchParams>,
@@ -5367,9 +5315,9 @@ pub struct PointStruct {
     #[prost(message, optional, tag = "4")]
     pub vectors: ::core::option::Option<Vectors>,
 }
-/// ---------------------------------------------
-/// ----------- Measurements collector ----------
-/// ---------------------------------------------
+/// ---
+///
+/// ## ----------- Measurements collector ----------
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Usage {
     #[prost(message, optional, tag = "1")]
@@ -5694,7 +5642,7 @@ pub mod points_client {
     }
     impl<T> PointsClient<T>
     where
-        T: tonic::client::GrpcService<tonic::body::BoxBody>,
+        T: tonic::client::GrpcService<tonic::body::Body>,
         T::Error: Into<StdError>,
         T::ResponseBody: Body<Data = Bytes> + std::marker::Send + 'static,
         <T::ResponseBody as Body>::Error: Into<StdError> + std::marker::Send,
@@ -5715,13 +5663,13 @@ pub mod points_client {
             F: tonic::service::Interceptor,
             T::ResponseBody: Default,
             T: tonic::codegen::Service<
-                http::Request<tonic::body::BoxBody>,
+                http::Request<tonic::body::Body>,
                 Response = http::Response<
-                    <T as tonic::client::GrpcService<tonic::body::BoxBody>>::ResponseBody,
+                    <T as tonic::client::GrpcService<tonic::body::Body>>::ResponseBody,
                 >,
             >,
             <T as tonic::codegen::Service<
-                http::Request<tonic::body::BoxBody>,
+                http::Request<tonic::body::Body>,
             >>::Error: Into<StdError> + std::marker::Send + std::marker::Sync,
         {
             PointsClient::new(InterceptedService::new(inner, interceptor))
@@ -5757,7 +5705,6 @@ pub mod points_client {
             self.inner = self.inner.max_encoding_message_size(limit);
             self
         }
-        ///
         /// Perform insert + updates on points. If a point with a given ID already exists - it will be overwritten.
         pub async fn upsert(
             &mut self,
@@ -5774,13 +5721,12 @@ pub mod points_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Points/Upsert");
             let mut req = request.into_request();
             req.extensions_mut().insert(GrpcMethod::new("qdrant.Points", "Upsert"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Delete points
         pub async fn delete(
             &mut self,
@@ -5797,13 +5743,12 @@ pub mod points_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Points/Delete");
             let mut req = request.into_request();
             req.extensions_mut().insert(GrpcMethod::new("qdrant.Points", "Delete"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Retrieve points
         pub async fn get(
             &mut self,
@@ -5817,13 +5762,12 @@ pub mod points_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Points/Get");
             let mut req = request.into_request();
             req.extensions_mut().insert(GrpcMethod::new("qdrant.Points", "Get"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Update named vectors for point
         pub async fn update_vectors(
             &mut self,
@@ -5840,7 +5784,7 @@ pub mod points_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/qdrant.Points/UpdateVectors",
             );
@@ -5849,7 +5793,6 @@ pub mod points_client {
                 .insert(GrpcMethod::new("qdrant.Points", "UpdateVectors"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Delete named vectors for points
         pub async fn delete_vectors(
             &mut self,
@@ -5866,7 +5809,7 @@ pub mod points_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/qdrant.Points/DeleteVectors",
             );
@@ -5875,7 +5818,6 @@ pub mod points_client {
                 .insert(GrpcMethod::new("qdrant.Points", "DeleteVectors"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Set payload for points
         pub async fn set_payload(
             &mut self,
@@ -5892,13 +5834,12 @@ pub mod points_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Points/SetPayload");
             let mut req = request.into_request();
             req.extensions_mut().insert(GrpcMethod::new("qdrant.Points", "SetPayload"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Overwrite payload for points
         pub async fn overwrite_payload(
             &mut self,
@@ -5915,7 +5856,7 @@ pub mod points_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/qdrant.Points/OverwritePayload",
             );
@@ -5924,7 +5865,6 @@ pub mod points_client {
                 .insert(GrpcMethod::new("qdrant.Points", "OverwritePayload"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Delete specified key payload for points
         pub async fn delete_payload(
             &mut self,
@@ -5941,7 +5881,7 @@ pub mod points_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/qdrant.Points/DeletePayload",
             );
@@ -5950,7 +5890,6 @@ pub mod points_client {
                 .insert(GrpcMethod::new("qdrant.Points", "DeletePayload"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Remove all payload for specified points
         pub async fn clear_payload(
             &mut self,
@@ -5967,7 +5906,7 @@ pub mod points_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/qdrant.Points/ClearPayload",
             );
@@ -5976,7 +5915,6 @@ pub mod points_client {
                 .insert(GrpcMethod::new("qdrant.Points", "ClearPayload"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Create index for field in collection
         pub async fn create_field_index(
             &mut self,
@@ -5993,7 +5931,7 @@ pub mod points_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/qdrant.Points/CreateFieldIndex",
             );
@@ -6002,7 +5940,6 @@ pub mod points_client {
                 .insert(GrpcMethod::new("qdrant.Points", "CreateFieldIndex"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Delete field index for collection
         pub async fn delete_field_index(
             &mut self,
@@ -6019,7 +5956,7 @@ pub mod points_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/qdrant.Points/DeleteFieldIndex",
             );
@@ -6028,7 +5965,6 @@ pub mod points_client {
                 .insert(GrpcMethod::new("qdrant.Points", "DeleteFieldIndex"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Retrieve closest points based on vector similarity and given filtering conditions
         pub async fn search(
             &mut self,
@@ -6042,13 +5978,12 @@ pub mod points_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Points/Search");
             let mut req = request.into_request();
             req.extensions_mut().insert(GrpcMethod::new("qdrant.Points", "Search"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Retrieve closest points based on vector similarity and given filtering conditions
         pub async fn search_batch(
             &mut self,
@@ -6065,7 +6000,7 @@ pub mod points_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/qdrant.Points/SearchBatch",
             );
@@ -6073,7 +6008,6 @@ pub mod points_client {
             req.extensions_mut().insert(GrpcMethod::new("qdrant.Points", "SearchBatch"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Retrieve closest points based on vector similarity and given filtering conditions, grouped by a given field
         pub async fn search_groups(
             &mut self,
@@ -6090,7 +6024,7 @@ pub mod points_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/qdrant.Points/SearchGroups",
             );
@@ -6099,7 +6033,6 @@ pub mod points_client {
                 .insert(GrpcMethod::new("qdrant.Points", "SearchGroups"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Iterate over all or filtered points
         pub async fn scroll(
             &mut self,
@@ -6113,13 +6046,12 @@ pub mod points_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Points/Scroll");
             let mut req = request.into_request();
             req.extensions_mut().insert(GrpcMethod::new("qdrant.Points", "Scroll"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Look for the points which are closer to stored positive examples and at the same time further to negative examples.
         pub async fn recommend(
             &mut self,
@@ -6136,13 +6068,12 @@ pub mod points_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Points/Recommend");
             let mut req = request.into_request();
             req.extensions_mut().insert(GrpcMethod::new("qdrant.Points", "Recommend"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Look for the points which are closer to stored positive examples and at the same time further to negative examples.
         pub async fn recommend_batch(
             &mut self,
@@ -6159,7 +6090,7 @@ pub mod points_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/qdrant.Points/RecommendBatch",
             );
@@ -6168,7 +6099,6 @@ pub mod points_client {
                 .insert(GrpcMethod::new("qdrant.Points", "RecommendBatch"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Look for the points which are closer to stored positive examples and at the same time further to negative examples, grouped by a given field
         pub async fn recommend_groups(
             &mut self,
@@ -6185,7 +6115,7 @@ pub mod points_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/qdrant.Points/RecommendGroups",
             );
@@ -6194,7 +6124,6 @@ pub mod points_client {
                 .insert(GrpcMethod::new("qdrant.Points", "RecommendGroups"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Use context and a target to find the most similar points to the target, constrained by the context.
         ///
         /// When using only the context (without a target), a special search - called context search - is performed where
@@ -6225,13 +6154,12 @@ pub mod points_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Points/Discover");
             let mut req = request.into_request();
             req.extensions_mut().insert(GrpcMethod::new("qdrant.Points", "Discover"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Batch request points based on { positive, negative } pairs of examples, and/or a target
         pub async fn discover_batch(
             &mut self,
@@ -6248,7 +6176,7 @@ pub mod points_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/qdrant.Points/DiscoverBatch",
             );
@@ -6257,7 +6185,6 @@ pub mod points_client {
                 .insert(GrpcMethod::new("qdrant.Points", "DiscoverBatch"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Count points in collection with given filtering conditions
         pub async fn count(
             &mut self,
@@ -6271,13 +6198,12 @@ pub mod points_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Points/Count");
             let mut req = request.into_request();
             req.extensions_mut().insert(GrpcMethod::new("qdrant.Points", "Count"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Perform multiple update operations in one request
         pub async fn update_batch(
             &mut self,
@@ -6294,7 +6220,7 @@ pub mod points_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/qdrant.Points/UpdateBatch",
             );
@@ -6302,7 +6228,6 @@ pub mod points_client {
             req.extensions_mut().insert(GrpcMethod::new("qdrant.Points", "UpdateBatch"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Universally query points. This endpoint covers all capabilities of search, recommend, discover, filters. But also enables hybrid and multi-stage queries.
         pub async fn query(
             &mut self,
@@ -6316,13 +6241,12 @@ pub mod points_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Points/Query");
             let mut req = request.into_request();
             req.extensions_mut().insert(GrpcMethod::new("qdrant.Points", "Query"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Universally query points in a batch fashion. This endpoint covers all capabilities of search, recommend, discover, filters. But also enables hybrid and multi-stage queries.
         pub async fn query_batch(
             &mut self,
@@ -6339,13 +6263,12 @@ pub mod points_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Points/QueryBatch");
             let mut req = request.into_request();
             req.extensions_mut().insert(GrpcMethod::new("qdrant.Points", "QueryBatch"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Universally query points in a group fashion. This endpoint covers all capabilities of search, recommend, discover, filters. But also enables hybrid and multi-stage queries.
         pub async fn query_groups(
             &mut self,
@@ -6362,7 +6285,7 @@ pub mod points_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/qdrant.Points/QueryGroups",
             );
@@ -6370,7 +6293,6 @@ pub mod points_client {
             req.extensions_mut().insert(GrpcMethod::new("qdrant.Points", "QueryGroups"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Perform facet counts. For each value in the field, count the number of points that have this value and match the conditions.
         pub async fn facet(
             &mut self,
@@ -6384,13 +6306,12 @@ pub mod points_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Points/Facet");
             let mut req = request.into_request();
             req.extensions_mut().insert(GrpcMethod::new("qdrant.Points", "Facet"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Compute distance matrix for sampled points with a pair based output format
         pub async fn search_matrix_pairs(
             &mut self,
@@ -6407,7 +6328,7 @@ pub mod points_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/qdrant.Points/SearchMatrixPairs",
             );
@@ -6416,7 +6337,6 @@ pub mod points_client {
                 .insert(GrpcMethod::new("qdrant.Points", "SearchMatrixPairs"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Compute distance matrix for sampled points with an offset based output format
         pub async fn search_matrix_offsets(
             &mut self,
@@ -6433,7 +6353,7 @@ pub mod points_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/qdrant.Points/SearchMatrixOffsets",
             );
@@ -6457,7 +6377,6 @@ pub mod points_server {
     /// Generated trait containing gRPC methods that should be implemented for use with PointsServer.
     #[async_trait]
     pub trait Points: std::marker::Send + std::marker::Sync + 'static {
-        ///
         /// Perform insert + updates on points. If a point with a given ID already exists - it will be overwritten.
         async fn upsert(
             &self,
@@ -6466,7 +6385,6 @@ pub mod points_server {
             tonic::Response<super::PointsOperationResponse>,
             tonic::Status,
         >;
-        ///
         /// Delete points
         async fn delete(
             &self,
@@ -6475,13 +6393,11 @@ pub mod points_server {
             tonic::Response<super::PointsOperationResponse>,
             tonic::Status,
         >;
-        ///
         /// Retrieve points
         async fn get(
             &self,
             request: tonic::Request<super::GetPoints>,
         ) -> std::result::Result<tonic::Response<super::GetResponse>, tonic::Status>;
-        ///
         /// Update named vectors for point
         async fn update_vectors(
             &self,
@@ -6490,7 +6406,6 @@ pub mod points_server {
             tonic::Response<super::PointsOperationResponse>,
             tonic::Status,
         >;
-        ///
         /// Delete named vectors for points
         async fn delete_vectors(
             &self,
@@ -6499,7 +6414,6 @@ pub mod points_server {
             tonic::Response<super::PointsOperationResponse>,
             tonic::Status,
         >;
-        ///
         /// Set payload for points
         async fn set_payload(
             &self,
@@ -6508,7 +6422,6 @@ pub mod points_server {
             tonic::Response<super::PointsOperationResponse>,
             tonic::Status,
         >;
-        ///
         /// Overwrite payload for points
         async fn overwrite_payload(
             &self,
@@ -6517,7 +6430,6 @@ pub mod points_server {
             tonic::Response<super::PointsOperationResponse>,
             tonic::Status,
         >;
-        ///
         /// Delete specified key payload for points
         async fn delete_payload(
             &self,
@@ -6526,7 +6438,6 @@ pub mod points_server {
             tonic::Response<super::PointsOperationResponse>,
             tonic::Status,
         >;
-        ///
         /// Remove all payload for specified points
         async fn clear_payload(
             &self,
@@ -6535,7 +6446,6 @@ pub mod points_server {
             tonic::Response<super::PointsOperationResponse>,
             tonic::Status,
         >;
-        ///
         /// Create index for field in collection
         async fn create_field_index(
             &self,
@@ -6544,7 +6454,6 @@ pub mod points_server {
             tonic::Response<super::PointsOperationResponse>,
             tonic::Status,
         >;
-        ///
         /// Delete field index for collection
         async fn delete_field_index(
             &self,
@@ -6553,13 +6462,11 @@ pub mod points_server {
             tonic::Response<super::PointsOperationResponse>,
             tonic::Status,
         >;
-        ///
         /// Retrieve closest points based on vector similarity and given filtering conditions
         async fn search(
             &self,
             request: tonic::Request<super::SearchPoints>,
         ) -> std::result::Result<tonic::Response<super::SearchResponse>, tonic::Status>;
-        ///
         /// Retrieve closest points based on vector similarity and given filtering conditions
         async fn search_batch(
             &self,
@@ -6568,7 +6475,6 @@ pub mod points_server {
             tonic::Response<super::SearchBatchResponse>,
             tonic::Status,
         >;
-        ///
         /// Retrieve closest points based on vector similarity and given filtering conditions, grouped by a given field
         async fn search_groups(
             &self,
@@ -6577,13 +6483,11 @@ pub mod points_server {
             tonic::Response<super::SearchGroupsResponse>,
             tonic::Status,
         >;
-        ///
         /// Iterate over all or filtered points
         async fn scroll(
             &self,
             request: tonic::Request<super::ScrollPoints>,
         ) -> std::result::Result<tonic::Response<super::ScrollResponse>, tonic::Status>;
-        ///
         /// Look for the points which are closer to stored positive examples and at the same time further to negative examples.
         async fn recommend(
             &self,
@@ -6592,7 +6496,6 @@ pub mod points_server {
             tonic::Response<super::RecommendResponse>,
             tonic::Status,
         >;
-        ///
         /// Look for the points which are closer to stored positive examples and at the same time further to negative examples.
         async fn recommend_batch(
             &self,
@@ -6601,7 +6504,6 @@ pub mod points_server {
             tonic::Response<super::RecommendBatchResponse>,
             tonic::Status,
         >;
-        ///
         /// Look for the points which are closer to stored positive examples and at the same time further to negative examples, grouped by a given field
         async fn recommend_groups(
             &self,
@@ -6610,7 +6512,6 @@ pub mod points_server {
             tonic::Response<super::RecommendGroupsResponse>,
             tonic::Status,
         >;
-        ///
         /// Use context and a target to find the most similar points to the target, constrained by the context.
         ///
         /// When using only the context (without a target), a special search - called context search - is performed where
@@ -6633,7 +6534,6 @@ pub mod points_server {
             tonic::Response<super::DiscoverResponse>,
             tonic::Status,
         >;
-        ///
         /// Batch request points based on { positive, negative } pairs of examples, and/or a target
         async fn discover_batch(
             &self,
@@ -6642,13 +6542,11 @@ pub mod points_server {
             tonic::Response<super::DiscoverBatchResponse>,
             tonic::Status,
         >;
-        ///
         /// Count points in collection with given filtering conditions
         async fn count(
             &self,
             request: tonic::Request<super::CountPoints>,
         ) -> std::result::Result<tonic::Response<super::CountResponse>, tonic::Status>;
-        ///
         /// Perform multiple update operations in one request
         async fn update_batch(
             &self,
@@ -6657,13 +6555,11 @@ pub mod points_server {
             tonic::Response<super::UpdateBatchResponse>,
             tonic::Status,
         >;
-        ///
         /// Universally query points. This endpoint covers all capabilities of search, recommend, discover, filters. But also enables hybrid and multi-stage queries.
         async fn query(
             &self,
             request: tonic::Request<super::QueryPoints>,
         ) -> std::result::Result<tonic::Response<super::QueryResponse>, tonic::Status>;
-        ///
         /// Universally query points in a batch fashion. This endpoint covers all capabilities of search, recommend, discover, filters. But also enables hybrid and multi-stage queries.
         async fn query_batch(
             &self,
@@ -6672,7 +6568,6 @@ pub mod points_server {
             tonic::Response<super::QueryBatchResponse>,
             tonic::Status,
         >;
-        ///
         /// Universally query points in a group fashion. This endpoint covers all capabilities of search, recommend, discover, filters. But also enables hybrid and multi-stage queries.
         async fn query_groups(
             &self,
@@ -6681,13 +6576,11 @@ pub mod points_server {
             tonic::Response<super::QueryGroupsResponse>,
             tonic::Status,
         >;
-        ///
         /// Perform facet counts. For each value in the field, count the number of points that have this value and match the conditions.
         async fn facet(
             &self,
             request: tonic::Request<super::FacetCounts>,
         ) -> std::result::Result<tonic::Response<super::FacetResponse>, tonic::Status>;
-        ///
         /// Compute distance matrix for sampled points with a pair based output format
         async fn search_matrix_pairs(
             &self,
@@ -6696,7 +6589,6 @@ pub mod points_server {
             tonic::Response<super::SearchMatrixPairsResponse>,
             tonic::Status,
         >;
-        ///
         /// Compute distance matrix for sampled points with an offset based output format
         async fn search_matrix_offsets(
             &self,
@@ -6771,7 +6663,7 @@ pub mod points_server {
         B: Body + std::marker::Send + 'static,
         B::Error: Into<StdError> + std::marker::Send + 'static,
     {
-        type Response = http::Response<tonic::body::BoxBody>;
+        type Response = http::Response<tonic::body::Body>;
         type Error = std::convert::Infallible;
         type Future = BoxFuture<Self::Response, Self::Error>;
         fn poll_ready(
@@ -6810,7 +6702,7 @@ pub mod points_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = UpsertSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -6853,7 +6745,7 @@ pub mod points_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = DeleteSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -6896,7 +6788,7 @@ pub mod points_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = GetSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -6941,7 +6833,7 @@ pub mod points_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = UpdateVectorsSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -6986,7 +6878,7 @@ pub mod points_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = DeleteVectorsSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -7029,7 +6921,7 @@ pub mod points_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = SetPayloadSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -7072,7 +6964,7 @@ pub mod points_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = OverwritePayloadSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -7117,7 +7009,7 @@ pub mod points_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = DeletePayloadSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -7162,7 +7054,7 @@ pub mod points_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = ClearPayloadSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -7207,7 +7099,7 @@ pub mod points_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = CreateFieldIndexSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -7252,7 +7144,7 @@ pub mod points_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = DeleteFieldIndexSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -7295,7 +7187,7 @@ pub mod points_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = SearchSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -7338,7 +7230,7 @@ pub mod points_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = SearchBatchSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -7381,7 +7273,7 @@ pub mod points_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = SearchGroupsSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -7424,7 +7316,7 @@ pub mod points_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = ScrollSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -7467,7 +7359,7 @@ pub mod points_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = RecommendSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -7512,7 +7404,7 @@ pub mod points_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = RecommendBatchSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -7557,7 +7449,7 @@ pub mod points_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = RecommendGroupsSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -7600,7 +7492,7 @@ pub mod points_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = DiscoverSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -7645,7 +7537,7 @@ pub mod points_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = DiscoverBatchSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -7688,7 +7580,7 @@ pub mod points_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = CountSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -7731,7 +7623,7 @@ pub mod points_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = UpdateBatchSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -7774,7 +7666,7 @@ pub mod points_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = QuerySvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -7817,7 +7709,7 @@ pub mod points_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = QueryBatchSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -7860,7 +7752,7 @@ pub mod points_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = QueryGroupsSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -7903,7 +7795,7 @@ pub mod points_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = FacetSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -7948,7 +7840,7 @@ pub mod points_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = SearchMatrixPairsSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -7993,7 +7885,7 @@ pub mod points_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = SearchMatrixOffsetsSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -8010,7 +7902,9 @@ pub mod points_server {
                 }
                 _ => {
                     Box::pin(async move {
-                        let mut response = http::Response::new(empty_body());
+                        let mut response = http::Response::new(
+                            tonic::body::Body::default(),
+                        );
                         let headers = response.headers_mut();
                         headers
                             .insert(
@@ -8142,7 +8036,7 @@ pub mod snapshots_client {
     }
     impl<T> SnapshotsClient<T>
     where
-        T: tonic::client::GrpcService<tonic::body::BoxBody>,
+        T: tonic::client::GrpcService<tonic::body::Body>,
         T::Error: Into<StdError>,
         T::ResponseBody: Body<Data = Bytes> + std::marker::Send + 'static,
         <T::ResponseBody as Body>::Error: Into<StdError> + std::marker::Send,
@@ -8163,13 +8057,13 @@ pub mod snapshots_client {
             F: tonic::service::Interceptor,
             T::ResponseBody: Default,
             T: tonic::codegen::Service<
-                http::Request<tonic::body::BoxBody>,
+                http::Request<tonic::body::Body>,
                 Response = http::Response<
-                    <T as tonic::client::GrpcService<tonic::body::BoxBody>>::ResponseBody,
+                    <T as tonic::client::GrpcService<tonic::body::Body>>::ResponseBody,
                 >,
             >,
             <T as tonic::codegen::Service<
-                http::Request<tonic::body::BoxBody>,
+                http::Request<tonic::body::Body>,
             >>::Error: Into<StdError> + std::marker::Send + std::marker::Sync,
         {
             SnapshotsClient::new(InterceptedService::new(inner, interceptor))
@@ -8205,7 +8099,6 @@ pub mod snapshots_client {
             self.inner = self.inner.max_encoding_message_size(limit);
             self
         }
-        ///
         /// Create collection snapshot
         pub async fn create(
             &mut self,
@@ -8222,13 +8115,12 @@ pub mod snapshots_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Snapshots/Create");
             let mut req = request.into_request();
             req.extensions_mut().insert(GrpcMethod::new("qdrant.Snapshots", "Create"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// List collection snapshots
         pub async fn list(
             &mut self,
@@ -8245,13 +8137,12 @@ pub mod snapshots_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Snapshots/List");
             let mut req = request.into_request();
             req.extensions_mut().insert(GrpcMethod::new("qdrant.Snapshots", "List"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Delete collection snapshot
         pub async fn delete(
             &mut self,
@@ -8268,13 +8159,12 @@ pub mod snapshots_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/qdrant.Snapshots/Delete");
             let mut req = request.into_request();
             req.extensions_mut().insert(GrpcMethod::new("qdrant.Snapshots", "Delete"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Create full storage snapshot
         pub async fn create_full(
             &mut self,
@@ -8291,7 +8181,7 @@ pub mod snapshots_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/qdrant.Snapshots/CreateFull",
             );
@@ -8300,7 +8190,6 @@ pub mod snapshots_client {
                 .insert(GrpcMethod::new("qdrant.Snapshots", "CreateFull"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// List full storage snapshots
         pub async fn list_full(
             &mut self,
@@ -8317,7 +8206,7 @@ pub mod snapshots_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/qdrant.Snapshots/ListFull",
             );
@@ -8325,7 +8214,6 @@ pub mod snapshots_client {
             req.extensions_mut().insert(GrpcMethod::new("qdrant.Snapshots", "ListFull"));
             self.inner.unary(req, path, codec).await
         }
-        ///
         /// Delete full storage snapshot
         pub async fn delete_full(
             &mut self,
@@ -8342,7 +8230,7 @@ pub mod snapshots_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/qdrant.Snapshots/DeleteFull",
             );
@@ -8366,7 +8254,6 @@ pub mod snapshots_server {
     /// Generated trait containing gRPC methods that should be implemented for use with SnapshotsServer.
     #[async_trait]
     pub trait Snapshots: std::marker::Send + std::marker::Sync + 'static {
-        ///
         /// Create collection snapshot
         async fn create(
             &self,
@@ -8375,7 +8262,6 @@ pub mod snapshots_server {
             tonic::Response<super::CreateSnapshotResponse>,
             tonic::Status,
         >;
-        ///
         /// List collection snapshots
         async fn list(
             &self,
@@ -8384,7 +8270,6 @@ pub mod snapshots_server {
             tonic::Response<super::ListSnapshotsResponse>,
             tonic::Status,
         >;
-        ///
         /// Delete collection snapshot
         async fn delete(
             &self,
@@ -8393,7 +8278,6 @@ pub mod snapshots_server {
             tonic::Response<super::DeleteSnapshotResponse>,
             tonic::Status,
         >;
-        ///
         /// Create full storage snapshot
         async fn create_full(
             &self,
@@ -8402,7 +8286,6 @@ pub mod snapshots_server {
             tonic::Response<super::CreateSnapshotResponse>,
             tonic::Status,
         >;
-        ///
         /// List full storage snapshots
         async fn list_full(
             &self,
@@ -8411,7 +8294,6 @@ pub mod snapshots_server {
             tonic::Response<super::ListSnapshotsResponse>,
             tonic::Status,
         >;
-        ///
         /// Delete full storage snapshot
         async fn delete_full(
             &self,
@@ -8486,7 +8368,7 @@ pub mod snapshots_server {
         B: Body + std::marker::Send + 'static,
         B::Error: Into<StdError> + std::marker::Send + 'static,
     {
-        type Response = http::Response<tonic::body::BoxBody>;
+        type Response = http::Response<tonic::body::Body>;
         type Error = std::convert::Infallible;
         type Future = BoxFuture<Self::Response, Self::Error>;
         fn poll_ready(
@@ -8527,7 +8409,7 @@ pub mod snapshots_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = CreateSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -8572,7 +8454,7 @@ pub mod snapshots_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = ListSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -8617,7 +8499,7 @@ pub mod snapshots_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = DeleteSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -8662,7 +8544,7 @@ pub mod snapshots_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = CreateFullSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -8707,7 +8589,7 @@ pub mod snapshots_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = ListFullSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -8752,7 +8634,7 @@ pub mod snapshots_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = DeleteFullSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -8769,7 +8651,9 @@ pub mod snapshots_server {
                 }
                 _ => {
                     Box::pin(async move {
-                        let mut response = http::Response::new(empty_body());
+                        let mut response = http::Response::new(
+                            tonic::body::Body::default(),
+                        );
                         let headers = response.headers_mut();
                         headers
                             .insert(
@@ -8844,7 +8728,7 @@ pub mod qdrant_client {
     }
     impl<T> QdrantClient<T>
     where
-        T: tonic::client::GrpcService<tonic::body::BoxBody>,
+        T: tonic::client::GrpcService<tonic::body::Body>,
         T::Error: Into<StdError>,
         T::ResponseBody: Body<Data = Bytes> + std::marker::Send + 'static,
         <T::ResponseBody as Body>::Error: Into<StdError> + std::marker::Send,
@@ -8865,13 +8749,13 @@ pub mod qdrant_client {
             F: tonic::service::Interceptor,
             T::ResponseBody: Default,
             T: tonic::codegen::Service<
-                http::Request<tonic::body::BoxBody>,
+                http::Request<tonic::body::Body>,
                 Response = http::Response<
-                    <T as tonic::client::GrpcService<tonic::body::BoxBody>>::ResponseBody,
+                    <T as tonic::client::GrpcService<tonic::body::Body>>::ResponseBody,
                 >,
             >,
             <T as tonic::codegen::Service<
-                http::Request<tonic::body::BoxBody>,
+                http::Request<tonic::body::Body>,
             >>::Error: Into<StdError> + std::marker::Send + std::marker::Sync,
         {
             QdrantClient::new(InterceptedService::new(inner, interceptor))
@@ -8922,7 +8806,7 @@ pub mod qdrant_client {
                         format!("Service was not ready: {}", e.into()),
                     )
                 })?;
-            let codec = tonic::codec::ProstCodec::default();
+            let codec = tonic_prost::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/qdrant.Qdrant/HealthCheck",
             );
@@ -9018,7 +8902,7 @@ pub mod qdrant_server {
         B: Body + std::marker::Send + 'static,
         B::Error: Into<StdError> + std::marker::Send + 'static,
     {
-        type Response = http::Response<tonic::body::BoxBody>;
+        type Response = http::Response<tonic::body::Body>;
         type Error = std::convert::Infallible;
         type Future = BoxFuture<Self::Response, Self::Error>;
         fn poll_ready(
@@ -9059,7 +8943,7 @@ pub mod qdrant_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = HealthCheckSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -9076,7 +8960,9 @@ pub mod qdrant_server {
                 }
                 _ => {
                     Box::pin(async move {
-                        let mut response = http::Response::new(empty_body());
+                        let mut response = http::Response::new(
+                            tonic::body::Body::default(),
+                        );
                         let headers = response.headers_mut();
                         headers
                             .insert(

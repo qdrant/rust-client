@@ -13,9 +13,10 @@ categories = ["database", "api-bindings"]
 keywords = ["qdrant", "vector-search", "search-engine", "client", "grpc"]
 
 [dependencies]
-tonic = { version = "0.12.3", features = ["tls", "tls-roots", "gzip"] }
-prost = "0.13.3"
-prost-types = "0.13.3"
+tonic = { version = "0.14.2", features = ["tls-ring", "tls-native-roots", "gzip", "channel"] }
+prost = "0.14.1"
+prost-types = "0.14.1"
+tonic-prost = "0.14"
 anyhow = "1.0.89"
 serde = { version = "1.0.210", features = ["derive"], optional = true }
 serde_json = { version = "1.0.128", optional = true }
@@ -24,13 +25,14 @@ futures = { version = "0.3.31" }
 tokio = { version = "1.40.0", features = ["rt-multi-thread"] }
 futures-util = { version = "0.3.31", optional = true }
 derive_builder = { version = "0.20.2" }
-thiserror = "1.0.64"
+thiserror = "2.0"
 semver = "1.0.24"
 uuid = { version = "1.8.2", optional = true }
 parking_lot = "0.12.4"
 
 [dev-dependencies]
-tonic-build = { version = "0.12.3", features = ["prost"] }
+tonic-build = "0.14.2"
+tonic-prost-build = "0.14"
 
 [features]
 default = ["download_snapshots", "serde", "generate-snippets"]
