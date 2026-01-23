@@ -8,6 +8,10 @@ use crate::qdrant_client::{Qdrant, QdrantResult};
 
 /// # Search operations
 ///
+/// <div class="warning">
+/// For searching, please switch to the more fully featured <a href="#query-operations">Query API</a> instead. The search API will be removed in the future.
+/// </div>
+///
 /// Search and explore points.
 ///
 /// Documentation: <https://qdrant.tech/documentation/concepts/search/>

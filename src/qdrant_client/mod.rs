@@ -72,8 +72,7 @@ pub type QdrantBuilder = QdrantConfig;
 /// - [Collection operations](Self#collection-operations) - manage collections, aliases and cluster configuration
 /// - [Point operations](Self#point-operations) - manage points and vectors
 /// - [Payload operations](Self#payload-operations) - manage point payloads
-/// - [Search operations](Self#search-operations) - search and explore points
-/// - [Query operations](Self#query-operations) - query points using universal search
+/// - [Query operations](Self#query-operations) - query (search) points using universal search
 /// - [Index operations](Self#index-operations) - manage field and payload indices
 /// - [Snapshot operations](Self#snapshot-operations) - manage instance or collection snapshots
 /// - [Shard key operations](Self#sharding-key-operations) - manage shard keys
@@ -82,7 +81,7 @@ pub type QdrantBuilder = QdrantConfig;
 ///
 /// - [`create_collection`](Self::create_collection) - create a new collection
 /// - [`upsert_points`](Self::upsert_points) - insert or update points
-/// - [`search_points`](Self::search_points) - search points with similarity search
+/// - [`query_points`](Self::query_points) - query points with similarity search
 #[derive(Clone)]
 pub struct Qdrant {
     /// Client configuration
