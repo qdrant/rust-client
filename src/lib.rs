@@ -86,37 +86,41 @@
 //!
 //! Documentation: <https://qdrant.tech/documentation/concepts/points/#upload-points>
 //!
-//! # Search
+//! # Query (search)
 //!
 //! Finally, we can retrieve points in various ways, the common one being a plain similarity
 //! search:
 //!
 //! ```no_run
 //!# use qdrant_client::{Qdrant, QdrantError};
-//! use qdrant_client::qdrant::SearchPointsBuilder;
+//! use qdrant_client::qdrant::QueryPointsBuilder;
 //!
-//!# async fn search(client: &Qdrant)
+//!# async fn query(client: &Qdrant)
 //!# -> Result<(), QdrantError> {
-//! let search_request = SearchPointsBuilder::new(
-//!     "my_collection",    // Collection name
-//!     vec![0.0_f32; 512], // Search vector
-//!     4,                  // Search limit, number of results to return
-//! ).with_payload(true);
+//! let query_request = QueryPointsBuilder::new("my_collection") // Collection name
+//!     .query(vec![0.0_f32; 512])                               // Query vector
+//!     .limit(4)                                                // Search limit, number of results to return
+//!     .with_payload(true);                                     // Include full payload in the result
 //!
-//! let response = client.search_points(search_request).await?;
+//! let response = client.query(query_request).await?;
 //!# Ok(())
 //!# }
 //! ```
 //!
-//! The parameter for [`SearchPointsBuilder::new()`](qdrant::SearchPointsBuilder::new) constructor
-//! are pretty straightforward: name of the collection, the vector and how many top-k results to
-//! return. The [`with_payload(true)`](qdrant::SearchPointsBuilder::with_payload) call tells qdrant
-//! to also return the (full) payload data for each point. You can also add a
-//! [`filter()`](qdrant::SearchPointsBuilder::filter) call to the
-//! [`SearchPointsBuilder`](qdrant::SearchPointsBuilder) to filter the result. See the
-//! [`Filter`](qdrant::Filter) documentation for details.
+//! The parameter for [`QueryPointsBuilder::new()`](qdrant::QueryPointsBuilder::new) is pretty
+//! straightforward: the name of the collection to query in. It is combined with other
+//! [functions](qdrant::QueryPointsBuilder#implementations) to further specialize your query to
+//! cover all query flavors.
 //!
-//! Documentation: <https://qdrant.tech/documentation/concepts/search/>
+//! In this example [`query(...)`](qdrant::QueryPointsBuilder::query) is used to enable vector
+//! similarity search on the given vector. [`limit(4)`](qdrant::QueryPointsBuilder::limit)
+//! specifies we only want up to 4 top-k results. And
+//! [`with_payload(true)`](qdrant::QueryPointsBuilder::with_payload) tells Qdrant to also return
+//! the (full) payload data for each point. [`filter()`](qdrant::QueryPointsBuilder::filter) is
+//! also commonly used to apply payload based filtering. See the [`Filter`](qdrant::Filter)
+//! documentation for details.
+//!
+//! Documentation: <https://qdrant.tech/documentation/concepts/search/#query-api>
 
 #![doc(html_logo_url = "https://qdrant.tech/favicon/android-chrome-192x192.png")]
 #![doc(issue_tracker_base_url = "https://github.com/qdrant/rust-client/issues/")]
