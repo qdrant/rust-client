@@ -1,6 +1,6 @@
 use qdrant_client::qdrant::{
-    Condition, CreateCollectionBuilder, Distance, Filter, PointStruct, ScalarQuantizationBuilder,
-    SearchParamsBuilder, SearchPointsBuilder, UpsertPointsBuilder, VectorParamsBuilder,
+    Condition, CreateCollectionBuilder, Distance, Filter, PointStruct, QueryPointsBuilder,
+    ScalarQuantizationBuilder, SearchParamsBuilder, UpsertPointsBuilder, VectorParamsBuilder,
 };
 use qdrant_client::{Payload, Qdrant, QdrantError};
 
@@ -51,16 +51,18 @@ async fn main() -> Result<(), QdrantError> {
         .upsert_points(UpsertPointsBuilder::new(collection_name, points))
         .await?;
 
-    let search_result = client
-        .search_points(
-            SearchPointsBuilder::new(collection_name, [11.; 10], 10)
+    let query_result = client
+        .query(
+            QueryPointsBuilder::new(collection_name)
+                .query(vec![1.0; 10])
+                .limit(10)
                 .filter(Filter::all([Condition::matches("bar", 12)]))
                 .with_payload(true)
                 .params(SearchParamsBuilder::default().exact(true)),
         )
         .await?;
-    dbg!(&search_result);
-    // search_result = [
+    dbg!(&query_result);
+    // query_result = [
     //   {
     //     "id": 0,
     //     "version": 0,
@@ -75,7 +77,7 @@ async fn main() -> Result<(), QdrantError> {
     //   }
     // ]
 
-    let found_point = search_result.result.into_iter().next().unwrap();
+    let found_point = query_result.result.into_iter().next().unwrap();
     let mut payload = found_point.payload;
     let baz_payload = payload.remove("baz").unwrap().into_json();
     println!("baz: {baz_payload}");

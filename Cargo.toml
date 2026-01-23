@@ -40,7 +40,7 @@ generate-snippets = []
 uuid = ["dep:uuid"]
 
 [[example]]
-name = "search"
+name = "query"
 required-features = ["serde"]
 
 [[example]]
