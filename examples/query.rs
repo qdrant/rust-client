@@ -54,7 +54,7 @@ async fn main() -> Result<(), QdrantError> {
     let query_result = client
         .query(
             QueryPointsBuilder::new(collection_name)
-                .query(vec![11.0; 10])
+                .query(vec![1.0; 10])
                 .limit(10)
                 .filter(Filter::all([Condition::matches("bar", 12)]))
                 .with_payload(true)
