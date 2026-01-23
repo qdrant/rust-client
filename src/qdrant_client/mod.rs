@@ -81,7 +81,7 @@ pub type QdrantBuilder = QdrantConfig;
 ///
 /// - [`create_collection`](Self::create_collection) - create a new collection
 /// - [`upsert_points`](Self::upsert_points) - insert or update points
-/// - [`query_points`](Self::query_points) - query points with similarity search
+/// - [`query`](Self::query) - query points with similarity search
 #[derive(Clone)]
 pub struct Qdrant {
     /// Client configuration
