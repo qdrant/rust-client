@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use axum::http::StatusCode;
 use axum::routing::get;
 use axum::{Json, Router};
 use qdrant_client::Qdrant;
@@ -7,7 +8,7 @@ use serde_json::{json, Value};
 
 async fn list_collections(
     axum::extract::State(client): axum::extract::State<Arc<Qdrant>>,
-) -> Json<Value> {
+) -> (StatusCode, Json<Value>) {
     match client.list_collections().await {
         Ok(collections) => {
             let names: Vec<String> = collections
@@ -15,9 +16,12 @@ async fn list_collections(
                 .into_iter()
                 .map(|c| c.name)
                 .collect();
-            Json(json!({ "collections": names }))
+            (StatusCode::OK, Json(json!({ "collections": names })))
         }
-        Err(e) => Json(json!({"error": e.to_string()})),
+        Err(e) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(json!({ "error": e.to_string() })),
+        ),
     }
 }
 

@@ -4,6 +4,8 @@ version = "0.1.0"
 edition = "2021"
 publish = false
 
+[workspace]
+
 [dependencies]
 qdrant-client = { path = "../../", features = ["serde"] }
 actix-web = "4.12.1"

@@ -1,12 +1,16 @@
 #[macro_use]
 extern crate rocket;
 use qdrant_client::Qdrant;
+use rocket::http::Status;
+use rocket::response::status;
 use rocket::serde::json::Json;
 use rocket::State;
 use serde_json::{json, Value};
 
 #[get("/collections")]
-async fn list_collections(client: &State<Qdrant>) -> Json<Value> {
+async fn list_collections(
+    client: &State<Qdrant>,
+) -> Result<Json<Value>, status::Custom<Json<Value>>> {
     match client.list_collections().await {
         Ok(collections) => {
             let names: Vec<String> = collections
@@ -14,9 +18,12 @@ async fn list_collections(client: &State<Qdrant>) -> Json<Value> {
                 .into_iter()
                 .map(|c| c.name)
                 .collect();
-            Json(json!({ "collections": names }))
+            Ok(Json(json!({ "collections": names })))
         }
-        Err(e) => Json(json!({"error": e.to_string()})),
+        Err(e) => Err(status::Custom(
+            Status::InternalServerError,
+            Json(json!({ "error": e.to_string() })),
+        )),
     }
 }
 

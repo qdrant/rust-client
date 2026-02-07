@@ -18,14 +18,14 @@ async fn list_collections(data: web::Data<AppState>) -> impl Responder {
                 .collect();
             HttpResponse::Ok().json(json!({ "collections": names }))
         }
-        Err(e) => HttpResponse::InternalServerError().body(e.to_string()),
+        Err(e) => HttpResponse::InternalServerError().json(json!({ "error": e.to_string() })),
     }
 }
 
 async fn health_check(data: web::Data<AppState>) -> impl Responder {
     match data.client.health_check().await {
         Ok(resp) => HttpResponse::Ok().json(json!({ "result": format!("{:?}", resp) })),
-        Err(e) => HttpResponse::InternalServerError().body(e.to_string()),
+        Err(e) => HttpResponse::InternalServerError().json(json!({ "error": e.to_string() })),
     }
 }
 
