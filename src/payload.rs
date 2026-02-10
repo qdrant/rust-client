@@ -63,6 +63,11 @@ impl Payload {
         Self(HashMap::new())
     }
 
+    /// Construct a new empty payload object with at least the specified capacity.
+    pub fn with_capacity(capacity: usize) -> Self {
+        Self(HashMap::with_capacity(capacity))
+    }
+
     /// Construct a payload object from the given hash map
     #[deprecated(since = "1.10.0", note = "use `Payload::from` instead")]
     pub fn new_from_hashmap(payload: HashMap<String, Value>) -> Self {
