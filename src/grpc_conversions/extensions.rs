@@ -5,13 +5,12 @@ use std::hash::{Hash, Hasher};
 use uuid::Uuid;
 
 use crate::payload::Payload;
-use crate::qdrant::{PointStruct, Value};
 #[cfg(feature = "uuid")]
 use crate::qdrant::point_id::PointIdOptions;
 use crate::qdrant::value::Kind;
 use crate::qdrant::{
-    HardwareUsage, InferenceUsage, ListValue, ModelUsage, PointId, RetrievedPoint, ScoredPoint,
-    Struct, Usage, Vectors,
+    HardwareUsage, InferenceUsage, ListValue, ModelUsage, PointId, PointStruct, RetrievedPoint,
+    ScoredPoint, Struct, Usage, Value, Vectors,
 };
 
 /// Null value
@@ -252,7 +251,6 @@ impl Value {
             None
         }
     }
-
 }
 
 impl std::ops::Deref for ListValue {

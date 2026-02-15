@@ -238,8 +238,7 @@ impl From<GeoPoint> for Value {
 mod tests {
     use serde_json::json;
 
-    use super::*;
-    use super::Payload;
+    use super::{Payload, *};
 
     #[test]
     fn json_payload_round_trip() {
