@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-use crate::prelude::point_id::PointIdOptions;
-use crate::prelude::{DeleteCollection, Value};
+use crate::qdrant::point_id::PointIdOptions;
+use crate::qdrant::{DeleteCollection, Value};
 use crate::qdrant::value::Kind;
 use crate::qdrant::{
     shard_key, with_payload_selector, with_vectors_selector, CollectionClusterInfoRequest,

@@ -4,10 +4,8 @@ use std::hash::{Hash, Hasher};
 #[cfg(feature = "uuid")]
 use uuid::Uuid;
 
-use crate::client::Payload;
-#[allow(deprecated)]
-use crate::error::NotA;
-use crate::prelude::{PointStruct, Value};
+use crate::payload::Payload;
+use crate::qdrant::{PointStruct, Value};
 #[cfg(feature = "uuid")]
 use crate::qdrant::point_id::PointIdOptions;
 use crate::qdrant::value::Kind;
@@ -161,8 +159,7 @@ impl Value {
     ///
     /// ```
     /// use serde_json::json;
-    /// use qdrant_client::prelude::*;
-    /// use qdrant_client::qdrant::{value::Kind::*, Struct};
+    /// use qdrant_client::qdrant::{value::Kind::*, Struct, Value};
     /// let value = Value { kind: Some(StructValue(Struct {
     ///     fields: [
     ///         ("text".into(), Value { kind: Some(StringValue("Hi Qdrant!".into())) }),
@@ -245,17 +242,6 @@ impl Value {
         }
     }
 
-    /// Try to get an iterator over the items of the contained list value, if any
-    #[deprecated(since = "1.10.0", note = "use `try_list_iter` instead")]
-    #[allow(deprecated)]
-    pub fn iter_list(&self) -> Result<impl Iterator<Item = &Value>, NotA<ListValue>> {
-        if let Some(Kind::ListValue(values)) = &self.kind {
-            Ok(values.iter())
-        } else {
-            Err(NotA::default())
-        }
-    }
-
     /// Get a value from a struct field
     ///
     /// Returns `None` if this is not a struct type or if the field is not present.
@@ -267,16 +253,6 @@ impl Value {
         }
     }
 
-    /// Try to get a field from the struct if this value contains one
-    #[deprecated(since = "1.10.0", note = "use `get_value` instead")]
-    #[allow(deprecated)]
-    pub fn get_struct(&self, key: &str) -> Result<&Value, NotA<Struct>> {
-        if let Some(Kind::StructValue(Struct { fields })) = &self.kind {
-            Ok(fields.get(key).unwrap_or(&NULL_VALUE))
-        } else {
-            Err(NotA::default())
-        }
-    }
 }
 
 impl std::ops::Deref for ListValue {

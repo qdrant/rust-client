@@ -68,12 +68,6 @@ impl Payload {
         Self(HashMap::with_capacity(capacity))
     }
 
-    /// Construct a payload object from the given hash map
-    #[deprecated(since = "1.10.0", note = "use `Payload::from` instead")]
-    pub fn new_from_hashmap(payload: HashMap<String, Value>) -> Self {
-        Self(payload)
-    }
-
     /// Insert a payload value at the given key, replacing any existing value
     pub fn insert(&mut self, key: impl ToString, val: impl Into<Value>) {
         self.0.insert(key.to_string(), val.into());
@@ -245,7 +239,7 @@ mod tests {
     use serde_json::json;
 
     use super::*;
-    use crate::client::Payload;
+    use super::Payload;
 
     #[test]
     fn json_payload_round_trip() {
