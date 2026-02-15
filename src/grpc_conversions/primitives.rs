@@ -8,11 +8,10 @@ use crate::qdrant::{
     CollectionExistsRequest, CreateSnapshotRequest, DeleteAlias, DeleteCollectionBuilder,
     DeleteFullSnapshotRequest, GetCollectionInfoRequest, IsEmptyCondition, IsNullCondition,
     ListCollectionAliasesRequest, ListShardKeysRequest, ListSnapshotsRequest,
-    PayloadExcludeSelector,
-    PayloadIncludeSelector, PointId, RepeatedIntegers, RepeatedStrings, ShardKey, ShardKeySelector,
-    SparseIndices, SparseVectorConfig, SparseVectorParams, Struct, VectorParams, VectorParamsDiff,
-    VectorParamsDiffMap, VectorParamsMap, VectorsSelector, WithPayloadSelector,
-    WithVectorsSelector,
+    PayloadExcludeSelector, PayloadIncludeSelector, PointId, RepeatedIntegers, RepeatedStrings,
+    ShardKey, ShardKeySelector, SparseIndices, SparseVectorConfig, SparseVectorParams, Struct,
+    VectorParams, VectorParamsDiff, VectorParamsDiffMap, VectorParamsMap, VectorsSelector,
+    WithPayloadSelector, WithVectorsSelector,
 };
 
 impl From<bool> for WithPayloadSelector {

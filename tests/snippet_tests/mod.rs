@@ -34,6 +34,7 @@ mod test_query_document;
 mod test_query_image;
 mod test_query_points;
 mod test_query_points_groups;
+mod test_query_points_relevance_feedback;
 mod test_recommend_batch_points;
 mod test_recommend_point_groups;
 mod test_recommend_points;

@@ -1,10 +1,9 @@
 use qdrant_client::qdrant::{
     AcornSearchParamsBuilder, Condition, DecayParamsExpressionBuilder, Expression,
-    FeedbackItem, FeedbackStrategy, Filter, FormulaBuilder, Fusion, GeoPoint,
-    NaiveFeedbackStrategy, PointId, PrefetchQueryBuilder, Query, QueryPointsBuilder,
-    RecommendInputBuilder, RelevanceFeedbackInput, RrfBuilder, Sample,
-    SearchParamsBuilder, ShardKey, ShardKeySelectorBuilder, VectorInput,
-    feedback_strategy,
+    Filter, FormulaBuilder, Fusion, GeoPoint,
+    PointId, PrefetchQueryBuilder, Query, QueryPointsBuilder,
+    RecommendInputBuilder, RrfBuilder, Sample,
+    SearchParamsBuilder, ShardKey, ShardKeySelectorBuilder,
 };
 use qdrant_client::Qdrant;
 
@@ -159,32 +158,6 @@ let _acorn_query = client.query(
                 .hnsw_ef(128)
                 .acorn(AcornSearchParamsBuilder::new(true).max_selectivity(0.4))
         )
-        .limit(10u64)
-).await?;
-
-// Relevance feedback query (as of 1.17.0)
-let _feedback = client.query(
-    QueryPointsBuilder::new("{collection_name}")
-        .query(Query::new_relevance_feedback(RelevanceFeedbackInput {
-            target: Some(VectorInput::new_dense(vec![0.01, 0.45, 0.67])),
-            feedback: vec![
-                FeedbackItem {
-                    example: Some(VectorInput::new_id(PointId::from(42))),
-                    score: 0.9,
-                },
-                FeedbackItem {
-                    example: Some(VectorInput::new_id(PointId::from(7))),
-                    score: 0.1,
-                },
-            ],
-            strategy: Some(FeedbackStrategy {
-                variant: Some(feedback_strategy::Variant::Naive(NaiveFeedbackStrategy {
-                    a: 1.0,
-                    b: 1.0,
-                    c: 1.0,
-                })),
-            }),
-        }))
         .limit(10u64)
 ).await?;
 
