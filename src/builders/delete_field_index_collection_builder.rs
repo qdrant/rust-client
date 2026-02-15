@@ -10,6 +10,8 @@ pub struct DeleteFieldIndexCollectionBuilder {
     pub(crate) field_name: Option<String>,
     /// Write ordering guarantees
     pub(crate) ordering: Option<Option<WriteOrdering>>,
+    /// Timeout for the request in seconds
+    pub(crate) timeout: Option<Option<u64>>,
 }
 
 impl DeleteFieldIndexCollectionBuilder {
@@ -37,6 +39,12 @@ impl DeleteFieldIndexCollectionBuilder {
         new.ordering = Option::Some(Option::Some(value));
         new
     }
+    /// Timeout for the request in seconds
+    pub fn timeout(self, value: u64) -> Self {
+        let mut new = self;
+        new.timeout = Option::Some(Option::Some(value));
+        new
+    }
 
     fn build_inner(
         self,
@@ -60,6 +68,7 @@ impl DeleteFieldIndexCollectionBuilder {
                 }
             },
             ordering: self.ordering.unwrap_or_default(),
+            timeout: self.timeout.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -69,6 +78,7 @@ impl DeleteFieldIndexCollectionBuilder {
             wait: core::default::Default::default(),
             field_name: core::default::Default::default(),
             ordering: core::default::Default::default(),
+            timeout: core::default::Default::default(),
         }
     }
 }

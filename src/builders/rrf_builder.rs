@@ -9,6 +9,10 @@ pub struct RrfBuilder {
     ///
     /// Default value is 60.
     pub(crate) k: Option<Option<u32>>,
+    /// Weights for each prefetch source.
+    /// Higher weight gives more influence on the final ranking.
+    /// If not specified, all prefetches are weighted equally.
+    pub(crate) weights: Option<Vec<f32>>,
 }
 
 impl RrfBuilder {
@@ -54,9 +58,19 @@ impl RrfBuilder {
         new
     }
 
+    /// Weights for each prefetch source.
+    /// Higher weight gives more influence on the final ranking.
+    /// If not specified, all prefetches are weighted equally.
+    pub fn weights(self, value: Vec<f32>) -> Self {
+        let mut new = self;
+        new.weights = Option::Some(value);
+        new
+    }
+
     pub fn build(self) -> Rrf {
         Rrf {
             k: self.k.unwrap_or_default(),
+            weights: self.weights.unwrap_or_default(),
         }
     }
 
@@ -64,6 +78,7 @@ impl RrfBuilder {
     fn create_empty() -> Self {
         Self {
             k: core::default::Default::default(),
+            weights: core::default::Default::default(),
         }
     }
 }

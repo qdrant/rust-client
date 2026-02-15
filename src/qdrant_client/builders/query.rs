@@ -2,7 +2,7 @@ use crate::qdrant::{
     ContextInput, ContextInputBuilder, ContextInputPairBuilder, DiscoverInput,
     DiscoverInputBuilder, Formula, Mmr, NearestInputWithMmr, OrderBy, OrderByBuilder,
     PrefetchQuery, PrefetchQueryBuilder, Query, QueryPointGroupsBuilder, QueryPointsBuilder,
-    RecommendInput, RecommendInputBuilder, Rrf, VectorInput,
+    RecommendInput, RecommendInputBuilder, RelevanceFeedbackInput, Rrf, VectorInput,
 };
 
 impl QueryPointsBuilder {
@@ -96,6 +96,14 @@ impl Query {
     pub fn new_sample(value: crate::qdrant::Sample) -> Self {
         Self {
             variant: Some(crate::qdrant::query::Variant::Sample(value.into())),
+        }
+    }
+
+    pub fn new_relevance_feedback(value: impl Into<RelevanceFeedbackInput>) -> Self {
+        Self {
+            variant: Some(crate::qdrant::query::Variant::RelevanceFeedback(
+                value.into(),
+            )),
         }
     }
 }

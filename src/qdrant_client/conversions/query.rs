@@ -1,6 +1,6 @@
 use crate::qdrant::{
     query, ContextInput, DiscoverInput, Formula, FormulaBuilder, Fusion, OrderBy, OrderByBuilder,
-    PointId, Query, RecommendInput, VectorInput,
+    PointId, Query, RecommendInput, RelevanceFeedbackInput, VectorInput,
 };
 
 impl From<VectorInput> for Query {
@@ -47,6 +47,14 @@ impl From<Fusion> for Query {
     fn from(value: Fusion) -> Self {
         Self {
             variant: Some(query::Variant::Fusion(value.into())),
+        }
+    }
+}
+
+impl From<RelevanceFeedbackInput> for Query {
+    fn from(value: RelevanceFeedbackInput) -> Self {
+        Self {
+            variant: Some(query::Variant::RelevanceFeedback(value)),
         }
     }
 }

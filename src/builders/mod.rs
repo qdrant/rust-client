@@ -258,3 +258,12 @@ pub use mmr_builder::MmrBuilder;
 
 mod rrf_builder;
 pub use rrf_builder::RrfBuilder;
+
+mod relevance_feedback_input_builder;
+pub use relevance_feedback_input_builder::RelevanceFeedbackInputBuilder;
+
+mod feedback_item_builder;
+pub use feedback_item_builder::FeedbackItemBuilder;
+
+mod feedback_strategy_builder;
+pub use feedback_strategy_builder::FeedbackStrategyBuilder;

@@ -14,6 +14,8 @@ pub struct UpdatePointVectorsBuilder {
     pub(crate) shard_key_selector: Option<Option<ShardKeySelector>>,
     /// Optional filter to apply to the update operation. If set, only points matching the filter will be updated.
     pub(crate) update_filter: Option<Option<Filter>>,
+    /// Timeout for the request in seconds
+    pub(crate) timeout: Option<Option<u64>>,
 }
 
 impl UpdatePointVectorsBuilder {
@@ -56,6 +58,12 @@ impl UpdatePointVectorsBuilder {
         new.update_filter = Option::Some(Option::Some(value.into()));
         new
     }
+    /// Timeout for the request in seconds
+    pub fn timeout(self, value: u64) -> Self {
+        let mut new = self;
+        new.timeout = Option::Some(Option::Some(value));
+        new
+    }
 
     fn build_inner(self) -> Result<UpdatePointVectors, UpdatePointVectorsBuilderError> {
         Ok(UpdatePointVectors {
@@ -79,6 +87,7 @@ impl UpdatePointVectorsBuilder {
             ordering: self.ordering.unwrap_or_default(),
             shard_key_selector: self.shard_key_selector.unwrap_or_default(),
             update_filter: self.update_filter.unwrap_or_default(),
+            timeout: self.timeout.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -90,6 +99,7 @@ impl UpdatePointVectorsBuilder {
             ordering: core::default::Default::default(),
             shard_key_selector: core::default::Default::default(),
             update_filter: core::default::Default::default(),
+            timeout: core::default::Default::default(),
         }
     }
 }

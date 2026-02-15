@@ -53,6 +53,7 @@ pub mod points_update_operation {
                 points: builder.points,
                 shard_key_selector: builder.shard_key_selector,
                 update_filter: None,
+                update_mode: None,
             })
         }
     }

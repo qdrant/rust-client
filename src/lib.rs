@@ -371,6 +371,7 @@ mod tests {
                         field_type: Some(FieldType::Keyword as i32),
                         field_index_params: None,
                         ordering: None,
+                        timeout: None,
                     })
                     .await
             })

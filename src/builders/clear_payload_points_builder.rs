@@ -13,6 +13,8 @@ pub struct ClearPayloadPointsBuilder {
     pub(crate) ordering: Option<Option<WriteOrdering>>,
     /// Option for custom sharding to specify used shard keys
     pub(crate) shard_key_selector: Option<Option<ShardKeySelector>>,
+    /// Timeout for the request in seconds
+    pub(crate) timeout: Option<Option<u64>>,
 }
 
 impl ClearPayloadPointsBuilder {
@@ -52,6 +54,12 @@ impl ClearPayloadPointsBuilder {
         new.shard_key_selector = Option::Some(Option::Some(value.into()));
         new
     }
+    /// Timeout for the request in seconds
+    pub fn timeout(self, value: u64) -> Self {
+        let mut new = self;
+        new.timeout = Option::Some(Option::Some(value));
+        new
+    }
 
     fn build_inner(self) -> Result<ClearPayloadPoints, ClearPayloadPointsBuilderError> {
         Ok(ClearPayloadPoints {
@@ -67,6 +75,7 @@ impl ClearPayloadPointsBuilder {
             points: { convert_option(&self.points) },
             ordering: self.ordering.unwrap_or_default(),
             shard_key_selector: self.shard_key_selector.unwrap_or_default(),
+            timeout: self.timeout.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -77,6 +86,7 @@ impl ClearPayloadPointsBuilder {
             points: core::default::Default::default(),
             ordering: core::default::Default::default(),
             shard_key_selector: core::default::Default::default(),
+            timeout: core::default::Default::default(),
         }
     }
 }

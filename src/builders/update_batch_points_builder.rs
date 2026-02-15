@@ -9,6 +9,8 @@ pub struct UpdateBatchPointsBuilder {
     pub(crate) operations: Option<Vec<PointsUpdateOperation>>,
     /// Write ordering guarantees
     pub(crate) ordering: Option<Option<WriteOrdering>>,
+    /// Timeout for the request in seconds
+    pub(crate) timeout: Option<Option<u64>>,
 }
 
 impl UpdateBatchPointsBuilder {
@@ -35,6 +37,12 @@ impl UpdateBatchPointsBuilder {
         new.ordering = Option::Some(Option::Some(value.into()));
         new
     }
+    /// Timeout for the request in seconds
+    pub fn timeout(self, value: u64) -> Self {
+        let mut new = self;
+        new.timeout = Option::Some(Option::Some(value));
+        new
+    }
 
     fn build_inner(self) -> Result<UpdateBatchPoints, UpdateBatchPointsBuilderError> {
         Ok(UpdateBatchPoints {
@@ -56,6 +64,7 @@ impl UpdateBatchPointsBuilder {
                 }
             },
             ordering: self.ordering.unwrap_or_default(),
+            timeout: self.timeout.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -65,6 +74,7 @@ impl UpdateBatchPointsBuilder {
             wait: core::default::Default::default(),
             operations: core::default::Default::default(),
             ordering: core::default::Default::default(),
+            timeout: core::default::Default::default(),
         }
     }
 }

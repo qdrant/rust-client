@@ -57,6 +57,11 @@ pub struct OptimizersConfigDiffBuilder {
     /// - If `auto` - have no limit and choose dynamically to saturate CPU.
     /// - If `disabled` or `0` - no optimization threads, optimizations will be disabled.
     pub(crate) max_optimization_threads: Option<Option<MaxOptimizationThreads>>,
+    ///
+    /// If true, all segments will be forced to have the indexes built.
+    /// Using this option may lead to increased delay between submitting an update and its application.
+    /// Default is disabled.
+    pub(crate) prevent_unoptimized: Option<Option<bool>>,
 }
 
 impl OptimizersConfigDiffBuilder {
@@ -174,6 +179,16 @@ impl OptimizersConfigDiffBuilder {
         new
     }
 
+    ///
+    /// If true, all segments will be forced to have the indexes built.
+    /// Using this option may lead to increased delay between submitting an update and its application.
+    /// Default is disabled.
+    pub fn prevent_unoptimized(self, value: bool) -> Self {
+        let mut new = self;
+        new.prevent_unoptimized = Option::Some(Option::Some(value));
+        new
+    }
+
     fn build_inner(self) -> Result<OptimizersConfigDiff, std::convert::Infallible> {
         Ok(OptimizersConfigDiff {
             deleted_threshold: self.deleted_threshold.unwrap_or_default(),
@@ -186,6 +201,7 @@ impl OptimizersConfigDiffBuilder {
             max_optimization_threads: self.max_optimization_threads.unwrap_or_default(),
             // Deprecated: replaced with max_optimization_threads
             deprecated_max_optimization_threads: None,
+            prevent_unoptimized: self.prevent_unoptimized.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -199,6 +215,7 @@ impl OptimizersConfigDiffBuilder {
             indexing_threshold: core::default::Default::default(),
             flush_interval_sec: core::default::Default::default(),
             max_optimization_threads: core::default::Default::default(),
+            prevent_unoptimized: core::default::Default::default(),
         }
     }
 }

@@ -1,5 +1,6 @@
 use crate::qdrant::{
     CreateShardKeyRequest, CreateShardKeyResponse, DeleteShardKeyRequest, DeleteShardKeyResponse,
+    ListShardKeysRequest, ListShardKeysResponse,
 };
 use crate::qdrant_client::{Qdrant, QdrantResult};
 
@@ -39,6 +40,31 @@ impl Qdrant {
 
         self.with_collections_client(|mut collection_api| async move {
             let result = collection_api.create_shard_key(request.clone()).await?;
+            Ok(result.into_inner())
+        })
+        .await
+    }
+
+    /// List all shard keys in a collection.
+    ///
+    /// ```no_run
+    ///# use qdrant_client::{Qdrant, QdrantError};
+    ///# async fn list_shard_keys(client: &Qdrant)
+    ///# -> Result<(), QdrantError> {
+    /// let response = client.list_shard_keys("my_collection").await?;
+    ///# Ok(())
+    ///# }
+    /// ```
+    ///
+    /// Documentation: <https://qdrant.tech/documentation/guides/distributed_deployment/#user-defined-sharding>
+    pub async fn list_shard_keys(
+        &self,
+        request: impl Into<ListShardKeysRequest>,
+    ) -> QdrantResult<ListShardKeysResponse> {
+        let request = &request.into();
+
+        self.with_collections_client(|mut collection_api| async move {
+            let result = collection_api.list_shard_keys(request.clone()).await?;
             Ok(result.into_inner())
         })
         .await

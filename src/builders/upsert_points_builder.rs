@@ -13,6 +13,10 @@ pub struct UpsertPointsBuilder {
     pub(crate) shard_key_selector: Option<Option<ShardKeySelector>>,
     /// Optional filter to apply to the upsert operation. If set, only points matching the filter will be updated, others will be inserted.
     pub(crate) update_filter: Option<Option<Filter>>,
+    /// Timeout for the request in seconds
+    pub(crate) timeout: Option<Option<u64>>,
+    /// Mode of the upsert operation: insert_only, upsert (default), update_only
+    pub(crate) update_mode: Option<Option<i32>>,
 }
 
 impl UpsertPointsBuilder {
@@ -54,6 +58,18 @@ impl UpsertPointsBuilder {
         new.update_filter = Option::Some(Option::Some(value.into()));
         new
     }
+    /// Timeout for the request in seconds
+    pub fn timeout(self, value: u64) -> Self {
+        let mut new = self;
+        new.timeout = Option::Some(Option::Some(value));
+        new
+    }
+    /// Mode of the upsert operation: insert_only, upsert (default), update_only
+    pub fn update_mode(self, value: UpdateMode) -> Self {
+        let mut new = self;
+        new.update_mode = Option::Some(Option::Some(value.into()));
+        new
+    }
 
     fn build_inner(self) -> Result<UpsertPoints, UpsertPointsBuilderError> {
         Ok(UpsertPoints {
@@ -77,6 +93,8 @@ impl UpsertPointsBuilder {
             ordering: self.ordering.unwrap_or_default(),
             shard_key_selector: self.shard_key_selector.unwrap_or_default(),
             update_filter: self.update_filter.unwrap_or_default(),
+            timeout: self.timeout.unwrap_or_default(),
+            update_mode: self.update_mode.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -88,6 +106,8 @@ impl UpsertPointsBuilder {
             ordering: core::default::Default::default(),
             shard_key_selector: core::default::Default::default(),
             update_filter: core::default::Default::default(),
+            timeout: core::default::Default::default(),
+            update_mode: core::default::Default::default(),
         }
     }
 }
