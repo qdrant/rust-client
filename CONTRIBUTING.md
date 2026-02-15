@@ -5,7 +5,7 @@ Here is a checklist for upgrading Rust Qdrant client to a new version of Qdrant 
 
 - [ ] Make sure to switch to a new branch from `dev`. Something like `v1-XX-upgrade` should be good enough.
 - [ ] Synchronize protobuf definitions using `./tools/sync_proto.sh` script.
-- [ ] Run `cargo clippy` to make sure auto-generated code is generated.
+- [ ] Run `cargo test protos` to make sure auto-generated code is generated.
 
 Based on the changes in protobuf, there are following places to upgrade:
 

@@ -19,6 +19,8 @@ pub struct TextIndexParamsBuilder {
     pub(crate) stemmer: Option<Option<StemmingAlgorithm>>,
     /// If true, normalize tokens by folding accented characters to ASCII (e.g., "ação" -> "acao"). Default: false.
     pub(crate) ascii_folding: Option<Option<bool>>,
+    /// If true - enable HNSW index for this field.
+    pub(crate) enable_hnsw: Option<Option<bool>>,
 }
 
 impl TextIndexParamsBuilder {
@@ -113,6 +115,13 @@ impl TextIndexParamsBuilder {
         new
     }
 
+    /// If true - enable HNSW index for this field.
+    pub fn enable_hnsw(self, value: bool) -> Self {
+        let mut new = self;
+        new.enable_hnsw = Option::Some(Option::Some(value));
+        new
+    }
+
     fn build_inner(self) -> Result<TextIndexParams, TextIndexParamsBuilderError> {
         Ok(TextIndexParams {
             tokenizer: match self.tokenizer {
@@ -131,6 +140,7 @@ impl TextIndexParamsBuilder {
             phrase_matching: self.phrase_matching.unwrap_or_default(),
             stemmer: self.stemmer.unwrap_or_default(),
             ascii_folding: self.ascii_folding.unwrap_or_default(),
+            enable_hnsw: self.enable_hnsw.unwrap_or_default(),
         })
     }
 
@@ -146,6 +156,7 @@ impl TextIndexParamsBuilder {
             phrase_matching: Default::default(),
             stemmer: Default::default(),
             ascii_folding: Default::default(),
+            enable_hnsw: Default::default(),
         }
     }
 }

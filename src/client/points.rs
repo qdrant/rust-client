@@ -67,6 +67,7 @@ impl QdrantClient {
                         wait: Some(wait),
                         operations: operations.to_vec(),
                         ordering: ordering_ref.cloned(),
+                        timeout: None,
                     })
                     .await?
                     .into_inner())
@@ -176,6 +177,8 @@ impl QdrantClient {
                         ordering: ordering_ref.cloned(),
                         shard_key_selector: shard_keys_ref.clone(),
                         update_filter: None,
+                        timeout: None,
+                        update_mode: None,
                     })
                     .await?
                     .into_inner())
@@ -280,6 +283,8 @@ impl QdrantClient {
                             ordering: ordering_ref.cloned(),
                             shard_key_selector: shard_keys_ref.clone(),
                             update_filter: None,
+                            timeout: None,
+                            update_mode: None,
                         })
                         .await?
                         .into_inner();
@@ -376,6 +381,7 @@ impl QdrantClient {
                         ordering: ordering_ref.cloned(),
                         shard_key_selector: shard_keys_ref.clone(),
                         key: payload_key_ref.cloned(),
+                        timeout: None,
                     })
                     .await?;
                 Ok(result.into_inner())
@@ -467,6 +473,7 @@ impl QdrantClient {
                         ordering: ordering_ref.cloned(),
                         shard_key_selector: shard_keys_ref.clone(),
                         key: payload_key_ref.cloned(),
+                        timeout: None,
                     })
                     .await?;
                 Ok(result.into_inner())
@@ -550,6 +557,7 @@ impl QdrantClient {
                         points_selector: Some(points.clone()),
                         ordering: ordering_ref.cloned(),
                         shard_key_selector: shard_keys_ref.clone(),
+                        timeout: None,
                     })
                     .await?;
                 Ok(result.into_inner())
@@ -627,6 +635,7 @@ impl QdrantClient {
                         points: points_selector.cloned(),
                         ordering: ordering_ref.cloned(),
                         shard_key_selector: shard_keys_ref.clone(),
+                        timeout: None,
                     })
                     .await?;
                 Ok(result.into_inner())
@@ -781,6 +790,7 @@ impl QdrantClient {
                         points: Some(points.clone()),
                         ordering: ordering_ref.cloned(),
                         shard_key_selector: shard_keys_ref.clone(),
+                        timeout: None,
                     })
                     .await?;
                 Ok(result.into_inner())
@@ -863,6 +873,7 @@ impl QdrantClient {
                         vectors: Some(vector_selector.clone()),
                         ordering: ordering_ref.cloned(),
                         shard_key_selector: shard_keys_ref.clone(),
+                        timeout: None,
                     })
                     .await?;
                 Ok(result.into_inner())
@@ -928,6 +939,7 @@ impl QdrantClient {
                         ordering: ordering_ref.cloned(),
                         shard_key_selector: shard_keys_ref.clone(),
                         update_filter: None,
+                        timeout: None,
                     })
                     .await?;
                 Ok(result.into_inner())
@@ -1091,6 +1103,7 @@ impl QdrantClient {
                         wait: Some(blocking),
                         operations: operations.to_owned(),
                         ordering: ordering_ref.cloned(),
+                        timeout: None,
                     })
                     .await?;
                 Ok(result.into_inner())
@@ -1128,6 +1141,7 @@ impl QdrantClient {
                         field_type: Some(field_type.into()),
                         field_index_params: field_index_params.cloned(),
                         ordering: ordering_ref.cloned(),
+                        timeout: None,
                     })
                     .await?;
                 Ok(result.into_inner())
@@ -1206,6 +1220,7 @@ impl QdrantClient {
                         wait: Some(wait),
                         field_name: field_name_ref.to_string(),
                         ordering: ordering_ref.cloned(),
+                        timeout: None,
                     })
                     .await?;
                 Ok(result.into_inner())
