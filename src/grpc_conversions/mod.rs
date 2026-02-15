@@ -3,7 +3,7 @@ pub mod metadata;
 mod primitives;
 pub mod vectors;
 
-use crate::client::Payload;
+use crate::payload::Payload;
 use crate::qdrant::point_id::PointIdOptions;
 use crate::qdrant::points_selector::PointsSelectorOneOf;
 use crate::qdrant::value::Kind;

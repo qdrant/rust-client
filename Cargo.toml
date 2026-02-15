@@ -43,10 +43,6 @@ uuid = ["dep:uuid"]
 name = "query"
 required-features = ["serde"]
 
-[[example]]
-name = "deprecated_search"
-required-features = ["serde"]
-
 [package.metadata.docs.rs]
 features = ["download_snapshots", "serde"]
 no-default-features = true
