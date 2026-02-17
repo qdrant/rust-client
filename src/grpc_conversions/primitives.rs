@@ -1,17 +1,16 @@
 use std::collections::HashMap;
 
-use crate::prelude::point_id::PointIdOptions;
-use crate::prelude::{DeleteCollection, Value};
+use crate::qdrant::point_id::PointIdOptions;
 use crate::qdrant::value::Kind;
 use crate::qdrant::{
     shard_key, with_payload_selector, with_vectors_selector, CollectionClusterInfoRequest,
-    CollectionExistsRequest, CreateSnapshotRequest, DeleteAlias, DeleteCollectionBuilder,
-    DeleteFullSnapshotRequest, GetCollectionInfoRequest, IsEmptyCondition, IsNullCondition,
-    ListCollectionAliasesRequest, ListSnapshotsRequest, PayloadExcludeSelector,
-    PayloadIncludeSelector, PointId, RepeatedIntegers, RepeatedStrings, ShardKey, ShardKeySelector,
-    SparseIndices, SparseVectorConfig, SparseVectorParams, Struct, VectorParams, VectorParamsDiff,
-    VectorParamsDiffMap, VectorParamsMap, VectorsSelector, WithPayloadSelector,
-    WithVectorsSelector,
+    CollectionExistsRequest, CreateSnapshotRequest, DeleteAlias, DeleteCollection,
+    DeleteCollectionBuilder, DeleteFullSnapshotRequest, GetCollectionInfoRequest, IsEmptyCondition,
+    IsNullCondition, ListCollectionAliasesRequest, ListShardKeysRequest, ListSnapshotsRequest,
+    PayloadExcludeSelector, PayloadIncludeSelector, PointId, RepeatedIntegers, RepeatedStrings,
+    ShardKey, ShardKeySelector, SparseIndices, SparseVectorConfig, SparseVectorParams, Struct,
+    Value, VectorParams, VectorParamsDiff, VectorParamsDiffMap, VectorParamsMap, VectorsSelector,
+    WithPayloadSelector, WithVectorsSelector,
 };
 
 impl From<bool> for WithPayloadSelector {
@@ -311,6 +310,14 @@ impl<S: Into<String>> From<S> for CollectionExistsRequest {
 }
 
 impl<S: Into<String>> From<S> for GetCollectionInfoRequest {
+    fn from(value: S) -> Self {
+        Self {
+            collection_name: value.into(),
+        }
+    }
+}
+
+impl<S: Into<String>> From<S> for ListShardKeysRequest {
     fn from(value: S) -> Self {
         Self {
             collection_name: value.into(),
