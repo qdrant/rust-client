@@ -1,31 +1,10 @@
-#![allow(deprecated)]
-
 use std::collections::HashMap;
-use std::fmt::{Display, Formatter};
 
 use serde::ser::{SerializeMap, SerializeSeq};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::qdrant::value::Kind;
 use crate::qdrant::{ListValue, Struct, Value};
-
-#[derive(Debug)]
-#[deprecated(
-    since = "1.10.0",
-    note = "use `qdrant_client::Error::JsonToPayload` error variant instead"
-)]
-#[allow(dead_code)]
-pub struct PayloadConversionError(serde_json::Value);
-
-impl Display for PayloadConversionError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "Failed to convert json {} to payload: expected object at the top level",
-            self.0
-        )
-    }
-}
 
 impl Serialize for Value {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>

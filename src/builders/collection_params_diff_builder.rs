@@ -10,6 +10,8 @@ pub struct CollectionParamsDiffBuilder {
     pub(crate) on_disk_payload: Option<Option<bool>>,
     /// Fan-out every read request to these many additional remote nodes (and return first available response)
     pub(crate) read_fan_out_factor: Option<Option<u32>>,
+    /// Fan-out delay in milliseconds. If set, the fan-out request will be delayed by this amount.
+    pub(crate) read_fan_out_delay_ms: Option<Option<u64>>,
 }
 #[allow(clippy::all)]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -38,6 +40,12 @@ impl CollectionParamsDiffBuilder {
         new.read_fan_out_factor = Option::Some(Option::Some(value));
         new
     }
+    /// Fan-out delay in milliseconds. If set, the fan-out request will be delayed by this amount.
+    pub fn read_fan_out_delay_ms(self, value: u64) -> Self {
+        let mut new = self;
+        new.read_fan_out_delay_ms = Option::Some(Option::Some(value));
+        new
+    }
 
     fn build_inner(self) -> Result<CollectionParamsDiff, std::convert::Infallible> {
         Ok(CollectionParamsDiff {
@@ -57,6 +65,10 @@ impl CollectionParamsDiffBuilder {
                 Some(value) => value,
                 None => core::default::Default::default(),
             },
+            read_fan_out_delay_ms: match self.read_fan_out_delay_ms {
+                Some(value) => value,
+                None => core::default::Default::default(),
+            },
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -66,6 +78,7 @@ impl CollectionParamsDiffBuilder {
             write_consistency_factor: core::default::Default::default(),
             on_disk_payload: core::default::Default::default(),
             read_fan_out_factor: core::default::Default::default(),
+            read_fan_out_delay_ms: core::default::Default::default(),
         }
     }
 }

@@ -5,10 +5,11 @@ async fn test_query_points() {
       // WARNING: This is a generated test snippet.
       // Please, modify the snippet in the `../snippets/query_points.rs` file
         use qdrant_client::qdrant::{
-            AcornSearchParamsBuilder, Condition, DecayParamsExpressionBuilder, Expression, Filter,
-            FormulaBuilder, Fusion, GeoPoint, PointId, PrefetchQueryBuilder, Query, QueryPointsBuilder,
-            RecommendInputBuilder, RrfBuilder, Sample, SearchParamsBuilder, ShardKey,
-            ShardKeySelectorBuilder,
+            AcornSearchParamsBuilder, Condition, DecayParamsExpressionBuilder, Expression,
+            Filter, FormulaBuilder, Fusion, GeoPoint,
+            PointId, PrefetchQueryBuilder, Query, QueryPointsBuilder,
+            RecommendInputBuilder, RrfBuilder, Sample,
+            SearchParamsBuilder, ShardKey, ShardKeySelectorBuilder,
         };
         use qdrant_client::Qdrant;
         

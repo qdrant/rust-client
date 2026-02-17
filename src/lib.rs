@@ -144,30 +144,8 @@ mod grpc_macros;
 mod manual_builder;
 mod payload;
 mod qdrant_client;
-// Deprecated modules
-/// Deprecated Qdrant client
-#[deprecated(
-    since = "1.10.0",
-    note = "use new client at `qdrant_client::Qdrant` instead"
-)]
-#[doc(hidden)]
-pub mod client;
-/// Deprecated error type
-#[deprecated(
-    since = "1.10.0",
-    note = "use new error type at `qdrant_client::Error` instead"
-)]
-#[doc(hidden)]
-pub mod error;
-/// Deprecated prelude
-#[deprecated(since = "1.10.0", note = "use types directly")]
-#[doc(hidden)]
-pub mod prelude;
-/// Deprecated serde helper
 #[cfg(feature = "serde")]
-#[deprecated(since = "1.10.0", note = "use `Payload::try_from` instead")]
-#[doc(hidden)]
-pub mod serde;
+mod serde_impl;
 
 #[cfg(feature = "serde")]
 pub mod serde_deser;
@@ -371,6 +349,7 @@ mod tests {
                         field_type: Some(FieldType::Keyword as i32),
                         field_index_params: None,
                         ordering: None,
+                        timeout: None,
                     })
                     .await
             })

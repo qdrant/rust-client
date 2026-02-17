@@ -15,6 +15,8 @@ pub struct CreateFieldIndexCollectionBuilder {
     field_index_params: Option<payload_index_params::IndexParams>,
     /// Write ordering guarantees
     pub(crate) ordering: Option<Option<WriteOrdering>>,
+    /// Timeout for the request in seconds
+    pub(crate) timeout: Option<Option<u64>>,
 }
 
 impl CreateFieldIndexCollectionBuilder {
@@ -57,6 +59,12 @@ impl CreateFieldIndexCollectionBuilder {
         new.ordering = Option::Some(Option::Some(value.into()));
         new
     }
+    /// Timeout for the request in seconds
+    pub fn timeout(self, value: u64) -> Self {
+        let mut new = self;
+        new.timeout = Option::Some(Option::Some(value));
+        new
+    }
 
     fn build_inner(
         self,
@@ -82,6 +90,7 @@ impl CreateFieldIndexCollectionBuilder {
             field_type: self.field_type.unwrap_or_default(),
             field_index_params: { convert_option(&self.field_index_params) },
             ordering: self.ordering.unwrap_or_default(),
+            timeout: self.timeout.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -93,6 +102,7 @@ impl CreateFieldIndexCollectionBuilder {
             field_type: core::default::Default::default(),
             field_index_params: core::default::Default::default(),
             ordering: core::default::Default::default(),
+            timeout: core::default::Default::default(),
         }
     }
 }
