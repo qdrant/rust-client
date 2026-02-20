@@ -1,6 +1,7 @@
 mod test_batch_update;
 mod test_clear_payload;
 mod test_collection_exists;
+mod test_connect;
 mod test_count_points;
 mod test_create_collection;
 mod test_create_collection_with_bq;

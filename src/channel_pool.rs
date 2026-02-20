@@ -154,6 +154,13 @@ impl ChannelPool {
             0
         }
     }
+
+    /// Explicitly establishes a connection to at least one channel in the pool.
+    /// This triggers the underlying gRPC handshake.
+    pub async fn connect(&self) -> Result<(), Status> {
+        let _ = self.get_channel().await?;
+        Ok(())
+    }
 }
 
 // The future returned by get_channel needs to be Send so that the client can be

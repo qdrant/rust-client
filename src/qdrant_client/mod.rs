@@ -228,4 +228,12 @@ impl Qdrant {
         })
         .await
     }
+
+    /// Performs a connectivity check to the Qdrant server.
+    ///
+    /// This method forces the client to establish a connection immediately.
+    /// Returns an error if the TCP connection or gRPC handshake fails.
+    pub async fn connect(&self) -> QdrantResult<()> {
+        self.channel.connect().await.map_err(Into::into)
+    }
 }
