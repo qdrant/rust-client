@@ -1,3 +1,5 @@
+use tonic::service::Interceptor;
+
 use crate::qdrant::{
     DiscoverBatchPoints, DiscoverBatchResponse, DiscoverPoints, DiscoverResponse,
     RecommendBatchPoints, RecommendBatchResponse, RecommendGroupsResponse, RecommendPointGroups,
@@ -15,7 +17,7 @@ use crate::qdrant_client::{Qdrant, QdrantResult};
 /// Search and explore points.
 ///
 /// Documentation: <https://qdrant.tech/documentation/concepts/search/>
-impl Qdrant {
+impl<I: Send + Sync + 'static + Clone + Interceptor> Qdrant<I> {
     /// Search points in a collection.
     ///
     /// ```no_run

@@ -1,6 +1,30 @@
 use std::time::Duration;
 
-use crate::{Qdrant, QdrantError};
+use tonic::service::Interceptor;
+
+use crate::{auth::TokenInterceptor, Qdrant, QdrantError};
+
+struct DefaultConfigValues {
+    timeout: Duration,
+    connect_timeout: Duration,
+    keep_alive_while_idle: bool,
+    compression: Option<CompressionEncoding>,
+    check_compatibility: bool,
+    pool_size: usize,
+}
+
+impl Default for DefaultConfigValues {
+    fn default() -> Self {
+        Self {
+            timeout: Duration::from_secs(5),
+            connect_timeout: Duration::from_secs(5),
+            keep_alive_while_idle: true,
+            compression: None,
+            check_compatibility: true,
+            pool_size: 3,
+        }
+    }
+}
 
 /// Qdrant client configuration
 ///
@@ -17,7 +41,7 @@ use crate::{Qdrant, QdrantError};
 ///     .build();
 /// ```
 #[derive(Clone)]
-pub struct QdrantConfig {
+pub struct QdrantConfig<I: Send + Sync + 'static + Clone + Interceptor = TokenInterceptor> {
     /// Qdrant server URI to connect to
     pub uri: String,
 
@@ -30,9 +54,6 @@ pub struct QdrantConfig {
     /// Whether to keep idle connections active
     pub keep_alive_while_idle: bool,
 
-    /// Optional API key or token to use for authorization
-    pub api_key: Option<String>,
-
     /// Optional compression schema to use for API requests
     pub compression: Option<CompressionEncoding>,
 
@@ -42,51 +63,28 @@ pub struct QdrantConfig {
     /// Amount of concurrent connections.
     /// If set to 0 or 1, connection pools will be disabled.
     pub pool_size: usize,
+
+    /// The interceptor to use for modifying requests
+    pub interceptor: I,
 }
 
-impl QdrantConfig {
-    /// Start configuring a Qdrant client with an URL
-    ///
-    /// ```rust,no_run
-    ///# use qdrant_client::config::QdrantConfig;
-    /// let client = QdrantConfig::from_url("http://localhost:6334").build();
-    /// ```
-    ///
-    /// This is normally done through [`Qdrant::from_url`](crate::Qdrant::from_url).
-    pub fn from_url(url: &str) -> Self {
-        QdrantConfig {
+impl<I: Send + Sync + 'static + Clone + Interceptor> QdrantConfig<I> {
+    fn with_defaults(url: &str, interceptor: I) -> Self {
+        let defaults = DefaultConfigValues::default();
+        Self {
             uri: url.to_string(),
-            ..Self::default()
+            timeout: defaults.timeout,
+            connect_timeout: defaults.connect_timeout,
+            keep_alive_while_idle: defaults.keep_alive_while_idle,
+            compression: defaults.compression,
+            check_compatibility: defaults.check_compatibility,
+            pool_size: defaults.pool_size,
+            interceptor,
         }
     }
 
-    /// Set an optional API key
-    ///
-    /// # Examples
-    ///
-    /// A typical use case might be getting the key from an environment variable:
-    ///
-    /// ```rust,no_run
-    /// use qdrant_client::Qdrant;
-    ///
-    /// let client = Qdrant::from_url("http://localhost:6334")
-    ///     .api_key(std::env::var("QDRANT_API_KEY"))
-    ///     .build();
-    /// ```
-    ///
-    /// Or you might get it from some configuration:
-    ///
-    /// ```rust,no_run
-    ///# use std::collections::HashMap;
-    ///# let config: HashMap<&str, String> = HashMap::new();
-    ///# use qdrant_client::Qdrant;
-    /// let client = Qdrant::from_url("http://localhost:6334")
-    ///     .api_key(config.get("api_key"))
-    ///     .build();
-    /// ```
-    pub fn api_key(mut self, api_key: impl AsOptionApiKey) -> Self {
-        self.api_key = api_key.api_key();
-        self
+    pub fn from_url_with_interceptor(url: &str, interceptor: I) -> Self {
+        Self::with_defaults(url, interceptor)
     }
 
     /// Keep the connection alive while idle
@@ -138,13 +136,6 @@ impl QdrantConfig {
         self
     }
 
-    /// Set an API key
-    ///
-    /// Also see [`api_key()`](fn@Self::api_key).
-    pub fn set_api_key(&mut self, api_key: &str) {
-        self.api_key = Some(api_key.to_string());
-    }
-
     /// Set the timeout for this client
     ///
     /// Also see [`timeout()`](fn@Self::timeout).
@@ -174,7 +165,7 @@ impl QdrantConfig {
     }
 
     /// Build the configured [`Qdrant`] client
-    pub fn build(self) -> Result<Qdrant, QdrantError> {
+    pub fn build(self) -> Result<Qdrant<I>, QdrantError> {
         Qdrant::new(self)
     }
 
@@ -190,21 +181,52 @@ impl QdrantConfig {
     }
 }
 
+impl QdrantConfig<TokenInterceptor> {
+    /// Start configuring a Qdrant client with an URL
+    ///
+    /// ```rust,no_run
+    ///# use qdrant_client::config::QdrantConfig;
+    /// let client = QdrantConfig::from_url("http://localhost:6334").build();
+    /// ```
+    ///
+    /// This is normally done through [`Qdrant::from_url`](crate::Qdrant::from_url).
+    pub fn from_url(url: &str) -> Self {
+        Self::with_defaults(url, TokenInterceptor::new(None))
+    }
+
+    /// Set an optional API key
+    ///
+    /// This method is only available when using the default TokenInterceptor.
+    /// When you set an API key, it automatically configures the TokenInterceptor.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use qdrant_client::Qdrant;
+    ///
+    /// let client = Qdrant::from_url("http://localhost:6334")
+    ///     .api_key(std::env::var("QDRANT_API_KEY"))
+    ///     .build();
+    /// ```
+    pub fn api_key(mut self, api_key: impl AsOptionApiKey) -> Self {
+        self.interceptor = TokenInterceptor::new(api_key.api_key());
+        self
+    }
+
+    /// Set an API key
+    ///
+    /// Also see [`api_key()`](fn@Self::api_key).
+    pub fn set_api_key(&mut self, api_key: &str) {
+        self.interceptor = TokenInterceptor::new(Some(api_key.to_string()));
+    }
+}
+
 /// Default Qdrant client configuration.
 ///
 /// Connects to `http://localhost:6334` without an API key.
-impl Default for QdrantConfig {
+impl Default for QdrantConfig<TokenInterceptor> {
     fn default() -> Self {
-        Self {
-            uri: String::from("http://localhost:6334"),
-            timeout: Duration::from_secs(5),
-            connect_timeout: Duration::from_secs(5),
-            keep_alive_while_idle: true,
-            api_key: None,
-            compression: None,
-            check_compatibility: true,
-            pool_size: 3,
-        }
+        Self::with_defaults("http://localhost:6334", TokenInterceptor::new(None))
     }
 }
 

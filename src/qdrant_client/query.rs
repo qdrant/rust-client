@@ -1,3 +1,5 @@
+use tonic::service::Interceptor;
+
 use super::QdrantResult;
 use crate::qdrant::{
     QueryBatchPoints, QueryBatchResponse, QueryGroupsResponse, QueryPointGroups, QueryPoints,
@@ -10,7 +12,7 @@ use crate::qdrant_client::Qdrant;
 /// Query points using the universal search API.
 ///
 /// Documentation: <https://qdrant.tech/documentation/concepts/search/#query-api>
-impl Qdrant {
+impl<I: Send + Sync + 'static + Clone + Interceptor> Qdrant<I> {
     /// Query points in a collection.
     ///
     /// ```no_run

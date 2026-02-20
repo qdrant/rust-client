@@ -17,6 +17,7 @@ use std::sync::Arc;
 use std::thread;
 
 use tonic::codegen::InterceptedService;
+use tonic::service::Interceptor;
 use tonic::transport::{Channel, Uri};
 use tonic::Status;
 
@@ -83,9 +84,9 @@ pub type QdrantBuilder = QdrantConfig;
 /// - [`upsert_points`](Self::upsert_points) - insert or update points
 /// - [`query`](Self::query) - query points with similarity search
 #[derive(Clone)]
-pub struct Qdrant {
+pub struct Qdrant<I: Send + Sync + 'static + Clone + Interceptor = TokenInterceptor> {
     /// Client configuration
-    pub config: QdrantConfig,
+    pub config: QdrantConfig<I>,
 
     /// Internal connection pool
     channel: Arc<ChannelPool>,
@@ -94,11 +95,11 @@ pub struct Qdrant {
 /// # Construct and connect
 ///
 /// Methods to construct a new Qdrant client.
-impl Qdrant {
+impl<I: Send + Sync + 'static + Clone + Interceptor> Qdrant<I> {
     /// Create a new Qdrant client.
     ///
     /// Constructs the client and connects based on the given [`QdrantConfig`](config::QdrantConfig).
-    pub fn new(config: QdrantConfig) -> QdrantResult<Self> {
+    pub fn new(config: QdrantConfig<I>) -> QdrantResult<Self> {
         if config.check_compatibility {
             // create a temporary client to check compatibility
             let channel = ChannelPool::new(
@@ -162,38 +163,48 @@ impl Qdrant {
         Ok(client)
     }
 
-    /// Build a new Qdrant client with the given URL.
+    /// Build a new Qdrant client with the given URL and custom interceptor.
     ///
     /// ```no_run
     /// use qdrant_client::Qdrant;
+    /// use tonic::service::Interceptor;
+    /// use tonic::{Request, Status};
+    ///
+    /// #[derive(Clone)]
+    /// struct CustomInterceptor;
+    /// impl Interceptor for CustomInterceptor {
+    ///     fn call(&mut self, req: Request<()>) -> Result<Request<()>, Status> {
+    ///         Ok(req)
+    ///     }
+    /// }
     ///
     ///# async fn connect() -> Result<(), qdrant_client::QdrantError> {
-    /// let client = Qdrant::from_url("http://localhost:6334").build()?;
+    /// let client = Qdrant::from_url_with_interceptor(
+    ///     "http://localhost:6334",
+    ///     CustomInterceptor
+    /// ).build()?;
     ///# Ok(())
     ///# }
     /// ```
-    ///
-    /// See more ways to set up the client [here](Self#set-up).
-    pub fn from_url(url: &str) -> QdrantBuilder {
-        QdrantBuilder::from_url(url)
+    pub fn from_url_with_interceptor(url: &str, interceptor: I) -> QdrantConfig<I> {
+        QdrantConfig::<I>::from_url_with_interceptor(url, interceptor)
     }
 
-    /// Wraps a channel with a token interceptor
-    fn with_api_key(&self, channel: Channel) -> InterceptedService<Channel, TokenInterceptor> {
-        let interceptor = TokenInterceptor::new(self.config.api_key.clone());
-        InterceptedService::new(channel, interceptor)
+    /// Wraps a channel with the configured interceptor
+    fn with_interceptor(&self, channel: Channel) -> InterceptedService<Channel, I> {
+        InterceptedService::new(channel, self.config.interceptor.clone())
     }
 
     // Access to raw root qdrant API
     async fn with_root_qdrant_client<T, O: Future<Output = Result<T, Status>>>(
         &self,
-        f: impl Fn(qdrant_client::QdrantClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
+        f: impl Fn(qdrant_client::QdrantClient<InterceptedService<Channel, I>>) -> O,
     ) -> QdrantResult<T> {
         let result = self
             .channel
             .with_channel(
                 |channel| {
-                    let service = self.with_api_key(channel);
+                    let service = self.with_interceptor(channel);
                     let mut client = qdrant_client::QdrantClient::new(service)
                         .max_decoding_message_size(usize::MAX);
                     if let Some(compression) = self.config.compression {
@@ -227,5 +238,23 @@ impl Qdrant {
             Ok(result.into_inner())
         })
         .await
+    }
+}
+
+impl Qdrant<TokenInterceptor> {
+    /// Build a new Qdrant client with the given URL.
+    ///
+    /// ```no_run
+    /// use qdrant_client::Qdrant;
+    ///
+    ///# async fn connect() -> Result<(), qdrant_client::QdrantError> {
+    /// let client = Qdrant::from_url("http://localhost:6334").build()?;
+    ///# Ok(())
+    ///# }
+    /// ```
+    ///
+    /// See more ways to set up the client [here](Self#set-up).
+    pub fn from_url(url: &str) -> QdrantBuilder {
+        QdrantBuilder::from_url(url)
     }
 }

@@ -1,10 +1,10 @@
 use std::future::Future;
 
 use tonic::codegen::InterceptedService;
+use tonic::service::Interceptor;
 use tonic::transport::Channel;
 use tonic::Status;
 
-use crate::auth::TokenInterceptor;
 use crate::qdrant::snapshots_client::SnapshotsClient;
 use crate::qdrant::{
     CreateFullSnapshotRequest, CreateSnapshotRequest, CreateSnapshotResponse,
@@ -18,16 +18,16 @@ use crate::qdrant_client::{Qdrant, QdrantResult};
 /// Create, recover and manage snapshots for collections or a full Qdrant instance.
 ///
 /// Documentation: <https://qdrant.tech/documentation/concepts/snapshots/>
-impl Qdrant {
+impl<I: Send + Sync + 'static + Clone + Interceptor> Qdrant<I> {
     async fn with_snapshot_client<T, O: Future<Output = Result<T, Status>>>(
         &self,
-        f: impl Fn(SnapshotsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
+        f: impl Fn(SnapshotsClient<InterceptedService<Channel, I>>) -> O,
     ) -> QdrantResult<T> {
         let result = self
             .channel
             .with_channel(
                 |channel| {
-                    let service = self.with_api_key(channel);
+                    let service = self.with_interceptor(channel);
                     let mut client =
                         SnapshotsClient::new(service).max_decoding_message_size(usize::MAX);
                     if let Some(compression) = self.config.compression {

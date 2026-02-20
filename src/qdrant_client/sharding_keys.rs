@@ -1,3 +1,5 @@
+use tonic::service::Interceptor;
+
 use crate::qdrant::{
     CreateShardKeyRequest, CreateShardKeyResponse, DeleteShardKeyRequest, DeleteShardKeyResponse,
     ListShardKeysRequest, ListShardKeysResponse,
@@ -9,7 +11,7 @@ use crate::qdrant_client::{Qdrant, QdrantResult};
 /// Create or delete shard keys for collections.
 ///
 /// Documentation: <https://qdrant.tech/documentation/guides/distributed_deployment/#user-defined-sharding>
-impl Qdrant {
+impl<I: Send + Sync + 'static + Clone + Interceptor> Qdrant<I> {
     /// Create new shard key in a collection.
     ///
     /// ```no_run

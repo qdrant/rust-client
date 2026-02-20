@@ -1,6 +1,7 @@
 use tonic::service::Interceptor;
 use tonic::{Request, Status};
 
+#[derive(Clone)]
 pub struct TokenInterceptor {
     api_key: Option<String>,
 }
