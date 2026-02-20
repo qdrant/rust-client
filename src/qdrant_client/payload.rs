@@ -3,14 +3,14 @@ use tonic::service::Interceptor;
 use crate::qdrant::{
     ClearPayloadPoints, DeletePayloadPoints, PointsOperationResponse, SetPayloadPoints,
 };
-use crate::qdrant_client::{Qdrant, QdrantResult};
+use crate::qdrant_client::{GenericQdrant, QdrantResult};
 
 /// # Payload operations
 ///
 /// Manage point payloads.
 ///
 /// Documentation: <https://qdrant.tech/documentation/concepts/payload/>
-impl<I: Send + Sync + 'static + Clone + Interceptor> Qdrant<I> {
+impl<I: Send + Sync + 'static + Clone + Interceptor> GenericQdrant<I> {
     /// Set payload of points.
     ///
     /// Sets only the given payload values on a point, leaving other existing payloads in place.

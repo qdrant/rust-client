@@ -3,14 +3,14 @@ use tonic::service::Interceptor;
 use crate::qdrant::{
     CreateFieldIndexCollection, DeleteFieldIndexCollection, PointsOperationResponse,
 };
-use crate::qdrant_client::{Qdrant, QdrantResult};
+use crate::qdrant_client::{GenericQdrant, QdrantResult};
 
 /// # Index operations
 ///
 /// Manage field and payload indices in collections.
 ///
 /// Documentation: <https://qdrant.tech/documentation/concepts/indexing/>
-impl<I: Send + Sync + 'static + Clone + Interceptor> Qdrant<I> {
+impl<I: Send + Sync + 'static + Clone + Interceptor> GenericQdrant<I> {
     /// Create payload index in a collection.
     ///
     /// ```no_run

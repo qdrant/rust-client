@@ -5,6 +5,7 @@ use tonic::service::Interceptor;
 use tonic::transport::Channel;
 use tonic::Status;
 
+use crate::auth::WrappedInterceptor;
 use crate::qdrant::collections_client::CollectionsClient;
 use crate::qdrant::{
     alias_operations, AliasOperations, ChangeAliases, CollectionClusterInfoRequest,
@@ -14,7 +15,7 @@ use crate::qdrant::{
     ListCollectionAliasesRequest, ListCollectionsRequest, ListCollectionsResponse, RenameAlias,
     UpdateCollection, UpdateCollectionClusterSetupRequest, UpdateCollectionClusterSetupResponse,
 };
-use crate::qdrant_client::{Qdrant, QdrantResult};
+use crate::qdrant_client::{GenericQdrant, QdrantResult};
 
 /// # Collection operations
 ///
@@ -22,10 +23,10 @@ use crate::qdrant_client::{Qdrant, QdrantResult};
 /// configuration.
 ///
 /// Documentation: <https://qdrant.tech/documentation/concepts/collections/>
-impl<I: Send + Sync + 'static + Clone + Interceptor> Qdrant<I> {
+impl<I: Send + Sync + 'static + Clone + Interceptor> GenericQdrant<I> {
     pub(super) async fn with_collections_client<T, O: Future<Output = Result<T, Status>>>(
         &self,
-        f: impl Fn(CollectionsClient<InterceptedService<Channel, I>>) -> O,
+        f: impl Fn(CollectionsClient<InterceptedService<Channel, WrappedInterceptor<I>>>) -> O,
     ) -> QdrantResult<T> {
         let result = self
             .channel
@@ -441,6 +442,7 @@ mod tests {
         CountPointsBuilder, Distance, PointStruct, SearchPointsBuilder, UpsertPointsBuilder,
         VectorParamsBuilder,
     };
+    use crate::Qdrant;
 
     #[tokio::test]
     async fn create_collection_and_do_the_search() -> QdrantResult<()> {

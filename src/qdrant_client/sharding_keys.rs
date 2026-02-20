@@ -4,14 +4,14 @@ use crate::qdrant::{
     CreateShardKeyRequest, CreateShardKeyResponse, DeleteShardKeyRequest, DeleteShardKeyResponse,
     ListShardKeysRequest, ListShardKeysResponse,
 };
-use crate::qdrant_client::{Qdrant, QdrantResult};
+use crate::qdrant_client::{GenericQdrant, QdrantResult};
 
 /// # Sharding key operations
 ///
 /// Create or delete shard keys for collections.
 ///
 /// Documentation: <https://qdrant.tech/documentation/guides/distributed_deployment/#user-defined-sharding>
-impl<I: Send + Sync + 'static + Clone + Interceptor> Qdrant<I> {
+impl<I: Send + Sync + 'static + Clone + Interceptor> GenericQdrant<I> {
     /// Create new shard key in a collection.
     ///
     /// ```no_run

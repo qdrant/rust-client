@@ -5,14 +5,14 @@ use crate::qdrant::{
     QueryBatchPoints, QueryBatchResponse, QueryGroupsResponse, QueryPointGroups, QueryPoints,
     QueryResponse,
 };
-use crate::qdrant_client::Qdrant;
+use crate::qdrant_client::GenericQdrant;
 
 /// # Query operations
 ///
 /// Query points using the universal search API.
 ///
 /// Documentation: <https://qdrant.tech/documentation/concepts/search/#query-api>
-impl<I: Send + Sync + 'static + Clone + Interceptor> Qdrant<I> {
+impl<I: Send + Sync + 'static + Clone + Interceptor> GenericQdrant<I> {
     /// Query points in a collection.
     ///
     /// ```no_run
@@ -134,7 +134,6 @@ impl<I: Send + Sync + 'static + Clone + Interceptor> Qdrant<I> {
 mod tests {
     use serde_json::json;
 
-    use super::*;
     use crate::builders::CreateCollectionBuilder;
     use crate::qdrant::{
         ContextInputBuilder, CreateFieldIndexCollectionBuilder, Datatype, DiscoverInputBuilder,
@@ -144,7 +143,7 @@ mod tests {
         SparseVectorParamsBuilder, SparseVectorsConfigBuilder, UpsertPointsBuilder, Vector,
         VectorInput, VectorParamsBuilder, VectorsConfigBuilder,
     };
-    use crate::Payload;
+    use crate::{Payload, Qdrant};
 
     #[tokio::test]
     async fn test_query() {

@@ -2,18 +2,21 @@ use std::time::Duration;
 
 use tonic::service::Interceptor;
 
-use crate::{auth::TokenInterceptor, Qdrant, QdrantError};
+use crate::auth::{TokenInterceptor, WrappedInterceptor};
+use crate::qdrant_client::GenericQdrant;
+use crate::QdrantError;
 
-struct DefaultConfigValues {
+struct DefaultConfigValues<I: Send + Sync + 'static + Clone + Interceptor = TokenInterceptor> {
     timeout: Duration,
     connect_timeout: Duration,
     keep_alive_while_idle: bool,
     compression: Option<CompressionEncoding>,
     check_compatibility: bool,
     pool_size: usize,
+    interceptor: WrappedInterceptor<I>,
 }
 
-impl Default for DefaultConfigValues {
+impl<I: Send + Sync + 'static + Clone + Interceptor> Default for DefaultConfigValues<I> {
     fn default() -> Self {
         Self {
             timeout: Duration::from_secs(5),
@@ -22,6 +25,7 @@ impl Default for DefaultConfigValues {
             compression: None,
             check_compatibility: true,
             pool_size: 3,
+            interceptor: WrappedInterceptor::<I>::default(),
         }
     }
 }
@@ -65,11 +69,11 @@ pub struct QdrantConfig<I: Send + Sync + 'static + Clone + Interceptor = TokenIn
     pub pool_size: usize,
 
     /// The interceptor to use for modifying requests
-    pub interceptor: I,
+    pub interceptor: WrappedInterceptor<I>,
 }
 
 impl<I: Send + Sync + 'static + Clone + Interceptor> QdrantConfig<I> {
-    fn with_defaults(url: &str, interceptor: I) -> Self {
+    fn with_defaults(url: &str) -> Self {
         let defaults = DefaultConfigValues::default();
         Self {
             uri: url.to_string(),
@@ -79,12 +83,20 @@ impl<I: Send + Sync + 'static + Clone + Interceptor> QdrantConfig<I> {
             compression: defaults.compression,
             check_compatibility: defaults.check_compatibility,
             pool_size: defaults.pool_size,
-            interceptor,
+            interceptor: defaults.interceptor,
         }
     }
 
-    pub fn from_url_with_interceptor(url: &str, interceptor: I) -> Self {
-        Self::with_defaults(url, interceptor)
+    /// Start configuring a Qdrant client with an URL
+    ///
+    /// ```rust,no_run
+    ///# use qdrant_client::config::QdrantConfig;
+    /// let client = QdrantConfig::from_url("http://localhost:6334").build();
+    /// ```
+    ///
+    /// This is normally done through [`Qdrant::from_url`](crate::Qdrant::from_url).
+    pub fn from_url(url: &str) -> Self {
+        Self::with_defaults(url)
     }
 
     /// Keep the connection alive while idle
@@ -136,6 +148,33 @@ impl<I: Send + Sync + 'static + Clone + Interceptor> QdrantConfig<I> {
         self
     }
 
+    /// Set the interceptor to use for this client
+    ///
+    /// ```no_run
+    /// use qdrant_client::GenericQdrant;
+    /// use tonic::service::Interceptor;
+    /// use tonic::{Request, Status};
+    ///
+    /// #[derive(Clone)]
+    /// struct CustomInterceptor;
+    /// impl Interceptor for CustomInterceptor {
+    ///     fn call(&mut self, req: Request<()>) -> Result<Request<()>, Status> {
+    ///         Ok(req)
+    ///     }
+    /// }
+    ///
+    ///# async fn connect() -> Result<(), qdrant_client::QdrantError> {
+    /// let client = GenericQdrant<CustomInterceptor>::from_url("http://localhost:6334")
+    /// .interceptor(CustomInterceptor)
+    /// .build()?;
+    ///# Ok(())
+    ///# }
+    /// ```
+    pub fn interceptor(mut self, interceptor: I) -> Self {
+        self.interceptor = WrappedInterceptor::new(interceptor);
+        self
+    }
+
     /// Set the timeout for this client
     ///
     /// Also see [`timeout()`](fn@Self::timeout).
@@ -164,9 +203,16 @@ impl<I: Send + Sync + 'static + Clone + Interceptor> QdrantConfig<I> {
         self.compression = compression;
     }
 
+    /// Set the interceptor to use for this client
+    ///
+    /// Also see [`interceptor()`](fn@Self::interceptor).
+    pub fn set_interceptor(&mut self, interceptor: I) {
+        self.interceptor = WrappedInterceptor::new(interceptor);
+    }
+
     /// Build the configured [`Qdrant`] client
-    pub fn build(self) -> Result<Qdrant<I>, QdrantError> {
-        Qdrant::new(self)
+    pub fn build(self) -> Result<GenericQdrant<I>, QdrantError> {
+        GenericQdrant::new(self)
     }
 
     pub fn skip_compatibility_check(mut self) -> Self {
@@ -182,18 +228,6 @@ impl<I: Send + Sync + 'static + Clone + Interceptor> QdrantConfig<I> {
 }
 
 impl QdrantConfig<TokenInterceptor> {
-    /// Start configuring a Qdrant client with an URL
-    ///
-    /// ```rust,no_run
-    ///# use qdrant_client::config::QdrantConfig;
-    /// let client = QdrantConfig::from_url("http://localhost:6334").build();
-    /// ```
-    ///
-    /// This is normally done through [`Qdrant::from_url`](crate::Qdrant::from_url).
-    pub fn from_url(url: &str) -> Self {
-        Self::with_defaults(url, TokenInterceptor::new(None))
-    }
-
     /// Set an optional API key
     ///
     /// This method is only available when using the default TokenInterceptor.
@@ -209,7 +243,7 @@ impl QdrantConfig<TokenInterceptor> {
     ///     .build();
     /// ```
     pub fn api_key(mut self, api_key: impl AsOptionApiKey) -> Self {
-        self.interceptor = TokenInterceptor::new(api_key.api_key());
+        self.interceptor = WrappedInterceptor::new(TokenInterceptor::new(api_key.api_key()));
         self
     }
 
@@ -217,7 +251,8 @@ impl QdrantConfig<TokenInterceptor> {
     ///
     /// Also see [`api_key()`](fn@Self::api_key).
     pub fn set_api_key(&mut self, api_key: &str) {
-        self.interceptor = TokenInterceptor::new(Some(api_key.to_string()));
+        self.interceptor =
+            WrappedInterceptor::new(TokenInterceptor::new(Some(api_key.to_string())));
     }
 }
 
@@ -226,7 +261,7 @@ impl QdrantConfig<TokenInterceptor> {
 /// Connects to `http://localhost:6334` without an API key.
 impl Default for QdrantConfig<TokenInterceptor> {
     fn default() -> Self {
-        Self::with_defaults("http://localhost:6334", TokenInterceptor::new(None))
+        Self::with_defaults("http://localhost:6334")
     }
 }
 
