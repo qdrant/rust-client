@@ -1,6 +1,7 @@
 use tonic::service::Interceptor;
 use tonic::{Request, Status};
 
+#[derive(Clone)]
 pub struct TokenInterceptor {
     api_key: Option<String>,
 }
@@ -22,5 +23,33 @@ impl Interceptor for TokenInterceptor {
             );
         }
         Ok(req)
+    }
+}
+
+#[derive(Clone)]
+pub struct WrappedInterceptor<I: Send + Sync + 'static + Clone + Interceptor = TokenInterceptor> {
+    pub inner: Option<I>,
+}
+
+impl<I: Send + Sync + 'static + Clone + Interceptor> Default for WrappedInterceptor<I> {
+    fn default() -> Self {
+        Self { inner: None }
+    }
+}
+
+impl<I: Send + Sync + 'static + Clone + Interceptor> WrappedInterceptor<I> {
+    pub fn new(interceptor: I) -> Self {
+        Self {
+            inner: Some(interceptor),
+        }
+    }
+}
+
+impl<I: Send + Sync + 'static + Clone + Interceptor> Interceptor for WrappedInterceptor<I> {
+    fn call(&mut self, req: Request<()>) -> anyhow::Result<Request<()>, Status> {
+        match self.inner.as_mut() {
+            Some(inter) => inter.call(req),
+            None => Ok(req),
+        }
     }
 }

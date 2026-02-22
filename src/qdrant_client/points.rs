@@ -1,10 +1,11 @@
 use std::future::Future;
 
 use tonic::codegen::InterceptedService;
+use tonic::service::Interceptor;
 use tonic::transport::Channel;
 use tonic::Status;
 
-use crate::auth::TokenInterceptor;
+use crate::auth::WrappedInterceptor;
 use crate::qdrant::points_client::PointsClient;
 use crate::qdrant::{
     CountPoints, CountResponse, DeletePointVectors, DeletePoints, FacetCounts, FacetResponse,
@@ -12,23 +13,23 @@ use crate::qdrant::{
     SearchMatrixOffsetsResponse, SearchMatrixPairsResponse, SearchMatrixPoints, UpdateBatchPoints,
     UpdateBatchResponse, UpdatePointVectors, UpsertPoints, Usage,
 };
-use crate::qdrant_client::{Qdrant, QdrantResult};
+use crate::qdrant_client::{GenericQdrant, QdrantResult};
 
 /// # Point operations
 ///
 /// Manage points and vectors.
 ///
 /// Documentation: <https://qdrant.tech/documentation/concepts/points/>
-impl Qdrant {
+impl<I: Send + Sync + 'static + Clone + Interceptor> GenericQdrant<I> {
     pub(crate) async fn with_points_client<T, O: Future<Output = Result<T, Status>>>(
         &self,
-        f: impl Fn(PointsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
+        f: impl Fn(PointsClient<InterceptedService<Channel, WrappedInterceptor<I>>>) -> O,
     ) -> QdrantResult<T> {
         let result = self
             .channel
             .with_channel(
                 |channel| {
-                    let service = self.with_api_key(channel);
+                    let service = self.with_interceptor(channel);
                     let mut client =
                         PointsClient::new(service).max_decoding_message_size(usize::MAX);
                     if let Some(compression) = self.config.compression {

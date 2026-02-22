@@ -17,11 +17,13 @@ use std::sync::Arc;
 use std::thread;
 
 use tonic::codegen::InterceptedService;
+use tonic::service::Interceptor;
 use tonic::transport::{Channel, Uri};
 use tonic::Status;
 
-use crate::auth::TokenInterceptor;
+use crate::auth::{TokenInterceptor, WrappedInterceptor};
 use crate::channel_pool::ChannelPool;
+use crate::config::GenericQdrantConfig;
 use crate::qdrant::{qdrant_client, HealthCheckReply, HealthCheckRequest};
 use crate::qdrant_client::config::QdrantConfig;
 use crate::qdrant_client::version_check::is_compatible;
@@ -32,6 +34,7 @@ pub type QdrantResult<T> = Result<T, QdrantError>;
 
 /// A builder for [`Qdrant`]
 pub type QdrantBuilder = QdrantConfig;
+pub type Qdrant = GenericQdrant<TokenInterceptor>;
 
 /// API client to interact with a [Qdrant](https://qdrant.tech/) server.
 ///
@@ -83,9 +86,9 @@ pub type QdrantBuilder = QdrantConfig;
 /// - [`upsert_points`](Self::upsert_points) - insert or update points
 /// - [`query`](Self::query) - query points with similarity search
 #[derive(Clone)]
-pub struct Qdrant {
+pub struct GenericQdrant<I: Send + Sync + 'static + Clone + Interceptor> {
     /// Client configuration
-    pub config: QdrantConfig,
+    pub config: GenericQdrantConfig<I>,
 
     /// Internal connection pool
     channel: Arc<ChannelPool>,
@@ -94,11 +97,11 @@ pub struct Qdrant {
 /// # Construct and connect
 ///
 /// Methods to construct a new Qdrant client.
-impl Qdrant {
+impl<I: Send + Sync + 'static + Clone + Interceptor> GenericQdrant<I> {
     /// Create a new Qdrant client.
     ///
-    /// Constructs the client and connects based on the given [`QdrantConfig`](config::QdrantConfig).
-    pub fn new(config: QdrantConfig) -> QdrantResult<Self> {
+    /// Constructs the client and connects based on the given [`GenericQdrantConfig`](config::GenericQdrantConfig).
+    pub fn new(config: GenericQdrantConfig<I>) -> QdrantResult<Self> {
         if config.check_compatibility {
             // create a temporary client to check compatibility
             let channel = ChannelPool::new(
@@ -174,26 +177,28 @@ impl Qdrant {
     /// ```
     ///
     /// See more ways to set up the client [here](Self#set-up).
-    pub fn from_url(url: &str) -> QdrantBuilder {
-        QdrantBuilder::from_url(url)
+    pub fn from_url(url: &str) -> GenericQdrantConfig<I> {
+        GenericQdrantConfig::<I>::from_url(url)
     }
 
-    /// Wraps a channel with a token interceptor
-    fn with_api_key(&self, channel: Channel) -> InterceptedService<Channel, TokenInterceptor> {
-        let interceptor = TokenInterceptor::new(self.config.api_key.clone());
-        InterceptedService::new(channel, interceptor)
+    /// Wraps a channel with the configured interceptor
+    fn with_interceptor(
+        &self,
+        channel: Channel,
+    ) -> InterceptedService<Channel, WrappedInterceptor<I>> {
+        InterceptedService::new(channel, self.config.interceptor.clone())
     }
 
     // Access to raw root qdrant API
     async fn with_root_qdrant_client<T, O: Future<Output = Result<T, Status>>>(
         &self,
-        f: impl Fn(qdrant_client::QdrantClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
+        f: impl Fn(qdrant_client::QdrantClient<InterceptedService<Channel, WrappedInterceptor<I>>>) -> O,
     ) -> QdrantResult<T> {
         let result = self
             .channel
             .with_channel(
                 |channel| {
-                    let service = self.with_api_key(channel);
+                    let service = self.with_interceptor(channel);
                     let mut client = qdrant_client::QdrantClient::new(service)
                         .max_decoding_message_size(usize::MAX);
                     if let Some(compression) = self.config.compression {
