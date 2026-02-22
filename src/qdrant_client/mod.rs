@@ -23,6 +23,7 @@ use tonic::Status;
 
 use crate::auth::{TokenInterceptor, WrappedInterceptor};
 use crate::channel_pool::ChannelPool;
+use crate::config::GenericQdrantConfig;
 use crate::qdrant::{qdrant_client, HealthCheckReply, HealthCheckRequest};
 use crate::qdrant_client::config::QdrantConfig;
 use crate::qdrant_client::version_check::is_compatible;
@@ -87,7 +88,7 @@ pub type Qdrant = GenericQdrant<TokenInterceptor>;
 #[derive(Clone)]
 pub struct GenericQdrant<I: Send + Sync + 'static + Clone + Interceptor> {
     /// Client configuration
-    pub config: QdrantConfig<I>,
+    pub config: GenericQdrantConfig<I>,
 
     /// Internal connection pool
     channel: Arc<ChannelPool>,
@@ -99,8 +100,8 @@ pub struct GenericQdrant<I: Send + Sync + 'static + Clone + Interceptor> {
 impl<I: Send + Sync + 'static + Clone + Interceptor> GenericQdrant<I> {
     /// Create a new Qdrant client.
     ///
-    /// Constructs the client and connects based on the given [`QdrantConfig`](config::QdrantConfig).
-    pub fn new(config: QdrantConfig<I>) -> QdrantResult<Self> {
+    /// Constructs the client and connects based on the given [`GenericQdrantConfig`](config::GenericQdrantConfig).
+    pub fn new(config: GenericQdrantConfig<I>) -> QdrantResult<Self> {
         if config.check_compatibility {
             // create a temporary client to check compatibility
             let channel = ChannelPool::new(
@@ -176,8 +177,8 @@ impl<I: Send + Sync + 'static + Clone + Interceptor> GenericQdrant<I> {
     /// ```
     ///
     /// See more ways to set up the client [here](Self#set-up).
-    pub fn from_url(url: &str) -> QdrantConfig<I> {
-        QdrantConfig::<I>::from_url(url)
+    pub fn from_url(url: &str) -> GenericQdrantConfig<I> {
+        GenericQdrantConfig::<I>::from_url(url)
     }
 
     /// Wraps a channel with the configured interceptor

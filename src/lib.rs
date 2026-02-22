@@ -153,12 +153,12 @@ pub mod serde_deser;
 // Re-exports
 pub use crate::payload::Payload;
 pub use crate::qdrant_client::error::QdrantError;
-pub use crate::qdrant_client::{Qdrant, QdrantBuilder};
+pub use crate::qdrant_client::{GenericQdrant, Qdrant, QdrantBuilder};
 
 /// Client configuration
 pub mod config {
     pub use crate::qdrant_client::config::{
-        AsOptionApiKey, AsTimeout, CompressionEncoding, QdrantConfig,
+        AsOptionApiKey, AsTimeout, CompressionEncoding, GenericQdrantConfig, QdrantConfig,
     };
 }
 
