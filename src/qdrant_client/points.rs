@@ -29,6 +29,7 @@ impl Qdrant {
             .with_channel(
                 |channel| {
                     let service = self.with_api_key(channel);
+                    let service = self.with_external_api_keys(service);
                     let mut client =
                         PointsClient::new(service).max_decoding_message_size(usize::MAX);
                     if let Some(compression) = self.config.compression {
