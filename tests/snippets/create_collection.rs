@@ -1,11 +1,13 @@
-use qdrant_client::qdrant::{CreateCollectionBuilder, Distance, VectorParamsBuilder};
-use qdrant_client::Qdrant;
+crate::qdrant_test_snippet!({
+    use qdrant_client::qdrant::{CreateCollectionBuilder, Distance, VectorParamsBuilder};
+    use qdrant_client::Qdrant;
 
-let client = Qdrant::from_url("http://localhost:6334").build()?;
+    let client = Qdrant::from_url("http://localhost:6334").build()?;
 
-client
-    .create_collection(
-        CreateCollectionBuilder::new("{collection_name}")
-            .vectors_config(VectorParamsBuilder::new(100, Distance::Cosine)),
-    )
-    .await?;
+    client
+        .create_collection(
+            CreateCollectionBuilder::new("{collection_name}")
+                .vectors_config(VectorParamsBuilder::new(100, Distance::Cosine)),
+        )
+        .await?;
+});
