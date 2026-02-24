@@ -29,3 +29,78 @@ impl Interceptor for ExternalApiKeysInterceptor {
         Ok(request)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+
+    use tonic::service::Interceptor;
+    use tonic::Request;
+
+    use super::ExternalApiKeysInterceptor;
+
+    #[test]
+    fn inserts_external_api_keys_into_metadata_headers() {
+        let api_keys = HashMap::from([
+            ("openai-api-key".to_string(), "openai-secret".to_string()),
+            ("cohere-api-key".to_string(), "cohere-secret".to_string()),
+        ]);
+
+        let mut interceptor = ExternalApiKeysInterceptor::new(Some(api_keys));
+        let request = interceptor
+            .call(Request::new(()))
+            .expect("interceptor must accept valid external API keys");
+
+        let openai = request
+            .metadata()
+            .get("openai-api-key")
+            .expect("missing openai-api-key header")
+            .to_str()
+            .expect("openai-api-key header must be valid ASCII");
+        let cohere = request
+            .metadata()
+            .get("cohere-api-key")
+            .expect("missing cohere-api-key header")
+            .to_str()
+            .expect("cohere-api-key header must be valid ASCII");
+
+        assert_eq!(openai, "openai-secret");
+        assert_eq!(cohere, "cohere-secret");
+    }
+
+    #[test]
+    fn keeps_request_unchanged_when_external_keys_are_missing() {
+        let mut interceptor = ExternalApiKeysInterceptor::new(None);
+        let request = interceptor
+            .call(Request::new(()))
+            .expect("interceptor must accept empty external API key config");
+
+        assert!(request.metadata().is_empty());
+    }
+
+    #[test]
+    fn returns_invalid_argument_for_invalid_metadata_key() {
+        let api_keys = HashMap::from([("openai api key".to_string(), "secret".to_string())]);
+
+        let mut interceptor = ExternalApiKeysInterceptor::new(Some(api_keys));
+        let error = interceptor
+            .call(Request::new(()))
+            .expect_err("interceptor must reject invalid metadata keys");
+
+        assert_eq!(error.code(), tonic::Code::InvalidArgument);
+        assert!(error.message().contains("Invalid metadata key"));
+    }
+
+    #[test]
+    fn returns_invalid_argument_for_invalid_metadata_value() {
+        let api_keys = HashMap::from([("openai-api-key".to_string(), "bad\nkey".to_string())]);
+
+        let mut interceptor = ExternalApiKeysInterceptor::new(Some(api_keys));
+        let error = interceptor
+            .call(Request::new(()))
+            .expect_err("interceptor must reject invalid metadata values");
+
+        assert_eq!(error.code(), tonic::Code::InvalidArgument);
+        assert!(error.message().contains("Invalid metadata value"));
+    }
+}
