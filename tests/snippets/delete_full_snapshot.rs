@@ -1,5 +1,7 @@
-use qdrant_client::Qdrant;
+crate::qdrant_test_snippet!({
+    use qdrant_client::Qdrant;
 
-let client = Qdrant::from_url("http://localhost:6334").build()?;
+    let client = Qdrant::from_url("http://localhost:6334").build()?;
 
-client.delete_full_snapshot("{snapshot_name}").await?;
+    client.delete_full_snapshot("{snapshot_name}").await?;
+});

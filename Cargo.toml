@@ -31,13 +31,12 @@ parking_lot = "0.12.4"
 
 [dev-dependencies]
 tonic-build = { version = "0.12.3", features = ["prost"] }
-qdrant-client = { path = ".", features = ["generate-snippets"] }
 
 [features]
 default = ["download_snapshots", "serde"]
 download_snapshots = ["reqwest", "futures-util"]
 serde = ["dep:serde", "dep:serde_json"]
-generate-snippets = []
+generate-snippets = [] # Does nothing. Deprecated.
 uuid = ["dep:uuid"]
 
 [[example]]
