@@ -22,11 +22,10 @@ use tonic::Status;
 
 use crate::auth::MetadataInterceptor;
 use crate::channel_pool::ChannelPool;
+use crate::external_api_keys::ExternalApiKeysInterceptor;
 use crate::qdrant::{qdrant_client, HealthCheckReply, HealthCheckRequest};
 use crate::qdrant_client::config::QdrantConfig;
 use crate::qdrant_client::version_check::is_compatible;
-use crate::auth::TokenInterceptor;
-use crate::external_api_keys::ExternalApiKeysInterceptor;
 use crate::QdrantError;
 
 /// [`Qdrant`] client result
