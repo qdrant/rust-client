@@ -122,10 +122,14 @@ impl QdrantConfig {
     /// # Examples
     /// ```rust,no_run
     ///# use std::collections::HashMap;
-    ///# let config: HashMap<&str, String> = HashMap::new();
+    ///# let mut config: HashMap<&str, HashMap<String, String>> = HashMap::new();
+    ///# config.insert(
+    ///#     "external_api_keys",
+    ///#     HashMap::from([("openai-api-key".to_string(), "<YOUR_OPENAI_API_KEY>".to_string())]),
+    ///# );
     ///# use qdrant_client::Qdrant;
     /// let client = Qdrant::from_url("http://localhost:6334")
-    ///     .external_api_keys(config.get("external_api_keys"))
+    ///     .external_api_keys(config.get("external_api_keys").cloned())
     ///     .build();
     /// ```
     pub fn external_api_keys(mut self, external_api_keys: impl AsOptionExternalApiKeys) -> Self {
@@ -350,25 +354,27 @@ impl<E: Sized> AsOptionApiKey for Result<String, E> {
     }
 }
 
-/// Set an optional API key from various types
+/// Set optional external API keys from various types
 ///
 /// For example:
 ///
 /// ```rust
-///# use std::time::Duration;
 ///# use qdrant_client::Qdrant;
 ///# let mut config = Qdrant::from_url("http://localhost:6334");
 /// config
 ///     .external_api_keys(("openai-api-key", "<YOUR_OPENAI_API_KEY>"))
 ///     .external_api_keys((String::from("openai-api-key"), String::from("<YOUR_OPENAI_API_KEY>")))
-///     .external_api_keys((String::from("openai-api-key").unwrap(), std::env::var("OPENAI_API_KEY").unwrap()));
+///     .external_api_keys((String::from("openai-api-key"), "<YOUR_OPENAI_API_KEY>".to_string()));
 /// ```
 ///
-/// /// ```rust
-///# use std::time::Duration;
+/// ```rust
+///# use std::collections::HashMap;
 ///# use qdrant_client::Qdrant;
 ///# let mut config = Qdrant::from_url("http://localhost:6334");
-///# let ext_api_keys = HashMap::from([("openai-api-key", "<YOUR_OPENAI_API_KEY>"), ("cohere-api-key", "<YOUR_COHERE_API_KEY>")])
+///# let ext_api_keys = HashMap::from([
+///#     ("openai-api-key".to_string(), "<YOUR_OPENAI_API_KEY>".to_string()),
+///#     ("cohere-api-key".to_string(), "<YOUR_COHERE_API_KEY>".to_string()),
+///# ]);
 /// config
 ///     .external_api_keys(ext_api_keys);
 /// ```

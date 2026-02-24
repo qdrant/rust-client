@@ -18,6 +18,10 @@ impl Interceptor for ExternalApiKeysInterceptor {
     fn call(&mut self, mut request: Request<()>) -> anyhow::Result<Request<()>, Status> {
         if let Some(ext_api_keys) = &self.external_api_keys {
             for (k, v) in ext_api_keys {
+                // Treat empty values as "missing key" (e.g. absent env var), so requests can proceed.
+                if v.trim().is_empty() {
+                    continue;
+                }
                 let key = MetadataKey::from_bytes(k.as_bytes())
                     .map_err(|_| Status::invalid_argument(format!("Invalid metadata key: {k}")))?;
                 let value = MetadataValue::try_from(v.as_str()).map_err(|_| {
@@ -102,5 +106,29 @@ mod tests {
 
         assert_eq!(error.code(), tonic::Code::InvalidArgument);
         assert!(error.message().contains("Invalid metadata value"));
+    }
+
+    #[test]
+    fn skips_empty_external_api_key_values() {
+        let api_keys = HashMap::from([
+            ("openai-api-key".to_string(), "".to_string()),
+            ("cohere-api-key".to_string(), "cohere-secret".to_string()),
+        ]);
+
+        let mut interceptor = ExternalApiKeysInterceptor::new(Some(api_keys));
+        let request = interceptor
+            .call(Request::new(()))
+            .expect("interceptor must ignore empty external API key values");
+
+        assert!(request.metadata().get("openai-api-key").is_none());
+        assert_eq!(
+            request
+                .metadata()
+                .get("cohere-api-key")
+                .expect("cohere-api-key header must exist")
+                .to_str()
+                .expect("cohere-api-key header must be valid ASCII"),
+            "cohere-secret"
+        );
     }
 }
