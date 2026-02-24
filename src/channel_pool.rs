@@ -16,6 +16,7 @@ pub struct ChannelPool {
     connection_timeout: Duration,
     keep_alive_while_idle: bool,
     pool_size: usize,
+    tls_config: Option<ClientTlsConfig>,
 }
 
 impl ChannelPool {
@@ -25,6 +26,7 @@ impl ChannelPool {
         connection_timeout: Duration,
         keep_alive_while_idle: bool,
         mut pool_size: usize,
+        tls_config: Option<ClientTlsConfig>,
     ) -> Self {
         // Ensure `pool_size` is always >= 1
         pool_size = std::cmp::max(pool_size, 1);
@@ -37,6 +39,7 @@ impl ChannelPool {
             connection_timeout,
             keep_alive_while_idle,
             pool_size,
+            tls_config,
         }
     }
 
@@ -66,7 +69,10 @@ impl ChannelPool {
             .expect("Version info should be a valid header value");
 
         let endpoint = if tls {
-            let tls_config = ClientTlsConfig::new().with_native_roots();
+            let tls_config = self
+                .tls_config
+                .clone()
+                .unwrap_or(ClientTlsConfig::new().with_native_roots());
             endpoint
                 .tls_config(tls_config)
                 .map_err(|e| Status::internal(format!("Failed to create TLS config: {e}")))?
@@ -168,6 +174,7 @@ fn require_get_channel_fn_to_be_send() {
             Duration::from_millis(0),
             false,
             2,
+            None,
         )
         .get_channel()
         .await
@@ -187,6 +194,7 @@ mod test {
             Duration::default(),
             false,
             5,
+            None,
         );
 
         assert_eq!(channel.next_channel_index(), 0);

@@ -1,5 +1,7 @@
 use std::time::Duration;
 
+use tonic::transport::ClientTlsConfig;
+
 use crate::{Qdrant, QdrantError};
 
 /// Qdrant client configuration
@@ -42,6 +44,9 @@ pub struct QdrantConfig {
     /// Amount of concurrent connections.
     /// If set to 0 or 1, connection pools will be disabled.
     pub pool_size: usize,
+
+    /// Custom configuration for TLS encryption on gRPC channels.
+    pub tls_config: Option<ClientTlsConfig>,
 }
 
 impl QdrantConfig {
@@ -138,6 +143,29 @@ impl QdrantConfig {
         self
     }
 
+    /// Set the TLS configuration to use for this client
+    ///
+    /// ```rust,no_run
+    ///# fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// use qdrant_client::Qdrant;
+    /// use tonic::transport::ClientTlsConfig;
+    /// use tonic::transport::Certificate;
+    ///
+    /// let ca_cert_pem = std::fs::read_to_string("path/to/ca.crt")?;
+    /// let tls_config = ClientTlsConfig::new()
+    ///     .ca_certificate(Certificate::from_pem(ca_cert_pem));
+    ///
+    /// let client = Qdrant::from_url("http://localhost:6334")
+    ///     .tls_config(Some(tls_config))
+    ///     .build();
+    ///# Ok(())
+    ///# }
+    /// ```
+    pub fn tls_config(mut self, tls_config: Option<ClientTlsConfig>) -> Self {
+        self.tls_config = tls_config;
+        self
+    }
+
     /// Set an API key
     ///
     /// Also see [`api_key()`](fn@Self::api_key).
@@ -188,6 +216,13 @@ impl QdrantConfig {
     pub fn set_pool_size(&mut self, pool_size: usize) {
         self.pool_size = pool_size;
     }
+
+    /// Set the TLS configuration
+    ///
+    /// Also see [`tls_config()`](fn@Self::tls_config).
+    pub fn set_tls_config(&mut self, tls_config: Option<ClientTlsConfig>) {
+        self.tls_config = tls_config;
+    }
 }
 
 /// Default Qdrant client configuration.
@@ -204,6 +239,7 @@ impl Default for QdrantConfig {
             compression: None,
             check_compatibility: true,
             pool_size: 3,
+            tls_config: None,
         }
     }
 }

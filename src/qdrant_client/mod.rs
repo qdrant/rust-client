@@ -107,6 +107,7 @@ impl Qdrant {
                 config.connect_timeout,
                 config.keep_alive_while_idle,
                 1, // No need to create a pool for the compatibility check.
+                config.tls_config.clone(),
             );
             let client = Self {
                 channel: Arc::new(channel),
@@ -152,6 +153,7 @@ impl Qdrant {
             config.connect_timeout,
             config.keep_alive_while_idle,
             config.pool_size,
+            config.tls_config.clone(),
         );
 
         let client = Self {
