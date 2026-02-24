@@ -31,6 +31,7 @@ parking_lot = "0.12.4"
 
 [dev-dependencies]
 tonic-build = { version = "0.12.3", features = ["prost"] }
+testcontainers = { version = "0.26", features = ["http_wait"] }
 
 [features]
 default = ["download_snapshots", "serde", "generate-snippets"]

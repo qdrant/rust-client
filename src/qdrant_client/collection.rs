@@ -443,6 +443,7 @@ mod tests {
     };
 
     #[tokio::test]
+    #[ignore = "requires running Qdrant server, use tests/integration.rs instead"]
     async fn create_collection_and_do_the_search() -> QdrantResult<()> {
         let client = Qdrant::from_url("http://localhost:6334").build()?;
 
