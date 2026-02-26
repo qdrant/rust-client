@@ -154,7 +154,7 @@ impl Qdrant {
             },
         };
 
-        let mut stream = reqwest::get(format!(
+        let url = format!(
             "{}/collections/{}/snapshots/{snapshot_name}",
             options
                 .rest_api_uri
@@ -162,9 +162,17 @@ impl Qdrant {
                 .map(|uri| uri.to_string())
                 .unwrap_or_else(|| String::from("http://localhost:6333")),
             options.collection_name,
-        ))
-        .await?
-        .bytes_stream();
+        );
+
+        let client = reqwest::Client::new();
+        let mut request = client.get(&url);
+        if let Some(api_key) = &self.config.api_key {
+            request = request.header("api-key", api_key.as_str());
+        }
+        for (key, value) in &self.config.custom_headers {
+            request = request.header(key.as_str(), value.as_str());
+        }
+        let mut stream = request.send().await?.bytes_stream();
 
         let _ = std::fs::remove_file(&options.out_path);
         let mut file = std::fs::OpenOptions::new()

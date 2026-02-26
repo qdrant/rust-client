@@ -180,7 +180,10 @@ impl Qdrant {
 
     /// Wraps a channel with a token interceptor
     fn with_api_key(&self, channel: Channel) -> InterceptedService<Channel, TokenInterceptor> {
-        let interceptor = TokenInterceptor::new(self.config.api_key.clone());
+        let interceptor = TokenInterceptor::new(
+            self.config.api_key.clone(),
+            self.config.custom_headers.clone(),
+        );
         InterceptedService::new(channel, interceptor)
     }
 
