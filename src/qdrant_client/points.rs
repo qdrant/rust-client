@@ -4,7 +4,7 @@ use tonic::codegen::InterceptedService;
 use tonic::transport::Channel;
 use tonic::Status;
 
-use crate::auth::TokenInterceptor;
+use crate::auth::MetadataInterceptor;
 use crate::qdrant::points_client::PointsClient;
 use crate::qdrant::{
     CountPoints, CountResponse, DeletePointVectors, DeletePoints, FacetCounts, FacetResponse,
@@ -22,7 +22,7 @@ use crate::qdrant_client::{Qdrant, QdrantResult};
 impl Qdrant {
     pub(crate) async fn with_points_client<T, O: Future<Output = Result<T, Status>>>(
         &self,
-        f: impl Fn(PointsClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
+        f: impl Fn(PointsClient<InterceptedService<Channel, MetadataInterceptor>>) -> O,
     ) -> QdrantResult<T> {
         let result = self
             .channel

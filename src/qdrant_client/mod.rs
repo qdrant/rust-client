@@ -20,7 +20,7 @@ use tonic::codegen::InterceptedService;
 use tonic::transport::{Channel, Uri};
 use tonic::Status;
 
-use crate::auth::TokenInterceptor;
+use crate::auth::MetadataInterceptor;
 use crate::channel_pool::ChannelPool;
 use crate::qdrant::{qdrant_client, HealthCheckReply, HealthCheckRequest};
 use crate::qdrant_client::config::QdrantConfig;
@@ -178,9 +178,9 @@ impl Qdrant {
         QdrantBuilder::from_url(url)
     }
 
-    /// Wraps a channel with a token interceptor
-    fn with_api_key(&self, channel: Channel) -> InterceptedService<Channel, TokenInterceptor> {
-        let interceptor = TokenInterceptor::new(
+    /// Wraps a channel with a metadata interceptor (api key + custom headers)
+    fn with_api_key(&self, channel: Channel) -> InterceptedService<Channel, MetadataInterceptor> {
+        let interceptor = MetadataInterceptor::new(
             self.config.api_key.clone(),
             self.config.custom_headers.clone(),
         );
@@ -190,7 +190,7 @@ impl Qdrant {
     // Access to raw root qdrant API
     async fn with_root_qdrant_client<T, O: Future<Output = Result<T, Status>>>(
         &self,
-        f: impl Fn(qdrant_client::QdrantClient<InterceptedService<Channel, TokenInterceptor>>) -> O,
+        f: impl Fn(qdrant_client::QdrantClient<InterceptedService<Channel, MetadataInterceptor>>) -> O,
     ) -> QdrantResult<T> {
         let result = self
             .channel
