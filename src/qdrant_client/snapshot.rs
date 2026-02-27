@@ -4,7 +4,7 @@ use tonic::codegen::InterceptedService;
 use tonic::transport::Channel;
 use tonic::Status;
 
-use crate::auth::MetadataInterceptor;
+use crate::auth::{MetadataInterceptor, API_KEY_HEADER};
 use crate::qdrant::snapshots_client::SnapshotsClient;
 use crate::qdrant::{
     CreateFullSnapshotRequest, CreateSnapshotRequest, CreateSnapshotResponse,
@@ -167,7 +167,7 @@ impl Qdrant {
         let client = reqwest::Client::new();
         let mut request = client.get(&url);
         if let Some(api_key) = &self.config.api_key {
-            request = request.header("api-key", api_key.as_str());
+            request = request.header(API_KEY_HEADER, api_key.as_str());
         }
         for (key, value) in &self.config.custom_headers {
             request = request.header(key.as_str(), value.as_str());
