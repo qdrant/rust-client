@@ -1,6 +1,7 @@
 mod test_batch_update;
 mod test_clear_payload;
 mod test_collection_exists;
+mod test_config_headers;
 mod test_count_points;
 mod test_create_collection;
 mod test_create_collection_with_bq;
@@ -20,6 +21,7 @@ mod test_delete_snapshot;
 mod test_delete_vectors;
 mod test_discover_batch_points;
 mod test_discover_points;
+mod test_external_api_keys;
 mod test_facets;
 mod test_get_collection;
 mod test_get_collection_aliases;

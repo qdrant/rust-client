@@ -42,6 +42,9 @@ pub struct QdrantConfig {
     /// Amount of concurrent connections.
     /// If set to 0 or 1, connection pools will be disabled.
     pub pool_size: usize,
+
+    /// Optional custom headers to send with every request (both gRPC and REST).
+    pub custom_headers: Vec<(String, String)>,
 }
 
 impl QdrantConfig {
@@ -56,8 +59,29 @@ impl QdrantConfig {
     pub fn from_url(url: &str) -> Self {
         QdrantConfig {
             uri: url.to_string(),
+            custom_headers: Vec::new(),
             ..Self::default()
         }
+    }
+
+    /// Add a custom header to send with every request.
+    ///
+    /// Can be called multiple times to add multiple headers. The same header name can be
+    /// set multiple times; all values will be sent.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use qdrant_client::Qdrant;
+    ///
+    /// let client = Qdrant::from_url("http://localhost:6334")
+    ///     .header("x-custom-id", "my-client")
+    ///     .header("x-request-source", "batch-job")
+    ///     .build();
+    /// ```
+    pub fn header(mut self, key: impl Into<String>, value: impl Into<String>) -> Self {
+        self.custom_headers.push((key.into(), value.into()));
+        self
     }
 
     /// Set an optional API key
@@ -204,6 +228,7 @@ impl Default for QdrantConfig {
             compression: None,
             check_compatibility: true,
             pool_size: 3,
+            custom_headers: Vec::new(),
         }
     }
 }

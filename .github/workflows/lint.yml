@@ -13,8 +13,10 @@ jobs:
         with:
           components: rustfmt, clippy
       - uses: actions/checkout@v3
-      - name: Install dependencies
-        run: sudo apt-get install protobuf-compiler
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Check code formatting
         run: cargo fmt --all -- --check
       - name: Check cargo clippy warnings
