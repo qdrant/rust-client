@@ -18,13 +18,14 @@ const COHERE_MODEL: &str = "cohere/embed-english-v3.0";
 const COHERE_VECTOR_SIZE: u64 = 1024;
 
 fn create_client_with_external_keys(external_api_keys: HashMap<String, String>) -> Qdrant {
-    Qdrant::from_url(PROXY_URL)
+    let mut builder = Qdrant::from_url(PROXY_URL)
         .skip_compatibility_check()
         .api_key("1234")
-        .external_api_keys(external_api_keys)
-        .timeout(30u64)
-        .build()
-        .expect("Failed to build client")
+        .timeout(30u64);
+    for (key, value) in external_api_keys {
+        builder = builder.header(key, value);
+    }
+    builder.build().expect("Failed to build client")
 }
 
 async fn setup_collection(client: &Qdrant, collection_name: &str, vector_size: u64) {

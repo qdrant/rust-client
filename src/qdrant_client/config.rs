@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::time::Duration;
 
 use crate::{Qdrant, QdrantError};
@@ -33,9 +32,6 @@ pub struct QdrantConfig {
 
     /// Optional API key or token to use for authorization
     pub api_key: Option<String>,
-
-    /// Optional API keys for external embedding providers (OpenAI, JINA, Cohere, OpenRouter)
-    pub external_api_keys: Option<HashMap<String, String>>,
 
     /// Optional compression schema to use for API requests
     pub compression: Option<CompressionEncoding>,
@@ -114,26 +110,6 @@ impl QdrantConfig {
     /// ```
     pub fn api_key(mut self, api_key: impl AsOptionApiKey) -> Self {
         self.api_key = api_key.api_key();
-        self
-    }
-
-    /// Set an optional map of external API keys for embedding providers (OpenAI, JINA, Cohere, OpenRouter)
-    ///
-    /// # Examples
-    /// ```rust,no_run
-    ///# use std::collections::HashMap;
-    ///# let mut config: HashMap<&str, HashMap<String, String>> = HashMap::new();
-    ///# config.insert(
-    ///#     "external_api_keys",
-    ///#     HashMap::from([("openai-api-key".to_string(), "<YOUR_OPENAI_API_KEY>".to_string())]),
-    ///# );
-    ///# use qdrant_client::Qdrant;
-    /// let client = Qdrant::from_url("http://localhost:6334")
-    ///     .external_api_keys(config.get("external_api_keys").cloned())
-    ///     .build();
-    /// ```
-    pub fn external_api_keys(mut self, external_api_keys: impl AsOptionExternalApiKeys) -> Self {
-        self.external_api_keys = external_api_keys.external_api_keys();
         self
     }
 
@@ -249,7 +225,6 @@ impl Default for QdrantConfig {
             connect_timeout: Duration::from_secs(5),
             keep_alive_while_idle: true,
             api_key: None,
-            external_api_keys: None,
             compression: None,
             check_compatibility: true,
             pool_size: 3,
@@ -354,70 +329,3 @@ impl<E: Sized> AsOptionApiKey for Result<String, E> {
     }
 }
 
-/// Set optional external API keys from various types
-///
-/// For example:
-///
-/// ```rust
-///# use qdrant_client::Qdrant;
-///# let mut config = Qdrant::from_url("http://localhost:6334");
-/// config
-///     .external_api_keys(("openai-api-key", "<YOUR_OPENAI_API_KEY>"))
-///     .external_api_keys((String::from("openai-api-key"), String::from("<YOUR_OPENAI_API_KEY>")))
-///     .external_api_keys((String::from("openai-api-key"), "<YOUR_OPENAI_API_KEY>".to_string()));
-/// ```
-///
-/// ```rust
-///# use std::collections::HashMap;
-///# use qdrant_client::Qdrant;
-///# let mut config = Qdrant::from_url("http://localhost:6334");
-///# let ext_api_keys = HashMap::from([
-///#     ("openai-api-key".to_string(), "<YOUR_OPENAI_API_KEY>".to_string()),
-///#     ("cohere-api-key".to_string(), "<YOUR_COHERE_API_KEY>".to_string()),
-///# ]);
-/// config
-///     .external_api_keys(ext_api_keys);
-/// ```
-pub trait AsOptionExternalApiKeys {
-    fn external_api_keys(self) -> Option<HashMap<String, String>>;
-}
-
-impl<K, V> AsOptionExternalApiKeys for (K, V)
-where
-    K: Into<String>,
-    V: Into<String>,
-{
-    fn external_api_keys(self) -> Option<HashMap<String, String>> {
-        let (k, v) = self;
-        Some(HashMap::from([(k.into(), v.into())]))
-    }
-}
-
-impl<K, V> AsOptionExternalApiKeys for Option<(K, V)>
-where
-    K: Into<String>,
-    V: Into<String>,
-{
-    fn external_api_keys(self) -> Option<HashMap<String, String>> {
-        let (k, v) = self?;
-        Some(HashMap::from([(k.into(), v.into())]))
-    }
-}
-
-impl AsOptionExternalApiKeys for Option<HashMap<String, String>> {
-    fn external_api_keys(self) -> Option<HashMap<String, String>> {
-        self
-    }
-}
-
-impl AsOptionExternalApiKeys for HashMap<String, String> {
-    fn external_api_keys(self) -> Option<HashMap<String, String>> {
-        Some(self)
-    }
-}
-
-impl<E: Sized> AsOptionExternalApiKeys for Result<HashMap<String, String>, E> {
-    fn external_api_keys(self) -> Option<HashMap<String, String>> {
-        self.ok()
-    }
-}

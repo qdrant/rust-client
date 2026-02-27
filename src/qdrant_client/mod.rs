@@ -22,7 +22,6 @@ use tonic::Status;
 
 use crate::auth::MetadataInterceptor;
 use crate::channel_pool::ChannelPool;
-use crate::external_api_keys::ExternalApiKeysInterceptor;
 use crate::qdrant::{qdrant_client, HealthCheckReply, HealthCheckRequest};
 use crate::qdrant_client::config::QdrantConfig;
 use crate::qdrant_client::version_check::is_compatible;
@@ -186,15 +185,6 @@ impl Qdrant {
             self.config.custom_headers.clone(),
         );
         InterceptedService::new(channel, interceptor)
-    }
-
-    /// Wraps a service with external API keys interceptor
-    fn with_external_api_keys<S>(
-        &self,
-        service: S,
-    ) -> InterceptedService<S, ExternalApiKeysInterceptor> {
-        let interceptor = ExternalApiKeysInterceptor::new(self.config.external_api_keys.clone());
-        InterceptedService::new(service, interceptor)
     }
 
     // Access to raw root qdrant API
