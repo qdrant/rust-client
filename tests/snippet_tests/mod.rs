@@ -21,6 +21,7 @@ mod test_delete_snapshot;
 mod test_delete_vectors;
 mod test_discover_batch_points;
 mod test_discover_points;
+mod test_external_api_keys;
 mod test_facets;
 mod test_get_collection;
 mod test_get_collection_aliases;
