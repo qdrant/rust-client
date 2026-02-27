@@ -328,4 +328,3 @@ impl<E: Sized> AsOptionApiKey for Result<String, E> {
         self.ok()
     }
 }
-
