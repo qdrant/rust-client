@@ -212,6 +212,27 @@ impl Qdrant {
         Ok(result)
     }
 
+    /// Create a lightweight clone of this client with an additional header.
+    ///
+    /// The returned client shares the same connection pool but sends
+    /// the extra header with every request. Useful for per-request
+    /// tracing IDs or other contextual metadata.
+    ///
+    /// ```no_run
+    /// use qdrant_client::Qdrant;
+    ///
+    ///# async fn example(client: &Qdrant) -> Result<(), qdrant_client::QdrantError> {
+    /// let traced = client.with_header("x-request-id", "abc-123");
+    /// // traced shares the same connection pool, but adds the header to every request
+    ///# Ok(())
+    ///# }
+    /// ```
+    pub fn with_header(&self, key: impl Into<String>, value: impl Into<String>) -> Self {
+        let mut clone = self.clone();
+        clone.config.custom_headers.push((key.into(), value.into()));
+        clone
+    }
+
     /// Health check.
     ///
     /// Do a health check and fetch server information such as the current version and commit.
