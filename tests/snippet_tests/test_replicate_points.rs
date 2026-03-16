@@ -2,8 +2,6 @@
 #[tokio::test]
 async fn test_replicate_points() {
     async fn replicate_points() -> Result<(), Box<dyn std::error::Error>> {
-      // WARNING: This is a generated test snippet.
-      // Please, modify the snippet in the `../snippets/replicate_points.rs` file
         use qdrant_client::qdrant::{
             update_collection_cluster_setup_request::Operation, Condition, Filter,
             ReplicatePointsBuilder, ShardKey, UpdateCollectionClusterSetupRequest,

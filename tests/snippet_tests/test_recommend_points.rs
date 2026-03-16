@@ -2,8 +2,6 @@
 #[tokio::test]
 async fn test_recommend_points() {
     async fn recommend_points() -> Result<(), Box<dyn std::error::Error>> {
-      // WARNING: This is a generated test snippet.
-      // Please, modify the snippet in the `../snippets/recommend_points.rs` file
         use qdrant_client::qdrant::{Condition, Filter, RecommendPointsBuilder, RecommendStrategy};
         use qdrant_client::Qdrant;
         

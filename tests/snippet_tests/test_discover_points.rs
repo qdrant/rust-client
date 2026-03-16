@@ -2,8 +2,6 @@
 #[tokio::test]
 async fn test_discover_points() {
     async fn discover_points() -> Result<(), Box<dyn std::error::Error>> {
-      // WARNING: This is a generated test snippet.
-      // Please, modify the snippet in the `../snippets/discover_points.rs` file
         use qdrant_client::qdrant::{
             target_vector::Target, vector_example::Example, ContextExamplePairBuilder,
             DiscoverPointsBuilder, VectorExample,

@@ -2,8 +2,6 @@
 #[tokio::test]
 async fn test_batch_update() {
     async fn batch_update() -> Result<(), Box<dyn std::error::Error>> {
-      // WARNING: This is a generated test snippet.
-      // Please, modify the snippet in the `../snippets/batch_update.rs` file
         use qdrant_client::qdrant::{
             points_selector::PointsSelectorOneOf,
             points_update_operation::{

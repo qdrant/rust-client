@@ -2,8 +2,6 @@
 #[tokio::test]
 async fn test_facets() {
     async fn facets() -> Result<(), Box<dyn std::error::Error>> {
-      // WARNING: This is a generated test snippet.
-      // Please, modify the snippet in the `../snippets/facets.rs` file
         use qdrant_client::qdrant::{Condition, FacetCountsBuilder, Filter};
         use qdrant_client::Qdrant;
         

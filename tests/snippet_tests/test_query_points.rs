@@ -2,8 +2,6 @@
 #[tokio::test]
 async fn test_query_points() {
     async fn query_points() -> Result<(), Box<dyn std::error::Error>> {
-      // WARNING: This is a generated test snippet.
-      // Please, modify the snippet in the `../snippets/query_points.rs` file
         use qdrant_client::qdrant::{
             AcornSearchParamsBuilder, Condition, DecayParamsExpressionBuilder, Expression,
             Filter, FormulaBuilder, Fusion, GeoPoint,

@@ -2,8 +2,6 @@
 #[tokio::test]
 async fn test_query_points_relevance_feedback() {
     async fn query_points_relevance_feedback() -> Result<(), Box<dyn std::error::Error>> {
-      // WARNING: This is a generated test snippet.
-      // Please, modify the snippet in the `../snippets/query_points_relevance_feedback.rs` file
         use qdrant_client::qdrant::{
             FeedbackItemBuilder, FeedbackStrategyBuilder, PointId, Query, QueryPointsBuilder,
             RelevanceFeedbackInputBuilder, VectorInput,

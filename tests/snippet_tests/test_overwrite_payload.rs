@@ -2,8 +2,6 @@
 #[tokio::test]
 async fn test_overwrite_payload() {
     async fn overwrite_payload() -> Result<(), Box<dyn std::error::Error>> {
-      // WARNING: This is a generated test snippet.
-      // Please, modify the snippet in the `../snippets/overwrite_payload.rs` file
         use qdrant_client::qdrant::{
             points_selector::PointsSelectorOneOf, PointsIdsList, SetPayloadPointsBuilder,
         };

@@ -2,8 +2,6 @@
 #[tokio::test]
 async fn test_upsert_document() {
     async fn upsert_document() -> Result<(), Box<dyn std::error::Error>> {
-      // WARNING: This is a generated test snippet.
-      // Please, modify the snippet in the `../snippets/upsert_document.rs` file
         use qdrant_client::qdrant::{PointStruct, UpsertPointsBuilder, Document};
         use qdrant_client::{Qdrant, Payload};
         use serde_json::json;

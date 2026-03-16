@@ -2,8 +2,6 @@
 #[tokio::test]
 async fn test_search_points() {
     async fn search_points() -> Result<(), Box<dyn std::error::Error>> {
-      // WARNING: This is a generated test snippet.
-      // Please, modify the snippet in the `../snippets/search_points.rs` file
         use qdrant_client::qdrant::{AcornSearchParamsBuilder, Condition, Filter, SearchParamsBuilder, SearchPointsBuilder, ShardKey, ShardKeySelectorBuilder};
         use qdrant_client::Qdrant;
         

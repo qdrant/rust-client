@@ -2,8 +2,6 @@
 #[tokio::test]
 async fn test_with_header() {
     async fn with_header() -> Result<(), Box<dyn std::error::Error>> {
-      // WARNING: This is a generated test snippet.
-      // Please, modify the snippet in the `../snippets/with_header.rs` file
         use qdrant_client::Qdrant;
         
         let client = Qdrant::from_url("http://localhost:6334")

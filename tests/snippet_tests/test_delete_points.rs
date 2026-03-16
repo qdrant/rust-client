@@ -2,8 +2,6 @@
 #[tokio::test]
 async fn test_delete_points() {
     async fn delete_points() -> Result<(), Box<dyn std::error::Error>> {
-      // WARNING: This is a generated test snippet.
-      // Please, modify the snippet in the `../snippets/delete_points.rs` file
         use qdrant_client::qdrant::{Condition, DeletePointsBuilder, Filter, PointsIdsList};
         use qdrant_client::Qdrant;
         

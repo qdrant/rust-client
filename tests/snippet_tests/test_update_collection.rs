@@ -2,8 +2,6 @@
 #[tokio::test]
 async fn test_update_collection() {
     async fn update_collection() -> Result<(), Box<dyn std::error::Error>> {
-      // WARNING: This is a generated test snippet.
-      // Please, modify the snippet in the `../snippets/update_collection.rs` file
         use qdrant_client::qdrant::{OptimizersConfigDiffBuilder, UpdateCollectionBuilder};
         use qdrant_client::Qdrant;
         

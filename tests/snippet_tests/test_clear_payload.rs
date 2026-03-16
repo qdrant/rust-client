@@ -2,8 +2,6 @@
 #[tokio::test]
 async fn test_clear_payload() {
     async fn clear_payload() -> Result<(), Box<dyn std::error::Error>> {
-      // WARNING: This is a generated test snippet.
-      // Please, modify the snippet in the `../snippets/clear_payload.rs` file
         use qdrant_client::qdrant::{ClearPayloadPointsBuilder, PointsIdsList};
         use qdrant_client::Qdrant;
         
