@@ -59,3 +59,4 @@ mod test_upsert_points;
 mod test_upsert_points_fallback_shard_key;
 mod test_upsert_points_insert_only;
 mod test_upsert_points_with_condition;
+mod test_with_header;
