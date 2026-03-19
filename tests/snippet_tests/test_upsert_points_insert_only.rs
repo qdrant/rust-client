@@ -2,8 +2,6 @@
 #[tokio::test]
 async fn test_upsert_points_insert_only() {
     async fn upsert_points_insert_only() -> Result<(), Box<dyn std::error::Error>> {
-      // WARNING: This is a generated test snippet.
-      // Please, modify the snippet in the `../snippets/upsert_points_insert_only.rs` file
         use qdrant_client::qdrant::{PointStruct, UpdateMode, UpsertPointsBuilder};
         use qdrant_client::{Payload, Qdrant};
         use serde_json::json;

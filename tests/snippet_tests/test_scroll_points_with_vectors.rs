@@ -2,8 +2,6 @@
 #[tokio::test]
 async fn test_scroll_points_with_vectors() {
     async fn scroll_points_with_vectors() -> Result<(), Box<dyn std::error::Error>> {
-      // WARNING: This is a generated test snippet.
-      // Please, modify the snippet in the `../snippets/scroll_points_with_vectors.rs` file
         use qdrant_client::qdrant::{Condition, Filter, ScrollPointsBuilder};
         use qdrant_client::Qdrant;
         

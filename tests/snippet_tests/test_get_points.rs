@@ -2,8 +2,6 @@
 #[tokio::test]
 async fn test_get_points() {
     async fn get_points() -> Result<(), Box<dyn std::error::Error>> {
-      // WARNING: This is a generated test snippet.
-      // Please, modify the snippet in the `../snippets/get_points.rs` file
         use qdrant_client::qdrant::GetPointsBuilder;
         use qdrant_client::Qdrant;
         

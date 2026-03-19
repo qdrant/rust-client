@@ -2,8 +2,6 @@
 #[tokio::test]
 async fn test_query_image() {
     async fn query_image() -> Result<(), Box<dyn std::error::Error>> {
-      // WARNING: This is a generated test snippet.
-      // Please, modify the snippet in the `../snippets/query_image.rs` file
         use qdrant_client::qdrant::{Image, Query, QueryPointsBuilder};
         use qdrant_client::Qdrant;
         

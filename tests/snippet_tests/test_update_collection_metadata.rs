@@ -2,8 +2,6 @@
 #[tokio::test]
 async fn test_update_collection_metadata() {
     async fn update_collection_metadata() -> Result<(), Box<dyn std::error::Error>> {
-      // WARNING: This is a generated test snippet.
-      // Please, modify the snippet in the `../snippets/update_collection_metadata.rs` file
         use qdrant_client::qdrant::{UpdateCollectionBuilder};
         use qdrant_client::Qdrant;
         use serde_json::{json, Value};

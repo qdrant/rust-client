@@ -2,8 +2,6 @@
 #[tokio::test]
 async fn test_query_document() {
     async fn query_document() -> Result<(), Box<dyn std::error::Error>> {
-      // WARNING: This is a generated test snippet.
-      // Please, modify the snippet in the `../snippets/query_document.rs` file
         use qdrant_client::qdrant::{Document, Query, QueryPointsBuilder};
         use qdrant_client::Qdrant;
         

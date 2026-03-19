@@ -2,8 +2,6 @@
 #[tokio::test]
 async fn test_delete_shard_key() {
     async fn delete_shard_key() -> Result<(), Box<dyn std::error::Error>> {
-      // WARNING: This is a generated test snippet.
-      // Please, modify the snippet in the `../snippets/delete_shard_key.rs` file
         use qdrant_client::qdrant::shard_key::Key;
         use qdrant_client::qdrant::DeleteShardKeyRequestBuilder;
         use qdrant_client::Qdrant;
