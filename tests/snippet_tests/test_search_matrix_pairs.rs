@@ -2,8 +2,6 @@
 #[tokio::test]
 async fn test_search_matrix_pairs() {
     async fn search_matrix_pairs() -> Result<(), Box<dyn std::error::Error>> {
-      // WARNING: This is a generated test snippet.
-      // Please, modify the snippet in the `../snippets/search_matrix_pairs.rs` file
         use qdrant_client::qdrant::{Condition, SearchMatrixPointsBuilder, Filter};
         use qdrant_client::Qdrant;
         

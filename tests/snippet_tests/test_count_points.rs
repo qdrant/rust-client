@@ -2,8 +2,6 @@
 #[tokio::test]
 async fn test_count_points() {
     async fn count_points() -> Result<(), Box<dyn std::error::Error>> {
-      // WARNING: This is a generated test snippet.
-      // Please, modify the snippet in the `../snippets/count_points.rs` file
         use qdrant_client::qdrant::{Condition, CountPointsBuilder, Filter};
         use qdrant_client::Qdrant;
         

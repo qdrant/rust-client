@@ -2,8 +2,6 @@
 #[tokio::test]
 async fn test_search_batch_points() {
     async fn search_batch_points() -> Result<(), Box<dyn std::error::Error>> {
-      // WARNING: This is a generated test snippet.
-      // Please, modify the snippet in the `../snippets/search_batch_points.rs` file
         use qdrant_client::qdrant::{
             Condition, Filter, SearchBatchPointsBuilder, SearchPointsBuilder,
         };

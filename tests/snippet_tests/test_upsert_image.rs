@@ -2,8 +2,6 @@
 #[tokio::test]
 async fn test_upsert_image() {
     async fn upsert_image() -> Result<(), Box<dyn std::error::Error>> {
-      // WARNING: This is a generated test snippet.
-      // Please, modify the snippet in the `../snippets/upsert_image.rs` file
         use qdrant_client::qdrant::{PointStruct, UpsertPointsBuilder, Image};
         use qdrant_client::{Qdrant, Payload};
         use serde_json::json;
