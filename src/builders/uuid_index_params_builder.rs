@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[must_use]
 #[derive(Clone)]
 pub struct UuidIndexParamsBuilder {
     /// If true - used for tenant optimization.

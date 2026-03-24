@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use crate::qdrant::{StrictModeMultivector, StrictModeMultivectorConfig};
 
 /// Builder for StrictModeMultivectorConfig, which defines multivector configuration for strict mode.
+#[must_use]
 #[derive(Clone)]
 pub struct StrictModeMultivectorConfigBuilder {
     /// The multivector configuration map, where keys are vector names and values are their configurations.

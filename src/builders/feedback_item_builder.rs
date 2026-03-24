@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[must_use]
 #[derive(Clone)]
 pub struct FeedbackItemBuilder {
     /// The id or vector from the original model

@@ -1,5 +1,6 @@
 use crate::qdrant::Rrf;
 
+#[must_use]
 #[derive(Clone)]
 pub struct RrfBuilder {
     /// K parameter for reciprocal rank fusion.

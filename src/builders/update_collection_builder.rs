@@ -2,6 +2,7 @@ use crate::grpc_conversions::metadata::MetadataWrapper;
 use crate::grpc_macros::convert_option;
 use crate::qdrant::*;
 
+#[must_use]
 #[derive(Clone)]
 pub struct UpdateCollectionBuilder {
     /// Name of the collection

@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[must_use]
 #[derive(Clone)]
 pub struct ContextInputBuilder {
     /// Search space will be constrained by these pairs of vectors

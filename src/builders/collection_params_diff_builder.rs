@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[must_use]
 #[derive(Clone)]
 pub struct CollectionParamsDiffBuilder {
     /// Number of replicas of each shard that network tries to maintain

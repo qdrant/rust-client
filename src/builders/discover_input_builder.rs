@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[must_use]
 #[derive(Clone)]
 pub struct DiscoverInputBuilder {
     /// Use this as the primary search objective

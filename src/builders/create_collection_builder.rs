@@ -4,6 +4,7 @@ use crate::grpc_conversions::metadata::MetadataWrapper;
 use crate::grpc_macros::convert_option;
 use crate::qdrant::*;
 
+#[must_use]
 #[derive(Debug, Clone)]
 pub struct CreateCollectionBuilder {
     /// Name of the collection

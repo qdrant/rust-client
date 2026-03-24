@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[must_use]
 #[derive(Clone)]
 pub struct FeedbackStrategyBuilder {
     pub(crate) variant: feedback_strategy::Variant,

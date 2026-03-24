@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[must_use]
 #[derive(Clone)]
 pub struct PrefetchQueryBuilder {
     /// Sub-requests to perform first. If present, the query will be performed on the results of the prefetches.
