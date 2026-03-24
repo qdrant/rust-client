@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[must_use]
 #[derive(Clone)]
 pub struct RecommendInputBuilder {
     /// Look for vectors closest to the vectors from these points

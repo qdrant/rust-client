@@ -1,5 +1,6 @@
 use crate::qdrant::AcornSearchParams;
 
+#[must_use]
 #[derive(Clone)]
 pub struct AcornSearchParamsBuilder {
     /// If true, then ACORN may be used for the HNSW search based on filters selectivity.

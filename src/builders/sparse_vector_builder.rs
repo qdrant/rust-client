@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[must_use]
 #[derive(Clone, Default)]
 pub struct SparseVectorBuilder {
     pub(crate) indices: Vec<u32>,

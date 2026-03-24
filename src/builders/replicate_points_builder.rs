@@ -1,5 +1,6 @@
 use crate::qdrant::{Filter, ReplicatePoints, ShardKey};
 
+#[must_use]
 #[derive(Clone)]
 pub struct ReplicatePointsBuilder {
     /// Source shard key

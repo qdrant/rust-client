@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[must_use]
 #[derive(Clone)]
 pub struct BinaryQuantizationBuilder {
     /// If true - quantized vectors always will be stored in RAM, ignoring the config of main storage

@@ -1,5 +1,6 @@
 use crate::qdrant::{ShardKey, ShardKeySelector};
 
+#[must_use]
 #[derive(Clone)]
 pub struct ShardKeySelectorBuilder {
     /// List of shard keys which should be used in the request
