@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[must_use]
 #[derive(Clone)]
 pub struct IntegerIndexParamsBuilder {
     /// If true - support direct lookups.

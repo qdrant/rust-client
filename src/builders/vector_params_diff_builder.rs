@@ -1,6 +1,7 @@
 use crate::grpc_macros::convert_option;
 use crate::qdrant::*;
 
+#[must_use]
 #[derive(Clone)]
 pub struct VectorParamsDiffBuilder {
     /// Update params for HNSW index. If empty object - it will be unset

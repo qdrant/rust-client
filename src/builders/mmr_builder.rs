@@ -1,5 +1,6 @@
 use crate::qdrant::Mmr;
 
+#[must_use]
 #[derive(Clone)]
 pub struct MmrBuilder {
     /// Tunable parameter for the MMR algorithm.

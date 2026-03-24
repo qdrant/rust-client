@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[must_use]
 #[derive(Clone)]
 pub struct DenseVectorBuilder {
     pub(crate) values: Vec<f32>,

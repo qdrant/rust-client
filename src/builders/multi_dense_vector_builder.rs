@@ -1,5 +1,6 @@
 use crate::qdrant::*;
 
+#[must_use]
 #[derive(Clone, Default)]
 pub struct MultiDenseVectorBuilder {
     pub(crate) vectors: Vec<DenseVector>,
