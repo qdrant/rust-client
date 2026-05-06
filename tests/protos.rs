@@ -20,6 +20,7 @@ fn protos() {
 
     tonic_build::configure()
         .configure_deprecations()
+        .configure_docs()
         .out_dir("src/") // saves generated structures at this location
         .compile_protos(
             &["proto/qdrant.proto"], // proto entry point
@@ -47,9 +48,19 @@ fn protos() {
 /// Extension to [`Builder`] to configure builder attributes.
 trait BuilderExt {
     fn configure_deprecations(self) -> Self;
+    fn configure_docs(self) -> Self;
 }
 
 impl BuilderExt for Builder {
+    fn configure_docs(self) -> Self {
+        // prost camel-cases `Bits1_5` to `Bits15`, which reads as "15 bits".
+        // Disambiguate via a doc comment on the variant since we can't modify the enum variant creation.
+        self.field_attribute(
+            "TurboQuantBitSize.Bits1_5",
+            "#[doc = \" 1.5 bit variant (not 15 bits)\"]",
+        )
+    }
+
     fn configure_deprecations(self) -> Self {
         // Clear deprecated field for VectorOutput.data
 

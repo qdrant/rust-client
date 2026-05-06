@@ -784,8 +784,17 @@ pub struct BinaryQuantization {
     pub query_encoding: ::core::option::Option<BinaryQuantizationQueryEncoding>,
 }
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
+pub struct TurboQuantization {
+    #[prost(bool, optional, tag = "1")]
+    pub always_ram: ::core::option::Option<bool>,
+    #[prost(enumeration = "TurboQuantBitSize", optional, tag = "2")]
+    pub bits: ::core::option::Option<i32>,
+    #[prost(bool, optional, tag = "3")]
+    pub data_fit: ::core::option::Option<bool>,
+}
+#[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct QuantizationConfig {
-    #[prost(oneof = "quantization_config::Quantization", tags = "1, 2, 3")]
+    #[prost(oneof = "quantization_config::Quantization", tags = "1, 2, 3, 4")]
     pub quantization: ::core::option::Option<quantization_config::Quantization>,
 }
 /// Nested message and enum types in `QuantizationConfig`.
@@ -798,13 +807,15 @@ pub mod quantization_config {
         Product(super::ProductQuantization),
         #[prost(message, tag = "3")]
         Binary(super::BinaryQuantization),
+        #[prost(message, tag = "4")]
+        Turboquant(super::TurboQuantization),
     }
 }
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct Disabled {}
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct QuantizationConfigDiff {
-    #[prost(oneof = "quantization_config_diff::Quantization", tags = "1, 2, 3, 4")]
+    #[prost(oneof = "quantization_config_diff::Quantization", tags = "1, 2, 3, 4, 5")]
     pub quantization: ::core::option::Option<quantization_config_diff::Quantization>,
 }
 /// Nested message and enum types in `QuantizationConfigDiff`.
@@ -819,6 +830,8 @@ pub mod quantization_config_diff {
         Disabled(super::Disabled),
         #[prost(message, tag = "4")]
         Binary(super::BinaryQuantization),
+        #[prost(message, tag = "5")]
+        Turboquant(super::TurboQuantization),
     }
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -850,6 +863,9 @@ pub struct StrictModeConfig {
     /// Max batchsize when upserting
     #[prost(uint64, optional, tag = "9")]
     pub upsert_max_batchsize: ::core::option::Option<u64>,
+    /// Max batchsize when searching
+    #[prost(uint64, optional, tag = "20")]
+    pub search_max_batchsize: ::core::option::Option<u64>,
     /// Max size of a collections vector storage in bytes, ignoring replicas.
     #[prost(uint64, optional, tag = "10")]
     pub max_collection_vector_size_bytes: ::core::option::Option<u64>,
@@ -880,6 +896,10 @@ pub struct StrictModeConfig {
     /// Max number of payload indexes in a collection
     #[prost(uint64, optional, tag = "19")]
     pub max_payload_index_count: ::core::option::Option<u64>,
+    /// Reject memory-consuming update operations when process resident memory exceeds this percentage of total RAM (cgroup-aware, 1-100).
+    /// Delete-style operations are still allowed so memory can be freed.
+    #[prost(uint32, optional, tag = "21")]
+    pub max_resident_memory_percent: ::core::option::Option<u32>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct StrictModeSparseConfig {
@@ -1309,6 +1329,9 @@ pub struct UpdateQueueInfo {
     /// Number of elements in the queue
     #[prost(uint64, tag = "1")]
     pub length: u64,
+    /// Number of points that are deferred (i.e hidden from search as they're not yet optimized).
+    #[prost(uint64, optional, tag = "2")]
+    pub deferred_points: ::core::option::Option<u64>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CollectionInfo {
@@ -2005,6 +2028,39 @@ impl BinaryQuantizationEncoding {
             "OneBit" => Some(Self::OneBit),
             "TwoBits" => Some(Self::TwoBits),
             "OneAndHalfBits" => Some(Self::OneAndHalfBits),
+            _ => None,
+        }
+    }
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+#[repr(i32)]
+pub enum TurboQuantBitSize {
+    Bits1 = 0,
+    /// 1.5 bit variant (not 15 bits)
+    Bits15 = 1,
+    Bits2 = 2,
+    Bits4 = 3,
+}
+impl TurboQuantBitSize {
+    /// String value of the enum field names used in the ProtoBuf definition.
+    ///
+    /// The values are not transformed in any way and thus are considered stable
+    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+    pub fn as_str_name(&self) -> &'static str {
+        match self {
+            Self::Bits1 => "Bits1",
+            Self::Bits15 => "Bits1_5",
+            Self::Bits2 => "Bits2",
+            Self::Bits4 => "Bits4",
+        }
+    }
+    /// Creates an enum from field names used in the ProtoBuf definition.
+    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+        match value {
+            "Bits1" => Some(Self::Bits1),
+            "Bits1_5" => Some(Self::Bits15),
+            "Bits2" => Some(Self::Bits2),
+            "Bits4" => Some(Self::Bits4),
             _ => None,
         }
     }
@@ -3971,6 +4027,81 @@ pub struct DeleteFieldIndexCollection {
     #[prost(uint64, optional, tag = "5")]
     pub timeout: ::core::option::Option<u64>,
 }
+/// Dense vector creation parameters.
+/// Only includes immutable properties that define the vector space.
+/// Storage type, index, and quantization are configured separately.
+#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+pub struct DenseVectorCreationConfig {
+    /// Size/dimensionality of the vectors
+    #[prost(uint64, tag = "1")]
+    pub size: u64,
+    /// Distance function used for comparing vectors
+    #[prost(enumeration = "Distance", tag = "2")]
+    pub distance: i32,
+    /// Configuration for multi-vector search (e.g., ColBERT)
+    #[prost(message, optional, tag = "3")]
+    pub multivector_config: ::core::option::Option<MultiVectorConfig>,
+    /// Data type of the vectors (Float32, Float16, Uint8)
+    #[prost(enumeration = "Datatype", optional, tag = "4")]
+    pub datatype: ::core::option::Option<i32>,
+}
+/// Sparse vector creation parameters.
+/// Only includes immutable properties that define the vector space.
+#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+pub struct SparseVectorCreationConfig {
+    /// If set - apply modifier to the vector values (e.g., IDF)
+    #[prost(enumeration = "Modifier", optional, tag = "1")]
+    pub modifier: ::core::option::Option<i32>,
+    /// Data type used to store weights in the index
+    #[prost(enumeration = "Datatype", optional, tag = "2")]
+    pub datatype: ::core::option::Option<i32>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct CreateVectorNameRequest {
+    /// Name of the collection
+    #[prost(string, tag = "1")]
+    pub collection_name: ::prost::alloc::string::String,
+    /// Wait until the changes have been applied?
+    #[prost(bool, optional, tag = "2")]
+    pub wait: ::core::option::Option<bool>,
+    /// Name of the new vector
+    #[prost(string, tag = "3")]
+    pub vector_name: ::prost::alloc::string::String,
+    /// If set, overrides global timeout setting for this request. Unit is seconds.
+    #[prost(uint64, optional, tag = "6")]
+    pub timeout: ::core::option::Option<u64>,
+    /// Configuration for the new vector - either dense or sparse
+    #[prost(oneof = "create_vector_name_request::VectorConfig", tags = "4, 5")]
+    pub vector_config: ::core::option::Option<create_vector_name_request::VectorConfig>,
+}
+/// Nested message and enum types in `CreateVectorNameRequest`.
+pub mod create_vector_name_request {
+    /// Configuration for the new vector - either dense or sparse
+    #[derive(Clone, Copy, PartialEq, ::prost::Oneof)]
+    pub enum VectorConfig {
+        /// Dense vector parameters
+        #[prost(message, tag = "4")]
+        DenseConfig(super::DenseVectorCreationConfig),
+        /// Sparse vector parameters
+        #[prost(message, tag = "5")]
+        SparseConfig(super::SparseVectorCreationConfig),
+    }
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct DeleteVectorNameRequest {
+    /// Name of the collection
+    #[prost(string, tag = "1")]
+    pub collection_name: ::prost::alloc::string::String,
+    /// Wait until the changes have been applied?
+    #[prost(bool, optional, tag = "2")]
+    pub wait: ::core::option::Option<bool>,
+    /// Name of the vector to delete
+    #[prost(string, tag = "3")]
+    pub vector_name: ::prost::alloc::string::String,
+    /// If set, overrides global timeout setting for this request. Unit is seconds.
+    #[prost(uint64, optional, tag = "4")]
+    pub timeout: ::core::option::Option<u64>,
+}
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PayloadIncludeSelector {
     /// List of payload keys to include into result
@@ -4078,11 +4209,11 @@ pub struct QuantizationSearchParams {
     pub rescore: ::core::option::Option<bool>,
     /// Oversampling factor for quantization.
     ///
-    /// Defines how many extra vectors should be pre-selected using quantized index,
+    /// Defines how many extra vectors should be preselected using quantized index,
     /// and then re-scored using original vectors.
     ///
     /// For example, if `oversampling` is 2.4 and `limit` is 100,
-    /// then 240 vectors will be pre-selected using quantized index,
+    /// then 240 vectors will be preselected using quantized index,
     /// and then top-100 will be returned after re-scoring.
     #[prost(double, optional, tag = "3")]
     pub oversampling: ::core::option::Option<f64>,
@@ -6319,6 +6450,56 @@ pub mod points_client {
                 .insert(GrpcMethod::new("qdrant.Points", "DeleteFieldIndex"));
             self.inner.unary(req, path, codec).await
         }
+        /// Create a new named vector on the collection
+        pub async fn create_vector_name(
+            &mut self,
+            request: impl tonic::IntoRequest<super::CreateVectorNameRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::PointsOperationResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Points/CreateVectorName",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("qdrant.Points", "CreateVectorName"));
+            self.inner.unary(req, path, codec).await
+        }
+        /// Delete a named vector from the collection
+        pub async fn delete_vector_name(
+            &mut self,
+            request: impl tonic::IntoRequest<super::DeleteVectorNameRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::PointsOperationResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/qdrant.Points/DeleteVectorName",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("qdrant.Points", "DeleteVectorName"));
+            self.inner.unary(req, path, codec).await
+        }
         /// Retrieve closest points based on vector similarity and given filtering
         /// conditions
         pub async fn search(
@@ -6831,6 +7012,22 @@ pub mod points_server {
         async fn delete_field_index(
             &self,
             request: tonic::Request<super::DeleteFieldIndexCollection>,
+        ) -> std::result::Result<
+            tonic::Response<super::PointsOperationResponse>,
+            tonic::Status,
+        >;
+        /// Create a new named vector on the collection
+        async fn create_vector_name(
+            &self,
+            request: tonic::Request<super::CreateVectorNameRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::PointsOperationResponse>,
+            tonic::Status,
+        >;
+        /// Delete a named vector from the collection
+        async fn delete_vector_name(
+            &self,
+            request: tonic::Request<super::DeleteVectorNameRequest>,
         ) -> std::result::Result<
             tonic::Response<super::PointsOperationResponse>,
             tonic::Status,
@@ -7535,6 +7732,96 @@ pub mod points_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = DeleteFieldIndexSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/qdrant.Points/CreateVectorName" => {
+                    #[allow(non_camel_case_types)]
+                    struct CreateVectorNameSvc<T: Points>(pub Arc<T>);
+                    impl<
+                        T: Points,
+                    > tonic::server::UnaryService<super::CreateVectorNameRequest>
+                    for CreateVectorNameSvc<T> {
+                        type Response = super::PointsOperationResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::CreateVectorNameRequest>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as Points>::create_vector_name(&inner, request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let method = CreateVectorNameSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/qdrant.Points/DeleteVectorName" => {
+                    #[allow(non_camel_case_types)]
+                    struct DeleteVectorNameSvc<T: Points>(pub Arc<T>);
+                    impl<
+                        T: Points,
+                    > tonic::server::UnaryService<super::DeleteVectorNameRequest>
+                    for DeleteVectorNameSvc<T> {
+                        type Response = super::PointsOperationResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::DeleteVectorNameRequest>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as Points>::delete_vector_name(&inner, request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let method = DeleteVectorNameSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(

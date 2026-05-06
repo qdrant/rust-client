@@ -31,6 +31,9 @@ pub use product_quantization_builder::ProductQuantizationBuilder;
 mod binary_quantization_builder;
 pub use binary_quantization_builder::BinaryQuantizationBuilder;
 
+mod turbo_quantization_builder;
+pub use turbo_quantization_builder::TurboQuantizationBuilder;
+
 mod strict_mode_config_builder;
 pub use strict_mode_config_builder::StrictModeConfigBuilder;
 
@@ -141,6 +144,18 @@ pub use create_field_index_collection_builder::CreateFieldIndexCollectionBuilder
 
 mod delete_field_index_collection_builder;
 pub use delete_field_index_collection_builder::DeleteFieldIndexCollectionBuilder;
+
+mod dense_vector_creation_config_builder;
+pub use dense_vector_creation_config_builder::DenseVectorCreationConfigBuilder;
+
+mod sparse_vector_creation_config_builder;
+pub use sparse_vector_creation_config_builder::SparseVectorCreationConfigBuilder;
+
+mod create_vector_name_request_builder;
+pub use create_vector_name_request_builder::CreateVectorNameRequestBuilder;
+
+mod delete_vector_name_request_builder;
+pub use delete_vector_name_request_builder::DeleteVectorNameRequestBuilder;
 
 mod quantization_search_params_builder;
 pub use quantization_search_params_builder::QuantizationSearchParamsBuilder;
