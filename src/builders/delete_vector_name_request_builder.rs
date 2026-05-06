@@ -11,6 +11,8 @@ pub struct DeleteVectorNameRequestBuilder {
     pub(crate) vector_name: Option<String>,
     /// If set, overrides global timeout setting for this request. Unit is seconds.
     pub(crate) timeout: Option<Option<u64>>,
+    /// Write ordering guarantees
+    pub(crate) ordering: Option<Option<WriteOrdering>>,
 }
 
 impl DeleteVectorNameRequestBuilder {
@@ -42,6 +44,13 @@ impl DeleteVectorNameRequestBuilder {
         new
     }
 
+    /// Write ordering guarantees
+    pub fn ordering<VALUE: core::convert::Into<WriteOrdering>>(self, value: VALUE) -> Self {
+        let mut new = self;
+        new.ordering = Option::Some(Option::Some(value.into()));
+        new
+    }
+
     fn build_inner(self) -> Result<DeleteVectorNameRequest, DeleteVectorNameRequestBuilderError> {
         Ok(DeleteVectorNameRequest {
             collection_name: match self.collection_name {
@@ -62,6 +71,7 @@ impl DeleteVectorNameRequestBuilder {
                 }
             },
             timeout: self.timeout.unwrap_or_default(),
+            ordering: self.ordering.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -71,6 +81,7 @@ impl DeleteVectorNameRequestBuilder {
             wait: core::default::Default::default(),
             vector_name: core::default::Default::default(),
             timeout: core::default::Default::default(),
+            ordering: core::default::Default::default(),
         }
     }
 }

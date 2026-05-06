@@ -1,13 +1,12 @@
 syntax = "proto3";
 
 package qdrant;
+option csharp_namespace = "Qdrant.Client.Grpc";
 
 import "collections.proto";
+import "qdrant_common.proto";
 import "google/protobuf/timestamp.proto";
 import "json_with_int.proto";
-import "qdrant_common.proto";
-
-option csharp_namespace = "Qdrant.Client.Grpc";
 
 enum WriteOrderingType {
   // Write operations may be reordered, works faster, default
@@ -392,6 +391,8 @@ message CreateVectorNameRequest {
   }
   // If set, overrides global timeout setting for this request. Unit is seconds.
   optional uint64 timeout = 6;
+  // Write ordering guarantees
+  optional WriteOrdering ordering = 7;
 }
 
 message DeleteVectorNameRequest {
@@ -403,6 +404,8 @@ message DeleteVectorNameRequest {
   string vector_name = 3;
   // If set, overrides global timeout setting for this request. Unit is seconds.
   optional uint64 timeout = 4;
+  // Write ordering guarantees
+  optional WriteOrdering ordering = 5;
 }
 
 message PayloadIncludeSelector {

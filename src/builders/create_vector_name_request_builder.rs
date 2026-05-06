@@ -14,6 +14,8 @@ pub struct CreateVectorNameRequestBuilder {
     vector_config: Option<create_vector_name_request::VectorConfig>,
     /// If set, overrides global timeout setting for this request. Unit is seconds.
     pub(crate) timeout: Option<Option<u64>>,
+    /// Write ordering guarantees
+    pub(crate) ordering: Option<Option<WriteOrdering>>,
 }
 
 impl CreateVectorNameRequestBuilder {
@@ -58,6 +60,13 @@ impl CreateVectorNameRequestBuilder {
         new
     }
 
+    /// Write ordering guarantees
+    pub fn ordering<VALUE: core::convert::Into<WriteOrdering>>(self, value: VALUE) -> Self {
+        let mut new = self;
+        new.ordering = Option::Some(Option::Some(value.into()));
+        new
+    }
+
     fn build_inner(self) -> Result<CreateVectorNameRequest, CreateVectorNameRequestBuilderError> {
         Ok(CreateVectorNameRequest {
             collection_name: match self.collection_name {
@@ -78,6 +87,7 @@ impl CreateVectorNameRequestBuilder {
                 }
             },
             timeout: self.timeout.unwrap_or_default(),
+            ordering: self.ordering.unwrap_or_default(),
             vector_config: { convert_option(&self.vector_config) },
         })
     }
@@ -89,6 +99,7 @@ impl CreateVectorNameRequestBuilder {
             vector_name: core::default::Default::default(),
             vector_config: core::default::Default::default(),
             timeout: core::default::Default::default(),
+            ordering: core::default::Default::default(),
         }
     }
 }
