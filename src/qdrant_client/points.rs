@@ -7,10 +7,11 @@ use tonic::Status;
 use crate::auth::MetadataInterceptor;
 use crate::qdrant::points_client::PointsClient;
 use crate::qdrant::{
-    CountPoints, CountResponse, DeletePointVectors, DeletePoints, FacetCounts, FacetResponse,
-    GetPoints, GetResponse, PointsOperationResponse, ScrollPoints, ScrollResponse,
-    SearchMatrixOffsetsResponse, SearchMatrixPairsResponse, SearchMatrixPoints, UpdateBatchPoints,
-    UpdateBatchResponse, UpdatePointVectors, UpsertPoints, Usage,
+    CountPoints, CountResponse, CreateVectorNameRequest, DeletePointVectors, DeletePoints,
+    DeleteVectorNameRequest, FacetCounts, FacetResponse, GetPoints, GetResponse,
+    PointsOperationResponse, ScrollPoints, ScrollResponse, SearchMatrixOffsetsResponse,
+    SearchMatrixPairsResponse, SearchMatrixPoints, UpdateBatchPoints, UpdateBatchResponse,
+    UpdatePointVectors, UpsertPoints, Usage,
 };
 use crate::qdrant_client::{Qdrant, QdrantResult};
 
@@ -502,6 +503,78 @@ impl Qdrant {
 
         self.with_points_client(|mut points_api| async move {
             let result = points_api.delete_vectors(request.clone()).await?;
+            Ok(result.into_inner())
+        })
+        .await
+    }
+
+    /// Create a new named vector on an existing collection.
+    ///
+    /// Adds a new dense or sparse vector to the collection's vector configuration.
+    /// Existing points will not have data for the new vector until it is set via
+    /// [`update_vectors`](Self::update_vectors) or another upsert.
+    ///
+    /// ```no_run
+    ///# use qdrant_client::{Qdrant, QdrantError};
+    /// use qdrant_client::qdrant::{
+    ///     CreateVectorNameRequestBuilder, DenseVectorCreationConfigBuilder, Distance,
+    /// };
+    ///
+    ///# async fn create_vector_name(client: &Qdrant)
+    ///# -> Result<(), QdrantError> {
+    /// client
+    ///     .create_vector_name(
+    ///         CreateVectorNameRequestBuilder::new(
+    ///             "my_collection",
+    ///             "image",
+    ///             DenseVectorCreationConfigBuilder::new(512, Distance::Cosine),
+    ///         )
+    ///         .wait(true),
+    ///     )
+    ///     .await?;
+    ///# Ok(())
+    ///# }
+    /// ```
+    pub async fn create_vector_name(
+        &self,
+        request: impl Into<CreateVectorNameRequest>,
+    ) -> QdrantResult<PointsOperationResponse> {
+        let request = &request.into();
+
+        self.with_points_client(|mut points_api| async move {
+            let result = points_api.create_vector_name(request.clone()).await?;
+            Ok(result.into_inner())
+        })
+        .await
+    }
+
+    /// Delete a named vector from an existing collection.
+    ///
+    /// Removes the named vector and all its data across all points. This operation
+    /// cannot be undone.
+    ///
+    /// ```no_run
+    ///# use qdrant_client::{Qdrant, QdrantError};
+    /// use qdrant_client::qdrant::DeleteVectorNameRequestBuilder;
+    ///
+    ///# async fn delete_vector_name(client: &Qdrant)
+    ///# -> Result<(), QdrantError> {
+    /// client
+    ///     .delete_vector_name(
+    ///         DeleteVectorNameRequestBuilder::new("my_collection", "image").wait(true),
+    ///     )
+    ///     .await?;
+    ///# Ok(())
+    ///# }
+    /// ```
+    pub async fn delete_vector_name(
+        &self,
+        request: impl Into<DeleteVectorNameRequest>,
+    ) -> QdrantResult<PointsOperationResponse> {
+        let request = &request.into();
+
+        self.with_points_client(|mut points_api| async move {
+            let result = points_api.delete_vector_name(request.clone()).await?;
             Ok(result.into_inner())
         })
         .await
