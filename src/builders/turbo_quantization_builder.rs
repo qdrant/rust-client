@@ -6,7 +6,6 @@ pub struct TurboQuantizationBuilder {
     /// If true - quantized vectors always will be stored in RAM, ignoring the config of main storage
     pub(crate) always_ram: Option<Option<bool>>,
     pub(crate) bits: Option<Option<i32>>,
-    pub(crate) data_fit: Option<Option<bool>>,
 }
 
 impl TurboQuantizationBuilder {
@@ -25,19 +24,10 @@ impl TurboQuantizationBuilder {
         new
     }
 
-    #[doc(hidden)]
-    /// Disable data-fit which is usually enabled.
-    pub fn data_fit_disabled(self) -> Self {
-        let mut new = self;
-        new.data_fit = Some(Some(false));
-        new
-    }
-
     fn build_inner(self) -> Result<TurboQuantization, TurboQuantizationBuilderError> {
         Ok(TurboQuantization {
             always_ram: self.always_ram.unwrap_or_default(),
             bits: self.bits.unwrap_or_default(),
-            data_fit: self.data_fit.unwrap_or_default(),
         })
     }
 
@@ -46,7 +36,6 @@ impl TurboQuantizationBuilder {
         Self {
             always_ram: Default::default(),
             bits: Default::default(),
-            data_fit: Default::default(),
         }
     }
 }
