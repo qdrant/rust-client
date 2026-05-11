@@ -8,20 +8,22 @@ use crate::qdrant::point_id::PointIdOptions;
 use crate::qdrant::points_selector::PointsSelectorOneOf;
 use crate::qdrant::value::Kind;
 use crate::qdrant::{
-    alias_operations, condition, group_id, points_update_operation, quantization_config,
-    quantization_config_diff, r#match, read_consistency, shard_key, start_from, target_vector,
-    update_collection_cluster_setup_request, vector_example, vectors_config, vectors_config_diff,
-    with_payload_selector, with_vectors_selector, AbortShardTransfer, AbortShardTransferBuilder,
-    AliasOperations, BinaryQuantization, BinaryQuantizationBuilder, Condition, CreateAlias,
-    CreateShardKey, DeleteAlias, DeleteShardKey, Disabled, FieldCondition, Filter, GeoLineString,
-    GeoPoint, GroupId, HasIdCondition, IsEmptyCondition, IsNullCondition, ListValue, Match,
-    MoveShard, MoveShardBuilder, NestedCondition, PayloadExcludeSelector, PayloadIncludeSelector,
-    PointId, PointsIdsList, PointsSelector, PointsUpdateOperation, ProductQuantization,
-    ProductQuantizationBuilder, QuantizationConfig, QuantizationConfigDiff, ReadConsistency,
-    RenameAlias, Replica, ReplicateShard, ReplicateShardBuilder, RestartTransfer,
+    alias_operations, condition, create_vector_name_request, group_id, points_update_operation,
+    quantization_config, quantization_config_diff, r#match, read_consistency, shard_key,
+    start_from, target_vector, update_collection_cluster_setup_request, vector_example,
+    vectors_config, vectors_config_diff, with_payload_selector, with_vectors_selector,
+    AbortShardTransfer, AbortShardTransferBuilder, AliasOperations, BinaryQuantization,
+    BinaryQuantizationBuilder, Condition, CreateAlias, CreateShardKey, DeleteAlias, DeleteShardKey,
+    DenseVectorCreationConfig, DenseVectorCreationConfigBuilder, Disabled, FieldCondition, Filter,
+    GeoLineString, GeoPoint, GroupId, HasIdCondition, IsEmptyCondition, IsNullCondition, ListValue,
+    Match, MoveShard, MoveShardBuilder, NestedCondition, PayloadExcludeSelector,
+    PayloadIncludeSelector, PointId, PointsIdsList, PointsSelector, PointsUpdateOperation,
+    ProductQuantization, ProductQuantizationBuilder, QuantizationConfig, QuantizationConfigDiff,
+    ReadConsistency, RenameAlias, Replica, ReplicateShard, ReplicateShardBuilder, RestartTransfer,
     ScalarQuantization, ScalarQuantizationBuilder, ShardKey, ShardKeySelector, SparseIndexConfig,
-    SparseVectorParams, StartFrom, Struct, TargetVector, Value, Vector, VectorExample,
-    VectorParams, VectorParamsBuilder, VectorParamsDiff, VectorParamsDiffBuilder,
+    SparseVectorCreationConfig, SparseVectorCreationConfigBuilder, SparseVectorParams, StartFrom,
+    Struct, TargetVector, TurboQuantization, TurboQuantizationBuilder, Value, Vector,
+    VectorExample, VectorParams, VectorParamsBuilder, VectorParamsDiff, VectorParamsDiffBuilder,
     VectorParamsDiffMap, VectorParamsMap, VectorsConfig, VectorsConfigDiff, VectorsSelector,
     WithPayloadSelector, WithVectorsSelector,
 };
@@ -156,6 +158,12 @@ impl From<BinaryQuantization> for quantization_config::Quantization {
     }
 }
 
+impl From<TurboQuantization> for quantization_config::Quantization {
+    fn from(value: TurboQuantization) -> Self {
+        Self::Turboquant(value)
+    }
+}
+
 impl From<quantization_config_diff::Quantization> for QuantizationConfigDiff {
     fn from(value: quantization_config_diff::Quantization) -> Self {
         Self {
@@ -185,6 +193,36 @@ impl From<Disabled> for quantization_config_diff::Quantization {
 impl From<BinaryQuantization> for quantization_config_diff::Quantization {
     fn from(value: BinaryQuantization) -> Self {
         Self::Binary(value)
+    }
+}
+
+impl From<TurboQuantization> for quantization_config_diff::Quantization {
+    fn from(value: TurboQuantization) -> Self {
+        Self::Turboquant(value)
+    }
+}
+
+impl From<DenseVectorCreationConfig> for create_vector_name_request::VectorConfig {
+    fn from(value: DenseVectorCreationConfig) -> Self {
+        Self::DenseConfig(value)
+    }
+}
+
+impl From<SparseVectorCreationConfig> for create_vector_name_request::VectorConfig {
+    fn from(value: SparseVectorCreationConfig) -> Self {
+        Self::SparseConfig(value)
+    }
+}
+
+impl From<DenseVectorCreationConfigBuilder> for create_vector_name_request::VectorConfig {
+    fn from(value: DenseVectorCreationConfigBuilder) -> Self {
+        Self::DenseConfig(value.build())
+    }
+}
+
+impl From<SparseVectorCreationConfigBuilder> for create_vector_name_request::VectorConfig {
+    fn from(value: SparseVectorCreationConfigBuilder) -> Self {
+        Self::SparseConfig(value.build())
     }
 }
 
@@ -456,6 +494,12 @@ impl From<BinaryQuantizationBuilder> for quantization_config_diff::Quantization 
     }
 }
 
+impl From<TurboQuantizationBuilder> for quantization_config_diff::Quantization {
+    fn from(value: TurboQuantizationBuilder) -> Self {
+        Self::Turboquant(value.build())
+    }
+}
+
 impl From<ScalarQuantizationBuilder> for quantization_config::Quantization {
     fn from(value: ScalarQuantizationBuilder) -> Self {
         Self::Scalar(value.build())
@@ -471,6 +515,12 @@ impl From<ProductQuantizationBuilder> for quantization_config::Quantization {
 impl From<BinaryQuantizationBuilder> for quantization_config::Quantization {
     fn from(value: BinaryQuantizationBuilder) -> Self {
         Self::Binary(value.build())
+    }
+}
+
+impl From<TurboQuantizationBuilder> for quantization_config::Quantization {
+    fn from(value: TurboQuantizationBuilder) -> Self {
+        Self::Turboquant(value.build())
     }
 }
 

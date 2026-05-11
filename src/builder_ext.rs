@@ -4,10 +4,11 @@ use crate::qdrant::update_collection_cluster_setup_request::Operation;
 use crate::qdrant::{
     shard_key, AbortShardTransferBuilder, BinaryQuantizationBuilder, ClearPayloadPointsBuilder,
     ContextExamplePair, CountPointsBuilder, CreateAliasBuilder, CreateCollectionBuilder,
-    CreateFieldIndexCollectionBuilder, CreateShardKeyRequestBuilder, DeleteCollectionBuilder,
-    DeleteFieldIndexCollectionBuilder, DeletePayloadPointsBuilder, DeletePointVectorsBuilder,
-    DeletePointsBuilder, DeleteShardKey, DeleteShardKeyRequestBuilder,
-    DeleteSnapshotRequestBuilder, DiscoverBatchPointsBuilder, DiscoverPoints,
+    CreateFieldIndexCollectionBuilder, CreateShardKeyRequestBuilder,
+    CreateVectorNameRequestBuilder, DeleteCollectionBuilder, DeleteFieldIndexCollectionBuilder,
+    DeletePayloadPointsBuilder, DeletePointVectorsBuilder, DeletePointsBuilder, DeleteShardKey,
+    DeleteShardKeyRequestBuilder, DeleteSnapshotRequestBuilder, DeleteVectorNameRequestBuilder,
+    DenseVectorCreationConfigBuilder, DiscoverBatchPointsBuilder, DiscoverPoints,
     DiscoverPointsBuilder, Distance, FacetCountsBuilder, FieldType, GetPointsBuilder,
     LookupLocationBuilder, MoveShardBuilder, PayloadExcludeSelector, PayloadIncludeSelector,
     PointId, PointStruct, PointVectors, PointsUpdateOperation, ProductQuantizationBuilder,
@@ -16,9 +17,10 @@ use crate::qdrant::{
     RecommendPoints, RecommendPointsBuilder, RenameAliasBuilder, ReplicaBuilder,
     ReplicateShardBuilder, ScalarQuantizationBuilder, ScrollPointsBuilder,
     SearchBatchPointsBuilder, SearchMatrixPointsBuilder, SearchPointGroupsBuilder, SearchPoints,
-    SearchPointsBuilder, SetPayloadPointsBuilder, ShardKey, UpdateBatchPointsBuilder,
-    UpdateCollectionBuilder, UpdateCollectionClusterSetupRequestBuilder, UpdatePointVectorsBuilder,
-    UpsertPointsBuilder, Value, VectorParamsBuilder, VectorsSelector, WithLookupBuilder,
+    SearchPointsBuilder, SetPayloadPointsBuilder, ShardKey, SparseVectorCreationConfigBuilder,
+    TurboQuantizationBuilder, UpdateBatchPointsBuilder, UpdateCollectionBuilder,
+    UpdateCollectionClusterSetupRequestBuilder, UpdatePointVectorsBuilder, UpsertPointsBuilder,
+    Value, VectorParamsBuilder, VectorsSelector, WithLookupBuilder,
 };
 
 impl VectorParamsBuilder {
@@ -51,6 +53,12 @@ impl BinaryQuantizationBuilder {
         let mut builder = Self::empty();
         builder.always_ram = Some(Some(always_ram));
         builder
+    }
+}
+
+impl TurboQuantizationBuilder {
+    pub fn new() -> Self {
+        Self::empty()
     }
 }
 
@@ -303,6 +311,43 @@ impl DeleteFieldIndexCollectionBuilder {
         let mut builder = Self::empty();
         builder.collection_name = Some(collection_name.into());
         builder.field_name = Some(field_name.into());
+        builder
+    }
+}
+
+impl DenseVectorCreationConfigBuilder {
+    pub fn new(size: u64, distance: Distance) -> Self {
+        let mut builder = Self::empty();
+        builder.size = Some(size);
+        builder.distance = Some(distance.into());
+        builder
+    }
+}
+
+impl SparseVectorCreationConfigBuilder {
+    pub fn new() -> Self {
+        Self::empty()
+    }
+}
+
+impl CreateVectorNameRequestBuilder {
+    pub fn new(
+        collection_name: impl Into<String>,
+        vector_name: impl Into<String>,
+        vector_config: impl Into<crate::qdrant::create_vector_name_request::VectorConfig>,
+    ) -> Self {
+        let mut builder = Self::empty();
+        builder.collection_name = Some(collection_name.into());
+        builder.vector_name = Some(vector_name.into());
+        builder.vector_config(vector_config)
+    }
+}
+
+impl DeleteVectorNameRequestBuilder {
+    pub fn new(collection_name: impl Into<String>, vector_name: impl Into<String>) -> Self {
+        let mut builder = Self::empty();
+        builder.collection_name = Some(collection_name.into());
+        builder.vector_name = Some(vector_name.into());
         builder
     }
 }

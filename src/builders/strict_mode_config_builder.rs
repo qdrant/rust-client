@@ -12,6 +12,7 @@ pub struct StrictModeConfigBuilder {
     pub(crate) search_allow_exact: Option<Option<bool>>,
     pub(crate) search_max_oversampling: Option<Option<f32>>,
     pub(crate) upsert_max_batchsize: Option<Option<u64>>,
+    pub(crate) search_max_batchsize: Option<Option<u64>>,
     pub(crate) max_collection_vector_size_bytes: Option<Option<u64>>,
     pub(crate) read_rate_limit: Option<Option<u32>>,
     pub(crate) write_rate_limit: Option<Option<u32>>,
@@ -22,6 +23,7 @@ pub struct StrictModeConfigBuilder {
     pub(crate) sparse_config: Option<Option<StrictModeSparseConfig>>,
     pub(crate) max_points_count: Option<Option<u64>>,
     pub(crate) max_payload_index_count: Option<Option<u64>>,
+    pub(crate) max_resident_memory_percent: Option<Option<u32>>,
 }
 
 impl StrictModeConfigBuilder {
@@ -76,6 +78,12 @@ impl StrictModeConfigBuilder {
     pub fn upsert_max_batchsize(self, value: u64) -> Self {
         let mut new = self;
         new.upsert_max_batchsize = Option::Some(Option::Some(value));
+        new
+    }
+
+    pub fn search_max_batchsize(self, value: u64) -> Self {
+        let mut new = self;
+        new.search_max_batchsize = Option::Some(Option::Some(value));
         new
     }
 
@@ -139,6 +147,12 @@ impl StrictModeConfigBuilder {
         new
     }
 
+    pub fn max_resident_memory_percent(self, value: u32) -> Self {
+        let mut new = self;
+        new.max_resident_memory_percent = Option::Some(Option::Some(value));
+        new
+    }
+
     fn build_inner(self) -> Result<StrictModeConfig, std::convert::Infallible> {
         Ok(StrictModeConfig {
             enabled: self.enabled.unwrap_or_default(),
@@ -150,6 +164,7 @@ impl StrictModeConfigBuilder {
             search_allow_exact: self.search_allow_exact.unwrap_or_default(),
             search_max_oversampling: self.search_max_oversampling.unwrap_or_default(),
             upsert_max_batchsize: self.upsert_max_batchsize.unwrap_or_default(),
+            search_max_batchsize: self.search_max_batchsize.unwrap_or_default(),
             max_collection_vector_size_bytes: self
                 .max_collection_vector_size_bytes
                 .unwrap_or_default(),
@@ -164,6 +179,7 @@ impl StrictModeConfigBuilder {
             sparse_config: self.sparse_config.unwrap_or_default(),
             max_points_count: self.max_points_count.unwrap_or_default(),
             max_payload_index_count: self.max_payload_index_count.unwrap_or_default(),
+            max_resident_memory_percent: self.max_resident_memory_percent.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -178,6 +194,7 @@ impl StrictModeConfigBuilder {
             search_allow_exact: core::default::Default::default(),
             search_max_oversampling: core::default::Default::default(),
             upsert_max_batchsize: core::default::Default::default(),
+            search_max_batchsize: core::default::Default::default(),
             max_collection_vector_size_bytes: core::default::Default::default(),
             read_rate_limit: core::default::Default::default(),
             write_rate_limit: core::default::Default::default(),
@@ -188,6 +205,7 @@ impl StrictModeConfigBuilder {
             sparse_config: core::default::Default::default(),
             max_points_count: core::default::Default::default(),
             max_payload_index_count: core::default::Default::default(),
+            max_resident_memory_percent: core::default::Default::default(),
         }
     }
 }
