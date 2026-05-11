@@ -4,9 +4,10 @@ use qdrant_client::qdrant::{
     AbortShardTransferBuilder, AcornSearchParamsBuilder, BinaryQuantizationBuilder,
     ClearPayloadPointsBuilder, ContextInputBuilder, ContextInputPairBuilder, CountPointsBuilder,
     CreateAliasBuilder, CreateFieldIndexCollectionBuilder, CreateShardKeyRequestBuilder,
-    DeleteCollectionBuilder, DeleteFieldIndexCollectionBuilder, DeletePayloadPointsBuilder,
-    DeletePointVectorsBuilder, DeletePointsBuilder, DeleteShardKeyRequestBuilder,
-    DeleteSnapshotRequestBuilder, DiscoverBatchPointsBuilder, DiscoverInputBuilder,
+    CreateVectorNameRequestBuilder, DeleteCollectionBuilder, DeleteFieldIndexCollectionBuilder,
+    DeletePayloadPointsBuilder, DeletePointVectorsBuilder, DeletePointsBuilder,
+    DeleteShardKeyRequestBuilder, DeleteSnapshotRequestBuilder, DeleteVectorNameRequestBuilder,
+    DenseVectorCreationConfigBuilder, DiscoverBatchPointsBuilder, DiscoverInputBuilder,
     DiscoverPointsBuilder, Distance, FacetCountsBuilder, FieldType, GetPointsBuilder,
     LookupLocationBuilder, MoveShardBuilder, MultiVectorComparator, MultiVectorConfigBuilder,
     OrderByBuilder, ProductQuantizationBuilder, QueryBatchPointsBuilder, QueryPointGroupsBuilder,
@@ -14,10 +15,10 @@ use qdrant_client::qdrant::{
     RecommendPointsBuilder, RenameAliasBuilder, ReplicaBuilder, ReplicatePointsBuilder,
     ReplicateShardBuilder, RrfBuilder, ScrollPointsBuilder, SearchBatchPointsBuilder,
     SearchMatrixPointsBuilder, SearchPointGroupsBuilder, SearchPointsBuilder,
-    SetPayloadPointsBuilder, ShardKey, ShardKeySelectorBuilder, TextIndexParamsBuilder,
-    TokenizerType, UpdateBatchPointsBuilder, UpdateCollectionBuilder,
-    UpdateCollectionClusterSetupRequestBuilder, UpdatePointVectorsBuilder, UpsertPointsBuilder,
-    VectorParamsBuilder, WithLookupBuilder,
+    SetPayloadPointsBuilder, ShardKey, ShardKeySelectorBuilder, SparseVectorCreationConfigBuilder,
+    TextIndexParamsBuilder, TokenizerType, TurboQuantizationBuilder, UpdateBatchPointsBuilder,
+    UpdateCollectionBuilder, UpdateCollectionClusterSetupRequestBuilder, UpdatePointVectorsBuilder,
+    UpsertPointsBuilder, VectorParamsBuilder, WithLookupBuilder,
 };
 
 /// TLDR; Ensures new fields introduced in protobuf updates won't cause a panic at runtime due to missing derive_builder attributes.
@@ -36,6 +37,16 @@ fn builder_coverage() {
     VectorParamsBuilder::new(1, Distance::Cosine).build();
     ProductQuantizationBuilder::new(1).build();
     BinaryQuantizationBuilder::new(true).build();
+    TurboQuantizationBuilder::new().build();
+    DenseVectorCreationConfigBuilder::new(1, Distance::Cosine).build();
+    CreateVectorNameRequestBuilder::new(
+        "my_collection",
+        "my_vector",
+        DenseVectorCreationConfigBuilder::new(1, Distance::Cosine),
+    )
+    .build();
+    SparseVectorCreationConfigBuilder::new().build();
+    DeleteVectorNameRequestBuilder::new("my_collection", "my_vector").build();
     SearchPointsBuilder::new("my_collection", [11.; 5], 3).build();
     UpdateCollectionBuilder::new("my_collection").build();
     SetPayloadPointsBuilder::new("my_collection", HashMap::default()).build();
