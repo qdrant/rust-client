@@ -13,7 +13,7 @@ categories = ["database", "api-bindings"]
 keywords = ["qdrant", "vector-search", "search-engine", "client", "grpc"]
 
 [dependencies]
-tonic = { version = "0.12.3", features = ["tls", "tls-roots", "gzip"] }
+tonic = { version = "0.14.6", features = ["tls-ring", "tls-native-roots", "gzip"] }
 prost = "0.14.3"
 prost-types = "0.14.3"
 anyhow = "1.0.102"
