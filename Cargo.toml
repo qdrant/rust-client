@@ -14,6 +14,7 @@ keywords = ["qdrant", "vector-search", "search-engine", "client", "grpc"]
 
 [dependencies]
 tonic = { version = "0.14.6", features = ["tls-ring", "tls-native-roots", "gzip"] }
+tonic-prost = "0.14.6"
 prost = "0.14.3"
 prost-types = "0.14.3"
 anyhow = "1.0.102"
@@ -30,7 +31,8 @@ uuid = { version = "1.23.1", optional = true }
 parking_lot = "0.12.4"
 
 [dev-dependencies]
-tonic-build = { version = "0.12.3", features = ["prost"] }
+tonic-build = { version = "0.14.6" }
+tonic-prost-build = { version = "0.14.6" }
 
 [features]
 default = ["download_snapshots", "serde", "generate-snippets"]
