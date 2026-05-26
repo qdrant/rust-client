@@ -17,7 +17,7 @@ tonic = { version = "0.12.3", features = ["tls", "tls-roots", "gzip"] }
 prost = "0.13.3"
 prost-types = "0.13.3"
 anyhow = "1.0.102"
-serde = { version = "1.0.210", features = ["derive"], optional = true }
+serde = { version = "1.0.228", features = ["derive"], optional = true }
 serde_json = { version = "1.0.128", optional = true }
 reqwest = { version = "0.12.8", optional = true, default-features = false, features = ["stream", "rustls-tls", "http2"] }
 futures = { version = "0.3.32" }
