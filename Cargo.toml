@@ -21,7 +21,7 @@ serde = { version = "1.0.228", features = ["derive"], optional = true }
 serde_json = { version = "1.0.150", optional = true }
 reqwest = { version = "0.12.8", optional = true, default-features = false, features = ["stream", "rustls-tls", "http2"] }
 futures = { version = "0.3.32" }
-tokio = { version = "1.40.0", features = ["rt-multi-thread"] }
+tokio = { version = "1.52.3", features = ["rt-multi-thread"] }
 futures-util = { version = "0.3.32", optional = true }
 derive_builder = { version = "0.20.2" }
 thiserror = "1.0.64"
