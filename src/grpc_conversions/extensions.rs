@@ -293,17 +293,6 @@ impl From<Uuid> for PointIdOptions {
     }
 }
 
-impl Hash for PointId {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        use crate::qdrant::point_id::PointIdOptions::{Num, Uuid};
-        match &self.point_id_options {
-            Some(Num(u)) => state.write_u64(*u),
-            Some(Uuid(s)) => s.hash(state),
-            None => {}
-        }
-    }
-}
-
 impl Hash for ScoredPoint {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.id.hash(state)

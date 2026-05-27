@@ -1,4 +1,4 @@
-use tonic_build::Builder;
+use tonic_prost_build::Builder;
 
 fn timestamp(f: impl AsRef<std::path::Path>) -> std::time::SystemTime {
     std::fs::metadata(f).unwrap().modified().unwrap()
@@ -18,7 +18,7 @@ fn protos() {
         return;
     }
 
-    tonic_build::configure()
+    tonic_prost_build::configure()
         .configure_deprecations()
         .configure_docs()
         .out_dir("src/") // saves generated structures at this location
@@ -65,14 +65,6 @@ impl BuilderExt for Builder {
         // Clear deprecated field for VectorOutput.data
 
         self.field_attribute(
-            "PointsUpdateOperation.operation.delete_deprecated",
-            "#[deprecated(since = \"1.7.0\", note = \"use `DeletePoints` instead\")]",
-        )
-        .field_attribute(
-            "PointsUpdateOperation.operation.clear_payload_deprecated",
-            "#[deprecated(since = \"1.7.0\", note = \"use `ClearPayload` instead\")]",
-        )
-        .field_attribute(
             "Vector.data",
             "#[doc = \"\n\nDeprecated since 1.16.0, use [`vector`](crate::qdrant::Vector::vector) field instead.\"]",
         )
