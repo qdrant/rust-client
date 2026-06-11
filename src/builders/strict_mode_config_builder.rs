@@ -24,6 +24,7 @@ pub struct StrictModeConfigBuilder {
     pub(crate) max_points_count: Option<Option<u64>>,
     pub(crate) max_payload_index_count: Option<Option<u64>>,
     pub(crate) max_resident_memory_percent: Option<Option<u32>>,
+    pub(crate) max_disk_usage_percent: Option<Option<u32>>,
 }
 
 impl StrictModeConfigBuilder {
@@ -153,6 +154,12 @@ impl StrictModeConfigBuilder {
         new
     }
 
+    pub fn max_disk_usage_percent(self, value: u32) -> Self {
+        let mut new = self;
+        new.max_disk_usage_percent = Option::Some(Option::Some(value));
+        new
+    }
+
     fn build_inner(self) -> Result<StrictModeConfig, std::convert::Infallible> {
         Ok(StrictModeConfig {
             enabled: self.enabled.unwrap_or_default(),
@@ -180,6 +187,7 @@ impl StrictModeConfigBuilder {
             max_points_count: self.max_points_count.unwrap_or_default(),
             max_payload_index_count: self.max_payload_index_count.unwrap_or_default(),
             max_resident_memory_percent: self.max_resident_memory_percent.unwrap_or_default(),
+            max_disk_usage_percent: self.max_disk_usage_percent.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -206,6 +214,7 @@ impl StrictModeConfigBuilder {
             max_points_count: core::default::Default::default(),
             max_payload_index_count: core::default::Default::default(),
             max_resident_memory_percent: core::default::Default::default(),
+            max_disk_usage_percent: core::default::Default::default(),
         }
     }
 }
