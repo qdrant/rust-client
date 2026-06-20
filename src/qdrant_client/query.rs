@@ -145,6 +145,7 @@ mod tests {
     use crate::Payload;
 
     #[tokio::test]
+    #[ignore = "requires running Qdrant server, use tests/integration.rs instead"]
     async fn test_query() {
         let client = Qdrant::from_url("http://localhost:6334").build().unwrap();
         let collection_name = "test_collection_query";
