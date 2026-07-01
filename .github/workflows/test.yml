@@ -1,19 +1,19 @@
-name: Unit tests
+name: Test
 
 on: [ push ]
 
 jobs:
-  unit-tests:
-
+  build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Install minimal stable
         uses: dtolnay/rust-toolchain@631a55b12751854ce901bb631d5902ceb48146f7 # stable
-      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Install Protoc
         uses: arduino/setup-protoc@c65c819552d16ad3c9b72d9dfd5ba5237b9c906b # v3.0.0
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Run unit tests
-        run: cargo test --lib --all-features
+      - name: Run integration tests
+        run: |
+          ./tests/integration-tests.sh
+        shell: bash
