@@ -99,14 +99,14 @@ impl Qdrant {
     ///
     /// Constructs the client and connects based on the given [`QdrantConfig`](config::QdrantConfig).
     pub fn new(config: QdrantConfig) -> QdrantResult<Self> {
-        if config.check_compatibility {
-            // create a temporary client to check compatibility
+        if config.check_compatibility || config.check_connection {
+            // create a temporary client to check connectivity and/or compatibility
             let channel = ChannelPool::new(
                 config.uri.parse::<Uri>()?,
                 config.timeout,
                 config.connect_timeout,
                 config.keep_alive_while_idle,
-                1, // No need to create a pool for the compatibility check.
+                1, // No need to create a pool for the health check.
             );
             let client = Self {
                 channel: Arc::new(channel),
@@ -114,7 +114,7 @@ impl Qdrant {
             };
 
             // We're in sync context, spawn temporary runtime in thread to do async health check
-            let server_version = thread::scope(|s| {
+            let health_check = thread::scope(|s| {
                 s.spawn(|| {
                     tokio::runtime::Builder::new_current_thread()
                         .enable_io()
@@ -125,24 +125,36 @@ impl Qdrant {
                 })
                 .join()
                 .expect("Failed to join health check thread")
-            })
-            .ok()
-            .map(|info| info.version);
+            });
 
-            let client_version = env!("CARGO_PKG_VERSION").to_string();
-            if let Some(server_version) = server_version {
-                let is_compatible = is_compatible(Some(&client_version), Some(&server_version));
-                if !is_compatible {
-                    println!("Client version {client_version} is not compatible with server version {server_version}. \
-                    Major versions should match and minor version difference must not exceed 1. \
-                    Set check_compatibility=false to skip version check.");
+            // When connection checking is requested, surface connection errors eagerly
+            // instead of silently deferring them to the first API call.
+            let server_version = match health_check {
+                Ok(info) => Some(info.version),
+                Err(err) => {
+                    if config.check_connection {
+                        return Err(err);
+                    }
+                    None
                 }
-            } else {
-                println!(
-                    "Failed to obtain server version. \
-                    Unable to check client-server compatibility. \
-                    Set check_compatibility=false to skip version check."
-                );
+            };
+
+            if config.check_compatibility {
+                let client_version = env!("CARGO_PKG_VERSION").to_string();
+                if let Some(server_version) = server_version {
+                    let is_compatible = is_compatible(Some(&client_version), Some(&server_version));
+                    if !is_compatible {
+                        println!("Client version {client_version} is not compatible with server version {server_version}. \
+                        Major versions should match and minor version difference must not exceed 1. \
+                        Set check_compatibility=false to skip version check.");
+                    }
+                } else {
+                    println!(
+                        "Failed to obtain server version. \
+                        Unable to check client-server compatibility. \
+                        Set check_compatibility=false to skip version check."
+                    );
+                }
             }
         }
 
@@ -251,5 +263,37 @@ impl Qdrant {
             Ok(result.into_inner())
         })
         .await
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::time::Duration;
+
+    use super::*;
+
+    // Nothing listens on this port, so a connection attempt is refused quickly;
+    // these tests do not require a running Qdrant server.
+    const UNREACHABLE_URL: &str = "http://127.0.0.1:6999";
+
+    #[test]
+    fn build_without_connection_check_succeeds_when_server_is_down() {
+        // gRPC connects lazily; without a connection check, building the client
+        // must succeed even when no server is reachable.
+        let client = Qdrant::from_url(UNREACHABLE_URL)
+            .skip_compatibility_check()
+            .build();
+        assert!(client.is_ok());
+    }
+
+    #[test]
+    fn build_with_connection_check_fails_when_server_is_down() {
+        // With connection checking enabled, building must fail eagerly when the
+        // server is unreachable (issue #258).
+        let result = Qdrant::from_url(UNREACHABLE_URL)
+            .check_connection()
+            .connect_timeout(Duration::from_secs(1))
+            .build();
+        assert!(result.is_err());
     }
 }
