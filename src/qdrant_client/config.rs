@@ -39,6 +39,14 @@ pub struct QdrantConfig {
     /// Whether to check compatibility between the client and server versions
     pub check_compatibility: bool,
 
+    /// Whether to verify connectivity to the Qdrant server when building the client.
+    ///
+    /// gRPC connections are established lazily, so by default building a client
+    /// succeeds even when the server is unreachable; connection errors only surface
+    /// on the first request. When enabled, [`build`](Self::build) performs a health
+    /// check and returns an error if the server cannot be reached.
+    pub check_connection: bool,
+
     /// Amount of concurrent connections.
     /// If set to 0 or 1, connection pools will be disabled.
     pub pool_size: usize,
@@ -207,10 +215,36 @@ impl QdrantConfig {
         self
     }
 
+    /// Verify connectivity to the Qdrant server when building the client.
+    ///
+    /// gRPC connections are established lazily, so [`build`](Self::build) normally
+    /// succeeds even when the server is unreachable; connection failures would only
+    /// be observed on the first API call. Enabling this makes `build` perform a
+    /// health check and return an error if the server cannot be reached.
+    ///
+    /// ```rust,no_run
+    /// use qdrant_client::Qdrant;
+    ///
+    /// let client = Qdrant::from_url("http://localhost:6334")
+    ///     .check_connection()
+    ///     .build();
+    /// ```
+    pub fn check_connection(mut self) -> Self {
+        self.check_connection = true;
+        self
+    }
+
     /// Set the pool size of concurrent connections.
     /// If set to 0 or 1, connection pools will be disabled.
     pub fn set_pool_size(&mut self, pool_size: usize) {
         self.pool_size = pool_size;
+    }
+
+    /// Set whether to verify connectivity to the server when building the client.
+    ///
+    /// Also see [`check_connection()`](fn@Self::check_connection).
+    pub fn set_check_connection(&mut self, check_connection: bool) {
+        self.check_connection = check_connection;
     }
 }
 
@@ -227,6 +261,7 @@ impl Default for QdrantConfig {
             api_key: None,
             compression: None,
             check_compatibility: true,
+            check_connection: false,
             pool_size: 3,
             custom_headers: Vec::new(),
         }
