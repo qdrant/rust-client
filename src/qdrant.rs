@@ -685,10 +685,14 @@ pub struct OptimizersConfigDiff {
     /// If 0 - no optimization threads, optimizations will be disabled.
     #[prost(message, optional, tag = "9")]
     pub max_optimization_threads: ::core::option::Option<MaxOptimizationThreads>,
-    /// If this option is set, service will try to prevent creation of large unoptimized segments.
-    /// When enabled, updates may be blocked at request level if there are unoptimized segments larger than indexing threshold.
-    /// Updates will be resumed when optimization is completed and segments are optimized below the threshold.
-    /// Using this option may lead to increased delay between submitting an update and its application.
+    /// If enabled, the service will try to prevent the creation of large unoptimized segments.
+    /// When enabled, new points written to segments larger than the indexing threshold are stored
+    /// as "deferred points": they are persisted in the WAL and segments, but excluded from
+    /// read/search results until the corresponding segments are optimized (e.g. indexed,
+    /// quantized, or moved to mmap storage).
+    /// Update requests with wait=true will only return after the deferred points become visible,
+    /// which may significantly increase the perceived latency between submitting an update and its
+    /// completion. Update requests with wait=false are not affected.
     /// Default is disabled.
     #[prost(bool, optional, tag = "10")]
     pub prevent_unoptimized: ::core::option::Option<bool>,
@@ -898,6 +902,10 @@ pub struct StrictModeConfig {
     /// Delete-style operations are still allowed so memory can be freed.
     #[prost(uint32, optional, tag = "21")]
     pub max_resident_memory_percent: ::core::option::Option<u32>,
+    /// Reject disk-consuming update operations when the filesystem hosting Qdrant storage exceeds this percentage of total capacity (1-100).
+    /// Free space is sampled with a small TTL cache so the gate may take a few seconds to react. Delete-style operations are still allowed so disk can be freed.
+    #[prost(uint32, optional, tag = "22")]
+    pub max_disk_usage_percent: ::core::option::Option<u32>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct StrictModeSparseConfig {
@@ -1744,6 +1752,7 @@ pub enum Datatype {
     Float32 = 1,
     Uint8 = 2,
     Float16 = 3,
+    Turbo4 = 4,
 }
 impl Datatype {
     /// String value of the enum field names used in the ProtoBuf definition.
@@ -1756,6 +1765,7 @@ impl Datatype {
             Self::Float32 => "Float32",
             Self::Uint8 => "Uint8",
             Self::Float16 => "Float16",
+            Self::Turbo4 => "Turbo4",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -1765,6 +1775,7 @@ impl Datatype {
             "Float32" => Some(Self::Float32),
             "Uint8" => Some(Self::Uint8),
             "Float16" => Some(Self::Float16),
+            "Turbo4" => Some(Self::Turbo4),
             _ => None,
         }
     }
@@ -4042,7 +4053,7 @@ pub struct DenseVectorCreationConfig {
     /// Configuration for multi-vector search (e.g., ColBERT)
     #[prost(message, optional, tag = "3")]
     pub multivector_config: ::core::option::Option<MultiVectorConfig>,
-    /// Data type of the vectors (Float32, Float16, Uint8)
+    /// Data type of the vectors (Float32, Float16, Uint8, Turbo4)
     #[prost(enumeration = "Datatype", optional, tag = "4")]
     pub datatype: ::core::option::Option<i32>,
 }
