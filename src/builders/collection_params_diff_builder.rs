@@ -13,6 +13,8 @@ pub struct CollectionParamsDiffBuilder {
     pub(crate) read_fan_out_factor: Option<Option<u32>>,
     /// Fan-out delay in milliseconds. If set, the fan-out request will be delayed by this amount.
     pub(crate) read_fan_out_delay_ms: Option<Option<u64>>,
+    /// Update params of the payload storage
+    pub(crate) payload: Option<Option<PayloadStorageParams>>,
 }
 #[allow(clippy::all)]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -30,6 +32,8 @@ impl CollectionParamsDiffBuilder {
         new
     }
     /// If true - point's payload will not be stored in memory
+    ///
+    /// Deprecated since 1.19.0, use [`payload`](Self::payload) instead.
     pub fn on_disk_payload(self, value: bool) -> Self {
         let mut new = self;
         new.on_disk_payload = Option::Some(Option::Some(value));
@@ -47,7 +51,15 @@ impl CollectionParamsDiffBuilder {
         new.read_fan_out_delay_ms = Option::Some(Option::Some(value));
         new
     }
+    /// Update params of the payload storage.
+    /// Overrides the deprecated `on_disk_payload` flag if both are set.
+    pub fn payload<VALUE: core::convert::Into<PayloadStorageParams>>(self, value: VALUE) -> Self {
+        let mut new = self;
+        new.payload = Option::Some(Option::Some(value.into()));
+        new
+    }
 
+    #[allow(deprecated)]
     fn build_inner(self) -> Result<CollectionParamsDiff, std::convert::Infallible> {
         Ok(CollectionParamsDiff {
             replication_factor: match self.replication_factor {
@@ -70,6 +82,10 @@ impl CollectionParamsDiffBuilder {
                 Some(value) => value,
                 None => core::default::Default::default(),
             },
+            payload: match self.payload {
+                Some(value) => value,
+                None => core::default::Default::default(),
+            },
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -80,6 +96,7 @@ impl CollectionParamsDiffBuilder {
             on_disk_payload: core::default::Default::default(),
             read_fan_out_factor: core::default::Default::default(),
             read_fan_out_delay_ms: core::default::Default::default(),
+            payload: core::default::Default::default(),
         }
     }
 }

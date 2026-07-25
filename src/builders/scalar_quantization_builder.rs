@@ -9,6 +9,8 @@ pub struct ScalarQuantizationBuilder {
     pub(crate) quantile: Option<Option<f32>>,
     /// If true - quantized vectors always will be stored in RAM, ignoring the config of main storage
     pub(crate) always_ram: Option<Option<bool>>,
+    /// Memory placement of quantized vectors.
+    pub(crate) memory: Option<Option<i32>>,
 }
 
 impl ScalarQuantizationBuilder {
@@ -25,12 +27,22 @@ impl ScalarQuantizationBuilder {
         new
     }
     /// If true - quantized vectors always will be stored in RAM, ignoring the config of main storage
+    ///
+    /// Deprecated since 1.19.0, use [`memory`](Self::memory) instead.
     pub fn always_ram(self, value: bool) -> Self {
         let mut new = self;
         new.always_ram = Option::Some(Option::Some(value));
         new
     }
+    /// Memory placement of quantized vectors.
+    /// Overrides the deprecated `always_ram` flag if both are set.
+    pub fn memory<VALUE: core::convert::Into<i32>>(self, value: VALUE) -> Self {
+        let mut new = self;
+        new.memory = Option::Some(Option::Some(value.into()));
+        new
+    }
 
+    #[allow(deprecated)]
     fn build_inner(self) -> Result<ScalarQuantization, ScalarQuantizationBuilderError> {
         Ok(ScalarQuantization {
             r#type: match self.r#type {
@@ -43,6 +55,7 @@ impl ScalarQuantizationBuilder {
             },
             quantile: self.quantile.unwrap_or_default(),
             always_ram: self.always_ram.unwrap_or_default(),
+            memory: self.memory.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -51,6 +64,7 @@ impl ScalarQuantizationBuilder {
             r#type: core::default::Default::default(),
             quantile: core::default::Default::default(),
             always_ram: core::default::Default::default(),
+            memory: core::default::Default::default(),
         }
     }
 }

@@ -33,6 +33,9 @@ pub struct HnswConfigDiffBuilder {
     /// random seeks during the search.
     /// Requires quantized vectors to be enabled. Multi-vectors are not supported.
     pub(crate) inline_storage: Option<Option<bool>>,
+    ///
+    /// Memory placement of the HNSW graph.
+    pub(crate) memory: Option<Option<i32>>,
 }
 #[allow(clippy::all)]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -73,6 +76,8 @@ impl HnswConfigDiffBuilder {
     }
     ///
     /// Store HNSW index on disk. If set to false, the index will be stored in RAM.
+    ///
+    /// Deprecated since 1.19.0, use [`memory`](Self::memory) instead.
     pub fn on_disk(self, value: bool) -> Self {
         let mut new = self;
         new.on_disk = Option::Some(Option::Some(value));
@@ -95,7 +100,16 @@ impl HnswConfigDiffBuilder {
         new.inline_storage = Option::Some(Option::Some(value));
         new
     }
+    ///
+    /// Memory placement of the HNSW graph.
+    /// Overrides the deprecated `on_disk` flag if both are set.
+    pub fn memory<VALUE: core::convert::Into<i32>>(self, value: VALUE) -> Self {
+        let mut new = self;
+        new.memory = Option::Some(Option::Some(value.into()));
+        new
+    }
 
+    #[allow(deprecated)]
     fn build_inner(self) -> Result<HnswConfigDiff, std::convert::Infallible> {
         Ok(HnswConfigDiff {
             m: match self.m {
@@ -126,6 +140,10 @@ impl HnswConfigDiffBuilder {
                 Some(value) => value,
                 None => core::default::Default::default(),
             },
+            memory: match self.memory {
+                Some(value) => value,
+                None => core::default::Default::default(),
+            },
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -138,6 +156,7 @@ impl HnswConfigDiffBuilder {
             on_disk: core::default::Default::default(),
             payload_m: core::default::Default::default(),
             inline_storage: core::default::Default::default(),
+            memory: core::default::Default::default(),
         }
     }
 }

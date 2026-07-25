@@ -6,10 +6,14 @@ pub struct TurboQuantizationBuilder {
     /// If true - quantized vectors always will be stored in RAM, ignoring the config of main storage
     pub(crate) always_ram: Option<Option<bool>>,
     pub(crate) bits: Option<Option<i32>>,
+    /// Memory placement of quantized vectors.
+    pub(crate) memory: Option<Option<i32>>,
 }
 
 impl TurboQuantizationBuilder {
     /// If true - quantized vectors always will be stored in RAM, ignoring the config of main storage
+    ///
+    /// Deprecated since 1.19.0, use [`memory`](Self::memory) instead.
     pub fn always_ram(self, value: bool) -> Self {
         let mut new = self;
         new.always_ram = Some(Some(value));
@@ -24,10 +28,20 @@ impl TurboQuantizationBuilder {
         new
     }
 
+    /// Memory placement of quantized vectors.
+    /// Overrides the deprecated `always_ram` flag if both are set.
+    pub fn memory(self, value: impl Into<i32>) -> Self {
+        let mut new = self;
+        new.memory = Some(Some(value.into()));
+        new
+    }
+
+    #[allow(deprecated)]
     fn build_inner(self) -> Result<TurboQuantization, TurboQuantizationBuilderError> {
         Ok(TurboQuantization {
             always_ram: self.always_ram.unwrap_or_default(),
             bits: self.bits.unwrap_or_default(),
+            memory: self.memory.unwrap_or_default(),
         })
     }
 
@@ -36,6 +50,7 @@ impl TurboQuantizationBuilder {
         Self {
             always_ram: Default::default(),
             bits: Default::default(),
+            memory: Default::default(),
         }
     }
 }
