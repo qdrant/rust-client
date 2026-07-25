@@ -37,6 +37,8 @@ pub struct CreateCollectionBuilder {
     pub(crate) strict_mode_config: Option<Option<StrictModeConfig>>,
     /// Arbitrary JSON metadata for the collection
     pub(crate) metadata: Option<HashMap<String, Value>>,
+    /// Configuration of the payload storage
+    pub(crate) payload: Option<Option<PayloadStorageParams>>,
 }
 
 #[allow(clippy::all)]
@@ -76,6 +78,8 @@ impl CreateCollectionBuilder {
         new
     }
     /// If true - point's payload will not be stored in memory
+    ///
+    /// Deprecated since 1.19.0, use [`payload`](Self::payload) instead.
     pub fn on_disk_payload(self, value: bool) -> Self {
         let mut new = self;
         new.on_disk_payload = Option::Some(Option::Some(value));
@@ -144,7 +148,15 @@ impl CreateCollectionBuilder {
         new.metadata = Option::Some(value.into().0);
         new
     }
+    /// Configuration of the payload storage.
+    /// Overrides the deprecated `on_disk_payload` flag if both are set.
+    pub fn payload<VALUE: core::convert::Into<PayloadStorageParams>>(self, value: VALUE) -> Self {
+        let mut new = self;
+        new.payload = Option::Some(Option::Some(value.into()));
+        new
+    }
 
+    #[allow(deprecated)]
     fn build_inner(self) -> Result<CreateCollection, std::convert::Infallible> {
         Ok(CreateCollection {
             collection_name: match self.collection_name {
@@ -204,6 +216,10 @@ impl CreateCollectionBuilder {
                 Some(value) => value,
                 None => core::default::Default::default(),
             },
+            payload: match self.payload {
+                Some(value) => value,
+                None => core::default::Default::default(),
+            },
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -224,6 +240,7 @@ impl CreateCollectionBuilder {
             sparse_vectors_config: core::default::Default::default(),
             strict_mode_config: core::default::Default::default(),
             metadata: core::default::Default::default(),
+            payload: core::default::Default::default(),
         }
     }
 }

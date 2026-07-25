@@ -4,7 +4,7 @@ use crate::qdrant::r#match::MatchValue;
 use crate::qdrant::{
     self, Condition, DatetimeRange, FieldCondition, Filter, GeoBoundingBox, GeoPolygon, GeoRadius,
     HasIdCondition, HasVectorCondition, IsEmptyCondition, IsNullCondition, MinShould,
-    NestedCondition, PointId, PointsSelector, Range, ValuesCount,
+    NestedCondition, PointId, PointsSelector, Range, SliceCondition, ValuesCount,
 };
 
 impl From<Filter> for PointsSelector {
@@ -51,6 +51,14 @@ impl From<HasVectorCondition> for Condition {
     fn from(has_vector_condition: HasVectorCondition) -> Self {
         Condition {
             condition_one_of: Some(ConditionOneOf::HasVector(has_vector_condition)),
+        }
+    }
+}
+
+impl From<SliceCondition> for Condition {
+    fn from(slice_condition: SliceCondition) -> Self {
+        Condition {
+            condition_one_of: Some(ConditionOneOf::Slice(slice_condition)),
         }
     }
 }
@@ -273,6 +281,45 @@ impl qdrant::Condition {
         }
     }
 
+    /// Create a [`Condition`] to match keywords starting with the given prefix.
+    ///
+    /// Requires the keyword index of the field to be created with prefix matching enabled,
+    /// see [`KeywordIndexParamsBuilder::prefix`](qdrant::KeywordIndexParamsBuilder::prefix).
+    ///
+    /// # Examples:
+    /// ```
+    /// qdrant_client::qdrant::Condition::matches_prefix("city", "Ber");
+    /// ```
+    pub fn matches_prefix(field: impl Into<String>, prefix: impl Into<String>) -> Self {
+        Self {
+            condition_one_of: Some(ConditionOneOf::Field(qdrant::FieldCondition {
+                key: field.into(),
+                r#match: Some(qdrant::Match {
+                    match_value: Some(MatchValue::Prefix(prefix.into())),
+                }),
+                ..Default::default()
+            })),
+        }
+    }
+
+    /// Create a [`Condition`] selecting one of `total` disjoint deterministic slices of the id
+    /// space. Useful to split a collection into equally sized chunks, for example to scroll
+    /// through it in parallel.
+    ///
+    /// `index` must be less than `total`.
+    ///
+    /// # Examples:
+    /// ```
+    /// // Select the first of four slices of the collection
+    /// qdrant_client::qdrant::Condition::slice(4, 0);
+    /// ```
+    pub fn slice(total: u32, index: u32) -> Self {
+        debug_assert!(total >= 1, "`total` must be at least 1");
+        debug_assert!(index < total, "`index` must be less than `total`");
+
+        Self::from(SliceCondition { total, index })
+    }
+
     /// Create a [`Condition`] that checks numeric fields against a range.
     ///
     /// # Examples:
@@ -489,6 +536,9 @@ impl std::ops::Not for MatchValue {
             }
             Self::TextAny(_) => {
                 panic!("cannot negate a MatchValue::TextAny, use within must_not clause instead")
+            }
+            Self::Prefix(_) => {
+                panic!("cannot negate a MatchValue::Prefix, use within must_not clause instead")
             }
         }
     }

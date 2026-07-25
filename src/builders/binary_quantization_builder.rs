@@ -7,10 +7,14 @@ pub struct BinaryQuantizationBuilder {
     pub(crate) always_ram: Option<Option<bool>>,
     pub(crate) encoding: Option<Option<i32>>,
     pub(crate) query_encoding: Option<Option<BinaryQuantizationQueryEncoding>>,
+    /// Memory placement of quantized vectors.
+    pub(crate) memory: Option<Option<i32>>,
 }
 
 impl BinaryQuantizationBuilder {
     /// If true - quantized vectors always will be stored in RAM, ignoring the config of main storage
+    ///
+    /// Deprecated since 1.19.0, use [`memory`](Self::memory) instead.
     pub fn always_ram(self, value: bool) -> Self {
         let mut new = self;
         new.always_ram = Some(Some(value));
@@ -33,11 +37,21 @@ impl BinaryQuantizationBuilder {
         new
     }
 
+    /// Memory placement of quantized vectors.
+    /// Overrides the deprecated `always_ram` flag if both are set.
+    pub fn memory(self, value: impl Into<i32>) -> Self {
+        let mut new = self;
+        new.memory = Some(Some(value.into()));
+        new
+    }
+
+    #[allow(deprecated)]
     fn build_inner(self) -> Result<BinaryQuantization, BinaryQuantizationBuilderError> {
         Ok(BinaryQuantization {
             always_ram: self.always_ram.unwrap_or_default(),
             encoding: self.encoding.unwrap_or_default(),
             query_encoding: self.query_encoding.unwrap_or_default(),
+            memory: self.memory.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -46,6 +60,7 @@ impl BinaryQuantizationBuilder {
             always_ram: Default::default(),
             encoding: Default::default(),
             query_encoding: Default::default(),
+            memory: Default::default(),
         }
     }
 }
@@ -75,6 +90,12 @@ impl BinaryQuantizationBuilder {
 
 impl BinaryQuantizationBuilder {
     pub(crate) fn empty() -> Self {
+        Self::create_empty()
+    }
+}
+
+impl Default for BinaryQuantizationBuilder {
+    fn default() -> Self {
         Self::create_empty()
     }
 }

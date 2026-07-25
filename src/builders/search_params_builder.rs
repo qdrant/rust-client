@@ -21,6 +21,9 @@ pub struct SearchParamsBuilder {
     ///
     /// Params relevant to ACORN index
     pub(crate) acorn: Option<Option<AcornSearchParams>>,
+    ///
+    /// Which population sparse vector IDF statistics are computed over
+    pub(crate) idf: Option<Option<IdfParams>>,
 }
 
 impl SearchParamsBuilder {
@@ -65,6 +68,14 @@ impl SearchParamsBuilder {
         new.acorn = Option::Some(Option::Some(value.into()));
         new
     }
+    ///
+    /// Which population sparse vector IDF statistics are computed over.
+    /// If unset, statistics are collection-wide (global).
+    pub fn idf<VALUE: core::convert::Into<IdfParams>>(self, value: VALUE) -> Self {
+        let mut new = self;
+        new.idf = Option::Some(Option::Some(value.into()));
+        new
+    }
 
     fn build_inner(self) -> Result<SearchParams, std::convert::Infallible> {
         Ok(SearchParams {
@@ -73,6 +84,7 @@ impl SearchParamsBuilder {
             quantization: self.quantization.unwrap_or_default(),
             indexed_only: self.indexed_only.unwrap_or_default(),
             acorn: self.acorn.unwrap_or_default(),
+            idf: self.idf.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -83,6 +95,7 @@ impl SearchParamsBuilder {
             quantization: core::default::Default::default(),
             indexed_only: core::default::Default::default(),
             acorn: core::default::Default::default(),
+            idf: core::default::Default::default(),
         }
     }
 }

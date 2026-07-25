@@ -9,8 +9,9 @@ use qdrant_client::qdrant::{
     DeleteShardKeyRequestBuilder, DeleteSnapshotRequestBuilder, DeleteVectorNameRequestBuilder,
     DenseVectorCreationConfigBuilder, DiscoverBatchPointsBuilder, DiscoverInputBuilder,
     DiscoverPointsBuilder, Distance, FacetCountsBuilder, FieldType, GetPointsBuilder,
-    LookupLocationBuilder, MoveShardBuilder, MultiVectorComparator, MultiVectorConfigBuilder,
-    OrderByBuilder, ProductQuantizationBuilder, QueryBatchPointsBuilder, QueryPointGroupsBuilder,
+    IntegerIndexParamsBuilder, KeywordIndexParamsBuilder, LookupLocationBuilder, Memory,
+    MoveShardBuilder, MultiVectorComparator, MultiVectorConfigBuilder, OrderByBuilder,
+    ProductQuantizationBuilder, QueryBatchPointsBuilder, QueryPointGroupsBuilder,
     QueryPointsBuilder, RecommendBatchPointsBuilder, RecommendPointGroupsBuilder,
     RecommendPointsBuilder, RenameAliasBuilder, ReplicaBuilder, ReplicatePointsBuilder,
     ReplicateShardBuilder, RrfBuilder, ScrollPointsBuilder, SearchBatchPointsBuilder,
@@ -117,4 +118,29 @@ fn builder_coverage() {
         .build();
     RrfBuilder::new().build();
     RrfBuilder::with_k(100).build();
+
+    // Memory placement (as of 1.19.0)
+    VectorParamsBuilder::new(1, Distance::Cosine)
+        .memory(Memory::Cold)
+        .build();
+    ProductQuantizationBuilder::new(1)
+        .memory(Memory::Pinned)
+        .build();
+    BinaryQuantizationBuilder::default()
+        .memory(Memory::Pinned)
+        .build();
+    TurboQuantizationBuilder::new()
+        .memory(Memory::Pinned)
+        .build();
+    KeywordIndexParamsBuilder::default()
+        .prefix(true)
+        .memory(Memory::Cached)
+        .build();
+    IntegerIndexParamsBuilder::new(true, true)
+        .memory(Memory::Cached)
+        .build();
+    TextIndexParamsBuilder::new(TokenizerType::Word)
+        .disabled_stemmer()
+        .memory(Memory::Cached)
+        .build();
 }

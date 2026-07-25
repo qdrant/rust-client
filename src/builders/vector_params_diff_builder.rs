@@ -10,6 +10,8 @@ pub struct VectorParamsDiffBuilder {
     quantization_config: Option<quantization_config_diff::Quantization>,
     /// If true - serve vectors from disk. If set to false, the vectors will be loaded in RAM.
     pub(crate) on_disk: Option<Option<bool>>,
+    /// Memory placement of the original vector storage.
+    pub(crate) memory: Option<Option<i32>>,
 }
 
 impl VectorParamsDiffBuilder {
@@ -31,17 +33,29 @@ impl VectorParamsDiffBuilder {
         new
     }
     /// If true - serve vectors from disk. If set to false, the vectors will be loaded in RAM.
+    ///
+    /// Deprecated since 1.19.0, use [`memory`](Self::memory) instead.
     pub fn on_disk(self, value: bool) -> Self {
         let mut new = self;
         new.on_disk = Option::Some(Option::Some(value));
         new
     }
+    /// Memory placement of the original vector storage.
+    /// Overrides the deprecated `on_disk` flag if both are set.
+    /// [`Memory::Pinned`] is not supported for dense vector storage.
+    pub fn memory<VALUE: core::convert::Into<i32>>(self, value: VALUE) -> Self {
+        let mut new = self;
+        new.memory = Option::Some(Option::Some(value.into()));
+        new
+    }
 
+    #[allow(deprecated)]
     fn build_inner(self) -> Result<VectorParamsDiff, std::convert::Infallible> {
         Ok(VectorParamsDiff {
             hnsw_config: self.hnsw_config.unwrap_or_default(),
             quantization_config: { convert_option(&self.quantization_config) },
             on_disk: self.on_disk.unwrap_or_default(),
+            memory: self.memory.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -50,6 +64,7 @@ impl VectorParamsDiffBuilder {
             hnsw_config: core::default::Default::default(),
             quantization_config: core::default::Default::default(),
             on_disk: core::default::Default::default(),
+            memory: core::default::Default::default(),
         }
     }
 }

@@ -20,12 +20,12 @@ use crate::qdrant::{
     PayloadIncludeSelector, PointId, PointsIdsList, PointsSelector, PointsUpdateOperation,
     ProductQuantization, ProductQuantizationBuilder, QuantizationConfig, QuantizationConfigDiff,
     ReadConsistency, RenameAlias, Replica, ReplicateShard, ReplicateShardBuilder, RestartTransfer,
-    ScalarQuantization, ScalarQuantizationBuilder, ShardKey, ShardKeySelector, SparseIndexConfig,
-    SparseVectorCreationConfig, SparseVectorCreationConfigBuilder, SparseVectorParams, StartFrom,
-    Struct, TargetVector, TurboQuantization, TurboQuantizationBuilder, Value, Vector,
-    VectorExample, VectorParams, VectorParamsBuilder, VectorParamsDiff, VectorParamsDiffBuilder,
-    VectorParamsDiffMap, VectorParamsMap, VectorsConfig, VectorsConfigDiff, VectorsSelector,
-    WithPayloadSelector, WithVectorsSelector,
+    ScalarQuantization, ScalarQuantizationBuilder, ShardKey, ShardKeySelector, SliceCondition,
+    SparseIndexConfig, SparseVectorCreationConfig, SparseVectorCreationConfigBuilder,
+    SparseVectorParams, StartFrom, Struct, TargetVector, TurboQuantization,
+    TurboQuantizationBuilder, Value, Vector, VectorExample, VectorParams, VectorParamsBuilder,
+    VectorParamsDiff, VectorParamsDiffBuilder, VectorParamsDiffMap, VectorParamsMap, VectorsConfig,
+    VectorsConfigDiff, VectorsSelector, WithPayloadSelector, WithVectorsSelector,
 };
 
 impl From<Vec<PointId>> for PointsSelector {
@@ -407,6 +407,12 @@ impl From<IsNullCondition> for condition::ConditionOneOf {
 impl From<NestedCondition> for condition::ConditionOneOf {
     fn from(value: NestedCondition) -> Self {
         Self::Nested(value)
+    }
+}
+
+impl From<SliceCondition> for condition::ConditionOneOf {
+    fn from(value: SliceCondition) -> Self {
+        Self::Slice(value)
     }
 }
 
