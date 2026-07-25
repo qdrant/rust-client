@@ -7,6 +7,8 @@ pub struct ProductQuantizationBuilder {
     pub(crate) compression: Option<i32>,
     /// If true - quantized vectors always will be stored in RAM, ignoring the config of main storage
     pub(crate) always_ram: Option<Option<bool>>,
+    /// Memory placement of quantized vectors.
+    pub(crate) memory: Option<Option<i32>>,
 }
 
 impl ProductQuantizationBuilder {
@@ -17,12 +19,21 @@ impl ProductQuantizationBuilder {
         new
     }
     /// If true - quantized vectors always will be stored in RAM, ignoring the config of main storage
+    #[deprecated(since = "1.19.0", note = "use `memory` instead")]
     pub fn always_ram(self, value: bool) -> Self {
         let mut new = self;
         new.always_ram = Option::Some(Option::Some(value));
         new
     }
+    /// Memory placement of quantized vectors.
+    /// Overrides the deprecated `always_ram` flag if both are set.
+    pub fn memory<VALUE: core::convert::Into<i32>>(self, value: VALUE) -> Self {
+        let mut new = self;
+        new.memory = Option::Some(Option::Some(value.into()));
+        new
+    }
 
+    #[allow(deprecated)]
     fn build_inner(self) -> Result<ProductQuantization, ProductQuantizationBuilderError> {
         Ok(ProductQuantization {
             compression: match self.compression {
@@ -34,6 +45,7 @@ impl ProductQuantizationBuilder {
                 }
             },
             always_ram: self.always_ram.unwrap_or_default(),
+            memory: self.memory.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -41,6 +53,7 @@ impl ProductQuantizationBuilder {
         Self {
             compression: core::default::Default::default(),
             always_ram: core::default::Default::default(),
+            memory: core::default::Default::default(),
         }
     }
 }

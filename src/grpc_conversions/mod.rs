@@ -15,17 +15,18 @@ use crate::qdrant::{
     AbortShardTransfer, AbortShardTransferBuilder, AliasOperations, BinaryQuantization,
     BinaryQuantizationBuilder, Condition, CreateAlias, CreateShardKey, DeleteAlias, DeleteShardKey,
     DenseVectorCreationConfig, DenseVectorCreationConfigBuilder, Disabled, FieldCondition, Filter,
-    GeoLineString, GeoPoint, GroupId, HasIdCondition, IsEmptyCondition, IsNullCondition, ListValue,
-    Match, MoveShard, MoveShardBuilder, NestedCondition, PayloadExcludeSelector,
-    PayloadIncludeSelector, PointId, PointsIdsList, PointsSelector, PointsUpdateOperation,
-    ProductQuantization, ProductQuantizationBuilder, QuantizationConfig, QuantizationConfigDiff,
-    ReadConsistency, RenameAlias, Replica, ReplicateShard, ReplicateShardBuilder, RestartTransfer,
-    ScalarQuantization, ScalarQuantizationBuilder, ShardKey, ShardKeySelector, SparseIndexConfig,
-    SparseVectorCreationConfig, SparseVectorCreationConfigBuilder, SparseVectorParams, StartFrom,
-    Struct, TargetVector, TurboQuantization, TurboQuantizationBuilder, Value, Vector,
-    VectorExample, VectorParams, VectorParamsBuilder, VectorParamsDiff, VectorParamsDiffBuilder,
-    VectorParamsDiffMap, VectorParamsMap, VectorsConfig, VectorsConfigDiff, VectorsSelector,
-    WithPayloadSelector, WithVectorsSelector,
+    GeoLineString, GeoPoint, GroupId, HasIdCondition, IdfParams, IsEmptyCondition, IsNullCondition,
+    ListValue, Match, Memory, MoveShard, MoveShardBuilder, NestedCondition, PayloadExcludeSelector,
+    PayloadIncludeSelector, PayloadStorageParams, PointId, PointsIdsList, PointsSelector,
+    PointsUpdateOperation, ProductQuantization, ProductQuantizationBuilder, QuantizationConfig,
+    QuantizationConfigDiff, ReadConsistency, RenameAlias, Replica, ReplicateShard,
+    ReplicateShardBuilder, RestartTransfer, ScalarQuantization, ScalarQuantizationBuilder,
+    ShardKey, ShardKeySelector, SliceCondition, SparseIndexConfig, SparseVectorCreationConfig,
+    SparseVectorCreationConfigBuilder, SparseVectorParams, StartFrom, Struct, TargetVector,
+    TurboQuantization, TurboQuantizationBuilder, Value, Vector, VectorExample, VectorParams,
+    VectorParamsBuilder, VectorParamsDiff, VectorParamsDiffBuilder, VectorParamsDiffMap,
+    VectorParamsMap, VectorsConfig, VectorsConfigDiff, VectorsSelector, WithPayloadSelector,
+    WithVectorsSelector,
 };
 
 impl From<Vec<PointId>> for PointsSelector {
@@ -410,6 +411,12 @@ impl From<NestedCondition> for condition::ConditionOneOf {
     }
 }
 
+impl From<SliceCondition> for condition::ConditionOneOf {
+    fn from(value: SliceCondition) -> Self {
+        Self::Slice(value)
+    }
+}
+
 impl From<Vec<PointId>> for HasIdCondition {
     fn from(value: Vec<PointId>) -> Self {
         Self { has_id: value }
@@ -521,6 +528,22 @@ impl From<BinaryQuantizationBuilder> for quantization_config::Quantization {
 impl From<TurboQuantizationBuilder> for quantization_config::Quantization {
     fn from(value: TurboQuantizationBuilder) -> Self {
         Self::Turboquant(value.build())
+    }
+}
+
+impl From<Memory> for PayloadStorageParams {
+    fn from(value: Memory) -> Self {
+        Self {
+            memory: Some(value.into()),
+        }
+    }
+}
+
+impl From<Filter> for IdfParams {
+    fn from(value: Filter) -> Self {
+        Self {
+            corpus: Some(value),
+        }
     }
 }
 

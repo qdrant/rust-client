@@ -7,6 +7,8 @@ pub struct BoolIndexParamsBuilder {
     pub(crate) on_disk: Option<Option<bool>>,
     /// If true - enable HNSW index for this field.
     pub(crate) enable_hnsw: Option<Option<bool>>,
+    /// Memory placement of the index.
+    pub(crate) memory: Option<Option<i32>>,
 }
 
 impl Default for BoolIndexParamsBuilder {
@@ -21,6 +23,7 @@ impl BoolIndexParamsBuilder {
     }
 
     /// If true - store index on disk.
+    #[deprecated(since = "1.19.0", note = "use `memory` instead")]
     pub fn on_disk(self, value: bool) -> Self {
         let mut new = self;
         new.on_disk = Option::Some(Option::Some(value));
@@ -32,11 +35,20 @@ impl BoolIndexParamsBuilder {
         new.enable_hnsw = Option::Some(Option::Some(value));
         new
     }
+    /// Memory placement of the index.
+    /// Overrides the deprecated `on_disk` flag if both are set.
+    pub fn memory<VALUE: core::convert::Into<i32>>(self, value: VALUE) -> Self {
+        let mut new = self;
+        new.memory = Option::Some(Option::Some(value.into()));
+        new
+    }
 
+    #[allow(deprecated)]
     fn build_inner(self) -> Result<BoolIndexParams, std::convert::Infallible> {
         Ok(BoolIndexParams {
             on_disk: self.on_disk.unwrap_or_default(),
             enable_hnsw: self.enable_hnsw.unwrap_or_default(),
+            memory: self.memory.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -44,6 +56,7 @@ impl BoolIndexParamsBuilder {
         Self {
             on_disk: core::default::Default::default(),
             enable_hnsw: core::default::Default::default(),
+            memory: core::default::Default::default(),
         }
     }
 }

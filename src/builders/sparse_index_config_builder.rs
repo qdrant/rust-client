@@ -13,6 +13,9 @@ pub struct SparseIndexConfigBuilder {
     ///
     /// Datatype used to store weights in the index.
     pub(crate) datatype: Option<Option<i32>>,
+    ///
+    /// Memory placement of the index.
+    pub(crate) memory: Option<Option<i32>>,
 }
 
 impl SparseIndexConfigBuilder {
@@ -26,6 +29,7 @@ impl SparseIndexConfigBuilder {
     }
     ///
     /// Store inverted index on disk. If set to false, the index will be stored in RAM.
+    #[deprecated(since = "1.19.0", note = "use `memory` instead")]
     pub fn on_disk(self, value: bool) -> Self {
         let mut new = self;
         new.on_disk = Option::Some(Option::Some(value));
@@ -38,12 +42,22 @@ impl SparseIndexConfigBuilder {
         new.datatype = Option::Some(Option::Some(value.into()));
         new
     }
+    ///
+    /// Memory placement of the index.
+    /// Overrides the deprecated `on_disk` flag if both are set.
+    pub fn memory<VALUE: core::convert::Into<i32>>(self, value: VALUE) -> Self {
+        let mut new = self;
+        new.memory = Option::Some(Option::Some(value.into()));
+        new
+    }
 
+    #[allow(deprecated)]
     fn build_inner(self) -> Result<SparseIndexConfig, std::convert::Infallible> {
         Ok(SparseIndexConfig {
             full_scan_threshold: self.full_scan_threshold.unwrap_or_default(),
             on_disk: self.on_disk.unwrap_or_default(),
             datatype: self.datatype.unwrap_or_default(),
+            memory: self.memory.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -52,6 +66,7 @@ impl SparseIndexConfigBuilder {
             full_scan_threshold: core::default::Default::default(),
             on_disk: core::default::Default::default(),
             datatype: core::default::Default::default(),
+            memory: core::default::Default::default(),
         }
     }
 }

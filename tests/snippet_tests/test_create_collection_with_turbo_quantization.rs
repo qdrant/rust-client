@@ -3,7 +3,7 @@
 async fn test_create_collection_with_turbo_quantization() {
     async fn create_collection_with_turbo_quantization() -> Result<(), Box<dyn std::error::Error>> {
         use qdrant_client::qdrant::{
-            CreateCollectionBuilder, Distance, TurboQuantBitSize, TurboQuantizationBuilder,
+            CreateCollectionBuilder, Distance, Memory, TurboQuantBitSize, TurboQuantizationBuilder,
             VectorParamsBuilder,
         };
         use qdrant_client::Qdrant;
@@ -17,7 +17,7 @@ async fn test_create_collection_with_turbo_quantization() {
                     .quantization_config(
                         TurboQuantizationBuilder::new()
                             .bits(TurboQuantBitSize::Bits2)
-                            .always_ram(true),
+                            .memory(Memory::Pinned),
                     ),
             )
             .await?;

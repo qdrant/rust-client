@@ -22,6 +22,8 @@ pub struct TextIndexParamsBuilder {
     pub(crate) ascii_folding: Option<Option<bool>>,
     /// If true - enable HNSW index for this field.
     pub(crate) enable_hnsw: Option<Option<bool>>,
+    /// Memory placement of the index.
+    pub(crate) memory: Option<Option<i32>>,
 }
 
 impl TextIndexParamsBuilder {
@@ -56,6 +58,7 @@ impl TextIndexParamsBuilder {
         new
     }
     /// If true - store index on disk.
+    #[deprecated(since = "1.19.0", note = "use `memory` instead")]
     pub fn on_disk(self, value: bool) -> Self {
         let mut new = self;
         new.on_disk = Option::Some(Option::Some(value));
@@ -99,6 +102,18 @@ impl TextIndexParamsBuilder {
         new
     }
 
+    /// Explicitly disable stemming, overriding the language default
+    pub fn disabled_stemmer(self) -> Self {
+        let mut new = self;
+        let stemmer = StemmingAlgorithm {
+            stemming_params: Some(stemming_algorithm::StemmingParams::Disabled(
+                DisabledStemmer {},
+            )),
+        };
+        new.stemmer = Some(Some(stemmer));
+        new
+    }
+
     /// Set an algorithm for stemming.
     pub fn stemmer(self, stemming_params: stemming_algorithm::StemmingParams) -> Self {
         let mut new = self;
@@ -123,6 +138,15 @@ impl TextIndexParamsBuilder {
         new
     }
 
+    /// Memory placement of the index.
+    /// Overrides the deprecated `on_disk` flag if both are set.
+    pub fn memory<VALUE: core::convert::Into<i32>>(self, value: VALUE) -> Self {
+        let mut new = self;
+        new.memory = Option::Some(Option::Some(value.into()));
+        new
+    }
+
+    #[allow(deprecated)]
     fn build_inner(self) -> Result<TextIndexParams, TextIndexParamsBuilderError> {
         Ok(TextIndexParams {
             tokenizer: match self.tokenizer {
@@ -142,6 +166,7 @@ impl TextIndexParamsBuilder {
             stemmer: self.stemmer.unwrap_or_default(),
             ascii_folding: self.ascii_folding.unwrap_or_default(),
             enable_hnsw: self.enable_hnsw.unwrap_or_default(),
+            memory: self.memory.unwrap_or_default(),
         })
     }
 
@@ -158,6 +183,7 @@ impl TextIndexParamsBuilder {
             stemmer: Default::default(),
             ascii_folding: Default::default(),
             enable_hnsw: Default::default(),
+            memory: Default::default(),
         }
     }
 }
