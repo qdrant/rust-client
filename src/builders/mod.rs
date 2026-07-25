@@ -52,6 +52,12 @@ pub use delete_collection_builder::DeleteCollectionBuilder;
 mod collection_params_diff_builder;
 pub use collection_params_diff_builder::CollectionParamsDiffBuilder;
 
+mod payload_storage_params_builder;
+pub use payload_storage_params_builder::PayloadStorageParamsBuilder;
+
+mod idf_params_builder;
+pub use idf_params_builder::IdfParamsBuilder;
+
 mod keyword_index_params_builder;
 pub use keyword_index_params_builder::KeywordIndexParamsBuilder;
 

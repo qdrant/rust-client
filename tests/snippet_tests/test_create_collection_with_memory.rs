@@ -4,7 +4,7 @@ async fn test_create_collection_with_memory() {
     async fn create_collection_with_memory() -> Result<(), Box<dyn std::error::Error>> {
         use qdrant_client::qdrant::{
             CreateCollectionBuilder, Distance, HnswConfigDiffBuilder, Memory,
-            PayloadStorageParams, ScalarQuantizationBuilder, VectorParamsBuilder,
+            PayloadStorageParamsBuilder, ScalarQuantizationBuilder, VectorParamsBuilder,
         };
         use qdrant_client::Qdrant;
 
@@ -27,7 +27,7 @@ async fn test_create_collection_with_memory() {
                         ScalarQuantizationBuilder::default().memory(Memory::Pinned),
                     )
                     // Serve the payload from disk
-                    .payload(PayloadStorageParams::from(Memory::Cold)),
+                    .payload(PayloadStorageParamsBuilder::default().memory(Memory::Cold)),
             )
             .await?;
         Ok(())

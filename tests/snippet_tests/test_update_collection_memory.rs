@@ -3,7 +3,7 @@
 async fn test_update_collection_memory() {
     async fn update_collection_memory() -> Result<(), Box<dyn std::error::Error>> {
         use qdrant_client::qdrant::{
-            vectors_config_diff, CollectionParamsDiffBuilder, Memory, PayloadStorageParams,
+            vectors_config_diff, CollectionParamsDiffBuilder, Memory, PayloadStorageParamsBuilder,
             StrictModeConfigBuilder, UpdateCollectionBuilder, VectorParamsDiffBuilder,
         };
         use qdrant_client::Qdrant;
@@ -16,7 +16,7 @@ async fn test_update_collection_memory() {
                     // Move the payload storage into RAM
                     .params(
                         CollectionParamsDiffBuilder::default()
-                            .payload(PayloadStorageParams::from(Memory::Cached)),
+                            .payload(PayloadStorageParamsBuilder::default().memory(Memory::Cached)),
                     )
                     // Move the original vectors to disk
                     .vectors_config(vectors_config_diff::Config::from(

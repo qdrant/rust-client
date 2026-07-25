@@ -3,7 +3,7 @@
 async fn test_query_points_with_idf_corpus() {
     async fn query_points_with_idf_corpus() -> Result<(), Box<dyn std::error::Error>> {
         use qdrant_client::qdrant::{
-            Condition, Filter, IdfParams, QueryPointsBuilder, SearchParamsBuilder,
+            Condition, Filter, IdfParamsBuilder, QueryPointsBuilder, SearchParamsBuilder,
         };
         use qdrant_client::Qdrant;
 
@@ -20,9 +20,12 @@ async fn test_query_points_with_idf_corpus() {
                         "tenant_id",
                         "tenant_1".to_string(),
                     )]))
-                    .params(SearchParamsBuilder::default().idf(IdfParams::from(
-                        Filter::must([Condition::matches("tenant_id", "tenant_1".to_string())]),
-                    )))
+                    .params(SearchParamsBuilder::default().idf(
+                        IdfParamsBuilder::default().corpus(Filter::must([Condition::matches(
+                            "tenant_id",
+                            "tenant_1".to_string(),
+                        )])),
+                    ))
                     .limit(10u64),
             )
             .await?;
