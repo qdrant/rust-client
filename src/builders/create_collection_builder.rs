@@ -78,7 +78,8 @@ impl CreateCollectionBuilder {
         new
     }
     /// If true - point's payload will not be stored in memory
-    #[deprecated(since = "1.19.0", note = "use `payload` instead")]
+    ///
+    /// Deprecated since 1.19.0, use [`payload`](Self::payload) instead.
     pub fn on_disk_payload(self, value: bool) -> Self {
         let mut new = self;
         new.on_disk_payload = Option::Some(Option::Some(value));

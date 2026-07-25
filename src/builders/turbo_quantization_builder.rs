@@ -12,7 +12,8 @@ pub struct TurboQuantizationBuilder {
 
 impl TurboQuantizationBuilder {
     /// If true - quantized vectors always will be stored in RAM, ignoring the config of main storage
-    #[deprecated(since = "1.19.0", note = "use `memory` instead")]
+    ///
+    /// Deprecated since 1.19.0, use [`memory`](Self::memory) instead.
     pub fn always_ram(self, value: bool) -> Self {
         let mut new = self;
         new.always_ram = Some(Some(value));
