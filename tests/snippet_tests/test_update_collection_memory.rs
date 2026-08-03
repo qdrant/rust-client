@@ -4,7 +4,7 @@ async fn test_update_collection_memory() {
     async fn update_collection_memory() -> Result<(), Box<dyn std::error::Error>> {
         use qdrant_client::qdrant::{
             vectors_config_diff, CollectionParamsDiffBuilder, Memory, PayloadStorageParamsBuilder,
-            StrictModeConfigBuilder, UpdateCollectionBuilder, VectorParamsDiffBuilder,
+            UpdateCollectionBuilder, VectorParamsDiffBuilder,
         };
         use qdrant_client::Qdrant;
 
@@ -21,13 +21,7 @@ async fn test_update_collection_memory() {
                     // Move the original vectors to disk
                     .vectors_config(vectors_config_diff::Config::from(
                         VectorParamsDiffBuilder::default().memory(Memory::Cold),
-                    ))
-                    // Reject updates once the storage filesystem is 90% full
-                    .strict_mode_config(
-                        StrictModeConfigBuilder::default()
-                            .enabled(true)
-                            .max_disk_usage_percent(90),
-                    ),
+                    )),
             )
             .await?;
         Ok(())
