@@ -39,6 +39,9 @@ impl Qdrant {
     /// ```
     ///
     /// Documentation: <https://qdrant.tech/documentation/concepts/search/#search-api>
+    ///
+    /// Deprecated since 1.20.0, use [`query`](Qdrant::query) instead.
+    #[allow(deprecated)]
     pub async fn search_points(
         &self,
         request: impl Into<SearchPoints>,
@@ -79,6 +82,9 @@ impl Qdrant {
     /// ```
     ///
     /// Documentation: <https://qdrant.tech/documentation/concepts/search/#batch-search-api>
+    ///
+    /// Deprecated since 1.20.0, use [`query_batch`](Qdrant::query_batch) instead.
+    #[allow(deprecated)]
     pub async fn search_batch_points(
         &self,
         request: impl Into<SearchBatchPoints>,
@@ -114,6 +120,9 @@ impl Qdrant {
     /// ```
     ///
     /// Documentation: <https://qdrant.tech/documentation/concepts/search/#search-groups>
+    ///
+    /// Deprecated since 1.20.0, use [`query_groups`](Qdrant::query_groups) instead.
+    #[allow(deprecated)]
     pub async fn search_groups(
         &self,
         request: impl Into<SearchPointGroups>,
@@ -155,6 +164,10 @@ impl Qdrant {
     /// ```
     ///
     /// Documentation: <https://qdrant.tech/documentation/concepts/explore/#recommendation-api>
+    ///
+    /// Deprecated since 1.20.0, use [`query`](Qdrant::query) with a
+    /// [`RecommendInput`](crate::qdrant::RecommendInput) query instead.
+    #[allow(deprecated)]
     pub async fn recommend(
         &self,
         request: impl Into<RecommendPoints>,
@@ -204,6 +217,10 @@ impl Qdrant {
     /// ```
     ///
     /// Documentation: <https://qdrant.tech/documentation/concepts/explore/#batch-recommendation-api>
+    ///
+    /// Deprecated since 1.20.0, use [`query_batch`](Qdrant::query_batch) with
+    /// [`RecommendInput`](crate::qdrant::RecommendInput) queries instead.
+    #[allow(deprecated)]
     pub async fn recommend_batch(
         &self,
         request: impl Into<RecommendBatchPoints>,
@@ -244,6 +261,10 @@ impl Qdrant {
     /// ```
     ///
     /// Documentation: <https://qdrant.tech/documentation/concepts/explore/#recommendation-api>
+    ///
+    /// Deprecated since 1.20.0, use [`query_groups`](Qdrant::query_groups) with a
+    /// [`RecommendInput`](crate::qdrant::RecommendInput) query instead.
+    #[allow(deprecated)]
     pub async fn recommend_groups(
         &self,
         request: impl Into<RecommendPointGroups>,
@@ -294,6 +315,11 @@ impl Qdrant {
     /// ```
     ///
     /// Documentation: <https://qdrant.tech/documentation/concepts/explore/#discovery-api>
+    ///
+    /// Deprecated since 1.20.0, use [`query`](Qdrant::query) with a
+    /// [`DiscoverInput`](crate::qdrant::DiscoverInput) or
+    /// [`ContextInput`](crate::qdrant::ContextInput) query instead.
+    #[allow(deprecated)]
     pub async fn discover(
         &self,
         request: impl Into<DiscoverPoints>,
@@ -360,6 +386,11 @@ impl Qdrant {
     /// ```
     ///
     /// Documentation: <https://qdrant.tech/documentation/concepts/explore/#discovery-api>
+    ///
+    /// Deprecated since 1.20.0, use [`query_batch`](Qdrant::query_batch) with
+    /// [`DiscoverInput`](crate::qdrant::DiscoverInput) or
+    /// [`ContextInput`](crate::qdrant::ContextInput) queries instead.
+    #[allow(deprecated)]
     pub async fn discover_batch(
         &self,
         request: &DiscoverBatchPoints,
