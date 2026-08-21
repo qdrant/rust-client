@@ -1,0 +1,27 @@
+[package]
+name = "web-integrations-examples"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[workspace]
+
+[dependencies]
+qdrant-client = { path = "../../", features = ["serde"] }
+actix-web = "4.12.1"
+axum = "0.8.7"
+rocket = { version = "0.5.1", features = ["json"] }
+serde_json = "1.0.128"
+tokio = { version = "1.40.0", features = ["rt-multi-thread", "macros", "net"] }
+
+[[bin]]
+name = "actix_web"
+path = "src/actix_web.rs"
+
+[[bin]]
+name = "axum"
+path = "src/axum.rs"
+
+[[bin]]
+name = "rocket"
+path = "src/rocket.rs"
