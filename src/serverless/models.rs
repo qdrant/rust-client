@@ -1,5 +1,8 @@
 //! Public models for the Qdrant Serverless collection management API.
 //!
+//! **In development — do not use yet.** Part of the experimental serverless client;
+//! the API may change without notice.
+//!
 //! These mirror the tenant-facing serverless config: unlike the regular client's
 //! collection models, they deliberately expose no storage internals (quantization,
 //! WAL, segments, on-disk placement, ...) — the serverless manager decides those.

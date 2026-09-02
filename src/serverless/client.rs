@@ -1,5 +1,8 @@
 //! Client for Qdrant Serverless.
 //!
+//! **In development — do not use yet.** This API is experimental and unstable;
+//! it may change without notice and is not ready for production or general use.
+//!
 //! Serverless exposes the same point-level API as a regular Qdrant cluster (minus
 //! read consistency, shard selection, write ordering and filtered updates), but a
 //! much simpler, tenant-facing collection management API. Point operations are
@@ -36,6 +39,9 @@ use crate::Qdrant;
 pub const DEFAULT_SERVERLESS_GRPC_PORT: u16 = 443;
 
 /// Entry point to a Qdrant Serverless space.
+///
+/// **In development — do not use yet.** This client is experimental and unstable;
+/// the API may change without notice and is not ready for production or general use.
 ///
 /// Point operations behave like in the regular [`Qdrant`] client, except that
 /// parameters serverless does not support (read consistency, shard selection,
