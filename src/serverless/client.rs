@@ -231,7 +231,10 @@ impl QdrantServerless {
     /// Deletes a collection and all of its data.
     ///
     /// Returns `true` if the collection existed and was deleted, `false` otherwise.
-    pub async fn delete_collection(&self, collection_name: impl Into<String>) -> QdrantResult<bool> {
+    pub async fn delete_collection(
+        &self,
+        collection_name: impl Into<String>,
+    ) -> QdrantResult<bool> {
         let request = DeleteCollectionRequest {
             collection_name: collection_name.into(),
         };
@@ -272,7 +275,10 @@ impl QdrantServerless {
     }
 
     /// Checks whether a collection exists.
-    pub async fn collection_exists(&self, collection_name: impl Into<String>) -> QdrantResult<bool> {
+    pub async fn collection_exists(
+        &self,
+        collection_name: impl Into<String>,
+    ) -> QdrantResult<bool> {
         Ok(self.get_collection(collection_name).await?.exists)
     }
 

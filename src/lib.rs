@@ -144,10 +144,10 @@ mod grpc_macros;
 mod manual_builder;
 mod payload;
 mod qdrant_client;
-/// Client for Qdrant Serverless
-pub mod serverless;
 #[cfg(feature = "serde")]
 mod serde_impl;
+/// Client for Qdrant Serverless
+pub mod serverless;
 
 #[cfg(feature = "serde")]
 pub mod serde_deser;

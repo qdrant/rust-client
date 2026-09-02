@@ -16,11 +16,10 @@ use qdrant_client::{Payload, QdrantError};
 
 #[tokio::main]
 async fn main() -> Result<(), QdrantError> {
-    let client = QdrantServerless::from_url(
-        "https://serverless.plush-volt.aws.development-cloud.qdrant.io",
-    )
-    .api_key("<your api key>")
-    .build()?;
+    let client =
+        QdrantServerless::from_url("https://serverless.plush-volt.aws.development-cloud.qdrant.io")
+            .api_key("<your api key>")
+            .build()?;
 
     let collection_name = "my-collection";
 

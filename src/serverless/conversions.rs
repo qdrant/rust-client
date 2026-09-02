@@ -160,9 +160,7 @@ pub(crate) fn payload_index_from_grpc(
     grpc_model: &PayloadIndexConfig,
 ) -> Result<PayloadIndex, QdrantError> {
     match grpc_model.index.as_ref() {
-        Some(payload_index_config::Index::Keyword(_)) => {
-            Ok(PayloadIndex::Keyword(KeywordIndex))
-        }
+        Some(payload_index_config::Index::Keyword(_)) => Ok(PayloadIndex::Keyword(KeywordIndex)),
         Some(payload_index_config::Index::Integer(integer)) => {
             Ok(PayloadIndex::Integer(IntegerIndex {
                 lookup: integer.lookup,
@@ -171,9 +169,7 @@ pub(crate) fn payload_index_from_grpc(
         }
         Some(payload_index_config::Index::Float(_)) => Ok(PayloadIndex::Float(FloatIndex)),
         Some(payload_index_config::Index::Uuid(_)) => Ok(PayloadIndex::Uuid(UuidIndex)),
-        Some(payload_index_config::Index::Datetime(_)) => {
-            Ok(PayloadIndex::Datetime(DatetimeIndex))
-        }
+        Some(payload_index_config::Index::Datetime(_)) => Ok(PayloadIndex::Datetime(DatetimeIndex)),
         Some(payload_index_config::Index::Text(text)) => Ok(PayloadIndex::Text(TextIndex {
             tokenizer: text
                 .tokenizer
@@ -258,9 +254,7 @@ mod tests {
             .payload_index("age", IntegerIndex::new().lookup(true).range(false))
             .payload_index(
                 "description",
-                TextIndex::new()
-                    .tokenizer(Tokenizer::Word)
-                    .lowercase(false),
+                TextIndex::new().tokenizer(Tokenizer::Word).lowercase(false),
             );
 
         let roundtrip = collection_config_from_grpc(&collection_config_to_grpc(&config)).unwrap();
