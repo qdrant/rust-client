@@ -146,6 +146,8 @@ mod payload;
 mod qdrant_client;
 #[cfg(feature = "serde")]
 mod serde_impl;
+/// Client for Qdrant Serverless (**in development — do not use yet**)
+pub mod serverless;
 
 #[cfg(feature = "serde")]
 pub mod serde_deser;
