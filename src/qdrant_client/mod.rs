@@ -190,8 +190,16 @@ impl Qdrant {
         QdrantBuilder::from_url(url)
     }
 
+    /// Shared connection pool (used by the serverless client for CollectionsService).
+    pub(crate) fn channel(&self) -> &Arc<ChannelPool> {
+        &self.channel
+    }
+
     /// Wraps a channel with a metadata interceptor (api key + custom headers)
-    fn with_api_key(&self, channel: Channel) -> InterceptedService<Channel, MetadataInterceptor> {
+    pub(crate) fn with_api_key(
+        &self,
+        channel: Channel,
+    ) -> InterceptedService<Channel, MetadataInterceptor> {
         let interceptor = MetadataInterceptor::new(
             self.config.api_key.clone(),
             self.config.custom_headers.clone(),
