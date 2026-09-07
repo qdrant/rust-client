@@ -110,10 +110,30 @@ impl SparseVectorConfig {
     }
 }
 
+/// Prefix matching options for a keyword index. Presence enables prefix matching.
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct KeywordPrefixParams;
+
 /// Exact match on string values, e.g. `color: "red"`.
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct KeywordIndex;
+pub struct KeywordIndex {
+    /// If set, enable prefix matching (`match: { "prefix": ... }`) on this field.
+    pub prefix: Option<KeywordPrefixParams>,
+}
+
+impl KeywordIndex {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Enable prefix matching on this keyword field.
+    pub fn with_prefix(mut self) -> Self {
+        self.prefix = Some(KeywordPrefixParams);
+        self
+    }
+}
 
 /// Exact match and/or range filters on integers. Both default to enabled.
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
@@ -154,6 +174,59 @@ pub struct UuidIndex;
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct DatetimeIndex;
 
+/// Tokens ignored by a full-text index.
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct StopwordsSet {
+    /// Languages whose predefined stopword lists to apply (e.g. `"english"`).
+    pub languages: Vec<String>,
+    /// Extra stopwords to ignore, merged with the language lists.
+    pub custom: Vec<String>,
+}
+
+impl StopwordsSet {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn languages(mut self, languages: impl IntoIterator<Item = impl Into<String>>) -> Self {
+        self.languages = languages.into_iter().map(Into::into).collect();
+        self
+    }
+
+    pub fn custom(mut self, custom: impl IntoIterator<Item = impl Into<String>>) -> Self {
+        self.custom = custom.into_iter().map(Into::into).collect();
+        self
+    }
+}
+
+/// Snowball stemming for a full-text index.
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct SnowballParams {
+    /// Language for the snowball algorithm, e.g. `"english"`.
+    pub language: String,
+}
+
+impl SnowballParams {
+    pub fn new(language: impl Into<String>) -> Self {
+        Self {
+            language: language.into(),
+        }
+    }
+}
+
+/// Stemming algorithm for a full-text index. Unset: no stemming.
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(rename_all = "snake_case"))]
+pub enum StemmingAlgorithm {
+    /// Snowball stemmer for the given language.
+    Snowball(SnowballParams),
+    /// Explicitly disable stemming.
+    Disabled,
+}
+
 /// Full-text filtering on string values.
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -163,6 +236,9 @@ pub struct TextIndex {
     pub phrase_matching: Option<bool>,
     pub min_token_len: Option<u64>,
     pub max_token_len: Option<u64>,
+    pub ascii_folding: Option<bool>,
+    pub stopwords: Option<StopwordsSet>,
+    pub stemmer: Option<StemmingAlgorithm>,
 }
 
 impl TextIndex {
@@ -192,6 +268,21 @@ impl TextIndex {
 
     pub fn max_token_len(mut self, max_token_len: u64) -> Self {
         self.max_token_len = Some(max_token_len);
+        self
+    }
+
+    pub fn ascii_folding(mut self, ascii_folding: bool) -> Self {
+        self.ascii_folding = Some(ascii_folding);
+        self
+    }
+
+    pub fn stopwords(mut self, stopwords: StopwordsSet) -> Self {
+        self.stopwords = Some(stopwords);
+        self
+    }
+
+    pub fn stemmer(mut self, stemmer: StemmingAlgorithm) -> Self {
+        self.stemmer = Some(stemmer);
         self
     }
 }
@@ -343,10 +434,80 @@ pub struct CollectionInfo {
     pub point_count: Option<u64>,
 }
 
+/// Request for [`super::QdrantServerless::list_collections`].
+///
+/// Defaults to the server page size (20, max 100). Pass `offset_token` from a
+/// previous response's `next_offset_token` to fetch the next page.
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct ListCollections {
+    /// Maximum number of collections to return. Unset: server default (20).
+    pub limit: Option<u32>,
+    /// Opaque token from a previous page's `next_offset_token`.
+    pub offset_token: Option<String>,
+}
+
+impl ListCollections {
+    /// Create an empty request (server defaults).
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+
+/// Builder for [`ListCollections`].
+#[must_use]
+#[derive(Clone, Default)]
+pub struct ListCollectionsBuilder {
+    limit: Option<u32>,
+    offset_token: Option<String>,
+}
+
+impl ListCollectionsBuilder {
+    /// Create an empty builder (server defaults).
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Maximum number of collections to return (must be 1..=100).
+    pub fn limit(mut self, limit: u32) -> Self {
+        self.limit = Some(limit);
+        self
+    }
+
+    /// Opaque token from a previous page's `next_offset_token`.
+    pub fn offset_token(mut self, offset_token: impl Into<String>) -> Self {
+        self.offset_token = Some(offset_token.into());
+        self
+    }
+
+    /// Build the [`ListCollections`] request.
+    pub fn build(self) -> ListCollections {
+        self.into()
+    }
+}
+
+impl From<ListCollectionsBuilder> for ListCollections {
+    fn from(builder: ListCollectionsBuilder) -> Self {
+        ListCollections {
+            limit: builder.limit,
+            offset_token: builder.offset_token,
+        }
+    }
+}
+
 /// One collection in a [`super::QdrantServerless::list_collections`] listing.
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CollectionSummary {
     pub collection_name: String,
     pub point_count: Option<u64>,
+}
+
+/// A page of collections returned by [`super::QdrantServerless::list_collections`].
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct CollectionsList {
+    pub collections: Vec<CollectionSummary>,
+    /// Opaque token to pass as `offset_token` for the next page. Absent when done.
+    pub next_offset_token: Option<String>,
 }
