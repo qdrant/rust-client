@@ -30,7 +30,9 @@ use crate::serverless::grpc::collections_service_client::CollectionsServiceClien
 use crate::serverless::grpc::{
     CreateCollectionRequest, DeleteCollectionRequest, GetCollectionRequest, ListCollectionsRequest,
 };
-use crate::serverless::models::{CollectionConfig, CollectionInfo, CollectionSummary};
+use crate::serverless::models::{
+    CollectionConfig, CollectionInfo, CollectionSummary, CollectionsList, ListCollections,
+};
 use crate::Qdrant;
 
 /// Default gRPC port for serverless when the URL omits an explicit port.
@@ -70,7 +72,7 @@ pub const DEFAULT_SERVERLESS_GRPC_PORT: u16 = 443;
 ///         "my-collection",
 ///         CollectionConfig::new()
 ///             .dense_vector(DenseVectorConfig::new(4, Distance::Cosine))
-///             .payload_index("color", KeywordIndex),
+///             .payload_index("color", KeywordIndex::new()),
 ///     )
 ///     .await?;
 ///
@@ -288,23 +290,51 @@ impl QdrantServerless {
         Ok(self.get_collection(collection_name).await?.exists)
     }
 
-    /// Lists the collections of the space.
+    /// Lists a page of collections in the space.
     ///
-    /// Returns summaries (name and eventually consistent point count), ordered by name.
-    pub async fn list_collections(&self) -> QdrantResult<Vec<CollectionSummary>> {
+    /// Defaults to the server page size (20, max 100). Pass `offset_token` from a
+    /// previous response's `next_offset_token` to fetch the next page.
+    ///
+    /// ```no_run
+    /// # use qdrant_client::serverless::{ListCollectionsBuilder, QdrantServerless};
+    /// # async fn run(client: QdrantServerless) -> Result<(), qdrant_client::QdrantError> {
+    /// let page = client
+    ///     .list_collections(ListCollectionsBuilder::new().limit(50))
+    ///     .await?;
+    /// if let Some(token) = page.next_offset_token {
+    ///     let next = client
+    ///         .list_collections(ListCollectionsBuilder::new().offset_token(token))
+    ///         .await?;
+    /// }
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn list_collections(
+        &self,
+        request: impl Into<ListCollections>,
+    ) -> QdrantResult<CollectionsList> {
+        let ListCollections {
+            limit,
+            offset_token,
+        } = request.into();
+        let request = ListCollectionsRequest {
+            limit,
+            offset_token,
+        };
+        let request = &request;
         self.with_collections_client(|mut api| async move {
-            let response = api
-                .list_collections(ListCollectionsRequest {})
-                .await?
-                .into_inner();
-            Ok(response
-                .collections
-                .into_iter()
-                .map(|c| CollectionSummary {
-                    collection_name: c.collection_name,
-                    point_count: c.point_count,
-                })
-                .collect())
+            let response = api.list_collections(request.clone()).await?.into_inner();
+            Ok(CollectionsList {
+                collections: response
+                    .collections
+                    .into_iter()
+                    .map(|c| CollectionSummary {
+                        collection_name: c.collection_name,
+                        point_count: c.point_count,
+                    })
+                    .collect(),
+                next_offset_token: response.next_offset_token,
+            })
         })
         .await
     }

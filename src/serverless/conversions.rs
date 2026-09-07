@@ -8,17 +8,20 @@
 
 use crate::qdrant_client::error::QdrantError;
 use crate::serverless::grpc::{
-    self, payload_index_config, BoolIndex as GrpcBoolIndex, DatetimeIndex as GrpcDatetimeIndex,
-    DenseVectorConfig as GrpcDenseVectorConfig, Distance as GrpcDistance,
-    FloatIndex as GrpcFloatIndex, GeoIndex as GrpcGeoIndex, IntegerIndex as GrpcIntegerIndex,
-    KeywordIndex as GrpcKeywordIndex, PayloadIndexConfig, PrecisionTier as GrpcPrecisionTier,
-    SparseVectorConfig as GrpcSparseVectorConfig, TextIndex as GrpcTextIndex,
-    Tokenizer as GrpcTokenizer, UuidIndex as GrpcUuidIndex,
+    self, payload_index_config, stemming_algorithm, BoolIndex as GrpcBoolIndex,
+    DatetimeIndex as GrpcDatetimeIndex, DenseVectorConfig as GrpcDenseVectorConfig,
+    DisabledStemmer as GrpcDisabledStemmer, Distance as GrpcDistance, FloatIndex as GrpcFloatIndex,
+    GeoIndex as GrpcGeoIndex, IntegerIndex as GrpcIntegerIndex, KeywordIndex as GrpcKeywordIndex,
+    KeywordPrefixParams as GrpcKeywordPrefixParams, PayloadIndexConfig,
+    PrecisionTier as GrpcPrecisionTier, SnowballParams as GrpcSnowballParams,
+    SparseVectorConfig as GrpcSparseVectorConfig, StemmingAlgorithm as GrpcStemmingAlgorithm,
+    StopwordsSet as GrpcStopwordsSet, TextIndex as GrpcTextIndex, Tokenizer as GrpcTokenizer,
+    UuidIndex as GrpcUuidIndex,
 };
 use crate::serverless::models::{
     BoolIndex, CollectionConfig, DatetimeIndex, DenseVectorConfig, Distance, FloatIndex, GeoIndex,
-    IntegerIndex, KeywordIndex, PayloadIndex, PrecisionTier, SparseVectorConfig, TextIndex,
-    Tokenizer, UuidIndex,
+    IntegerIndex, KeywordIndex, KeywordPrefixParams, PayloadIndex, PrecisionTier, SnowballParams,
+    SparseVectorConfig, StemmingAlgorithm, StopwordsSet, TextIndex, Tokenizer, UuidIndex,
 };
 
 fn distance_to_grpc(distance: Distance) -> GrpcDistance {
@@ -78,6 +81,55 @@ fn tokenizer_from_grpc(tokenizer: GrpcTokenizer) -> Result<Tokenizer, QdrantErro
         GrpcTokenizer::Multilingual => Ok(Tokenizer::Multilingual),
         GrpcTokenizer::Unspecified => Err(QdrantError::ConversionError(
             "serverless Tokenizer is unspecified".into(),
+        )),
+    }
+}
+
+fn stopwords_to_grpc(StopwordsSet { languages, custom }: &StopwordsSet) -> GrpcStopwordsSet {
+    GrpcStopwordsSet {
+        languages: languages.clone(),
+        custom: custom.clone(),
+    }
+}
+
+fn stopwords_from_grpc(GrpcStopwordsSet { languages, custom }: &GrpcStopwordsSet) -> StopwordsSet {
+    StopwordsSet {
+        languages: languages.clone(),
+        custom: custom.clone(),
+    }
+}
+
+fn stemmer_to_grpc(stemmer: &StemmingAlgorithm) -> GrpcStemmingAlgorithm {
+    match stemmer {
+        StemmingAlgorithm::Snowball(SnowballParams { language }) => GrpcStemmingAlgorithm {
+            stemming_params: Some(stemming_algorithm::StemmingParams::Snowball(
+                GrpcSnowballParams {
+                    language: language.clone(),
+                },
+            )),
+        },
+        StemmingAlgorithm::Disabled => GrpcStemmingAlgorithm {
+            stemming_params: Some(stemming_algorithm::StemmingParams::Disabled(
+                GrpcDisabledStemmer {},
+            )),
+        },
+    }
+}
+
+fn stemmer_from_grpc(
+    GrpcStemmingAlgorithm { stemming_params }: &GrpcStemmingAlgorithm,
+) -> Result<StemmingAlgorithm, QdrantError> {
+    match stemming_params {
+        Some(stemming_algorithm::StemmingParams::Snowball(GrpcSnowballParams { language })) => {
+            Ok(StemmingAlgorithm::Snowball(SnowballParams {
+                language: language.clone(),
+            }))
+        }
+        Some(stemming_algorithm::StemmingParams::Disabled(GrpcDisabledStemmer {})) => {
+            Ok(StemmingAlgorithm::Disabled)
+        }
+        None => Err(QdrantError::ConversionError(
+            "serverless StemmingAlgorithm has no stemming_params variant".into(),
         )),
     }
 }
@@ -156,8 +208,12 @@ pub(crate) fn sparse_vector_from_grpc(
 
 pub(crate) fn payload_index_to_grpc(model: &PayloadIndex) -> PayloadIndexConfig {
     let index = match model {
-        PayloadIndex::Keyword(KeywordIndex) => {
-            payload_index_config::Index::Keyword(GrpcKeywordIndex {})
+        PayloadIndex::Keyword(KeywordIndex { prefix }) => {
+            payload_index_config::Index::Keyword(GrpcKeywordIndex {
+                prefix: prefix
+                    .as_ref()
+                    .map(|KeywordPrefixParams| GrpcKeywordPrefixParams {}),
+            })
         }
         PayloadIndex::Integer(IntegerIndex { lookup, range }) => {
             payload_index_config::Index::Integer(GrpcIntegerIndex {
@@ -176,12 +232,18 @@ pub(crate) fn payload_index_to_grpc(model: &PayloadIndex) -> PayloadIndexConfig 
             phrase_matching,
             min_token_len,
             max_token_len,
+            ascii_folding,
+            stopwords,
+            stemmer,
         }) => payload_index_config::Index::Text(GrpcTextIndex {
             tokenizer: tokenizer.map(|t| tokenizer_to_grpc(t) as i32),
             lowercase: *lowercase,
             phrase_matching: *phrase_matching,
             min_token_len: *min_token_len,
             max_token_len: *max_token_len,
+            ascii_folding: *ascii_folding,
+            stopwords: stopwords.as_ref().map(stopwords_to_grpc),
+            stemmer: stemmer.as_ref().map(stemmer_to_grpc),
         }),
         PayloadIndex::Geo(GeoIndex) => payload_index_config::Index::Geo(GrpcGeoIndex {}),
         PayloadIndex::Bool(BoolIndex) => payload_index_config::Index::Bool(GrpcBoolIndex {}),
@@ -193,8 +255,12 @@ pub(crate) fn payload_index_from_grpc(
     PayloadIndexConfig { index }: &PayloadIndexConfig,
 ) -> Result<PayloadIndex, QdrantError> {
     match index.as_ref() {
-        Some(payload_index_config::Index::Keyword(GrpcKeywordIndex {})) => {
-            Ok(PayloadIndex::Keyword(KeywordIndex))
+        Some(payload_index_config::Index::Keyword(GrpcKeywordIndex { prefix })) => {
+            Ok(PayloadIndex::Keyword(KeywordIndex {
+                prefix: prefix
+                    .as_ref()
+                    .map(|GrpcKeywordPrefixParams {}| KeywordPrefixParams),
+            }))
         }
         Some(payload_index_config::Index::Integer(GrpcIntegerIndex { lookup, range })) => {
             Ok(PayloadIndex::Integer(IntegerIndex {
@@ -217,6 +283,9 @@ pub(crate) fn payload_index_from_grpc(
             phrase_matching,
             min_token_len,
             max_token_len,
+            ascii_folding,
+            stopwords,
+            stemmer,
         })) => Ok(PayloadIndex::Text(TextIndex {
             tokenizer: tokenizer
                 .map(|t| {
@@ -229,6 +298,9 @@ pub(crate) fn payload_index_from_grpc(
             phrase_matching: *phrase_matching,
             min_token_len: *min_token_len,
             max_token_len: *max_token_len,
+            ascii_folding: *ascii_folding,
+            stopwords: stopwords.as_ref().map(stopwords_from_grpc),
+            stemmer: stemmer.as_ref().map(stemmer_from_grpc).transpose()?,
         })),
         Some(payload_index_config::Index::Geo(GrpcGeoIndex {})) => Ok(PayloadIndex::Geo(GeoIndex)),
         Some(payload_index_config::Index::Bool(GrpcBoolIndex {})) => {
@@ -302,11 +374,16 @@ mod tests {
                     .precision_tier(PrecisionTier::Low),
             )
             .named_sparse_vector("bm25", SparseVectorConfig::new().use_idf(true))
-            .payload_index("user_id", KeywordIndex)
+            .payload_index("user_id", KeywordIndex::new().with_prefix())
             .payload_index("age", IntegerIndex::new().lookup(true).range(false))
             .payload_index(
                 "description",
-                TextIndex::new().tokenizer(Tokenizer::Word).lowercase(false),
+                TextIndex::new()
+                    .tokenizer(Tokenizer::Word)
+                    .lowercase(false)
+                    .ascii_folding(true)
+                    .stopwords(StopwordsSet::new().languages(["english"]))
+                    .stemmer(StemmingAlgorithm::Snowball(SnowballParams::new("english"))),
             );
 
         let roundtrip = collection_config_from_grpc(&collection_config_to_grpc(&config)).unwrap();
@@ -318,6 +395,7 @@ mod tests {
         let config = CollectionConfig::new()
             .dense_vector(DenseVectorConfig::new(4, Distance::Euclid))
             .payload_index("age", IntegerIndex::new())
+            .payload_index("user_id", KeywordIndex::new())
             .payload_index("text", TextIndex::new());
 
         let grpc_config = collection_config_to_grpc(&config);
@@ -331,6 +409,13 @@ mod tests {
             }
             other => panic!("expected integer index, got {other:?}"),
         }
+        let keyword = grpc_config.payload_indexes.get("user_id").unwrap();
+        match keyword.index.as_ref().unwrap() {
+            payload_index_config::Index::Keyword(GrpcKeywordIndex { prefix }) => {
+                assert!(prefix.is_none());
+            }
+            other => panic!("expected keyword index, got {other:?}"),
+        }
         let text = grpc_config.payload_indexes.get("text").unwrap();
         match text.index.as_ref().unwrap() {
             payload_index_config::Index::Text(GrpcTextIndex {
@@ -339,12 +424,18 @@ mod tests {
                 phrase_matching,
                 min_token_len,
                 max_token_len,
+                ascii_folding,
+                stopwords,
+                stemmer,
             }) => {
                 assert!(tokenizer.is_none());
                 assert!(lowercase.is_none());
                 assert!(phrase_matching.is_none());
                 assert!(min_token_len.is_none());
                 assert!(max_token_len.is_none());
+                assert!(ascii_folding.is_none());
+                assert!(stopwords.is_none());
+                assert!(stemmer.is_none());
             }
             other => panic!("expected text index, got {other:?}"),
         }

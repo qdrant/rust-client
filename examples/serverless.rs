@@ -13,7 +13,8 @@
 
 use qdrant_client::qdrant::{PointStruct, QueryPointsBuilder, UpsertPointsBuilder};
 use qdrant_client::serverless::{
-    CollectionConfig, DenseVectorConfig, Distance, KeywordIndex, QdrantServerless,
+    CollectionConfig, DenseVectorConfig, Distance, KeywordIndex, ListCollectionsBuilder,
+    QdrantServerless,
 };
 use qdrant_client::{Payload, QdrantError};
 
@@ -38,12 +39,17 @@ async fn main() -> Result<(), QdrantError> {
             collection_name,
             CollectionConfig::new()
                 .dense_vector(DenseVectorConfig::new(4, Distance::Cosine))
-                .payload_index("color", KeywordIndex),
+                .payload_index("color", KeywordIndex::new()),
         )
         .await?;
     println!("create_collection: {result}");
 
-    println!("collections: {:?}", client.list_collections().await?);
+    println!(
+        "collections: {:?}",
+        client
+            .list_collections(ListCollectionsBuilder::new())
+            .await?
+    );
     println!("info: {:?}", client.get_collection(collection_name).await?);
 
     let points = vec![
