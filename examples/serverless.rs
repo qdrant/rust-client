@@ -38,12 +38,15 @@ async fn main() -> Result<(), QdrantError> {
             collection_name,
             CollectionConfig::new()
                 .dense_vector(DenseVectorConfig::new(4, Distance::Cosine))
-                .payload_index("color", KeywordIndex),
+                .payload_index("color", KeywordIndex::new()),
         )
         .await?;
     println!("create_collection: {result}");
 
-    println!("collections: {:?}", client.list_collections().await?);
+    println!(
+        "collections: {:?}",
+        client.list_collections(None, None).await?
+    );
     println!("info: {:?}", client.get_collection(collection_name).await?);
 
     let points = vec![

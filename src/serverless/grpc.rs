@@ -31,7 +31,16 @@ pub struct SparseVectorConfig {
 }
 /// Exact match on string values, e.g. `color: "red"`.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct KeywordIndex {}
+pub struct KeywordIndex {
+    /// If set, enable prefix matching (`match: { "prefix": ... }`) on this field.
+    /// Presence of this message enables prefix matching; it has no options yet.
+    #[prost(message, optional, tag = "1")]
+    pub prefix: ::core::option::Option<KeywordPrefixParams>,
+}
+/// Prefix matching options for the keyword index. Has no options yet:
+/// presence of this message enables prefix matching.
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct KeywordPrefixParams {}
 /// Exact match and/or range filters on integers, e.g. `age: 25`. Both are on
 /// by default; turning one off shrinks the index.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
@@ -52,8 +61,49 @@ pub struct UuidIndex {}
 /// Range filters on RFC 3339 datetimes, e.g. `created_at: "2023-02-08T10:49:00Z"`.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DatetimeIndex {}
-/// Full-text filtering on string values.
+/// Tokens ignored by a full-text index. Language names match qdrant (e.g.
+/// "english"); predefined lists and custom tokens are merged.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct StopwordsSet {
+    /// Languages whose predefined stopword lists to apply.
+    #[prost(string, repeated, tag = "1")]
+    pub languages: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+    /// Extra stopwords to ignore, merged with the language lists.
+    #[prost(string, repeated, tag = "2")]
+    pub custom: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+}
+/// Snowball stemming for a full-text index.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct SnowballParams {
+    /// Language for the snowball algorithm, e.g. "english".
+    #[prost(string, tag = "1")]
+    pub language: ::prost::alloc::string::String,
+}
+/// Explicitly disable stemming (overrides any language default).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct DisabledStemmer {}
+/// Stemming algorithm for a full-text index. Unset: no stemming.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct StemmingAlgorithm {
+    /// Which stemming algorithm to use.
+    #[prost(oneof = "stemming_algorithm::StemmingParams", tags = "1, 2")]
+    pub stemming_params: ::core::option::Option<stemming_algorithm::StemmingParams>,
+}
+/// Nested message and enum types in `StemmingAlgorithm`.
+pub mod stemming_algorithm {
+    /// Which stemming algorithm to use.
+    #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
+    pub enum StemmingParams {
+        /// Snowball stemmer for the given language.
+        #[prost(message, tag = "1")]
+        Snowball(super::SnowballParams),
+        /// Explicitly disable stemming.
+        #[prost(message, tag = "2")]
+        Disabled(super::DisabledStemmer),
+    }
+}
+/// Full-text filtering on string values.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct TextIndex {
     /// Tokenizer to split text with. Unset: WHITESPACE.
     #[prost(enumeration = "Tokenizer", optional, tag = "1")]
@@ -70,6 +120,15 @@ pub struct TextIndex {
     /// Maximum token length to index.
     #[prost(uint64, optional, tag = "5")]
     pub max_token_len: ::core::option::Option<u64>,
+    /// Fold accented characters to ASCII. Default false.
+    #[prost(bool, optional, tag = "6")]
+    pub ascii_folding: ::core::option::Option<bool>,
+    /// Tokens to ignore at index and query time.
+    #[prost(message, optional, tag = "7")]
+    pub stopwords: ::core::option::Option<StopwordsSet>,
+    /// Stemming algorithm. Unset: engine default (no stemming).
+    #[prost(message, optional, tag = "8")]
+    pub stemmer: ::core::option::Option<StemmingAlgorithm>,
 }
 /// Geo radius / bounding box / polygon filters on `{lon, lat}` values.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
@@ -79,7 +138,7 @@ pub struct GeoIndex {}
 pub struct BoolIndex {}
 /// One payload index. Only the *kind* of filter the field supports is chosen
 /// here; storage placement of the index is the manager's decision.
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct PayloadIndexConfig {
     /// The kind of filter the field supports.
     #[prost(oneof = "payload_index_config::Index", tags = "1, 2, 3, 4, 5, 6, 7, 8")]
@@ -88,7 +147,7 @@ pub struct PayloadIndexConfig {
 /// Nested message and enum types in `PayloadIndexConfig`.
 pub mod payload_index_config {
     /// The kind of filter the field supports.
-    #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Oneof)]
+    #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
     pub enum Index {
         /// Exact match on strings.
         #[prost(message, tag = "1")]
@@ -201,10 +260,18 @@ pub struct GetCollectionResponse {
     #[prost(uint64, optional, tag = "3")]
     pub point_count: ::core::option::Option<u64>,
 }
-/// Lists the caller's collections. The tenant travels in metadata, so there is
-/// nothing to name here.
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct ListCollectionsRequest {}
+/// Lists the caller's collections. The tenant travels in metadata.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct ListCollectionsRequest {
+    /// Maximum number of collections to return. Defaults to 20 and must not
+    /// exceed 100.
+    #[prost(uint32, optional, tag = "1")]
+    pub limit: ::core::option::Option<u32>,
+    /// Opaque token returned as `next_offset_token` by the previous page. Clients
+    /// must not interpret this value.
+    #[prost(string, optional, tag = "2")]
+    pub offset_token: ::core::option::Option<::prost::alloc::string::String>,
+}
 /// One collection in a listing.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct CollectionSummary {
@@ -219,10 +286,13 @@ pub struct CollectionSummary {
 /// The caller's collections.
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListCollectionsResponse {
-    /// Ordered by name. A collection whose creation never published a manifest is
-    /// not listed: it is not servable.
+    /// Collections in this page.
     #[prost(message, repeated, tag = "1")]
     pub collections: ::prost::alloc::vec::Vec<CollectionSummary>,
+    /// Opaque token to pass as `offset_token` to retrieve the next page. Absent
+    /// when there are no more results.
+    #[prost(string, optional, tag = "2")]
+    pub next_offset_token: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Distance metric used to compare dense vectors.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
