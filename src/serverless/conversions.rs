@@ -10,13 +10,13 @@ use crate::qdrant_client::error::QdrantError;
 use crate::serverless::grpc::{
     self, payload_index_config, stemming_algorithm, BoolIndex as GrpcBoolIndex,
     DatetimeIndex as GrpcDatetimeIndex, DenseVectorConfig as GrpcDenseVectorConfig,
-    DisabledStemmer as GrpcDisabledStemmer, Distance as GrpcDistance,
-    FloatIndex as GrpcFloatIndex, GeoIndex as GrpcGeoIndex, IntegerIndex as GrpcIntegerIndex,
-    KeywordIndex as GrpcKeywordIndex, KeywordPrefixParams as GrpcKeywordPrefixParams,
-    PayloadIndexConfig, PrecisionTier as GrpcPrecisionTier,
-    SnowballParams as GrpcSnowballParams, SparseVectorConfig as GrpcSparseVectorConfig,
-    StemmingAlgorithm as GrpcStemmingAlgorithm, StopwordsSet as GrpcStopwordsSet,
-    TextIndex as GrpcTextIndex, Tokenizer as GrpcTokenizer, UuidIndex as GrpcUuidIndex,
+    DisabledStemmer as GrpcDisabledStemmer, Distance as GrpcDistance, FloatIndex as GrpcFloatIndex,
+    GeoIndex as GrpcGeoIndex, IntegerIndex as GrpcIntegerIndex, KeywordIndex as GrpcKeywordIndex,
+    KeywordPrefixParams as GrpcKeywordPrefixParams, PayloadIndexConfig,
+    PrecisionTier as GrpcPrecisionTier, SnowballParams as GrpcSnowballParams,
+    SparseVectorConfig as GrpcSparseVectorConfig, StemmingAlgorithm as GrpcStemmingAlgorithm,
+    StopwordsSet as GrpcStopwordsSet, TextIndex as GrpcTextIndex, Tokenizer as GrpcTokenizer,
+    UuidIndex as GrpcUuidIndex,
 };
 use crate::serverless::models::{
     BoolIndex, CollectionConfig, DatetimeIndex, DenseVectorConfig, Distance, FloatIndex, GeoIndex,
@@ -85,18 +85,14 @@ fn tokenizer_from_grpc(tokenizer: GrpcTokenizer) -> Result<Tokenizer, QdrantErro
     }
 }
 
-fn stopwords_to_grpc(
-    StopwordsSet { languages, custom }: &StopwordsSet,
-) -> GrpcStopwordsSet {
+fn stopwords_to_grpc(StopwordsSet { languages, custom }: &StopwordsSet) -> GrpcStopwordsSet {
     GrpcStopwordsSet {
         languages: languages.clone(),
         custom: custom.clone(),
     }
 }
 
-fn stopwords_from_grpc(
-    GrpcStopwordsSet { languages, custom }: &GrpcStopwordsSet,
-) -> StopwordsSet {
+fn stopwords_from_grpc(GrpcStopwordsSet { languages, custom }: &GrpcStopwordsSet) -> StopwordsSet {
     StopwordsSet {
         languages: languages.clone(),
         custom: custom.clone(),
@@ -214,7 +210,9 @@ pub(crate) fn payload_index_to_grpc(model: &PayloadIndex) -> PayloadIndexConfig 
     let index = match model {
         PayloadIndex::Keyword(KeywordIndex { prefix }) => {
             payload_index_config::Index::Keyword(GrpcKeywordIndex {
-                prefix: prefix.as_ref().map(|KeywordPrefixParams| GrpcKeywordPrefixParams {}),
+                prefix: prefix
+                    .as_ref()
+                    .map(|KeywordPrefixParams| GrpcKeywordPrefixParams {}),
             })
         }
         PayloadIndex::Integer(IntegerIndex { lookup, range }) => {
