@@ -434,6 +434,67 @@ pub struct CollectionInfo {
     pub point_count: Option<u64>,
 }
 
+/// Request for [`super::QdrantServerless::list_collections`].
+///
+/// Defaults to the server page size (20, max 100). Pass `offset_token` from a
+/// previous response's `next_offset_token` to fetch the next page.
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct ListCollections {
+    /// Maximum number of collections to return. Unset: server default (20).
+    pub limit: Option<u32>,
+    /// Opaque token from a previous page's `next_offset_token`.
+    pub offset_token: Option<String>,
+}
+
+impl ListCollections {
+    /// Create an empty request (server defaults).
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+
+/// Builder for [`ListCollections`].
+#[must_use]
+#[derive(Clone, Default)]
+pub struct ListCollectionsBuilder {
+    limit: Option<u32>,
+    offset_token: Option<String>,
+}
+
+impl ListCollectionsBuilder {
+    /// Create an empty builder (server defaults).
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Maximum number of collections to return (must be 1..=100).
+    pub fn limit(mut self, limit: u32) -> Self {
+        self.limit = Some(limit);
+        self
+    }
+
+    /// Opaque token from a previous page's `next_offset_token`.
+    pub fn offset_token(mut self, offset_token: impl Into<String>) -> Self {
+        self.offset_token = Some(offset_token.into());
+        self
+    }
+
+    /// Build the [`ListCollections`] request.
+    pub fn build(self) -> ListCollections {
+        self.into()
+    }
+}
+
+impl From<ListCollectionsBuilder> for ListCollections {
+    fn from(builder: ListCollectionsBuilder) -> Self {
+        ListCollections {
+            limit: builder.limit,
+            offset_token: builder.offset_token,
+        }
+    }
+}
+
 /// One collection in a [`super::QdrantServerless::list_collections`] listing.
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]

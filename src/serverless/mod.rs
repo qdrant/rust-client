@@ -40,6 +40,7 @@ pub use client::{QdrantServerless, QdrantServerlessBuilder, DEFAULT_SERVERLESS_G
 pub use models::{
     BoolIndex, CollectionConfig, CollectionInfo, CollectionSummary, CollectionsList, DatetimeIndex,
     DenseVectorConfig, Distance, FloatIndex, GeoIndex, IntegerIndex, KeywordIndex,
-    KeywordPrefixParams, PayloadIndex, PrecisionTier, SnowballParams, SparseVectorConfig,
-    StemmingAlgorithm, StopwordsSet, TextIndex, Tokenizer, UuidIndex,
+    KeywordPrefixParams, ListCollections, ListCollectionsBuilder, PayloadIndex, PrecisionTier,
+    SnowballParams, SparseVectorConfig, StemmingAlgorithm, StopwordsSet, TextIndex, Tokenizer,
+    UuidIndex,
 };

@@ -13,7 +13,8 @@
 
 use qdrant_client::qdrant::{PointStruct, QueryPointsBuilder, UpsertPointsBuilder};
 use qdrant_client::serverless::{
-    CollectionConfig, DenseVectorConfig, Distance, KeywordIndex, QdrantServerless,
+    CollectionConfig, DenseVectorConfig, Distance, KeywordIndex, ListCollectionsBuilder,
+    QdrantServerless,
 };
 use qdrant_client::{Payload, QdrantError};
 
@@ -45,7 +46,9 @@ async fn main() -> Result<(), QdrantError> {
 
     println!(
         "collections: {:?}",
-        client.list_collections(None, None).await?
+        client
+            .list_collections(ListCollectionsBuilder::new())
+            .await?
     );
     println!("info: {:?}", client.get_collection(collection_name).await?);
 

@@ -31,7 +31,7 @@ use crate::serverless::grpc::{
     CreateCollectionRequest, DeleteCollectionRequest, GetCollectionRequest, ListCollectionsRequest,
 };
 use crate::serverless::models::{
-    CollectionConfig, CollectionInfo, CollectionSummary, CollectionsList,
+    CollectionConfig, CollectionInfo, CollectionSummary, CollectionsList, ListCollections,
 };
 use crate::Qdrant;
 
@@ -294,11 +294,29 @@ impl QdrantServerless {
     ///
     /// Defaults to the server page size (20, max 100). Pass `offset_token` from a
     /// previous response's `next_offset_token` to fetch the next page.
+    ///
+    /// ```no_run
+    /// # use qdrant_client::serverless::{ListCollectionsBuilder, QdrantServerless};
+    /// # async fn run(client: QdrantServerless) -> Result<(), qdrant_client::QdrantError> {
+    /// let page = client
+    ///     .list_collections(ListCollectionsBuilder::new().limit(50))
+    ///     .await?;
+    /// if let Some(token) = page.next_offset_token {
+    ///     let next = client
+    ///         .list_collections(ListCollectionsBuilder::new().offset_token(token))
+    ///         .await?;
+    /// }
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn list_collections(
         &self,
-        limit: Option<u32>,
-        offset_token: Option<String>,
+        request: impl Into<ListCollections>,
     ) -> QdrantResult<CollectionsList> {
+        let ListCollections {
+            limit,
+            offset_token,
+        } = request.into();
         let request = ListCollectionsRequest {
             limit,
             offset_token,
