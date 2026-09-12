@@ -32,6 +32,11 @@ parking_lot = "0.12.4"
 [dev-dependencies]
 tonic-prost-build = { version = "0.14.6" }
 
+[workspace]
+members = [
+    ".",
+]
+
 [features]
 default = ["download_snapshots", "serde", "generate-snippets"]
 download_snapshots = ["reqwest", "futures-util"]
