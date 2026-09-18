@@ -42,7 +42,7 @@ async fn main() -> Result<(), QdrantError> {
                 .payload_index("color", KeywordIndex::new()),
         )
         .await?;
-    println!("create_collection: {result}");
+    println!("create_collection: {result:?}");
 
     println!(
         "collections: {:?}",

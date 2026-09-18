@@ -31,7 +31,8 @@ use crate::serverless::grpc::{
     CreateCollectionRequest, DeleteCollectionRequest, GetCollectionRequest, ListCollectionsRequest,
 };
 use crate::serverless::models::{
-    CollectionConfig, CollectionInfo, CollectionSummary, CollectionsList, ListCollections,
+    CollectionConfig, CollectionInfo, CollectionSummary, CollectionsList, CreateCollectionResult,
+    DeleteCollectionResult, ListCollections,
 };
 use crate::Qdrant;
 
@@ -217,39 +218,43 @@ impl QdrantServerless {
     /// At least one dense or sparse vector is required. Unlike the regular client,
     /// no storage internals (quantization, WAL, segment number, ...) can be
     /// configured: the serverless manager decides those.
-    ///
-    /// Returns the outcome string from the service (e.g. `"created"`).
     pub async fn create_collection(
         &self,
         collection_name: impl Into<String>,
         config: CollectionConfig,
-    ) -> QdrantResult<String> {
+    ) -> QdrantResult<CreateCollectionResult> {
         let request = CreateCollectionRequest {
             collection_name: collection_name.into(),
             config: Some(collection_config_to_grpc(&config)),
         };
         let request = &request;
         self.with_collections_client(|mut api| async move {
-            let response = api.create_collection(request.clone()).await?;
-            Ok(response.into_inner().result)
+            let response = api.create_collection(request.clone()).await?.into_inner();
+            Ok(CreateCollectionResult {
+                collection_name: response.collection_name,
+                result: response.result,
+                time: response.time,
+            })
         })
         .await
     }
 
     /// Deletes a collection and all of its data.
-    ///
-    /// Returns `true` if the collection existed and was deleted, `false` otherwise.
     pub async fn delete_collection(
         &self,
         collection_name: impl Into<String>,
-    ) -> QdrantResult<bool> {
+    ) -> QdrantResult<DeleteCollectionResult> {
         let request = DeleteCollectionRequest {
             collection_name: collection_name.into(),
         };
         let request = &request;
         self.with_collections_client(|mut api| async move {
-            let response = api.delete_collection(request.clone()).await?;
-            Ok(response.into_inner().deleted)
+            let response = api.delete_collection(request.clone()).await?.into_inner();
+            Ok(DeleteCollectionResult {
+                deleted: response.deleted,
+                objects_deleted: response.objects_deleted,
+                time: response.time,
+            })
         })
         .await
     }
@@ -279,6 +284,7 @@ impl QdrantServerless {
                 .map(collection_config_from_grpc)
                 .transpose()?,
             point_count: response.point_count,
+            time: response.time,
         })
     }
 
@@ -334,6 +340,7 @@ impl QdrantServerless {
                     })
                     .collect(),
                 next_offset_token: response.next_offset_token,
+                time: response.time,
             })
         })
         .await

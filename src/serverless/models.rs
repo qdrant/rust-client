@@ -422,16 +422,42 @@ impl CollectionConfig {
     }
 }
 
+/// Result of [`super::QdrantServerless::create_collection`].
+#[derive(Debug, Clone, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct CreateCollectionResult {
+    /// Tenant-facing name of the collection.
+    pub collection_name: String,
+    /// Outcome, e.g. `"created"`.
+    pub result: String,
+    /// Time spent to process the request, in seconds.
+    pub time: f64,
+}
+
+/// Result of [`super::QdrantServerless::delete_collection`].
+#[derive(Debug, Clone, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct DeleteCollectionResult {
+    /// Whether the collection existed and was deleted.
+    pub deleted: bool,
+    /// Number of storage objects removed.
+    pub objects_deleted: u32,
+    /// Time spent to process the request, in seconds.
+    pub time: f64,
+}
+
 /// A collection's configuration and stats, as returned by [`super::QdrantServerless::get_collection`].
 ///
 /// `point_count` is eventually consistent and absent until stats have been
 /// written for the collection.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CollectionInfo {
     pub exists: bool,
     pub config: Option<CollectionConfig>,
     pub point_count: Option<u64>,
+    /// Time spent to process the request, in seconds.
+    pub time: f64,
 }
 
 /// Request for [`super::QdrantServerless::list_collections`].
@@ -504,10 +530,12 @@ pub struct CollectionSummary {
 }
 
 /// A page of collections returned by [`super::QdrantServerless::list_collections`].
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CollectionsList {
     pub collections: Vec<CollectionSummary>,
     /// Opaque token to pass as `offset_token` for the next page. Absent when done.
     pub next_offset_token: Option<String>,
+    /// Time spent to process the request, in seconds.
+    pub time: f64,
 }
