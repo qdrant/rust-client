@@ -38,9 +38,9 @@ pub mod models;
 
 pub use client::{QdrantServerless, QdrantServerlessBuilder, DEFAULT_SERVERLESS_GRPC_PORT};
 pub use models::{
-    BoolIndex, CollectionConfig, CollectionInfo, CollectionSummary, CollectionsList, DatetimeIndex,
-    DenseVectorConfig, Distance, FloatIndex, GeoIndex, IntegerIndex, KeywordIndex,
-    KeywordPrefixParams, ListCollections, ListCollectionsBuilder, PayloadIndex, PrecisionTier,
-    SnowballParams, SparseVectorConfig, StemmingAlgorithm, StopwordsSet, TextIndex, Tokenizer,
-    UuidIndex,
+    BoolIndex, CollectionConfig, CollectionInfo, CollectionSummary, CollectionsList,
+    CreateCollectionResult, DatetimeIndex, DeleteCollectionResult, DenseVectorConfig, Distance,
+    FloatIndex, GeoIndex, IntegerIndex, KeywordIndex, KeywordPrefixParams, ListCollections,
+    ListCollectionsBuilder, PayloadIndex, PrecisionTier, SnowballParams, SparseVectorConfig,
+    StemmingAlgorithm, StopwordsSet, TextIndex, Tokenizer, UuidIndex,
 };
