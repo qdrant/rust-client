@@ -440,8 +440,6 @@ pub struct CreateCollectionResult {
 pub struct DeleteCollectionResult {
     /// Whether the collection existed and was deleted.
     pub deleted: bool,
-    /// Number of storage objects removed.
-    pub objects_deleted: u32,
     /// Time spent to process the request, in seconds.
     pub time: f64,
 }

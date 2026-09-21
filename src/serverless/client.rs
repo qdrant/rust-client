@@ -252,7 +252,6 @@ impl QdrantServerless {
             let response = api.delete_collection(request.clone()).await?.into_inner();
             Ok(DeleteCollectionResult {
                 deleted: response.deleted,
-                objects_deleted: response.objects_deleted,
                 time: response.time,
             })
         })

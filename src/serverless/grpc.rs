@@ -238,9 +238,6 @@ pub struct DeleteCollectionResponse {
     /// Whether the collection existed and was deleted.
     #[prost(bool, tag = "1")]
     pub deleted: bool,
-    /// Number of storage objects removed.
-    #[prost(uint32, tag = "2")]
-    pub objects_deleted: u32,
     /// Time spent to process
     #[prost(double, tag = "3")]
     pub time: f64,
