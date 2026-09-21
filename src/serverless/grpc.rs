@@ -213,7 +213,7 @@ pub struct CreateCollectionRequest {
     pub config: ::core::option::Option<CollectionConfig>,
 }
 /// Result of a create.
-#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateCollectionResponse {
     /// Tenant-facing name of the collection.
     #[prost(string, tag = "1")]
@@ -221,6 +221,9 @@ pub struct CreateCollectionResponse {
     /// Outcome, e.g. "created", "already exists".
     #[prost(string, tag = "2")]
     pub result: ::prost::alloc::string::String,
+    /// Time spent to process
+    #[prost(double, tag = "3")]
+    pub time: f64,
 }
 /// Names the collection to delete.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -230,14 +233,14 @@ pub struct DeleteCollectionRequest {
     pub collection_name: ::prost::alloc::string::String,
 }
 /// Result of a delete.
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+#[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct DeleteCollectionResponse {
     /// Whether the collection existed and was deleted.
     #[prost(bool, tag = "1")]
     pub deleted: bool,
-    /// Number of storage objects removed.
-    #[prost(uint32, tag = "2")]
-    pub objects_deleted: u32,
+    /// Time spent to process
+    #[prost(double, tag = "2")]
+    pub time: f64,
 }
 /// Names the collection to fetch.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -259,6 +262,9 @@ pub struct GetCollectionResponse {
     /// absent until the updater has written stats for the collection.
     #[prost(uint64, optional, tag = "3")]
     pub point_count: ::core::option::Option<u64>,
+    /// Time spent to process
+    #[prost(double, tag = "4")]
+    pub time: f64,
 }
 /// Lists the caller's collections. The tenant travels in metadata.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -293,6 +299,9 @@ pub struct ListCollectionsResponse {
     /// when there are no more results.
     #[prost(string, optional, tag = "2")]
     pub next_offset_token: ::core::option::Option<::prost::alloc::string::String>,
+    /// Time spent to process
+    #[prost(double, tag = "3")]
+    pub time: f64,
 }
 /// Distance metric used to compare dense vectors.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
