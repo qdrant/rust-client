@@ -239,7 +239,7 @@ pub struct DeleteCollectionResponse {
     #[prost(bool, tag = "1")]
     pub deleted: bool,
     /// Time spent to process
-    #[prost(double, tag = "3")]
+    #[prost(double, tag = "2")]
     pub time: f64,
 }
 /// Names the collection to fetch.
