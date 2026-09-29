@@ -30,6 +30,7 @@ pub enum PrecisionTier {
     Low,
     Medium,
     High,
+    Full,
 }
 
 /// Full-text tokenizer, mirrors Qdrant's `TokenizerType`.

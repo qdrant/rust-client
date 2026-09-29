@@ -50,6 +50,7 @@ fn precision_to_grpc(tier: PrecisionTier) -> GrpcPrecisionTier {
         PrecisionTier::Low => GrpcPrecisionTier::Low,
         PrecisionTier::Medium => GrpcPrecisionTier::Medium,
         PrecisionTier::High => GrpcPrecisionTier::High,
+        PrecisionTier::Full => GrpcPrecisionTier::Full,
     }
 }
 
@@ -58,6 +59,7 @@ fn precision_from_grpc(tier: GrpcPrecisionTier) -> Result<PrecisionTier, QdrantE
         GrpcPrecisionTier::Low => Ok(PrecisionTier::Low),
         GrpcPrecisionTier::Medium => Ok(PrecisionTier::Medium),
         GrpcPrecisionTier::High => Ok(PrecisionTier::High),
+        GrpcPrecisionTier::Full => Ok(PrecisionTier::Full),
         GrpcPrecisionTier::Unspecified => Err(QdrantError::ConversionError(
             "serverless PrecisionTier is unspecified".into(),
         )),

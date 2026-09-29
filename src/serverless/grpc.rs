@@ -356,8 +356,10 @@ pub enum PrecisionTier {
     Low = 1,
     /// Moderate compression with a small accuracy trade-off.
     Medium = 2,
-    /// No lossy compression: exact stored vectors.
+    /// Light compression, near-exact results.
     High = 3,
+    /// No lossy compression: exact vectors, fully in memory. Highest cost.
+    Full = 4,
 }
 impl PrecisionTier {
     /// String value of the enum field names used in the ProtoBuf definition.
@@ -370,6 +372,7 @@ impl PrecisionTier {
             Self::Low => "LOW",
             Self::Medium => "MEDIUM",
             Self::High => "HIGH",
+            Self::Full => "FULL",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -379,6 +382,7 @@ impl PrecisionTier {
             "LOW" => Some(Self::Low),
             "MEDIUM" => Some(Self::Medium),
             "HIGH" => Some(Self::High),
+            "FULL" => Some(Self::Full),
             _ => None,
         }
     }
