@@ -55,6 +55,12 @@ pub use collection_params_diff_builder::CollectionParamsDiffBuilder;
 mod payload_storage_params_builder;
 pub use payload_storage_params_builder::PayloadStorageParamsBuilder;
 
+mod id_tracker_params_builder;
+pub use id_tracker_params_builder::IdTrackerParamsBuilder;
+
+mod text_query_builder;
+pub use text_query_builder::TextQueryBuilder;
+
 mod idf_params_builder;
 pub use idf_params_builder::IdfParamsBuilder;
 

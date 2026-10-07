@@ -235,7 +235,10 @@ pub struct FieldCondition {
 }
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct Match {
-    #[prost(oneof = "r#match::MatchValue", tags = "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11")]
+    #[prost(
+        oneof = "r#match::MatchValue",
+        tags = "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12"
+    )]
     pub match_value: ::core::option::Option<r#match::MatchValue>,
 }
 /// Nested message and enum types in `Match`.
@@ -275,6 +278,9 @@ pub mod r#match {
         /// Match keywords starting with the given prefix
         #[prost(string, tag = "11")]
         Prefix(::prost::alloc::string::String),
+        /// Match keywords containing the given substring
+        #[prost(string, tag = "12")]
+        Substring(::prost::alloc::string::String),
     }
 }
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -682,7 +688,7 @@ pub struct OptimizersConfigDiff {
     pub default_segment_number: ::core::option::Option<u64>,
     /// Deprecated:
     ///
-    /// Do not create segments larger this size (in kilobytes).
+    /// Do not create segments larger than this size (in kilobytes).
     /// Large segments might require disproportionately long indexation times,
     /// therefore it makes sense to limit the size of segments.
     ///
@@ -1006,6 +1012,14 @@ pub struct PayloadStorageParams {
     #[prost(enumeration = "Memory", optional, tag = "1")]
     pub memory: ::core::option::Option<i32>,
 }
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct IdTrackerParams {
+    /// Memory placement of the point id mapping in indexed segments:
+    /// `Cold` keeps it on disk and reads it on demand, `Cached` keeps it on disk
+    /// but primes the page cache with it on load, `Pinned` keeps it in RAM.
+    #[prost(enumeration = "Memory", optional, tag = "1")]
+    pub memory: ::core::option::Option<i32>,
+}
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateCollection {
     /// Name of the collection
@@ -1060,6 +1074,9 @@ pub struct CreateCollection {
     /// Configuration of the payload storage
     #[prost(message, optional, tag = "19")]
     pub payload: ::core::option::Option<PayloadStorageParams>,
+    /// Configuration of the point id tracker
+    #[prost(message, optional, tag = "20")]
+    pub id_tracker: ::core::option::Option<IdTrackerParams>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpdateCollection {
@@ -1151,6 +1168,9 @@ pub struct CollectionParams {
     /// Configuration of the payload storage
     #[prost(message, optional, tag = "12")]
     pub payload: ::core::option::Option<PayloadStorageParams>,
+    /// Configuration of the point id tracker
+    #[prost(message, optional, tag = "13")]
+    pub id_tracker: ::core::option::Option<IdTrackerParams>,
 }
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct CollectionParamsDiff {
@@ -1174,6 +1194,9 @@ pub struct CollectionParamsDiff {
     /// Update params of the payload storage
     #[prost(message, optional, tag = "6")]
     pub payload: ::core::option::Option<PayloadStorageParams>,
+    /// Update params of the point id tracker
+    #[prost(message, optional, tag = "7")]
+    pub id_tracker: ::core::option::Option<IdTrackerParams>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CollectionConfig {
@@ -1342,6 +1365,17 @@ pub struct TextIndexParams {
     /// Overrides the deprecated `on_disk` flag if both are set.
     #[prost(enumeration = "Memory", optional, tag = "11")]
     pub memory: ::core::option::Option<i32>,
+    /// Enable ranking points by BM25 over this field.
+    /// Implies `phrase_matching: true`. Changing it rebuilds the index.
+    /// Default: disabled.
+    #[prost(message, optional, tag = "12")]
+    pub scoring: ::core::option::Option<TextScoringParams>,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct TextScoringParams {
+    /// How documents are ranked
+    #[prost(enumeration = "TextScoringType", tag = "1")]
+    pub r#type: i32,
 }
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct StemmingAlgorithm {
@@ -1518,6 +1552,9 @@ pub struct CollectionInfo {
     /// Update queue info
     #[prost(message, optional, tag = "12")]
     pub update_queue: ::core::option::Option<UpdateQueueInfo>,
+    /// Time of the collection creation, absent for collections created before it was recorded
+    #[prost(message, optional, tag = "13")]
+    pub created_at: ::core::option::Option<::prost_types::Timestamp>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ChangeAliases {
@@ -1912,6 +1949,7 @@ pub enum Datatype {
     Uint8 = 2,
     Float16 = 3,
     Turbo4 = 4,
+    Turbo8 = 5,
 }
 impl Datatype {
     /// String value of the enum field names used in the ProtoBuf definition.
@@ -1925,6 +1963,7 @@ impl Datatype {
             Self::Uint8 => "Uint8",
             Self::Float16 => "Float16",
             Self::Turbo4 => "Turbo4",
+            Self::Turbo8 => "Turbo8",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -1935,6 +1974,7 @@ impl Datatype {
             "Uint8" => Some(Self::Uint8),
             "Float16" => Some(Self::Float16),
             "Turbo4" => Some(Self::Turbo4),
+            "Turbo8" => Some(Self::Turbo8),
             _ => None,
         }
     }
@@ -2246,6 +2286,7 @@ pub enum TurboQuantBitSize {
     Bits15 = 1,
     Bits2 = 2,
     Bits4 = 3,
+    Bits8 = 4,
 }
 impl TurboQuantBitSize {
     /// String value of the enum field names used in the ProtoBuf definition.
@@ -2258,6 +2299,7 @@ impl TurboQuantBitSize {
             Self::Bits15 => "Bits1_5",
             Self::Bits2 => "Bits2",
             Self::Bits4 => "Bits4",
+            Self::Bits8 => "Bits8",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -2267,6 +2309,7 @@ impl TurboQuantBitSize {
             "Bits1_5" => Some(Self::Bits15),
             "Bits2" => Some(Self::Bits2),
             "Bits4" => Some(Self::Bits4),
+            "Bits8" => Some(Self::Bits8),
             _ => None,
         }
     }
@@ -2330,6 +2373,29 @@ impl TokenizerType {
             "Whitespace" => Some(Self::Whitespace),
             "Word" => Some(Self::Word),
             "Multilingual" => Some(Self::Multilingual),
+            _ => None,
+        }
+    }
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+#[repr(i32)]
+pub enum TextScoringType {
+    Bm25 = 0,
+}
+impl TextScoringType {
+    /// String value of the enum field names used in the ProtoBuf definition.
+    ///
+    /// The values are not transformed in any way and thus are considered stable
+    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+    pub fn as_str_name(&self) -> &'static str {
+        match self {
+            Self::Bm25 => "Bm25",
+        }
+    }
+    /// Creates an enum from field names used in the ProtoBuf definition.
+    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+        match value {
+            "Bm25" => Some(Self::Bm25),
             _ => None,
         }
     }
@@ -4250,7 +4316,7 @@ pub struct DenseVectorCreationConfig {
     /// Configuration for multi-vector search (e.g., ColBERT)
     #[prost(message, optional, tag = "3")]
     pub multivector_config: ::core::option::Option<MultiVectorConfig>,
-    /// Data type of the vectors (Float32, Float16, Uint8, Turbo4)
+    /// Data type of the vectors (Float32, Float16, Uint8, Turbo4, Turbo8)
     #[prost(enumeration = "Datatype", optional, tag = "4")]
     pub datatype: ::core::option::Option<i32>,
 }
@@ -5024,7 +5090,7 @@ pub struct Formula {
 pub struct Expression {
     #[prost(
         oneof = "expression::Variant",
-        tags = "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19"
+        tags = "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22"
     )]
     pub variant: ::core::option::Option<expression::Variant>,
 }
@@ -5088,6 +5154,15 @@ pub mod expression {
         /// Linear decay
         #[prost(message, tag = "19")]
         LinDecay(::prost::alloc::boxed::Box<super::DecayParamsExpression>),
+        /// Inverse hyperbolic cosine
+        #[prost(message, tag = "20")]
+        Acosh(::prost::alloc::boxed::Box<super::Expression>),
+        /// Maximum
+        #[prost(message, tag = "21")]
+        Max(super::MaxExpression),
+        /// Minimum
+        #[prost(message, tag = "22")]
+        Min(super::MinExpression),
     }
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -5106,6 +5181,16 @@ pub struct MultExpression {
 pub struct SumExpression {
     #[prost(message, repeated, tag = "1")]
     pub sum: ::prost::alloc::vec::Vec<Expression>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct MaxExpression {
+    #[prost(message, repeated, tag = "1")]
+    pub max: ::prost::alloc::vec::Vec<Expression>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct MinExpression {
+    #[prost(message, repeated, tag = "1")]
+    pub min: ::prost::alloc::vec::Vec<Expression>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DivExpression {
@@ -5185,7 +5270,7 @@ pub struct Rrf {
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Query {
-    #[prost(oneof = "query::Variant", tags = "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11")]
+    #[prost(oneof = "query::Variant", tags = "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12")]
     pub variant: ::core::option::Option<query::Variant>,
 }
 /// Nested message and enum types in `Query`.
@@ -5225,7 +5310,25 @@ pub mod query {
         /// Search with feedback from some oracle.
         #[prost(message, tag = "11")]
         RelevanceFeedback(super::RelevanceFeedbackInput),
+        /// Rank by BM25 over the text index of the payload field named by `using`.
+        #[prost(message, tag = "12")]
+        Text(super::TextQuery),
     }
+}
+/// Rank by BM25 over the text index of the payload field named by `using`,
+/// which must have `scoring` set. A point scores when it holds any of the
+/// query's terms: required or excluded terms belong in the request's filter.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct TextQuery {
+    /// Text to search for, tokenized by the field's text index.
+    #[prost(string, tag = "1")]
+    pub query: ::prost::alloc::string::String,
+    /// Term frequency saturation. Default is 1.2.
+    #[prost(float, optional, tag = "2")]
+    pub k: ::core::option::Option<f32>,
+    /// Document length normalization, from 0 (none) to 1 (full). Default is 0.75.
+    #[prost(float, optional, tag = "3")]
+    pub b: ::core::option::Option<f32>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PrefetchQuery {
@@ -5239,6 +5342,7 @@ pub struct PrefetchQuery {
     pub query: ::core::option::Option<Query>,
     /// Define which vector to use for querying.
     /// If missing, the default vector is used.
+    /// For a `text` query, the payload field whose text index to search.
     #[prost(string, optional, tag = "3")]
     pub using: ::core::option::Option<::prost::alloc::string::String>,
     /// Filter conditions - return only those points that satisfy the specified conditions.
@@ -5272,6 +5376,7 @@ pub struct QueryPoints {
     pub query: ::core::option::Option<Query>,
     /// Define which vector to use for querying.
     /// If missing, the default vector is used.
+    /// For a `text` query, the payload field whose text index to search.
     #[prost(string, optional, tag = "4")]
     pub using: ::core::option::Option<::prost::alloc::string::String>,
     /// Filter conditions - return only those points that satisfy the specified conditions.
@@ -5337,6 +5442,7 @@ pub struct QueryPointGroups {
     pub query: ::core::option::Option<Query>,
     /// Define which vector to use for querying.
     /// If missing, the default vector is used.
+    /// For a `text` query, the payload field whose text index to search.
     #[prost(string, optional, tag = "4")]
     pub using: ::core::option::Option<::prost::alloc::string::String>,
     /// Filter conditions - return only those points that satisfy the specified conditions.
