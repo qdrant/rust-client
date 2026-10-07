@@ -106,6 +106,17 @@ impl Query {
             )),
         }
     }
+
+    /// Rank by BM25 over the text index of the payload field named by `using`,
+    /// which must have scoring enabled.
+    ///
+    /// A point scores when it holds any of the query's terms:
+    /// required or excluded terms belong in the request's filter.
+    pub fn new_text(value: impl Into<crate::qdrant::TextQuery>) -> Self {
+        Self {
+            variant: Some(crate::qdrant::query::Variant::Text(value.into())),
+        }
+    }
 }
 
 impl RecommendInputBuilder {

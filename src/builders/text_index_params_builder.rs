@@ -24,6 +24,8 @@ pub struct TextIndexParamsBuilder {
     pub(crate) enable_hnsw: Option<Option<bool>>,
     /// Memory placement of the index.
     pub(crate) memory: Option<Option<i32>>,
+    /// Enable ranking points by BM25 over this field.
+    pub(crate) scoring: Option<Option<TextScoringParams>>,
 }
 
 impl TextIndexParamsBuilder {
@@ -147,6 +149,21 @@ impl TextIndexParamsBuilder {
         new
     }
 
+    /// Enable ranking points by BM25 over this field, see [`Query::new_text`].
+    /// Implies `phrase_matching: true`. Changing it rebuilds the index.
+    /// Default: disabled.
+    pub fn scoring<VALUE: core::convert::Into<TextScoringParams>>(self, value: VALUE) -> Self {
+        let mut new = self;
+        new.scoring = Option::Some(Option::Some(value.into()));
+        new
+    }
+
+    /// Enable BM25 ranking over this field, see [`Query::new_text`].
+    /// Implies `phrase_matching: true`. Changing it rebuilds the index.
+    pub fn bm25_scoring(self) -> Self {
+        self.scoring(TextScoringType::Bm25)
+    }
+
     #[allow(deprecated)]
     fn build_inner(self) -> Result<TextIndexParams, TextIndexParamsBuilderError> {
         Ok(TextIndexParams {
@@ -168,6 +185,7 @@ impl TextIndexParamsBuilder {
             ascii_folding: self.ascii_folding.unwrap_or_default(),
             enable_hnsw: self.enable_hnsw.unwrap_or_default(),
             memory: self.memory.unwrap_or_default(),
+            scoring: self.scoring.unwrap_or_default(),
         })
     }
 
@@ -185,6 +203,7 @@ impl TextIndexParamsBuilder {
             ascii_folding: Default::default(),
             enable_hnsw: Default::default(),
             memory: Default::default(),
+            scoring: Default::default(),
         }
     }
 }

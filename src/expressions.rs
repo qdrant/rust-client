@@ -164,6 +164,27 @@ impl Expression {
         }
     }
 
+    /// Creates a new Expression with an inverse hyperbolic cosine expression.
+    pub fn acosh<E: Into<Expression>>(expr: E) -> Self {
+        Self {
+            variant: Some(expression::Variant::Acosh(Box::new(expr.into()))),
+        }
+    }
+
+    /// Creates a new Expression with a maximum expression.
+    pub fn max<M: Into<MaxExpression>>(max: M) -> Self {
+        Self {
+            variant: Some(expression::Variant::Max(max.into())),
+        }
+    }
+
+    /// Creates a new Expression with a minimum expression.
+    pub fn min<M: Into<MinExpression>>(min: M) -> Self {
+        Self {
+            variant: Some(expression::Variant::Min(min.into())),
+        }
+    }
+
     /// Helper method to create a multiplication expression with multiple sub-expressions.
     pub fn mult_with<E: Into<Expression>, I: IntoIterator<Item = E>>(expressions: I) -> Self {
         let exprs: Vec<Expression> = expressions.into_iter().map(|e| e.into()).collect();
@@ -174,6 +195,18 @@ impl Expression {
     pub fn sum_with<E: Into<Expression>, I: IntoIterator<Item = E>>(expressions: I) -> Self {
         let exprs: Vec<Expression> = expressions.into_iter().map(|e| e.into()).collect();
         Self::sum(SumExpression { sum: exprs })
+    }
+
+    /// Helper method to create a maximum expression with multiple sub-expressions.
+    pub fn max_with<E: Into<Expression>, I: IntoIterator<Item = E>>(expressions: I) -> Self {
+        let exprs: Vec<Expression> = expressions.into_iter().map(|e| e.into()).collect();
+        Self::max(MaxExpression { max: exprs })
+    }
+
+    /// Helper method to create a minimum expression with multiple sub-expressions.
+    pub fn min_with<E: Into<Expression>, I: IntoIterator<Item = E>>(expressions: I) -> Self {
+        let exprs: Vec<Expression> = expressions.into_iter().map(|e| e.into()).collect();
+        Self::min(MinExpression { min: exprs })
     }
 
     /// Helper method to create a division expression with left and right operands.

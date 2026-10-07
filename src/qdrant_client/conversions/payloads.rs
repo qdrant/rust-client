@@ -3,9 +3,17 @@ use crate::qdrant::{
     BoolIndexParams, BoolIndexParamsBuilder, DatetimeIndexParams, DatetimeIndexParamsBuilder,
     FloatIndexParams, FloatIndexParamsBuilder, GeoIndexParams, GeoIndexParamsBuilder,
     IntegerIndexParams, IntegerIndexParamsBuilder, KeywordIndexParams, KeywordIndexParamsBuilder,
-    PayloadIndexParams, TextIndexParams, TextIndexParamsBuilder, UuidIndexParams,
-    UuidIndexParamsBuilder,
+    PayloadIndexParams, TextIndexParams, TextIndexParamsBuilder, TextScoringParams,
+    TextScoringType, UuidIndexParams, UuidIndexParamsBuilder,
 };
+
+impl From<TextScoringType> for TextScoringParams {
+    fn from(value: TextScoringType) -> Self {
+        Self {
+            r#type: value.into(),
+        }
+    }
+}
 
 impl From<IndexParams> for PayloadIndexParams {
     fn from(value: IndexParams) -> Self {

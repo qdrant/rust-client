@@ -15,6 +15,8 @@ pub struct CollectionParamsDiffBuilder {
     pub(crate) read_fan_out_delay_ms: Option<Option<u64>>,
     /// Update params of the payload storage
     pub(crate) payload: Option<Option<PayloadStorageParams>>,
+    /// Update params of the point id tracker
+    pub(crate) id_tracker: Option<Option<IdTrackerParams>>,
 }
 #[allow(clippy::all)]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -58,6 +60,12 @@ impl CollectionParamsDiffBuilder {
         new.payload = Option::Some(Option::Some(value.into()));
         new
     }
+    /// Update params of the point id tracker.
+    pub fn id_tracker<VALUE: core::convert::Into<IdTrackerParams>>(self, value: VALUE) -> Self {
+        let mut new = self;
+        new.id_tracker = Option::Some(Option::Some(value.into()));
+        new
+    }
 
     #[allow(deprecated)]
     fn build_inner(self) -> Result<CollectionParamsDiff, std::convert::Infallible> {
@@ -86,6 +94,10 @@ impl CollectionParamsDiffBuilder {
                 Some(value) => value,
                 None => core::default::Default::default(),
             },
+            id_tracker: match self.id_tracker {
+                Some(value) => value,
+                None => core::default::Default::default(),
+            },
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -97,6 +109,7 @@ impl CollectionParamsDiffBuilder {
             read_fan_out_factor: core::default::Default::default(),
             read_fan_out_delay_ms: core::default::Default::default(),
             payload: core::default::Default::default(),
+            id_tracker: core::default::Default::default(),
         }
     }
 }
