@@ -302,6 +302,24 @@ impl qdrant::Condition {
         }
     }
 
+    /// Create a [`Condition`] to match keywords containing the given substring.
+    ///
+    /// # Examples:
+    /// ```
+    /// qdrant_client::qdrant::Condition::matches_substring("city", "erl");
+    /// ```
+    pub fn matches_substring(field: impl Into<String>, substring: impl Into<String>) -> Self {
+        Self {
+            condition_one_of: Some(ConditionOneOf::Field(qdrant::FieldCondition {
+                key: field.into(),
+                r#match: Some(qdrant::Match {
+                    match_value: Some(MatchValue::Substring(substring.into())),
+                }),
+                ..Default::default()
+            })),
+        }
+    }
+
     /// Create a [`Condition`] selecting one of `total` disjoint deterministic slices of the id
     /// space. Useful to split a collection into equally sized chunks, for example to scroll
     /// through it in parallel.
@@ -539,6 +557,9 @@ impl std::ops::Not for MatchValue {
             }
             Self::Prefix(_) => {
                 panic!("cannot negate a MatchValue::Prefix, use within must_not clause instead")
+            }
+            Self::Substring(_) => {
+                panic!("cannot negate a MatchValue::Substring, use within must_not clause instead")
             }
         }
     }
