@@ -1,4 +1,4 @@
-use crate::qdrant::TextQuery;
+use crate::qdrant::{text_query, Bm25Params, TextQuery};
 
 /// Builder for [`TextQuery`], ranking points by BM25 over the text index of a payload field.
 ///
@@ -47,11 +47,18 @@ impl TextQueryBuilder {
         new
     }
 
+    /// Builds the query. `k` and `b` go in the BM25 scorer's parameters; with neither set, the
+    /// scorer runs with its defaults.
     pub fn build(self) -> TextQuery {
+        let scoring = (self.k.is_some() || self.b.is_some()).then_some(text_query::Scoring::Bm25(
+            Bm25Params {
+                k: self.k,
+                b: self.b,
+            },
+        ));
         TextQuery {
             query: self.query,
-            k: self.k,
-            b: self.b,
+            scoring,
         }
     }
 }
