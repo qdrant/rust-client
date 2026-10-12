@@ -1950,6 +1950,7 @@ pub enum Datatype {
     Float16 = 3,
     Turbo4 = 4,
     Turbo8 = 5,
+    Turbo16 = 6,
 }
 impl Datatype {
     /// String value of the enum field names used in the ProtoBuf definition.
@@ -1964,6 +1965,7 @@ impl Datatype {
             Self::Float16 => "Float16",
             Self::Turbo4 => "Turbo4",
             Self::Turbo8 => "Turbo8",
+            Self::Turbo16 => "Turbo16",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -1975,6 +1977,7 @@ impl Datatype {
             "Float16" => Some(Self::Float16),
             "Turbo4" => Some(Self::Turbo4),
             "Turbo8" => Some(Self::Turbo8),
+            "Turbo16" => Some(Self::Turbo16),
             _ => None,
         }
     }
@@ -4316,7 +4319,7 @@ pub struct DenseVectorCreationConfig {
     /// Configuration for multi-vector search (e.g., ColBERT)
     #[prost(message, optional, tag = "3")]
     pub multivector_config: ::core::option::Option<MultiVectorConfig>,
-    /// Data type of the vectors (Float32, Float16, Uint8, Turbo4, Turbo8)
+    /// Data type of the vectors (Float32, Float16, Uint8, Turbo4, Turbo8, Turbo16)
     #[prost(enumeration = "Datatype", optional, tag = "4")]
     pub datatype: ::core::option::Option<i32>,
 }
@@ -4518,8 +4521,8 @@ pub struct AcornSearchParams {
     #[prost(double, optional, tag = "2")]
     pub max_selectivity: ::core::option::Option<f64>,
 }
-/// Population over which sparse vector IDF statistics are computed for scoring - the IDF corpus.
-/// Only applicable to sparse vectors with the IDF modifier enabled.
+/// Population over which IDF statistics are computed for scoring - the IDF corpus.
+/// Only applicable to sparse vectors with the IDF modifier enabled, and to BM25 over a text index.
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct IdfParams {
     /// Filter defining the corpus: IDF statistics are computed over the points matching this filter.
@@ -4547,7 +4550,7 @@ pub struct SearchParams {
     /// ACORN search params
     #[prost(message, optional, tag = "5")]
     pub acorn: ::core::option::Option<AcornSearchParams>,
-    /// Which population sparse vector IDF statistics are computed over.
+    /// Which population IDF statistics are computed over.
     /// If unset, statistics are collection-wide (global).
     #[prost(message, optional, tag = "6")]
     pub idf: ::core::option::Option<IdfParams>,
@@ -5323,11 +5326,31 @@ pub struct TextQuery {
     /// Text to search for, tokenized by the field's text index.
     #[prost(string, tag = "1")]
     pub query: ::prost::alloc::string::String,
+    /// Parameters of the scorer, keyed by its name. They must match the
+    /// `scoring` type of the field's text index. If absent, the scorer runs
+    /// with its defaults.
+    #[prost(oneof = "text_query::Scoring", tags = "4")]
+    pub scoring: ::core::option::Option<text_query::Scoring>,
+}
+/// Nested message and enum types in `TextQuery`.
+pub mod text_query {
+    /// Parameters of the scorer, keyed by its name. They must match the
+    /// `scoring` type of the field's text index. If absent, the scorer runs
+    /// with its defaults.
+    #[derive(Clone, Copy, PartialEq, ::prost::Oneof)]
+    pub enum Scoring {
+        /// BM25 parameters, for a field scored with BM25.
+        #[prost(message, tag = "4")]
+        Bm25(super::Bm25Params),
+    }
+}
+#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+pub struct Bm25Params {
     /// Term frequency saturation. Default is 1.2.
-    #[prost(float, optional, tag = "2")]
+    #[prost(float, optional, tag = "1")]
     pub k: ::core::option::Option<f32>,
     /// Document length normalization, from 0 (none) to 1 (full). Default is 0.75.
-    #[prost(float, optional, tag = "3")]
+    #[prost(float, optional, tag = "2")]
     pub b: ::core::option::Option<f32>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
