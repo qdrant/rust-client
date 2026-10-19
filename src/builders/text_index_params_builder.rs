@@ -24,6 +24,8 @@ pub struct TextIndexParamsBuilder {
     pub(crate) enable_hnsw: Option<Option<bool>>,
     /// Memory placement of the index.
     pub(crate) memory: Option<Option<i32>>,
+    /// Index every object of this array as a separate entry.
+    pub(crate) nested: Option<Option<String>>,
     /// Enable ranking points by BM25 over this field.
     pub(crate) scoring: Option<Option<TextScoringParams>>,
 }
@@ -148,9 +150,16 @@ impl TextIndexParamsBuilder {
         new.memory = Option::Some(Option::Some(value.into()));
         new
     }
+    /// Index every object of this array as a separate entry, e.g. `offers` for the field `offers[].title`.
+    /// The field must be inside the array's elements.
+    pub fn nested(self, value: impl Into<String>) -> Self {
+        let mut new = self;
+        new.nested = Option::Some(Option::Some(value.into()));
+        new
+    }
 
     /// Enable ranking points by BM25 over this field, see [`Query::new_text`].
-    /// Implies `phrase_matching: true`. Changing it rebuilds the index.
+    /// Changing it rebuilds the index.
     /// Default: disabled.
     pub fn scoring<VALUE: core::convert::Into<TextScoringParams>>(self, value: VALUE) -> Self {
         let mut new = self;
@@ -159,7 +168,7 @@ impl TextIndexParamsBuilder {
     }
 
     /// Enable BM25 ranking over this field, see [`Query::new_text`].
-    /// Implies `phrase_matching: true`. Changing it rebuilds the index.
+    /// Changing it rebuilds the index.
     pub fn bm25_scoring(self) -> Self {
         self.scoring(TextScoringType::Bm25)
     }
@@ -185,6 +194,7 @@ impl TextIndexParamsBuilder {
             ascii_folding: self.ascii_folding.unwrap_or_default(),
             enable_hnsw: self.enable_hnsw.unwrap_or_default(),
             memory: self.memory.unwrap_or_default(),
+            nested: self.nested.unwrap_or_default(),
             scoring: self.scoring.unwrap_or_default(),
         })
     }
@@ -203,6 +213,7 @@ impl TextIndexParamsBuilder {
             ascii_folding: Default::default(),
             enable_hnsw: Default::default(),
             memory: Default::default(),
+            nested: Default::default(),
             scoring: Default::default(),
         }
     }

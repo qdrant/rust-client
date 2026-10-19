@@ -11,6 +11,8 @@ pub struct DatetimeIndexParamsBuilder {
     pub(crate) enable_hnsw: Option<Option<bool>>,
     /// Memory placement of the index.
     pub(crate) memory: Option<Option<i32>>,
+    /// Index every object of this array as a separate entry.
+    pub(crate) nested: Option<Option<String>>,
 }
 
 impl DatetimeIndexParamsBuilder {
@@ -41,6 +43,13 @@ impl DatetimeIndexParamsBuilder {
         new.memory = Option::Some(Option::Some(value.into()));
         new
     }
+    /// Index every object of this array as a separate entry, e.g. `offers` for the field `offers[].price`.
+    /// The field must be inside the array's elements.
+    pub fn nested(self, value: impl Into<String>) -> Self {
+        let mut new = self;
+        new.nested = Option::Some(Option::Some(value.into()));
+        new
+    }
 
     #[allow(deprecated)]
     fn build_inner(self) -> Result<DatetimeIndexParams, std::convert::Infallible> {
@@ -49,6 +58,7 @@ impl DatetimeIndexParamsBuilder {
             is_principal: self.is_principal.unwrap_or_default(),
             enable_hnsw: self.enable_hnsw.unwrap_or_default(),
             memory: self.memory.unwrap_or_default(),
+            nested: self.nested.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -58,6 +68,7 @@ impl DatetimeIndexParamsBuilder {
             is_principal: core::default::Default::default(),
             enable_hnsw: core::default::Default::default(),
             memory: core::default::Default::default(),
+            nested: core::default::Default::default(),
         }
     }
 }

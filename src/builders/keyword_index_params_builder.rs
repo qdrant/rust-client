@@ -13,6 +13,8 @@ pub struct KeywordIndexParamsBuilder {
     pub(crate) prefix: Option<Option<KeywordPrefixParams>>,
     /// Memory placement of the index.
     pub(crate) memory: Option<Option<i32>>,
+    /// Index every object of this array as a separate entry.
+    pub(crate) nested: Option<Option<String>>,
 }
 
 impl Default for KeywordIndexParamsBuilder {
@@ -55,6 +57,13 @@ impl KeywordIndexParamsBuilder {
         new.memory = Option::Some(Option::Some(value.into()));
         new
     }
+    /// Index every object of this array as a separate entry, e.g. `offers` for the field `offers[].price`.
+    /// The field must be inside the array's elements.
+    pub fn nested(self, value: impl Into<String>) -> Self {
+        let mut new = self;
+        new.nested = Option::Some(Option::Some(value.into()));
+        new
+    }
 
     #[allow(deprecated)]
     fn build_inner(self) -> Result<KeywordIndexParams, std::convert::Infallible> {
@@ -64,6 +73,7 @@ impl KeywordIndexParamsBuilder {
             enable_hnsw: self.enable_hnsw.unwrap_or_default(),
             prefix: self.prefix.unwrap_or_default(),
             memory: self.memory.unwrap_or_default(),
+            nested: self.nested.unwrap_or_default(),
         })
     }
     /// Create an empty builder, with all fields set to `None` or `PhantomData`.
@@ -74,6 +84,7 @@ impl KeywordIndexParamsBuilder {
             enable_hnsw: core::default::Default::default(),
             prefix: core::default::Default::default(),
             memory: core::default::Default::default(),
+            nested: core::default::Default::default(),
         }
     }
 }
