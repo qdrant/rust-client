@@ -142,6 +142,8 @@ impl<'de> Deserializer<'de> for Value {
     {
         match self.kind.as_ref() {
             Some(Kind::DoubleValue(n)) => visitor.visit_f32(*n as f32),
+            // Whole numbers are stored as integers, accept them for float fields too
+            Some(Kind::IntegerValue(n)) => visitor.visit_i64(*n),
             _ => Err(self.invalid_type(&visitor)),
         }
     }
@@ -152,6 +154,8 @@ impl<'de> Deserializer<'de> for Value {
     {
         match self.kind.as_ref() {
             Some(Kind::DoubleValue(n)) => visitor.visit_f64(*n),
+            // Whole numbers are stored as integers, accept them for float fields too
+            Some(Kind::IntegerValue(n)) => visitor.visit_i64(*n),
             _ => Err(self.invalid_type(&visitor)),
         }
     }
@@ -823,5 +827,32 @@ mod test {
         assert_eq!(dst.bytes, vec![0, 4, 15, 11, 96, 12]);
         assert_eq!(dst.double, 0.2);
         assert_eq!(dst.single_char, 'c');
+    }
+
+    #[test]
+    fn test_integer_into_float() {
+        // Whole numbers are stored as integers, e.g. `{"price": 10}`
+        let payload = make_payload(json!({
+            "double": 10,
+            "single": -3,
+            "opt_double": 7,
+        }));
+
+        #[derive(Deserialize, Debug, PartialEq)]
+        struct Dst {
+            double: f64,
+            single: f32,
+            opt_double: Option<f64>,
+        }
+
+        let dst: Dst = payload.deserialize().unwrap();
+        assert_eq!(
+            dst,
+            Dst {
+                double: 10.0,
+                single: -3.0,
+                opt_double: Some(7.0),
+            }
+        );
     }
 }
