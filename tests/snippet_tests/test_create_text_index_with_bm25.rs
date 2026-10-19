@@ -9,7 +9,7 @@ async fn test_create_text_index_with_bm25() {
 
         let client = Qdrant::from_url("http://localhost:6334").build()?;
 
-        // Enable BM25 ranking over this field, implies phrase matching
+        // Enable BM25 ranking over this field
         let text_index_params = TextIndexParamsBuilder::new(TokenizerType::Word)
             .lowercase(true)
             .bm25_scoring();

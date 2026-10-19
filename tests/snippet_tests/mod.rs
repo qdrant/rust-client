@@ -13,6 +13,7 @@ mod test_create_collection_with_turbo_quantization;
 mod test_create_field_index;
 mod test_create_full_snapshot;
 mod test_create_keyword_index_with_prefix;
+mod test_create_nested_field_index;
 mod test_create_shard_key;
 mod test_create_snapshot;
 mod test_create_text_index;
