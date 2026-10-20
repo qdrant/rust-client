@@ -91,6 +91,7 @@ fn builder_coverage() {
     DeleteShardKeyRequestBuilder::new("my_collection").build();
     DeleteCollectionBuilder::new("my_collection").build();
     TextIndexParamsBuilder::new(TokenizerType::Word).build();
+    TextIndexParamsBuilder::new(TokenizerType::Code).build();
     CreateAliasBuilder::new("", "").build();
     RenameAliasBuilder::new("", "").build();
     QueryPointsBuilder::new("my_collection").build();
