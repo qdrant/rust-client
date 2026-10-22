@@ -312,8 +312,8 @@ impl<'de> Deserializer<'de> for Value {
 
     fn deserialize_enum<V>(
         self,
-        name: &'static str,
-        variants: &'static [&'static str],
+        _name: &'static str,
+        _variants: &'static [&'static str],
         visitor: V,
     ) -> Result<V::Value, Self::Error>
     where
@@ -321,10 +321,24 @@ impl<'de> Deserializer<'de> for Value {
     {
         match self.kind {
             Some(k) => match k {
-                Kind::StructValue(r#struct) => r#struct
-                    .into_deserializer()
-                    .deserialize_enum(name, variants, visitor),
-                Kind::StringValue(variant) => visitor.visit_enum(EnumDeserializer { variant }),
+                // Externally tagged: `{"Variant": value}`
+                Kind::StructValue(r#struct) => {
+                    let mut iter = r#struct.fields.into_iter();
+                    let (Some((variant, value)), None) = (iter.next(), iter.next()) else {
+                        return Err(serde::de::Error::invalid_value(
+                            Unexpected::Map,
+                            &"map with a single key",
+                        ));
+                    };
+                    visitor.visit_enum(EnumDeserializer {
+                        variant,
+                        value: Some(value),
+                    })
+                }
+                Kind::StringValue(variant) => visitor.visit_enum(EnumDeserializer {
+                    variant,
+                    value: None,
+                }),
                 _ => Err(Self::invalid_type_from_kind(&k, &visitor)),
             },
             None => Err(self.invalid_type(&visitor)),
@@ -365,6 +379,7 @@ impl<'de> Deserializer<'de> for Value {
 
 struct EnumDeserializer {
     variant: String,
+    value: Option<Value>,
 }
 
 impl<'de> EnumAccess<'de> for EnumDeserializer {
@@ -376,52 +391,66 @@ impl<'de> EnumAccess<'de> for EnumDeserializer {
         V: DeserializeSeed<'de>,
     {
         let variant = self.variant.into_deserializer();
-        let visitor = VariantDeserializer;
+        let visitor = VariantDeserializer { value: self.value };
         seed.deserialize(variant).map(|v| (v, visitor))
     }
 }
 
-struct VariantDeserializer;
+struct VariantDeserializer {
+    value: Option<Value>,
+}
 
 impl<'de> VariantAccess<'de> for VariantDeserializer {
     type Error = DeserPayloadError;
 
     fn unit_variant(self) -> Result<(), Self::Error> {
-        Ok(())
+        match self.value {
+            Some(value) => serde::Deserialize::deserialize(value),
+            None => Ok(()),
+        }
     }
 
-    fn newtype_variant_seed<T>(self, _seed: T) -> Result<T::Value, Self::Error>
+    fn newtype_variant_seed<T>(self, seed: T) -> Result<T::Value, Self::Error>
     where
         T: DeserializeSeed<'de>,
     {
-        Err(serde::de::Error::invalid_type(
-            Unexpected::UnitVariant,
-            &"newtype variant",
-        ))
+        match self.value {
+            Some(value) => seed.deserialize(value),
+            None => Err(serde::de::Error::invalid_type(
+                Unexpected::UnitVariant,
+                &"newtype variant",
+            )),
+        }
     }
 
-    fn tuple_variant<V>(self, _len: usize, _visitor: V) -> Result<V::Value, Self::Error>
+    fn tuple_variant<V>(self, _len: usize, visitor: V) -> Result<V::Value, Self::Error>
     where
         V: Visitor<'de>,
     {
-        Err(serde::de::Error::invalid_type(
-            Unexpected::UnitVariant,
-            &"tuple variant",
-        ))
+        match self.value {
+            Some(value) => value.deserialize_seq(visitor),
+            None => Err(serde::de::Error::invalid_type(
+                Unexpected::UnitVariant,
+                &"tuple variant",
+            )),
+        }
     }
 
     fn struct_variant<V>(
         self,
         _fields: &'static [&'static str],
-        _visitor: V,
+        visitor: V,
     ) -> Result<V::Value, Self::Error>
     where
         V: Visitor<'de>,
     {
-        Err(serde::de::Error::invalid_type(
-            Unexpected::UnitVariant,
-            &"struct variant",
-        ))
+        match self.value {
+            Some(value) => value.deserialize_map(visitor),
+            None => Err(serde::de::Error::invalid_type(
+                Unexpected::UnitVariant,
+                &"struct variant",
+            )),
+        }
     }
 }
 
@@ -854,5 +883,133 @@ mod test {
                 opt_double: Some(7.0),
             }
         );
+    }
+
+    #[test]
+    fn test_enum_externally_tagged() {
+        // Default serde enum representation, e.g. `{"Struct": {"key": "Major"}}`
+        #[derive(Deserialize, Serialize, PartialEq, Debug)]
+        enum DstEnum {
+            Unit,
+            Newtype(u32),
+            Tuple(String, u32),
+            Struct { key: String },
+        }
+
+        #[derive(Deserialize, Serialize, PartialEq, Debug)]
+        struct Dst {
+            items: Vec<DstEnum>,
+        }
+
+        let value = Dst {
+            items: vec![
+                DstEnum::Unit,
+                DstEnum::Newtype(32),
+                DstEnum::Tuple("abc".to_string(), 7),
+                DstEnum::Struct {
+                    key: "Major".to_string(),
+                },
+            ],
+        };
+
+        let payload = make_payload(serde_json::to_value(&value).unwrap());
+        let deserialized_value: Dst = payload.deserialize().unwrap();
+        assert_eq!(value, deserialized_value);
+
+        // An externally tagged variant must be a map with exactly one key
+        let payload = make_payload(json!({"items": [{"Newtype": 1, "Unit": null}]}));
+        let dst: Result<Dst, _> = payload.deserialize();
+        assert!(dst.is_err());
+    }
+
+    mod externally_tagged_regressions {
+        use serde::Deserialize;
+        use serde_json::{json, Value};
+
+        use super::make_payload;
+
+        #[derive(Debug, Deserialize, PartialEq)]
+        enum External {
+            Unit,
+            Newtype(u32),
+            Tuple(String, u32),
+            Struct { key: String },
+            Maybe(Option<u32>),
+        }
+
+        #[derive(Debug, Deserialize, PartialEq)]
+        struct Envelope {
+            item: External,
+        }
+
+        fn assert_json_parity(representation: Value) {
+            let input = json!({"item": representation});
+            let expected = serde_json::from_value::<Envelope>(input.clone());
+            let actual = make_payload(input.clone()).deserialize::<Envelope>();
+            match (expected, actual) {
+                (Ok(expected), Ok(actual)) => assert_eq!(actual, expected, "{input}"),
+                (Err(_), Err(_)) => {}
+                (expected, actual) => panic!(
+                    "Payload and serde_json disagree for {input}: expected {expected:?}, got {actual:?}"
+                ),
+            }
+        }
+
+        #[test]
+        fn newtype() {
+            assert_json_parity(json!({"Newtype": 32}));
+            assert_json_parity(json!({"Newtype": u32::MAX}));
+        }
+
+        #[test]
+        fn tuple() {
+            assert_json_parity(json!({"Tuple": ["abc", 7]}));
+        }
+
+        #[test]
+        fn struct_variant() {
+            assert_json_parity(json!({"Struct": {"key": "Major"}}));
+        }
+
+        #[test]
+        fn unit_representations() {
+            assert_json_parity(json!("Unit"));
+            assert_json_parity(json!({"Unit": null}));
+        }
+
+        #[test]
+        fn optional_newtype() {
+            assert_json_parity(json!({"Maybe": null}));
+            assert_json_parity(json!({"Maybe": 7}));
+        }
+
+        #[test]
+        fn invalid_representations() {
+            for representation in [
+                json!(null),
+                json!(true),
+                json!(42),
+                json!([]),
+                json!({}),
+                json!({"Unknown": 1}),
+                json!({"Unit": true}),
+                json!({"Unit": null, "Newtype": 1}),
+                json!("Newtype"),
+                json!("Tuple"),
+                json!("Struct"),
+                json!({"Newtype": -1}),
+                json!({"Newtype": "32"}),
+                json!({"Tuple": []}),
+                json!({"Tuple": ["abc"]}),
+                json!({"Tuple": ["abc", 7, 8]}),
+                json!({"Tuple": {"key": "abc"}}),
+                json!({"Struct": []}),
+                json!({"Struct": {}}),
+                json!({"Struct": {"key": 7}}),
+                json!({"Maybe": []}),
+            ] {
+                assert_json_parity(representation);
+            }
+        }
     }
 }
