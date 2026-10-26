@@ -3,7 +3,7 @@ use std::sync::atomic::AtomicUsize;
 use std::time::Duration;
 
 use parking_lot::RwLock;
-use tonic::transport::{Channel, ClientTlsConfig, Uri};
+use tonic::transport::{Channel, ClientTlsConfig, Endpoint, Uri};
 use tonic::{Code, Status};
 
 pub struct ChannelPool {
@@ -15,6 +15,8 @@ pub struct ChannelPool {
     grpc_timeout: Duration,
     connection_timeout: Duration,
     keep_alive_while_idle: bool,
+    tls_domain_name: Option<String>,
+    origin: Option<String>,
     pool_size: usize,
 }
 
@@ -24,6 +26,8 @@ impl ChannelPool {
         grpc_timeout: Duration,
         connection_timeout: Duration,
         keep_alive_while_idle: bool,
+        tls_domain_name: Option<String>,
+        origin: Option<String>,
         mut pool_size: usize,
     ) -> Self {
         // Ensure `pool_size` is always >= 1
@@ -36,12 +40,14 @@ impl ChannelPool {
             grpc_timeout,
             connection_timeout,
             keep_alive_while_idle,
+            tls_domain_name,
+            origin,
             pool_size,
         }
     }
 
-    /// Creates a new channel at the given index. If one already exists, it will be dropped and replaced.
-    async fn make_channel(&self, channel_index: usize) -> Result<Channel, Status> {
+    /// Builds the endpoint, including TLS and origin settings, without connecting.
+    fn build_endpoint(&self) -> Result<Endpoint, Status> {
         let tls = match self.uri.scheme_str() {
             None => false,
             Some(schema) => match schema {
@@ -58,21 +64,36 @@ impl ChannelPool {
         let rust_client_version = env!("CARGO_PKG_VERSION").to_string();
         let version_info = format!("rust-client/{rust_client_version}");
 
-        let endpoint = Channel::builder(self.uri.clone())
+        let mut endpoint = Channel::builder(self.uri.clone())
             .timeout(self.grpc_timeout)
             .connect_timeout(self.connection_timeout)
             .keep_alive_while_idle(self.keep_alive_while_idle)
             .user_agent(version_info)
             .expect("Version info should be a valid header value");
 
-        let endpoint = if tls {
-            let tls_config = ClientTlsConfig::new().with_native_roots();
-            endpoint
+        if let Some(origin) = &self.origin {
+            let origin = origin
+                .parse::<Uri>()
+                .map_err(|e| Status::invalid_argument(format!("Invalid origin {origin:?}: {e}")))?;
+            endpoint = endpoint.origin(origin);
+        }
+
+        if tls {
+            let mut tls_config = ClientTlsConfig::new().with_native_roots();
+            if let Some(domain_name) = &self.tls_domain_name {
+                tls_config = tls_config.domain_name(domain_name.clone());
+            }
+            endpoint = endpoint
                 .tls_config(tls_config)
-                .map_err(|e| Status::internal(format!("Failed to create TLS config: {e}")))?
-        } else {
-            endpoint
-        };
+                .map_err(|e| Status::internal(format!("Failed to create TLS config: {e}")))?;
+        }
+
+        Ok(endpoint)
+    }
+
+    /// Creates a new channel at the given index. If one already exists, it will be dropped and replaced.
+    async fn make_channel(&self, channel_index: usize) -> Result<Channel, Status> {
+        let endpoint = self.build_endpoint()?;
 
         let new_channel = endpoint
             .connect()
@@ -167,6 +188,8 @@ fn require_get_channel_fn_to_be_send() {
             Duration::from_millis(0),
             Duration::from_millis(0),
             false,
+            None,
+            None,
             2,
         )
         .get_channel()
@@ -186,6 +209,8 @@ mod test {
             Duration::default(),
             Duration::default(),
             false,
+            None,
+            None,
             5,
         );
 
@@ -198,5 +223,47 @@ mod test {
         assert_eq!(channel.next_channel_index(), 1);
 
         assert_eq!(channel.channels.read().len(), 5);
+    }
+
+    fn pool(uri: &'static str, tls_domain_name: Option<&str>, origin: Option<&str>) -> ChannelPool {
+        ChannelPool::new(
+            Uri::from_static(uri),
+            Duration::from_secs(1),
+            Duration::from_secs(1),
+            false,
+            tls_domain_name.map(str::to_string),
+            origin.map(str::to_string),
+            1,
+        )
+    }
+
+    #[test]
+    fn test_endpoint_defaults() {
+        assert!(pool("http://localhost:6334", None, None)
+            .build_endpoint()
+            .is_ok());
+        assert!(pool("https://127.0.0.1:6334", None, None)
+            .build_endpoint()
+            .is_ok());
+    }
+
+    #[test]
+    fn test_endpoint_with_domain_and_origin() {
+        let endpoint = pool(
+            "https://127.0.0.1:6334",
+            Some("qdrant.example.com"),
+            Some("https://qdrant.example.com"),
+        )
+        .build_endpoint()
+        .expect("endpoint should build");
+        assert_eq!(endpoint.uri().to_string(), "https://127.0.0.1:6334/");
+    }
+
+    #[test]
+    fn test_endpoint_invalid_origin() {
+        let err = pool("http://localhost:6334", None, Some("not a uri"))
+            .build_endpoint()
+            .expect_err("invalid origin should be rejected");
+        assert_eq!(err.code(), Code::InvalidArgument);
     }
 }
