@@ -11,12 +11,10 @@
 //! cargo run --example serverless --features serde
 //! ```
 
-use qdrant_client::qdrant::{PointStruct, QueryPointsBuilder, UpsertPointsBuilder};
 use qdrant_client::serverless::{
-    CollectionConfig, DenseVectorConfig, Distance, KeywordIndex, ListCollectionsBuilder,
-    QdrantServerless,
+    CollectionConfig, DenseVectorConfig, Distance, KeywordIndex, ListCollectionsBuilder, Payload,
+    PointStruct, QdrantError, QdrantServerless, QueryPointsBuilder, UpsertPointsBuilder,
 };
-use qdrant_client::{Payload, QdrantError};
 
 #[tokio::main]
 async fn main() -> Result<(), QdrantError> {

@@ -36,6 +36,12 @@ mod conversions;
 pub(crate) mod grpc;
 pub mod models;
 
+// Re-export all regular models (`PointStruct`, `Filter`, `QueryPointsBuilder`, ...) so that
+// `qdrant_client::serverless` is the single import for serverless code. The explicit
+// serverless models below shadow regular ones with the same name (`Distance`, `CollectionInfo`, ...).
+pub use crate::qdrant::*;
+pub use crate::{Payload, QdrantError};
+
 pub use client::{QdrantServerless, QdrantServerlessBuilder, DEFAULT_SERVERLESS_GRPC_PORT};
 pub use models::{
     BoolIndex, CollectionConfig, CollectionInfo, CollectionSummary, CollectionsList,
