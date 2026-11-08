@@ -113,7 +113,7 @@ impl<'de> Deserializer<'de> for Value {
                 Kind::StructValue(s) => s.into_deserializer().deserialize_any(visitor),
                 Kind::ListValue(list_value) => visit_array(list_value.values, visitor),
             },
-            None => Err(self.invalid_type(&visitor)),
+            None => visitor.visit_unit(),
         }
     }
 
@@ -221,7 +221,7 @@ impl<'de> Deserializer<'de> for Value {
         V: serde::de::Visitor<'de>,
     {
         match &self.kind {
-            Some(Kind::NullValue(_)) => visitor.visit_unit(),
+            None | Some(Kind::NullValue(_)) => visitor.visit_unit(),
             _ => Err(self.invalid_type(&visitor)),
         }
     }
@@ -479,6 +479,7 @@ mod test {
     use serde::{Deserialize, Serialize};
     use serde_json::json;
 
+    use crate::qdrant::Value;
     use crate::serde_deser::DeserPayloadError;
     use crate::Payload;
 
@@ -854,5 +855,15 @@ mod test {
                 opt_double: Some(7.0),
             }
         );
+    }
+    #[test]
+    fn test_unset_value_deserializes_as_null() {
+        let value = Value { kind: None };
+        let json = serde_json::to_value(&value).unwrap();
+        assert_eq!(json, serde_json::Value::Null);
+        let decoded = serde_json::Value::deserialize(value.clone()).unwrap();
+        assert_eq!(decoded, json);
+        assert_eq!(<()>::deserialize(value.clone()).unwrap(), ());
+        assert_eq!(Option::<String>::deserialize(value).unwrap(), None);
     }
 }
