@@ -211,9 +211,9 @@ impl Qdrant {
     /// client
     ///     .scroll(
     ///         ScrollPointsBuilder::new("my_collection")
-    ///             .filter(Filter::must([Condition::matches(
+    ///             .filter(Filter::must([Condition::matches_keyword(
     ///                 "color",
-    ///                 "red".to_string(),
+    ///                 "red"
     ///             )]))
     ///             .limit(1)
     ///             .with_payload(true)
@@ -249,9 +249,9 @@ impl Qdrant {
     /// client
     ///     .count(
     ///         CountPointsBuilder::new("collection_name")
-    ///             .filter(Filter::must([Condition::matches(
+    ///             .filter(Filter::must([Condition::matches_keyword(
     ///                 "color",
-    ///                 "red".to_string(),
+    ///                 "red"
     ///             )]))
     ///             .exact(true),
     ///     )
@@ -385,9 +385,9 @@ impl Qdrant {
     /// client
     ///     .delete_points(
     ///         DeletePointsBuilder::new("my_collection")
-    ///             .points(Filter::must([Condition::matches(
+    ///             .points(Filter::must([Condition::matches_keyword(
     ///                 "color",
-    ///                 "red".to_string(),
+    ///                 "red"
     ///             )]))
     ///             .wait(true),
     ///     )
@@ -592,9 +592,9 @@ impl Qdrant {
     ///    .facet(
     ///         FacetCountsBuilder::new("world_data", "country")
     ///             .limit(10)
-    ///             .filter(Filter::must(vec![Condition::matches(
+    ///             .filter(Filter::must(vec![Condition::matches_keyword(
     ///                 "continent",
-    ///                 "Europe".to_string(),
+    ///                 "Europe"
     ///             )])),
     ///     )
     ///     .await
@@ -623,9 +623,9 @@ impl Qdrant {
     /// let matrix = client
     ///     .search_matrix_pairs(
     ///         SearchMatrixPointsBuilder::new("collection_name")
-    ///             .filter(Filter::must(vec![Condition::matches(
+    ///             .filter(Filter::must(vec![Condition::matches_keyword(
     ///                 "color",
-    ///                 "red".to_string(),
+    ///                 "red"
     ///             )]))
     ///             .sample(1000)
     ///             .limit(10),
@@ -658,9 +658,9 @@ impl Qdrant {
     /// let matrix = client
     ///     .search_matrix_offsets(
     ///         SearchMatrixPointsBuilder::new("collection_name")
-    ///             .filter(Filter::must(vec![Condition::matches(
+    ///             .filter(Filter::must(vec![Condition::matches_keyword(
     ///                 "color",
-    ///                 "red".to_string(),
+    ///                 "red"
     ///             )]))
     ///             .sample(1000)
     ///             .limit(10),

@@ -52,7 +52,7 @@ impl ReplicatePointsBuilder {
     ///     ShardKey::from("shard_1".to_string()),
     ///     ShardKey::from("shard_2".to_string())
     /// )
-    /// .filter(Filter::must([Condition::matches("status", "active".to_string())]))
+    /// .filter(Filter::must([Condition::matches_keyword("status", "active")]))
     /// .build();
     /// ```
     pub fn filter(self, value: impl Into<Filter>) -> Self {

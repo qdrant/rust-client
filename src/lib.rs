@@ -274,16 +274,7 @@ mod tests {
             SearchPointsBuilder::new(collection_name, vec![11.; 10], 10).build();
 
         // Keyword filter result
-        search_points.filter = Some(Filter::all([Condition::matches("foo", "Bar".to_string())]));
-        let search_result = client.search_points(search_points.clone()).await?;
-        eprintln!("search_result = {search_result:#?}");
-        assert!(!search_result.result.is_empty());
-
-        // Existing implementations full text search filter result (`Condition::matches`)
-        search_points.filter = Some(Filter::all([Condition::matches(
-            "sub_payload.foo",
-            "Not ".to_string(),
-        )]));
+        search_points.filter = Some(Filter::all([Condition::matches_keyword("foo", "Bar")]));
         let search_result = client.search_points(search_points.clone()).await?;
         eprintln!("search_result = {search_result:#?}");
         assert!(!search_result.result.is_empty());

@@ -20,9 +20,9 @@ async fn test_delete_points() {
         client
             .delete_points(
                 DeletePointsBuilder::new("{collection_name}")
-                    .points(Filter::must([Condition::matches(
+                    .points(Filter::must([Condition::matches_keyword(
                         "color",
-                        "red".to_string(),
+                        "red"
                     )]))
                     .wait(true),
             )

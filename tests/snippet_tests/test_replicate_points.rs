@@ -18,9 +18,9 @@ async fn test_replicate_points() {
                         ShardKey::from("source_shard"),
                         ShardKey::from("target_shard"),
                     )
-                    .filter(Filter::must([Condition::matches(
+                    .filter(Filter::must([Condition::matches_keyword(
                         "user",
-                        "tenant-123".to_string(),
+                        "tenant-123"
                     )]))
                     .build(),
                 )),

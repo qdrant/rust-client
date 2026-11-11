@@ -16,14 +16,14 @@ async fn test_query_points_with_idf_corpus() {
                 QueryPointsBuilder::new("{collection_name}")
                     .query(vec![(1, 0.22), (42, 0.8)])
                     .using("sparse")
-                    .filter(Filter::must([Condition::matches(
+                    .filter(Filter::must([Condition::matches_keyword(
                         "tenant_id",
-                        "tenant_1".to_string(),
+                        "tenant_1"
                     )]))
                     .params(SearchParamsBuilder::default().idf(
-                        IdfParamsBuilder::default().corpus(Filter::must([Condition::matches(
+                        IdfParamsBuilder::default().corpus(Filter::must([Condition::matches_keyword(
                             "tenant_id",
-                            "tenant_1".to_string(),
+                            "tenant_1"
                         )])),
                     ))
                     .limit(10u64),

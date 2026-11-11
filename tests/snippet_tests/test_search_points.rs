@@ -10,9 +10,9 @@ async fn test_search_points() {
         client
             .search_points(
                 SearchPointsBuilder::new("{collection_name}", vec![0.2, 0.1, 0.9, 0.7], 3)
-                    .filter(Filter::must([Condition::matches(
+                    .filter(Filter::must([Condition::matches_keyword(
                         "city",
-                        "London".to_string(),
+                        "London"
                     )]))
                     .params(SearchParamsBuilder::default().hnsw_ef(128).exact(false)),
             )
@@ -22,9 +22,9 @@ async fn test_search_points() {
         client
             .search_points(
                 SearchPointsBuilder::new("{collection_name}", vec![0.2, 0.1, 0.9, 0.7], 3)
-                    .filter(Filter::must([Condition::matches(
+                    .filter(Filter::must([Condition::matches_keyword(
                         "city",
-                        "London".to_string(),
+                        "London"
                     )]))
                     .params(
                         SearchParamsBuilder::default()

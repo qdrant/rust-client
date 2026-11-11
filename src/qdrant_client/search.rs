@@ -27,9 +27,9 @@ impl Qdrant {
     /// client
     ///     .search_points(
     ///         SearchPointsBuilder::new("my_collection", vec![0.2, 0.1, 0.9, 0.7], 3)
-    ///             .filter(Filter::must([Condition::matches(
+    ///             .filter(Filter::must([Condition::matches_keyword(
     ///                 "city",
-    ///                 "London".to_string(),
+    ///                 "London"
     ///             )]))
     ///             .params(SearchParamsBuilder::default().hnsw_ef(128).exact(false)),
     ///     )
@@ -63,7 +63,7 @@ impl Qdrant {
     ///
     ///# async fn search_batch_points(client: &Qdrant)
     ///# -> Result<(), QdrantError> {
-    /// let filter = Filter::must([Condition::matches("city", "London".to_string())]);
+    /// let filter = Filter::must([Condition::matches_keyword("city", "London")]);
     ///
     /// let searches = vec![
     ///     SearchPointsBuilder::new("my_collection", vec![0.2, 0.1, 0.9, 0.7], 3)
@@ -153,9 +153,9 @@ impl Qdrant {
     ///             .add_negative(718)
     ///             .add_negative(vec![0.2, 0.3, 0.4, 0.5])
     ///             .strategy(RecommendStrategy::AverageVector)
-    ///             .filter(Filter::must([Condition::matches(
+    ///             .filter(Filter::must([Condition::matches_keyword(
     ///                 "city",
-    ///                 "London".to_string(),
+    ///                 "London"
     ///             )])),
     ///     )
     ///     .await?;
@@ -189,7 +189,7 @@ impl Qdrant {
     ///
     ///# async fn recommend_batch(client: &Qdrant)
     ///# -> Result<(), QdrantError> {
-    /// let filter = Filter::must([Condition::matches("city", "London".to_string())]);
+    /// let filter = Filter::must([Condition::matches_keyword("city", "London")]);
     ///
     /// let recommend_queries = vec![
     ///     RecommendPointsBuilder::new("my_collection", 3)

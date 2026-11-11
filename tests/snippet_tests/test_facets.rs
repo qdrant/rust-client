@@ -11,9 +11,9 @@ async fn test_facets() {
             .facet(
                  FacetCountsBuilder::new("world_data", "country")
                      .limit(10)
-                     .filter(Filter::must(vec![Condition::matches(
+                     .filter(Filter::must(vec![Condition::matches_keyword(
                          "continent",
-                         "Europe".to_string(),
+                         "Europe"
                      )])),
              )
              .await?;
