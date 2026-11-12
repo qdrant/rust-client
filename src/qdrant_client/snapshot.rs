@@ -172,7 +172,7 @@ impl Qdrant {
         for (key, value) in &self.config.custom_headers {
             request = request.header(key.as_str(), value.as_str());
         }
-        let mut stream = request.send().await?.bytes_stream();
+        let mut stream = request.send().await?.error_for_status()?.bytes_stream();
 
         let _ = std::fs::remove_file(&options.out_path);
         let mut file = std::fs::OpenOptions::new()
@@ -288,5 +288,57 @@ impl Qdrant {
             Ok(result.into_inner())
         })
         .await
+    }
+}
+
+#[cfg(all(test, feature = "download_snapshots"))]
+mod tests {
+    use tokio::io::{AsyncReadExt, AsyncWriteExt};
+    use tokio::net::TcpListener;
+
+    use crate::qdrant::SnapshotDownloadBuilder;
+    use crate::Qdrant;
+
+    /// Serve a single HTTP response with the given status line and body.
+    async fn serve_once(status: &'static str, body: &'static str) -> String {
+        let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let addr = listener.local_addr().unwrap();
+        tokio::spawn(async move {
+            let (mut socket, _) = listener.accept().await.unwrap();
+            let mut buf = [0u8; 4096];
+            let _ = socket.read(&mut buf).await;
+            let response = format!(
+                "HTTP/1.1 {status}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
+                body.len()
+            );
+            socket.write_all(response.as_bytes()).await.unwrap();
+        });
+        format!("http://{addr}")
+    }
+
+    #[tokio::test]
+    async fn download_snapshot_http_error_keeps_existing_file() {
+        let dir = std::env::temp_dir().join(format!("qdrant-dl-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let out_path = dir.join("existing.snapshot");
+        std::fs::write(&out_path, b"previous snapshot").unwrap();
+
+        let uri = serve_once("404 Not Found", "{\"status\":{\"error\":\"Not found\"}}").await;
+        let client = Qdrant::from_url("http://localhost:6334")
+            .skip_compatibility_check()
+            .build()
+            .unwrap();
+
+        let result = client
+            .download_snapshot(
+                SnapshotDownloadBuilder::new(&out_path, "collection")
+                    .snapshot_name("missing.snapshot")
+                    .rest_api_uri(uri),
+            )
+            .await;
+
+        assert!(result.is_err(), "HTTP 404 must be reported as an error");
+        assert_eq!(std::fs::read(&out_path).unwrap(), b"previous snapshot");
+        let _ = std::fs::remove_dir_all(&dir);
     }
 }
