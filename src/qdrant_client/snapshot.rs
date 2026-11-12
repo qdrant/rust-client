@@ -172,17 +172,34 @@ impl Qdrant {
         for (key, value) in &self.config.custom_headers {
             request = request.header(key.as_str(), value.as_str());
         }
-        let mut stream = request.send().await?.bytes_stream();
+        let mut stream = request.send().await?.error_for_status()?.bytes_stream();
 
-        let _ = std::fs::remove_file(&options.out_path);
-        let mut file = std::fs::OpenOptions::new()
-            .write(true)
-            .create_new(true)
-            .open(&options.out_path)?;
+        // Download into a temporary file next to the target, and only move it into place once
+        // complete. A failed or cancelled download never touches an existing file at `out_path`.
+        let mut tmp_path = options.out_path.clone().into_os_string();
+        tmp_path.push(".part");
+        let tmp_path = std::path::PathBuf::from(tmp_path);
 
-        while let Some(chunk) = stream.next().await {
-            let _written = file.write(&chunk?)?;
+        /// Removes the temporary file unless disarmed.
+        struct RemoveOnDrop<'a>(Option<&'a std::path::Path>);
+        impl Drop for RemoveOnDrop<'_> {
+            fn drop(&mut self) {
+                if let Some(path) = self.0 {
+                    let _ = std::fs::remove_file(path);
+                }
+            }
         }
+
+        let mut tmp_guard = RemoveOnDrop(Some(&tmp_path));
+        let mut file = std::fs::File::create(&tmp_path)?;
+        while let Some(chunk) = stream.next().await {
+            file.write_all(&chunk?)?;
+        }
+        file.sync_all()?;
+        drop(file);
+
+        std::fs::rename(&tmp_path, &options.out_path)?;
+        tmp_guard.0 = None;
 
         Ok(())
     }
@@ -288,5 +305,102 @@ impl Qdrant {
             Ok(result.into_inner())
         })
         .await
+    }
+}
+
+#[cfg(all(test, feature = "download_snapshots"))]
+mod tests {
+    use tokio::io::{AsyncReadExt, AsyncWriteExt};
+    use tokio::net::TcpListener;
+
+    use crate::qdrant::SnapshotDownloadBuilder;
+    use crate::Qdrant;
+
+    /// Serve a single HTTP response with the given status line and body.
+    async fn serve_once(status: &'static str, body: &'static str) -> String {
+        let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let addr = listener.local_addr().unwrap();
+        tokio::spawn(async move {
+            let (mut socket, _) = listener.accept().await.unwrap();
+            let mut buf = [0u8; 4096];
+            let _ = socket.read(&mut buf).await;
+            let response = format!(
+                "HTTP/1.1 {status}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
+                body.len()
+            );
+            socket.write_all(response.as_bytes()).await.unwrap();
+        });
+        format!("http://{addr}")
+    }
+
+    #[tokio::test]
+    async fn download_snapshot_http_error_keeps_existing_file() {
+        let dir = std::env::temp_dir().join(format!("qdrant-dl-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let out_path = dir.join("existing.snapshot");
+        std::fs::write(&out_path, b"previous snapshot").unwrap();
+
+        let uri = serve_once("404 Not Found", "{\"status\":{\"error\":\"Not found\"}}").await;
+        let client = Qdrant::from_url("http://localhost:6334")
+            .skip_compatibility_check()
+            .build()
+            .unwrap();
+
+        let result = client
+            .download_snapshot(
+                SnapshotDownloadBuilder::new(&out_path, "collection")
+                    .snapshot_name("missing.snapshot")
+                    .rest_api_uri(uri),
+            )
+            .await;
+
+        assert!(result.is_err(), "HTTP 404 must be reported as an error");
+        assert_eq!(std::fs::read(&out_path).unwrap(), b"previous snapshot");
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[tokio::test]
+    async fn download_snapshot_truncated_body_keeps_existing_file() {
+        let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let addr = listener.local_addr().unwrap();
+        tokio::spawn(async move {
+            let (mut socket, _) = listener.accept().await.unwrap();
+            let mut buf = [0u8; 4096];
+            let _ = socket.read(&mut buf).await;
+            // Announce 1000 bytes but send only 100 before closing the connection
+            let head = "HTTP/1.1 200 OK\r\nContent-Length: 1000\r\n\r\n";
+            socket.write_all(head.as_bytes()).await.unwrap();
+            socket.write_all(&[b'x'; 100]).await.unwrap();
+            socket.flush().await.unwrap();
+        });
+
+        let dir = std::env::temp_dir().join(format!("qdrant-dl-trunc-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let out_path = dir.join("existing.snapshot");
+        std::fs::write(&out_path, b"previous snapshot").unwrap();
+
+        let client = Qdrant::from_url("http://localhost:6334")
+            .skip_compatibility_check()
+            .build()
+            .unwrap();
+
+        let result = client
+            .download_snapshot(
+                SnapshotDownloadBuilder::new(&out_path, "collection")
+                    .snapshot_name("truncated.snapshot")
+                    .rest_api_uri(format!("http://{addr}")),
+            )
+            .await;
+
+        assert!(
+            result.is_err(),
+            "truncated body must be reported as an error"
+        );
+        assert_eq!(std::fs::read(&out_path).unwrap(), b"previous snapshot");
+        assert!(
+            !dir.join("existing.snapshot.part").exists(),
+            "temporary file must be cleaned up"
+        );
+        let _ = std::fs::remove_dir_all(&dir);
     }
 }
