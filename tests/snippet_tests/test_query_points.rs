@@ -153,9 +153,9 @@ async fn test_query_points() {
         let _acorn_query = client.query(
             QueryPointsBuilder::new("{collection_name}")
                 .query(vec![0.01, 0.45, 0.67])
-                .filter(Filter::must([Condition::matches(
+                .filter(Filter::must([Condition::matches_keyword(
                     "category",
-                    "electronics".to_string(),
+                    "electronics"
                 )]))
                 .params(
                     SearchParamsBuilder::default()

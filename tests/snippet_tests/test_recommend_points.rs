@@ -16,9 +16,9 @@ async fn test_recommend_points() {
                     .add_negative(718)
                     .add_negative(vec![0.2, 0.3, 0.4, 0.5])
                     .strategy(RecommendStrategy::AverageVector)
-                    .filter(Filter::must([Condition::matches(
+                    .filter(Filter::must([Condition::matches_keyword(
                         "city",
-                        "London".to_string(),
+                        "London"
                     )])),
             )
             .await?;

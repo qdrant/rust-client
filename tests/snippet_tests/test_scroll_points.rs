@@ -10,9 +10,9 @@ async fn test_scroll_points() {
         client
             .scroll(
                 ScrollPointsBuilder::new("{collection_name}")
-                    .filter(Filter::must([Condition::matches(
+                    .filter(Filter::must([Condition::matches_keyword(
                         "color",
-                        "red".to_string(),
+                        "red"
                     )]))
                     .limit(1)
                     .with_payload(true)

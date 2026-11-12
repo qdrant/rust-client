@@ -210,6 +210,14 @@ impl qdrant::Condition {
 
     /// Create a [`Condition`] that matches a field against a certain value.
     ///
+    /// A single string has no conversion into [`MatchValue`]: pick the match it means,
+    /// [`Condition::matches_keyword`] for an exact keyword or
+    /// [`Condition::matches_text`] for a full-text match.
+    ///
+    /// ```compile_fail
+    /// qdrant_client::qdrant::Condition::matches("city", "London".to_string());
+    /// ```
+    ///
     /// # Examples:
     /// ```
     /// qdrant_client::qdrant::Condition::matches("number", 42);
@@ -221,6 +229,24 @@ impl qdrant::Condition {
                 key: field.into(),
                 r#match: Some(qdrant::Match {
                     match_value: Some(r#match.into()),
+                }),
+                ..Default::default()
+            })),
+        }
+    }
+
+    /// Create a [`Condition`] that matches a keyword field exactly, whitespace included.
+    ///
+    /// # Examples:
+    /// ```
+    /// qdrant_client::qdrant::Condition::matches_keyword("city", "New York");
+    /// ```
+    pub fn matches_keyword(field: impl Into<String>, keyword: impl Into<String>) -> Self {
+        Self {
+            condition_one_of: Some(ConditionOneOf::Field(qdrant::FieldCondition {
+                key: field.into(),
+                r#match: Some(qdrant::Match {
+                    match_value: Some(MatchValue::Keyword(keyword.into())),
                 }),
                 ..Default::default()
             })),
@@ -499,16 +525,6 @@ impl From<bool> for MatchValue {
 impl From<i64> for MatchValue {
     fn from(value: i64) -> Self {
         Self::Integer(value)
-    }
-}
-
-impl From<String> for MatchValue {
-    fn from(value: String) -> Self {
-        if value.contains(char::is_whitespace) {
-            Self::Text(value)
-        } else {
-            Self::Keyword(value)
-        }
     }
 }
 

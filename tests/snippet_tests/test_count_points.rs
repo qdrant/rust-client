@@ -10,9 +10,9 @@ async fn test_count_points() {
         client
             .count(
                 CountPointsBuilder::new("{collection_name}")
-                    .filter(Filter::must([Condition::matches(
+                    .filter(Filter::must([Condition::matches_keyword(
                         "color",
-                        "red".to_string(),
+                        "red"
                     )]))
                     .exact(true),
             )

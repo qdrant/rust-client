@@ -9,7 +9,7 @@ async fn test_search_batch_points() {
         
         let client = Qdrant::from_url("http://localhost:6334").build()?;
         
-        let filter = Filter::must([Condition::matches("city", "London".to_string())]);
+        let filter = Filter::must([Condition::matches_keyword("city", "London")]);
         
         let searches = vec![
             SearchPointsBuilder::new("{collection_name}", vec![0.2, 0.1, 0.9, 0.7], 3)

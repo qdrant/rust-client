@@ -9,7 +9,7 @@ async fn test_recommend_batch_points() {
         
         let client = Qdrant::from_url("http://localhost:6334").build()?;
         
-        let filter = Filter::must([Condition::matches("city", "London".to_string())]);
+        let filter = Filter::must([Condition::matches_keyword("city", "London")]);
         let recommend_queries = vec![
             RecommendPointsBuilder::new("{collection_name}", 3)
                 .add_positive(100)

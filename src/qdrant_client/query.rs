@@ -22,9 +22,9 @@ impl Qdrant {
     /// client
     ///     .query(
     ///         QueryPointsBuilder::new("my_collection")
-    ///             .filter(Filter::must([Condition::matches(
+    ///             .filter(Filter::must([Condition::matches_keyword(
     ///                 "city",
-    ///                 "London".to_string(),
+    ///                 "London"
     ///             )]))
     ///     )
     ///     .await?;
@@ -55,15 +55,15 @@ impl Qdrant {
     ///     .query_batch(
     ///         QueryBatchPointsBuilder::new("my_collection", vec![
     ///             QueryPointsBuilder::new("my_collection")
-    ///                 .filter(Filter::must([Condition::matches(
+    ///                 .filter(Filter::must([Condition::matches_keyword(
     ///                     "city",
-    ///                     "London".to_string(),
+    ///                     "London"
     ///                 )]))
     ///                 .build(),
     ///             QueryPointsBuilder::new("my_collection")
-    ///                 .filter(Filter::must([Condition::matches(
+    ///                 .filter(Filter::must([Condition::matches_keyword(
     ///                     "city",
-    ///                     "Berlin".to_string(),
+    ///                     "Berlin"
     ///                 )]))
     ///                 .build(),
     ///         ])

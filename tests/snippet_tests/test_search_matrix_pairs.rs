@@ -10,9 +10,9 @@ async fn test_search_matrix_pairs() {
         client
             .search_matrix_pairs(
                 SearchMatrixPointsBuilder::new("collection_name")
-                   .filter(Filter::must(vec![Condition::matches(
+                   .filter(Filter::must(vec![Condition::matches_keyword(
                        "color",
-                       "red".to_string(),
+                       "red"
                    )]))
                    .sample(1000)
                    .limit(10),
