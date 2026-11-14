@@ -106,6 +106,8 @@ impl Qdrant {
                 config.timeout,
                 config.connect_timeout,
                 config.keep_alive_while_idle,
+                config.tls_domain_name.clone(),
+                config.origin.clone(),
                 1, // No need to create a pool for the health check.
             );
             let client = Self {
@@ -163,6 +165,8 @@ impl Qdrant {
             config.timeout,
             config.connect_timeout,
             config.keep_alive_while_idle,
+            config.tls_domain_name.clone(),
+            config.origin.clone(),
             config.pool_size,
         );
 

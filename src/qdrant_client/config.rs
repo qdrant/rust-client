@@ -53,6 +53,16 @@ pub struct QdrantConfig {
 
     /// Optional custom headers to send with every request (both gRPC and REST).
     pub custom_headers: Vec<(String, String)>,
+
+    /// Optional domain name used to verify the server certificate and as the TLS SNI name.
+    ///
+    /// Only applies to `https` URIs. Defaults to the host of the URI.
+    pub tls_domain_name: Option<String>,
+
+    /// Optional origin URI used as the HTTP/2 `:authority` of requests.
+    ///
+    /// Defaults to the authority of the URI.
+    pub origin: Option<String>,
 }
 
 impl QdrantConfig {
@@ -170,6 +180,41 @@ impl QdrantConfig {
         self
     }
 
+    /// Set the domain name used to verify the server certificate and as the TLS SNI name
+    ///
+    /// Useful when connecting through an IP address or a proxy whose certificate is issued
+    /// for a different name than the one in the URI. Certificate verification is still
+    /// performed, against this name. Only applies to `https` URIs.
+    ///
+    /// ```rust,no_run
+    /// use qdrant_client::Qdrant;
+    ///
+    /// let client = Qdrant::from_url("https://10.0.0.5:6334")
+    ///     .tls_domain_name("qdrant.example.com")
+    ///     .build();
+    /// ```
+    pub fn tls_domain_name(mut self, domain_name: impl Into<String>) -> Self {
+        self.tls_domain_name = Some(domain_name.into());
+        self
+    }
+
+    /// Set the origin used as the HTTP/2 `:authority` of requests
+    ///
+    /// Useful when connecting through a proxy or load balancer that routes on the
+    /// authority and expects a different value than the one in the URI.
+    ///
+    /// ```rust,no_run
+    /// use qdrant_client::Qdrant;
+    ///
+    /// let client = Qdrant::from_url("https://10.0.0.5:6334")
+    ///     .origin("https://qdrant.example.com")
+    ///     .build();
+    /// ```
+    pub fn origin(mut self, origin: impl Into<String>) -> Self {
+        self.origin = Some(origin.into());
+        self
+    }
+
     /// Set an API key
     ///
     /// Also see [`api_key()`](fn@Self::api_key).
@@ -264,6 +309,8 @@ impl Default for QdrantConfig {
             check_connection: false,
             pool_size: 3,
             custom_headers: Vec::new(),
+            tls_domain_name: None,
+            origin: None,
         }
     }
 }
@@ -361,5 +408,32 @@ impl AsOptionApiKey for Option<&str> {
 impl<E: Sized> AsOptionApiKey for Result<String, E> {
     fn api_key(self) -> Option<String> {
         self.ok()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn tls_domain_name_and_origin_default_to_none() {
+        let config = QdrantConfig::default();
+        assert_eq!(config.tls_domain_name, None);
+        assert_eq!(config.origin, None);
+        let config = QdrantConfig::from_url("https://localhost:6334");
+        assert_eq!(config.tls_domain_name, None);
+        assert_eq!(config.origin, None);
+    }
+
+    #[test]
+    fn tls_domain_name_and_origin_builders() {
+        let config = QdrantConfig::from_url("https://10.0.0.5:6334")
+            .tls_domain_name("qdrant.example.com")
+            .origin("https://qdrant.example.com");
+        assert_eq!(
+            config.tls_domain_name.as_deref(),
+            Some("qdrant.example.com")
+        );
+        assert_eq!(config.origin.as_deref(), Some("https://qdrant.example.com"));
     }
 }
