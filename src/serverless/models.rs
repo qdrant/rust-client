@@ -328,6 +328,48 @@ impl TextScoringParams {
 }
 
 /// Full-text filtering on string values.
+///
+/// With [`TextIndex::bm25_scoring`] the field can also rank points by BM25, through
+/// [`Query::new_text`](crate::qdrant::Query::new_text) with `using` set to the field name.
+///
+/// ```no_run
+/// use qdrant_client::serverless::{
+///     CollectionConfig, Query, QdrantServerless, QueryPointsBuilder, TextIndex,
+///     TextQueryBuilder, Tokenizer,
+/// };
+///
+/// # async fn run(client: QdrantServerless) -> Result<(), qdrant_client::QdrantError> {
+/// client
+///     .create_collection(
+///         "docs",
+///         CollectionConfig::new()
+///             // prose, ranked by BM25
+///             .payload_index(
+///                 "description",
+///                 TextIndex::new()
+///                     .tokenizer(Tokenizer::Word)
+///                     .lowercase(true)
+///                     .bm25_scoring(),
+///             )
+///             // source code: `parseHttpRequest` is also indexed as `parse`, `http`, `request`
+///             .payload_index(
+///                 "snippet",
+///                 TextIndex::new().tokenizer(Tokenizer::Code).bm25_scoring(),
+///             ),
+///     )
+///     .await?;
+///
+/// let hits = client
+///     .query(
+///         QueryPointsBuilder::new("docs")
+///             .query(Query::new_text(TextQueryBuilder::new("http request").k(1.5)))
+///             .using("snippet")
+///             .limit(10),
+///     )
+///     .await?;
+/// # Ok(())
+/// # }
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct TextIndex {
@@ -455,6 +497,43 @@ impl BoolIndex {
 
 /// One payload index. Only the kind of filter the field supports is chosen;
 /// storage placement of the index is the manager's decision.
+///
+/// Every index kind can be `nested`: each object of the named array is indexed as a separate
+/// entry, so a [`Condition::nested`](crate::qdrant::Condition::nested) filter matches
+/// conditions on the same element.
+///
+/// ```no_run
+/// use qdrant_client::serverless::{
+///     CollectionConfig, Condition, Filter, FloatIndex, KeywordIndex, QdrantServerless,
+///     QueryPointsBuilder, Range,
+/// };
+///
+/// # async fn run(client: QdrantServerless) -> Result<(), qdrant_client::QdrantError> {
+/// // payload: {"offers": [{"color": "red", "price": 10.0}, {"color": "blue", "price": 25.0}]}
+/// client
+///     .create_collection(
+///         "products",
+///         CollectionConfig::new()
+///             .payload_index("offers[].color", KeywordIndex::new().nested("offers"))
+///             .payload_index("offers[].price", FloatIndex::new().nested("offers")),
+///     )
+///     .await?;
+///
+/// // points with a red offer cheaper than 20
+/// let hits = client
+///     .query(QueryPointsBuilder::new("products").filter(Filter::must([
+///         Condition::nested(
+///             "offers",
+///             Filter::must([
+///                 Condition::matches("color", "red".to_string()),
+///                 Condition::range("price", Range { lt: Some(20.0), ..Default::default() }),
+///             ]),
+///         ),
+///     ])))
+///     .await?;
+/// # Ok(())
+/// # }
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(tag = "type", rename_all = "snake_case"))]
@@ -633,6 +712,25 @@ pub struct UpdatesInfo {
 ///
 /// `point_count` is eventually consistent and absent until stats have been
 /// written for the collection.
+///
+/// ```no_run
+/// use qdrant_client::serverless::{CollectionStatus, QdrantServerless, UpdatesStatus};
+///
+/// # async fn run(client: QdrantServerless) -> Result<(), qdrant_client::QdrantError> {
+/// let info = client.get_collection("my-collection").await?;
+/// println!(
+///     "points: {:?}, stored bytes: {:?}, indexed vectors: {:?}",
+///     info.point_count, info.size_bytes, info.indexed_vectors_count,
+/// );
+/// if info.status == Some(CollectionStatus::Yellow) {
+///     // optimization is pending or running; the collection stays searchable
+/// }
+/// if info.updates.as_ref().map(|u| u.status) == Some(UpdatesStatus::Pending) {
+///     // some acknowledged writes are not visible to search yet
+/// }
+/// # Ok(())
+/// # }
+/// ```
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CollectionInfo {
