@@ -39,14 +39,15 @@ pub mod models;
 // Re-export all regular models (`PointStruct`, `Filter`, `QueryPointsBuilder`, ...) so that
 // `qdrant_client::serverless` is the single import for serverless code. The explicit
 // serverless models below shadow regular ones with the same name (`Distance`, `CollectionInfo`, ...).
-pub use crate::qdrant::*;
-pub use crate::{Payload, QdrantError};
-
 pub use client::{QdrantServerless, QdrantServerlessBuilder, DEFAULT_SERVERLESS_GRPC_PORT};
 pub use models::{
-    BoolIndex, CollectionConfig, CollectionInfo, CollectionSummary, CollectionsList,
-    CreateCollectionResult, DatetimeIndex, DeleteCollectionResult, DenseVectorConfig, Distance,
-    FloatIndex, GeoIndex, IntegerIndex, KeywordIndex, KeywordPrefixParams, ListCollections,
-    ListCollectionsBuilder, PayloadIndex, PrecisionTier, SnowballParams, SparseVectorConfig,
-    StemmingAlgorithm, StopwordsSet, TextIndex, Tokenizer, UuidIndex,
+    BoolIndex, CollectionConfig, CollectionInfo, CollectionStatus, CollectionSummary,
+    CollectionsList, CreateCollectionResult, DatetimeIndex, DeleteCollectionResult,
+    DenseVectorConfig, Distance, FloatIndex, GeoIndex, IntegerIndex, KeywordIndex,
+    KeywordPrefixParams, ListCollections, ListCollectionsBuilder, PayloadIndex, PrecisionTier,
+    SnowballParams, SparseVectorConfig, StemmingAlgorithm, StopwordsSet, TextIndex,
+    TextScoringParams, TextScoringType, Tokenizer, UpdatesInfo, UpdatesStatus, UuidIndex,
 };
+
+pub use crate::qdrant::*;
+pub use crate::{Payload, QdrantError};

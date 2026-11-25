@@ -42,6 +42,8 @@ pub enum Tokenizer {
     Whitespace,
     Word,
     Multilingual,
+    /// Split source code into identifiers and their camelCase / snake_case subwords.
+    Code,
 }
 
 /// Configuration of a single dense (embedding) vector.
@@ -122,6 +124,9 @@ pub struct KeywordPrefixParams;
 pub struct KeywordIndex {
     /// If set, enable prefix matching (`match: { "prefix": ... }`) on this field.
     pub prefix: Option<KeywordPrefixParams>,
+    /// Index every object of this array as a separate entry, e.g. `offers` for the field
+    /// `offers[].color`. The field must be inside the array's elements. Default: disabled.
+    pub nested: Option<String>,
 }
 
 impl KeywordIndex {
@@ -134,6 +139,12 @@ impl KeywordIndex {
         self.prefix = Some(KeywordPrefixParams);
         self
     }
+
+    /// Index every object of the given array as a separate entry, e.g. `offers`.
+    pub fn nested(mut self, nested: impl Into<String>) -> Self {
+        self.nested = Some(nested.into());
+        self
+    }
 }
 
 /// Exact match and/or range filters on integers. Both default to enabled.
@@ -142,6 +153,9 @@ impl KeywordIndex {
 pub struct IntegerIndex {
     pub lookup: Option<bool>,
     pub range: Option<bool>,
+    /// Index every object of this array as a separate entry, e.g. `offers` for the field
+    /// `offers[].price`. The field must be inside the array's elements. Default: disabled.
+    pub nested: Option<String>,
 }
 
 impl IntegerIndex {
@@ -158,22 +172,76 @@ impl IntegerIndex {
         self.range = Some(range);
         self
     }
+
+    /// Index every object of the given array as a separate entry, e.g. `offers`.
+    pub fn nested(mut self, nested: impl Into<String>) -> Self {
+        self.nested = Some(nested.into());
+        self
+    }
 }
 
 /// Range filters on floating point (and integer) numbers.
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct FloatIndex;
+pub struct FloatIndex {
+    /// Index every object of this array as a separate entry, e.g. `offers` for the field
+    /// `offers[].price`. The field must be inside the array's elements. Default: disabled.
+    pub nested: Option<String>,
+}
+
+impl FloatIndex {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Index every object of the given array as a separate entry, e.g. `offers`.
+    pub fn nested(mut self, nested: impl Into<String>) -> Self {
+        self.nested = Some(nested.into());
+        self
+    }
+}
 
 /// Exact match on UUID strings; like keyword but stored compactly.
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct UuidIndex;
+pub struct UuidIndex {
+    /// Index every object of this array as a separate entry, e.g. `offers` for the field
+    /// `offers[].id`. The field must be inside the array's elements. Default: disabled.
+    pub nested: Option<String>,
+}
+
+impl UuidIndex {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Index every object of the given array as a separate entry, e.g. `offers`.
+    pub fn nested(mut self, nested: impl Into<String>) -> Self {
+        self.nested = Some(nested.into());
+        self
+    }
+}
 
 /// Range filters on RFC 3339 datetimes.
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct DatetimeIndex;
+pub struct DatetimeIndex {
+    /// Index every object of this array as a separate entry, e.g. `offers` for the field
+    /// `offers[].updated_at`. The field must be inside the array's elements. Default: disabled.
+    pub nested: Option<String>,
+}
+
+impl DatetimeIndex {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Index every object of the given array as a separate entry, e.g. `offers`.
+    pub fn nested(mut self, nested: impl Into<String>) -> Self {
+        self.nested = Some(nested.into());
+        self
+    }
+}
 
 /// Tokens ignored by a full-text index.
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
@@ -228,7 +296,80 @@ pub enum StemmingAlgorithm {
     Disabled,
 }
 
+/// How a text index ranks documents.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(rename_all = "snake_case"))]
+pub enum TextScoringType {
+    /// Okapi BM25. The index records each document's length; `k` and `b` are set per query.
+    Bm25,
+}
+
+/// Parameters of ranking over a text index. Presence enables scoring.
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct TextScoringParams {
+    /// How documents are ranked. Unset: BM25.
+    pub r#type: Option<TextScoringType>,
+}
+
+impl TextScoringParams {
+    /// Scoring with the default type (BM25).
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Okapi BM25 scoring.
+    pub fn bm25() -> Self {
+        Self {
+            r#type: Some(TextScoringType::Bm25),
+        }
+    }
+}
+
 /// Full-text filtering on string values.
+///
+/// With [`TextIndex::bm25_scoring`] the field can also rank points by BM25, through
+/// [`Query::new_text`](crate::qdrant::Query::new_text) with `using` set to the field name.
+///
+/// ```no_run
+/// use qdrant_client::serverless::{
+///     CollectionConfig, Query, QdrantServerless, QueryPointsBuilder, TextIndex,
+///     TextQueryBuilder, Tokenizer,
+/// };
+///
+/// # async fn run(client: QdrantServerless) -> Result<(), qdrant_client::QdrantError> {
+/// client
+///     .create_collection(
+///         "docs",
+///         CollectionConfig::new()
+///             // prose, ranked by BM25
+///             .payload_index(
+///                 "description",
+///                 TextIndex::new()
+///                     .tokenizer(Tokenizer::Word)
+///                     .lowercase(true)
+///                     .bm25_scoring(),
+///             )
+///             // source code: `parseHttpRequest` is also indexed as `parse`, `http`, `request`
+///             .payload_index(
+///                 "snippet",
+///                 TextIndex::new().tokenizer(Tokenizer::Code).bm25_scoring(),
+///             ),
+///     )
+///     .await?;
+///
+/// let hits = client
+///     .query(
+///         QueryPointsBuilder::new("docs")
+///             .query(Query::new_text(TextQueryBuilder::new("http request").k(1.5)))
+///             .using("snippet")
+///             .limit(10),
+///     )
+///     .await?;
+/// # Ok(())
+/// # }
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct TextIndex {
@@ -240,6 +381,13 @@ pub struct TextIndex {
     pub ascii_folding: Option<bool>,
     pub stopwords: Option<StopwordsSet>,
     pub stemmer: Option<StemmingAlgorithm>,
+    /// Enable ranking points by BM25 over this field. Changing it rebuilds the index.
+    /// Default: disabled.
+    pub scoring: Option<TextScoringParams>,
+    /// Index every object of this array as a separate entry, e.g. `offers` for the field
+    /// `offers[].title`. Every query on the field treats each element as its own document:
+    /// BM25 scores elements separately. Default: disabled.
+    pub nested: Option<String>,
 }
 
 impl TextIndex {
@@ -286,20 +434,106 @@ impl TextIndex {
         self.stemmer = Some(stemmer);
         self
     }
+
+    /// Enable ranking points over this field with the given scoring parameters.
+    pub fn scoring(mut self, scoring: TextScoringParams) -> Self {
+        self.scoring = Some(scoring);
+        self
+    }
+
+    /// Enable ranking points by BM25 over this field.
+    pub fn bm25_scoring(self) -> Self {
+        self.scoring(TextScoringParams::bm25())
+    }
+
+    /// Index every object of the given array as a separate entry, e.g. `offers`.
+    pub fn nested(mut self, nested: impl Into<String>) -> Self {
+        self.nested = Some(nested.into());
+        self
+    }
 }
 
 /// Geo radius / bounding box / polygon filters on `{lon, lat}` values.
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct GeoIndex;
+pub struct GeoIndex {
+    /// Index every object of this array as a separate entry, e.g. `offers` for the field
+    /// `offers[].location`. The field must be inside the array's elements. Default: disabled.
+    pub nested: Option<String>,
+}
+
+impl GeoIndex {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Index every object of the given array as a separate entry, e.g. `offers`.
+    pub fn nested(mut self, nested: impl Into<String>) -> Self {
+        self.nested = Some(nested.into());
+        self
+    }
+}
 
 /// Exact match on booleans.
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct BoolIndex;
+pub struct BoolIndex {
+    /// Index every object of this array as a separate entry, e.g. `offers` for the field
+    /// `offers[].in_stock`. The field must be inside the array's elements. Default: disabled.
+    pub nested: Option<String>,
+}
+
+impl BoolIndex {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Index every object of the given array as a separate entry, e.g. `offers`.
+    pub fn nested(mut self, nested: impl Into<String>) -> Self {
+        self.nested = Some(nested.into());
+        self
+    }
+}
 
 /// One payload index. Only the kind of filter the field supports is chosen;
 /// storage placement of the index is the manager's decision.
+///
+/// Every index kind can be `nested`: each object of the named array is indexed as a separate
+/// entry, so a [`Condition::nested`](crate::qdrant::Condition::nested) filter matches
+/// conditions on the same element.
+///
+/// ```no_run
+/// use qdrant_client::serverless::{
+///     CollectionConfig, Condition, Filter, FloatIndex, KeywordIndex, QdrantServerless,
+///     QueryPointsBuilder, Range,
+/// };
+///
+/// # async fn run(client: QdrantServerless) -> Result<(), qdrant_client::QdrantError> {
+/// // payload: {"offers": [{"color": "red", "price": 10.0}, {"color": "blue", "price": 25.0}]}
+/// client
+///     .create_collection(
+///         "products",
+///         CollectionConfig::new()
+///             .payload_index("offers[].color", KeywordIndex::new().nested("offers"))
+///             .payload_index("offers[].price", FloatIndex::new().nested("offers")),
+///     )
+///     .await?;
+///
+/// // points with a red offer cheaper than 20
+/// let hits = client
+///     .query(QueryPointsBuilder::new("products").filter(Filter::must([
+///         Condition::nested(
+///             "offers",
+///             Filter::must([
+///                 Condition::matches("color", "red".to_string()),
+///                 Condition::range("price", Range { lt: Some(20.0), ..Default::default() }),
+///             ]),
+///         ),
+///     ])))
+///     .await?;
+/// # Ok(())
+/// # }
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(tag = "type", rename_all = "snake_case"))]
@@ -445,16 +679,73 @@ pub struct DeleteCollectionResult {
     pub time: f64,
 }
 
+/// Optimization status of a collection, as in the regular API.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(rename_all = "snake_case"))]
+pub enum CollectionStatus {
+    /// All segments are optimized.
+    Green,
+    /// Optimization is pending or running; the collection stays searchable.
+    Yellow,
+}
+
+/// Whether acknowledged writes have been applied.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(rename_all = "snake_case"))]
+pub enum UpdatesStatus {
+    /// Every acknowledged write is applied and visible to search.
+    Applied,
+    /// Some acknowledged writes are still queued and not yet visible to search.
+    Pending,
+}
+
+/// Progress of acknowledged writes to a collection.
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct UpdatesInfo {
+    pub status: UpdatesStatus,
+}
+
 /// A collection's configuration and stats, as returned by [`super::QdrantServerless::get_collection`].
 ///
 /// `point_count` is eventually consistent and absent until stats have been
 /// written for the collection.
+///
+/// ```no_run
+/// use qdrant_client::serverless::{CollectionStatus, QdrantServerless, UpdatesStatus};
+///
+/// # async fn run(client: QdrantServerless) -> Result<(), qdrant_client::QdrantError> {
+/// let info = client.get_collection("my-collection").await?;
+/// println!(
+///     "points: {:?}, stored bytes: {:?}, indexed vectors: {:?}",
+///     info.point_count, info.size_bytes, info.indexed_vectors_count,
+/// );
+/// if info.status == Some(CollectionStatus::Yellow) {
+///     // optimization is pending or running; the collection stays searchable
+/// }
+/// if info.updates.as_ref().map(|u| u.status) == Some(UpdatesStatus::Pending) {
+///     // some acknowledged writes are not visible to search yet
+/// }
+/// # Ok(())
+/// # }
+/// ```
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CollectionInfo {
     pub exists: bool,
     pub config: Option<CollectionConfig>,
     pub point_count: Option<u64>,
+    /// Optimization status. `None` if it could not be determined.
+    pub status: Option<CollectionStatus>,
+    /// Estimated stored bytes, which the collection size limit applies to.
+    pub size_bytes: Option<u64>,
+    /// Approximate number of vectors in indexed segments; the rest are searched
+    /// exhaustively until an optimization indexes them.
+    pub indexed_vectors_count: Option<u64>,
+    /// Progress of acknowledged writes. `None` if it could not be determined.
+    pub updates: Option<UpdatesInfo>,
     /// Time spent to process the request, in seconds.
     pub time: f64,
 }
@@ -526,6 +817,8 @@ impl From<ListCollectionsBuilder> for ListCollections {
 pub struct CollectionSummary {
     pub collection_name: String,
     pub point_count: Option<u64>,
+    /// Estimated stored bytes, as in [`CollectionInfo::size_bytes`].
+    pub size_bytes: Option<u64>,
 }
 
 /// A page of collections returned by [`super::QdrantServerless::list_collections`].
