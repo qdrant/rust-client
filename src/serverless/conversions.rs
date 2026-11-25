@@ -9,19 +9,23 @@
 use crate::qdrant_client::error::QdrantError;
 use crate::serverless::grpc::{
     self, payload_index_config, stemming_algorithm, BoolIndex as GrpcBoolIndex,
-    DatetimeIndex as GrpcDatetimeIndex, DenseVectorConfig as GrpcDenseVectorConfig,
-    DisabledStemmer as GrpcDisabledStemmer, Distance as GrpcDistance, FloatIndex as GrpcFloatIndex,
-    GeoIndex as GrpcGeoIndex, IntegerIndex as GrpcIntegerIndex, KeywordIndex as GrpcKeywordIndex,
+    CollectionStatus as GrpcCollectionStatus, DatetimeIndex as GrpcDatetimeIndex,
+    DenseVectorConfig as GrpcDenseVectorConfig, DisabledStemmer as GrpcDisabledStemmer,
+    Distance as GrpcDistance, FloatIndex as GrpcFloatIndex, GeoIndex as GrpcGeoIndex,
+    IntegerIndex as GrpcIntegerIndex, KeywordIndex as GrpcKeywordIndex,
     KeywordPrefixParams as GrpcKeywordPrefixParams, PayloadIndexConfig,
     PrecisionTier as GrpcPrecisionTier, SnowballParams as GrpcSnowballParams,
     SparseVectorConfig as GrpcSparseVectorConfig, StemmingAlgorithm as GrpcStemmingAlgorithm,
-    StopwordsSet as GrpcStopwordsSet, TextIndex as GrpcTextIndex, Tokenizer as GrpcTokenizer,
+    StopwordsSet as GrpcStopwordsSet, TextIndex as GrpcTextIndex,
+    TextScoringParams as GrpcTextScoringParams, TextScoringType as GrpcTextScoringType,
+    Tokenizer as GrpcTokenizer, UpdatesInfo as GrpcUpdatesInfo, UpdatesStatus as GrpcUpdatesStatus,
     UuidIndex as GrpcUuidIndex,
 };
 use crate::serverless::models::{
-    BoolIndex, CollectionConfig, DatetimeIndex, DenseVectorConfig, Distance, FloatIndex, GeoIndex,
-    IntegerIndex, KeywordIndex, KeywordPrefixParams, PayloadIndex, PrecisionTier, SnowballParams,
-    SparseVectorConfig, StemmingAlgorithm, StopwordsSet, TextIndex, Tokenizer, UuidIndex,
+    BoolIndex, CollectionConfig, CollectionStatus, DatetimeIndex, DenseVectorConfig, Distance,
+    FloatIndex, GeoIndex, IntegerIndex, KeywordIndex, KeywordPrefixParams, PayloadIndex,
+    PrecisionTier, SnowballParams, SparseVectorConfig, StemmingAlgorithm, StopwordsSet, TextIndex,
+    TextScoringParams, TextScoringType, Tokenizer, UpdatesInfo, UpdatesStatus, UuidIndex,
 };
 
 fn distance_to_grpc(distance: Distance) -> GrpcDistance {
@@ -72,6 +76,7 @@ fn tokenizer_to_grpc(tokenizer: Tokenizer) -> GrpcTokenizer {
         Tokenizer::Whitespace => GrpcTokenizer::Whitespace,
         Tokenizer::Word => GrpcTokenizer::Word,
         Tokenizer::Multilingual => GrpcTokenizer::Multilingual,
+        Tokenizer::Code => GrpcTokenizer::Code,
     }
 }
 
@@ -81,10 +86,73 @@ fn tokenizer_from_grpc(tokenizer: GrpcTokenizer) -> Result<Tokenizer, QdrantErro
         GrpcTokenizer::Whitespace => Ok(Tokenizer::Whitespace),
         GrpcTokenizer::Word => Ok(Tokenizer::Word),
         GrpcTokenizer::Multilingual => Ok(Tokenizer::Multilingual),
+        GrpcTokenizer::Code => Ok(Tokenizer::Code),
         GrpcTokenizer::Unspecified => Err(QdrantError::ConversionError(
             "serverless Tokenizer is unspecified".into(),
         )),
     }
+}
+
+fn text_scoring_type_to_grpc(scoring_type: TextScoringType) -> GrpcTextScoringType {
+    match scoring_type {
+        TextScoringType::Bm25 => GrpcTextScoringType::Bm25,
+    }
+}
+
+fn text_scoring_type_from_grpc(
+    scoring_type: GrpcTextScoringType,
+) -> Result<TextScoringType, QdrantError> {
+    match scoring_type {
+        GrpcTextScoringType::Bm25 => Ok(TextScoringType::Bm25),
+        GrpcTextScoringType::Unspecified => Err(QdrantError::ConversionError(
+            "serverless TextScoringType is unspecified".into(),
+        )),
+    }
+}
+
+fn text_scoring_to_grpc(TextScoringParams { r#type }: &TextScoringParams) -> GrpcTextScoringParams {
+    GrpcTextScoringParams {
+        r#type: r#type.map(|t| text_scoring_type_to_grpc(t) as i32),
+    }
+}
+
+fn text_scoring_from_grpc(
+    GrpcTextScoringParams { r#type }: &GrpcTextScoringParams,
+) -> Result<TextScoringParams, QdrantError> {
+    Ok(TextScoringParams {
+        r#type: r#type
+            .map(|t| {
+                text_scoring_type_from_grpc(GrpcTextScoringType::try_from(t).map_err(|_| {
+                    QdrantError::ConversionError(format!("unknown TextScoringType {t}"))
+                })?)
+            })
+            .transpose()?,
+    })
+}
+
+/// `Unspecified` means the status could not be determined. Unknown values (statuses added
+/// later on the server) also read as `None`, so `get_collection` keeps working.
+pub(crate) fn collection_status_from_grpc(status: i32) -> Option<CollectionStatus> {
+    match GrpcCollectionStatus::try_from(status) {
+        Ok(GrpcCollectionStatus::Green) => Some(CollectionStatus::Green),
+        Ok(GrpcCollectionStatus::Yellow) => Some(CollectionStatus::Yellow),
+        Ok(GrpcCollectionStatus::Unspecified) | Err(_) => None,
+    }
+}
+
+pub(crate) fn updates_info_from_grpc(
+    GrpcUpdatesInfo { status }: &GrpcUpdatesInfo,
+) -> Result<UpdatesInfo, QdrantError> {
+    let status = match GrpcUpdatesStatus::try_from(*status) {
+        Ok(GrpcUpdatesStatus::Applied) => UpdatesStatus::Applied,
+        Ok(GrpcUpdatesStatus::Pending) => UpdatesStatus::Pending,
+        Ok(GrpcUpdatesStatus::Unspecified) | Err(_) => {
+            return Err(QdrantError::ConversionError(format!(
+                "unknown or unspecified serverless UpdatesStatus {status}"
+            )))
+        }
+    };
+    Ok(UpdatesInfo { status })
 }
 
 fn stopwords_to_grpc(StopwordsSet { languages, custom }: &StopwordsSet) -> GrpcStopwordsSet {
@@ -210,23 +278,37 @@ pub(crate) fn sparse_vector_from_grpc(
 
 pub(crate) fn payload_index_to_grpc(model: &PayloadIndex) -> PayloadIndexConfig {
     let index = match model {
-        PayloadIndex::Keyword(KeywordIndex { prefix }) => {
+        PayloadIndex::Keyword(KeywordIndex { prefix, nested }) => {
             payload_index_config::Index::Keyword(GrpcKeywordIndex {
                 prefix: prefix
                     .as_ref()
                     .map(|KeywordPrefixParams| GrpcKeywordPrefixParams {}),
+                nested: nested.clone(),
             })
         }
-        PayloadIndex::Integer(IntegerIndex { lookup, range }) => {
-            payload_index_config::Index::Integer(GrpcIntegerIndex {
-                lookup: *lookup,
-                range: *range,
+        PayloadIndex::Integer(IntegerIndex {
+            lookup,
+            range,
+            nested,
+        }) => payload_index_config::Index::Integer(GrpcIntegerIndex {
+            lookup: *lookup,
+            range: *range,
+            nested: nested.clone(),
+        }),
+        PayloadIndex::Float(FloatIndex { nested }) => {
+            payload_index_config::Index::Float(GrpcFloatIndex {
+                nested: nested.clone(),
             })
         }
-        PayloadIndex::Float(FloatIndex) => payload_index_config::Index::Float(GrpcFloatIndex {}),
-        PayloadIndex::Uuid(UuidIndex) => payload_index_config::Index::Uuid(GrpcUuidIndex {}),
-        PayloadIndex::Datetime(DatetimeIndex) => {
-            payload_index_config::Index::Datetime(GrpcDatetimeIndex {})
+        PayloadIndex::Uuid(UuidIndex { nested }) => {
+            payload_index_config::Index::Uuid(GrpcUuidIndex {
+                nested: nested.clone(),
+            })
+        }
+        PayloadIndex::Datetime(DatetimeIndex { nested }) => {
+            payload_index_config::Index::Datetime(GrpcDatetimeIndex {
+                nested: nested.clone(),
+            })
         }
         PayloadIndex::Text(TextIndex {
             tokenizer,
@@ -237,6 +319,8 @@ pub(crate) fn payload_index_to_grpc(model: &PayloadIndex) -> PayloadIndexConfig 
             ascii_folding,
             stopwords,
             stemmer,
+            scoring,
+            nested,
         }) => payload_index_config::Index::Text(GrpcTextIndex {
             tokenizer: tokenizer.map(|t| tokenizer_to_grpc(t) as i32),
             lowercase: *lowercase,
@@ -246,9 +330,17 @@ pub(crate) fn payload_index_to_grpc(model: &PayloadIndex) -> PayloadIndexConfig 
             ascii_folding: *ascii_folding,
             stopwords: stopwords.as_ref().map(stopwords_to_grpc),
             stemmer: stemmer.as_ref().map(stemmer_to_grpc),
+            scoring: scoring.as_ref().map(text_scoring_to_grpc),
+            nested: nested.clone(),
         }),
-        PayloadIndex::Geo(GeoIndex) => payload_index_config::Index::Geo(GrpcGeoIndex {}),
-        PayloadIndex::Bool(BoolIndex) => payload_index_config::Index::Bool(GrpcBoolIndex {}),
+        PayloadIndex::Geo(GeoIndex { nested }) => payload_index_config::Index::Geo(GrpcGeoIndex {
+            nested: nested.clone(),
+        }),
+        PayloadIndex::Bool(BoolIndex { nested }) => {
+            payload_index_config::Index::Bool(GrpcBoolIndex {
+                nested: nested.clone(),
+            })
+        }
     };
     PayloadIndexConfig { index: Some(index) }
 }
@@ -257,27 +349,37 @@ pub(crate) fn payload_index_from_grpc(
     PayloadIndexConfig { index }: &PayloadIndexConfig,
 ) -> Result<PayloadIndex, QdrantError> {
     match index.as_ref() {
-        Some(payload_index_config::Index::Keyword(GrpcKeywordIndex { prefix })) => {
+        Some(payload_index_config::Index::Keyword(GrpcKeywordIndex { prefix, nested })) => {
             Ok(PayloadIndex::Keyword(KeywordIndex {
                 prefix: prefix
                     .as_ref()
                     .map(|GrpcKeywordPrefixParams {}| KeywordPrefixParams),
+                nested: nested.clone(),
             }))
         }
-        Some(payload_index_config::Index::Integer(GrpcIntegerIndex { lookup, range })) => {
-            Ok(PayloadIndex::Integer(IntegerIndex {
-                lookup: *lookup,
-                range: *range,
+        Some(payload_index_config::Index::Integer(GrpcIntegerIndex {
+            lookup,
+            range,
+            nested,
+        })) => Ok(PayloadIndex::Integer(IntegerIndex {
+            lookup: *lookup,
+            range: *range,
+            nested: nested.clone(),
+        })),
+        Some(payload_index_config::Index::Float(GrpcFloatIndex { nested })) => {
+            Ok(PayloadIndex::Float(FloatIndex {
+                nested: nested.clone(),
             }))
         }
-        Some(payload_index_config::Index::Float(GrpcFloatIndex {})) => {
-            Ok(PayloadIndex::Float(FloatIndex))
+        Some(payload_index_config::Index::Uuid(GrpcUuidIndex { nested })) => {
+            Ok(PayloadIndex::Uuid(UuidIndex {
+                nested: nested.clone(),
+            }))
         }
-        Some(payload_index_config::Index::Uuid(GrpcUuidIndex {})) => {
-            Ok(PayloadIndex::Uuid(UuidIndex))
-        }
-        Some(payload_index_config::Index::Datetime(GrpcDatetimeIndex {})) => {
-            Ok(PayloadIndex::Datetime(DatetimeIndex))
+        Some(payload_index_config::Index::Datetime(GrpcDatetimeIndex { nested })) => {
+            Ok(PayloadIndex::Datetime(DatetimeIndex {
+                nested: nested.clone(),
+            }))
         }
         Some(payload_index_config::Index::Text(GrpcTextIndex {
             tokenizer,
@@ -288,6 +390,8 @@ pub(crate) fn payload_index_from_grpc(
             ascii_folding,
             stopwords,
             stemmer,
+            scoring,
+            nested,
         })) => Ok(PayloadIndex::Text(TextIndex {
             tokenizer: tokenizer
                 .map(|t| {
@@ -303,10 +407,18 @@ pub(crate) fn payload_index_from_grpc(
             ascii_folding: *ascii_folding,
             stopwords: stopwords.as_ref().map(stopwords_from_grpc),
             stemmer: stemmer.as_ref().map(stemmer_from_grpc).transpose()?,
+            scoring: scoring.as_ref().map(text_scoring_from_grpc).transpose()?,
+            nested: nested.clone(),
         })),
-        Some(payload_index_config::Index::Geo(GrpcGeoIndex {})) => Ok(PayloadIndex::Geo(GeoIndex)),
-        Some(payload_index_config::Index::Bool(GrpcBoolIndex {})) => {
-            Ok(PayloadIndex::Bool(BoolIndex))
+        Some(payload_index_config::Index::Geo(GrpcGeoIndex { nested })) => {
+            Ok(PayloadIndex::Geo(GeoIndex {
+                nested: nested.clone(),
+            }))
+        }
+        Some(payload_index_config::Index::Bool(GrpcBoolIndex { nested })) => {
+            Ok(PayloadIndex::Bool(BoolIndex {
+                nested: nested.clone(),
+            }))
         }
         None => Err(QdrantError::ConversionError(
             "serverless PayloadIndexConfig has no index variant".into(),
@@ -405,16 +517,22 @@ mod tests {
         assert!(dense.precision_tier.is_none());
         let age = grpc_config.payload_indexes.get("age").unwrap();
         match age.index.as_ref().unwrap() {
-            payload_index_config::Index::Integer(GrpcIntegerIndex { lookup, range }) => {
+            payload_index_config::Index::Integer(GrpcIntegerIndex {
+                lookup,
+                range,
+                nested,
+            }) => {
                 assert!(lookup.is_none());
                 assert!(range.is_none());
+                assert!(nested.is_none());
             }
             other => panic!("expected integer index, got {other:?}"),
         }
         let keyword = grpc_config.payload_indexes.get("user_id").unwrap();
         match keyword.index.as_ref().unwrap() {
-            payload_index_config::Index::Keyword(GrpcKeywordIndex { prefix }) => {
+            payload_index_config::Index::Keyword(GrpcKeywordIndex { prefix, nested }) => {
                 assert!(prefix.is_none());
+                assert!(nested.is_none());
             }
             other => panic!("expected keyword index, got {other:?}"),
         }
@@ -429,6 +547,8 @@ mod tests {
                 ascii_folding,
                 stopwords,
                 stemmer,
+                scoring,
+                nested,
             }) => {
                 assert!(tokenizer.is_none());
                 assert!(lowercase.is_none());
@@ -438,11 +558,108 @@ mod tests {
                 assert!(ascii_folding.is_none());
                 assert!(stopwords.is_none());
                 assert!(stemmer.is_none());
+                assert!(scoring.is_none());
+                assert!(nested.is_none());
             }
             other => panic!("expected text index, got {other:?}"),
         }
 
         let roundtrip = collection_config_from_grpc(&grpc_config).unwrap();
         assert_eq!(roundtrip, config);
+    }
+
+    #[test]
+    fn text_scoring_code_tokenizer_and_nested_roundtrip() {
+        let config = CollectionConfig::new()
+            .payload_index(
+                "default",
+                TextIndex::new().scoring(TextScoringParams::new()),
+            )
+            .payload_index(
+                "offers[].title",
+                TextIndex::new()
+                    .tokenizer(Tokenizer::Code)
+                    .bm25_scoring()
+                    .nested("offers"),
+            )
+            .payload_index("offers[].color", KeywordIndex::new().nested("offers"))
+            .payload_index("offers[].qty", IntegerIndex::new().nested("offers"))
+            .payload_index("offers[].price", FloatIndex::new().nested("offers"))
+            .payload_index("offers[].id", UuidIndex::new().nested("offers"))
+            .payload_index("offers[].at", DatetimeIndex::new().nested("offers"))
+            .payload_index("offers[].location", GeoIndex::new().nested("offers"))
+            .payload_index("offers[].in_stock", BoolIndex::new().nested("offers"));
+
+        let grpc_config = collection_config_to_grpc(&config);
+        match grpc_config.payload_indexes["default"]
+            .index
+            .as_ref()
+            .unwrap()
+        {
+            payload_index_config::Index::Text(text) => {
+                // presence enables scoring; an unset type means BM25
+                assert_eq!(text.scoring, Some(GrpcTextScoringParams { r#type: None }));
+            }
+            other => panic!("expected text index, got {other:?}"),
+        }
+        match grpc_config.payload_indexes["offers[].title"]
+            .index
+            .as_ref()
+            .unwrap()
+        {
+            payload_index_config::Index::Text(text) => {
+                assert_eq!(text.tokenizer, Some(GrpcTokenizer::Code as i32));
+                assert_eq!(
+                    text.scoring,
+                    Some(GrpcTextScoringParams {
+                        r#type: Some(GrpcTextScoringType::Bm25 as i32)
+                    })
+                );
+                assert_eq!(text.nested.as_deref(), Some("offers"));
+            }
+            other => panic!("expected text index, got {other:?}"),
+        }
+
+        let roundtrip = collection_config_from_grpc(&grpc_config).unwrap();
+        assert_eq!(roundtrip, config);
+    }
+
+    #[test]
+    fn collection_status_and_updates_from_grpc() {
+        assert_eq!(
+            collection_status_from_grpc(GrpcCollectionStatus::Green as i32),
+            Some(CollectionStatus::Green)
+        );
+        assert_eq!(
+            collection_status_from_grpc(GrpcCollectionStatus::Yellow as i32),
+            Some(CollectionStatus::Yellow)
+        );
+        assert_eq!(
+            collection_status_from_grpc(GrpcCollectionStatus::Unspecified as i32),
+            None
+        );
+        // a status added later on the server must not break get_collection
+        assert_eq!(collection_status_from_grpc(3), None);
+
+        let pending = GrpcUpdatesInfo {
+            status: GrpcUpdatesStatus::Pending as i32,
+        };
+        assert_eq!(
+            updates_info_from_grpc(&pending).unwrap(),
+            UpdatesInfo {
+                status: UpdatesStatus::Pending
+            }
+        );
+        let applied = GrpcUpdatesInfo {
+            status: GrpcUpdatesStatus::Applied as i32,
+        };
+        assert_eq!(
+            updates_info_from_grpc(&applied).unwrap().status,
+            UpdatesStatus::Applied
+        );
+        let unspecified = GrpcUpdatesInfo {
+            status: GrpcUpdatesStatus::Unspecified as i32,
+        };
+        assert!(updates_info_from_grpc(&unspecified).is_err());
     }
 }

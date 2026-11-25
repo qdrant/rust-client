@@ -27,11 +27,10 @@ import re, sys
 src_path, out_path, header = sys.argv[1], sys.argv[2], sys.argv[3]
 src = open(src_path).read()
 src = re.sub(r'\nimport "buf/validate/validate\.proto";\n', '\n', src)
-src = re.sub(
-    r' \[\(buf\.validate\.field\)\.uint32 = \{\s*gt: 0\s*lte: 100\s*\}\]',
-    '',
-    src,
-)
+# field options, e.g. ` [(buf.validate.field).string.min_len = 1]`, possibly over several lines
+src = re.sub(r' \[\(buf\.validate\.[^\]]*\]', '', src)
+# message and oneof options, e.g. `option (buf.validate.message).cel = {...};`
+src = re.sub(r'^[ \t]*option \(buf\.validate\.[^;]*;\n', '', src, flags=re.M)
 if 'buf.validate' in src:
     raise SystemExit('failed to strip buf.validate annotations from collections.proto')
 open(out_path, 'w').write(header + '\n' + src)

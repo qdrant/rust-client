@@ -25,7 +25,10 @@ use crate::qdrant::{
     UpdatePointVectors, UpsertPoints,
 };
 use crate::qdrant_client::QdrantResult;
-use crate::serverless::conversions::{collection_config_from_grpc, collection_config_to_grpc};
+use crate::serverless::conversions::{
+    collection_config_from_grpc, collection_config_to_grpc, collection_status_from_grpc,
+    updates_info_from_grpc,
+};
 use crate::serverless::grpc::collections_service_client::CollectionsServiceClient;
 use crate::serverless::grpc::{
     CreateCollectionRequest, DeleteCollectionRequest, GetCollectionRequest, ListCollectionsRequest,
@@ -283,6 +286,14 @@ impl QdrantServerless {
                 .map(collection_config_from_grpc)
                 .transpose()?,
             point_count: response.point_count,
+            status: collection_status_from_grpc(response.status),
+            size_bytes: response.size_bytes,
+            indexed_vectors_count: response.indexed_vectors_count,
+            updates: response
+                .updates
+                .as_ref()
+                .map(updates_info_from_grpc)
+                .transpose()?,
             time: response.time,
         })
     }
@@ -336,6 +347,7 @@ impl QdrantServerless {
                     .map(|c| CollectionSummary {
                         collection_name: c.collection_name,
                         point_count: c.point_count,
+                        size_bytes: c.size_bytes,
                     })
                     .collect(),
                 next_offset_token: response.next_offset_token,
