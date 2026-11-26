@@ -47,12 +47,106 @@ impl serde::de::Error for DeserPayloadError {
     }
 }
 
+type MapKeyIter =
+    std::iter::Map<IntoIter<String, Value>, fn((String, Value)) -> (MapKeyDeserializer, Value)>;
+
 impl<'de> IntoDeserializer<'de, DeserPayloadError> for Struct {
-    type Deserializer = MapDeserializer<'de, IntoIter<String, Value>, DeserPayloadError>;
+    type Deserializer = MapDeserializer<'de, MapKeyIter, DeserPayloadError>;
 
     #[inline]
     fn into_deserializer(self) -> Self::Deserializer {
-        MapDeserializer::new(self.fields.into_iter())
+        MapDeserializer::new(
+            self.fields
+                .into_iter()
+                .map(|(key, value)| (MapKeyDeserializer(key), value)),
+        )
+    }
+}
+
+/// Deserializer for payload object keys.
+///
+/// Keys are always strings, so like `serde_json` they are parsed when the
+/// target key type is a number or a bool, e.g. `HashMap<u32, _>`.
+pub struct MapKeyDeserializer(String);
+
+impl<'de> IntoDeserializer<'de, DeserPayloadError> for MapKeyDeserializer {
+    type Deserializer = Self;
+
+    #[inline]
+    fn into_deserializer(self) -> Self::Deserializer {
+        self
+    }
+}
+
+macro_rules! deserialize_parsed_key {
+    ($method:ident,$visitorfn:ident,$ty:ident) => {
+        fn $method<V>(self, visitor: V) -> Result<V::Value, DeserPayloadError>
+        where
+            V: Visitor<'de>,
+        {
+            match self.0.parse::<$ty>() {
+                Ok(key) => visitor.$visitorfn(key),
+                Err(_) => Err(serde::de::Error::invalid_type(
+                    Unexpected::Str(&self.0),
+                    &visitor,
+                )),
+            }
+        }
+    };
+}
+
+impl<'de> Deserializer<'de> for MapKeyDeserializer {
+    type Error = DeserPayloadError;
+
+    fn deserialize_any<V>(self, visitor: V) -> Result<V::Value, Self::Error>
+    where
+        V: Visitor<'de>,
+    {
+        visitor.visit_string(self.0)
+    }
+
+    deserialize_parsed_key!(deserialize_bool, visit_bool, bool);
+    deserialize_parsed_key!(deserialize_i8, visit_i8, i8);
+    deserialize_parsed_key!(deserialize_i16, visit_i16, i16);
+    deserialize_parsed_key!(deserialize_i32, visit_i32, i32);
+    deserialize_parsed_key!(deserialize_i64, visit_i64, i64);
+    deserialize_parsed_key!(deserialize_i128, visit_i128, i128);
+    deserialize_parsed_key!(deserialize_u8, visit_u8, u8);
+    deserialize_parsed_key!(deserialize_u16, visit_u16, u16);
+    deserialize_parsed_key!(deserialize_u32, visit_u32, u32);
+    deserialize_parsed_key!(deserialize_u64, visit_u64, u64);
+    deserialize_parsed_key!(deserialize_u128, visit_u128, u128);
+    deserialize_parsed_key!(deserialize_f32, visit_f32, f32);
+    deserialize_parsed_key!(deserialize_f64, visit_f64, f64);
+
+    fn deserialize_newtype_struct<V>(
+        self,
+        _name: &'static str,
+        visitor: V,
+    ) -> Result<V::Value, Self::Error>
+    where
+        V: Visitor<'de>,
+    {
+        visitor.visit_newtype_struct(self)
+    }
+
+    fn deserialize_enum<V>(
+        self,
+        name: &'static str,
+        variants: &'static [&'static str],
+        visitor: V,
+    ) -> Result<V::Value, Self::Error>
+    where
+        V: Visitor<'de>,
+    {
+        self.0
+            .into_deserializer()
+            .deserialize_enum(name, variants, visitor)
+    }
+
+    serde::forward_to_deserialize_any! {
+        char str string bytes byte_buf option unit unit_struct seq tuple
+        tuple_struct map struct identifier ignored_any
     }
 }
 
@@ -520,6 +614,53 @@ mod test {
         let deserialized_value: S = payload.deserialize().unwrap();
 
         assert_eq!(value, deserialized_value)
+    }
+
+    #[test]
+    fn test_non_string_map_keys() {
+        #[derive(Deserialize, Serialize, Eq, PartialEq, Ord, PartialOrd, Debug)]
+        struct Id(u64);
+
+        #[derive(Deserialize, Serialize, Eq, PartialEq, Ord, PartialOrd, Debug)]
+        enum Color {
+            Red,
+            Blue,
+        }
+
+        #[derive(Deserialize, Serialize, PartialEq, Debug)]
+        struct S {
+            unsigned: HashMap<u32, String>,
+            signed: BTreeMap<i64, bool>,
+            bools: BTreeMap<bool, u8>,
+            newtype: BTreeMap<Id, u8>,
+            enums: BTreeMap<Color, u8>,
+        }
+
+        let value = S {
+            unsigned: HashMap::from([(7, "seven".to_string())]),
+            signed: BTreeMap::from([(-1, true)]),
+            bools: BTreeMap::from([(true, 1)]),
+            newtype: BTreeMap::from([(Id(u64::MAX), 2)]),
+            enums: BTreeMap::from([(Color::Red, 3), (Color::Blue, 4)]),
+        };
+
+        // serde_json stores all keys as strings, e.g. `{"unsigned": {"7": "seven"}}`
+        let json_value = serde_json::to_value(&value).unwrap();
+        let payload: Payload = json_value.try_into().unwrap();
+        let deserialized_value: S = payload.deserialize().unwrap();
+
+        assert_eq!(value, deserialized_value);
+
+        #[derive(Deserialize, Debug)]
+        #[allow(dead_code)]
+        struct Dst {
+            map: HashMap<u8, u8>,
+        }
+
+        // Key out of range for u8
+        let payload = make_payload(json!({"map": {"300": 1}}));
+        let dst: Result<Dst, _> = payload.deserialize();
+        assert!(dst.is_err());
     }
 
     fn make_payload(val: serde_json::Value) -> Payload {
