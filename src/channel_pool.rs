@@ -122,13 +122,14 @@ impl ChannelPool {
             Ok(res) => Ok(res),
             Err(err) => match err.code() {
                 Code::Internal | Code::Unavailable | Code::Cancelled | Code::Unknown => {
-                    if allow_retry {
+                    // A timed out request already used its whole timeout, don't send it again.
+                    if allow_retry && !is_timeout(&err) {
                         // Recreate the channel at the same index when reconnecting.
                         let channel = self.make_channel(channel_index).await?;
                         Ok(f(channel).await?)
                     } else {
-                        // If retries aren't allowed, delete the channel so it will be recreated
-                        // the next time it's used.
+                        // If retries aren't allowed or the request timed out, delete the channel
+                        // so it will be recreated the next time it's used.
                         self.drop_channel(channel_index);
                         Err(err)
                     }
@@ -156,6 +157,12 @@ impl ChannelPool {
     }
 }
 
+/// tonic reports an expired client side timeout as `Code::Cancelled` with a `TimeoutExpired` source.
+fn is_timeout(err: &Status) -> bool {
+    std::iter::successors(std::error::Error::source(err), |e| e.source())
+        .any(|e| e.is::<tonic::TimeoutExpired>())
+}
+
 // The future returned by get_channel needs to be Send so that the client can be
 // used by external async functions.
 #[test]
@@ -177,7 +184,52 @@ fn require_get_channel_fn_to_be_send() {
 
 #[cfg(test)]
 mod test {
+    use std::sync::atomic::Ordering;
+    use std::sync::Arc;
+
+    use tokio::net::TcpListener;
+
     use super::*;
+    use crate::qdrant::qdrant_client::QdrantClient;
+    use crate::qdrant::HealthCheckRequest;
+
+    #[tokio::test]
+    async fn test_timed_out_request_is_not_resent() {
+        // Accept connections but never answer, so every request runs into the timeout
+        let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let uri = format!("http://{}", listener.local_addr().unwrap());
+        let connections = Arc::new(AtomicUsize::new(0));
+        let accepted = connections.clone();
+        tokio::spawn(async move {
+            let mut sockets = Vec::new();
+            while let Ok((socket, _)) = listener.accept().await {
+                accepted.fetch_add(1, Ordering::Relaxed);
+                sockets.push(socket);
+            }
+        });
+
+        let pool = ChannelPool::new(
+            uri.parse().unwrap(),
+            Duration::from_millis(200),
+            Duration::from_secs(1),
+            false,
+            1,
+        );
+        let err = pool
+            .with_channel(
+                |channel| async move {
+                    QdrantClient::new(channel)
+                        .health_check(HealthCheckRequest {})
+                        .await
+                },
+                true,
+            )
+            .await
+            .unwrap_err();
+
+        assert_eq!(err.code(), Code::Cancelled);
+        assert_eq!(connections.load(Ordering::Relaxed), 1);
+    }
 
     #[test]
     fn test_channel_counter() {
